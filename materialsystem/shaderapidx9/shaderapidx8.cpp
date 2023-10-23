@@ -7044,10 +7044,10 @@ void CShaderAPIDx8::SetupTextureGroup( ShaderAPITextureHandle_t hTexture, const 
 #if defined( VPROF_ENABLED ) && !defined( _X360 )
 	char counterName[256];
 	Q_snprintf( counterName, sizeof( counterName ), "TexGroup_global_%s", pTexture->m_TextureGroupName.String() );
-	pTexture->m_pTextureGroupCounterGlobal = g_VProfCurrentProfile.FindOrCreateCounter( counterName, COUNTER_GROUP_TEXTURE_GLOBAL );
+	pTexture->m_pTextureGroupCounterGlobal = 0; // ToDo: Fix it | g_VProfCurrentProfile.FindOrCreateCounter( counterName, COUNTER_GROUP_TEXTURE_GLOBAL );
 
 	Q_snprintf( counterName, sizeof( counterName ), "TexGroup_frame_%s", pTexture->m_TextureGroupName.String() );
-	pTexture->m_pTextureGroupCounterFrame = g_VProfCurrentProfile.FindOrCreateCounter( counterName, COUNTER_GROUP_TEXTURE_PER_FRAME );
+	pTexture->m_pTextureGroupCounterFrame = 0; // ToDo: Fix it | g_VProfCurrentProfile.FindOrCreateCounter( counterName, COUNTER_GROUP_TEXTURE_PER_FRAME );
 #else
 	pTexture->m_pTextureGroupCounterGlobal = NULL;
 	pTexture->m_pTextureGroupCounterFrame  = NULL;

@@ -544,6 +544,20 @@ static void DumpSorted( CVProfile::StreamOut_t outputStream, const tchar *pszHea
 	}
 }
 
+	if ( pNode->GetSibling() )
+	{
+		DumpPMC( pNode->GetSibling(), bPrintHeader, L2thresh, LHSthresh );
+	}
+
+	if ( pNode->GetChild() )
+	{
+		DumpPMC( pNode->GetChild(), bPrintHeader, L2thresh, LHSthresh );
+	}
+}
+#endif
+
+//-------------------------------------
+#ifndef BUILD_GMOD
 void CVProfile::SetOutputStream( StreamOut_t outputStream )
 {
 	if ( outputStream != NULL )
@@ -551,6 +565,7 @@ void CVProfile::SetOutputStream( StreamOut_t outputStream )
 	else
 		m_pOutputStream = Msg;
 }
+#endif
 
 //-------------------------------------
 
@@ -882,12 +897,20 @@ void CVProfile::HideBudgetGroup( int budgetGroupID, bool bHide )
 	}
 }
 
-intp *CVProfile::FindOrCreateCounter( const tchar *pName, CounterGroup_t eCounterGroup )
+#ifdef BUILD_GMOD
+int64 *CVProfile::FindOrCreateCounter( const tchar *pName, CounterGroup_t eCounterGroup )
+#else
+int *CVProfile::FindOrCreateCounter( const tchar *pName, CounterGroup_t eCounterGroup )
+#endif
 {	
 	Assert( m_NumCounters+1 < MAXCOUNTERS );
 	if ( m_NumCounters + 1 >= MAXCOUNTERS || !InTargetThread() )
 	{
-		static intp dummy;
+#ifdef BUILD_GMOD
+		static int64 dummy;
+#else
+		static int dummy;
+#endif
 		return &dummy;
 	}
 	int i;
@@ -931,13 +954,17 @@ const tchar *CVProfile::GetCounterName( int index ) const
 	return m_CounterNames[index];
 }
 
-intp CVProfile::GetCounterValue( int index ) const
+#ifdef BUILD_GMOD
+int64 CVProfile::GetCounterValue( int index ) const
+#else
+int CVProfile::GetCounterValue( int index ) const
+#endif
 {
 	Assert( index >= 0 && index < m_NumCounters );
 	return m_Counters[index];
 }
 
-const tchar *CVProfile::GetCounterNameAndValue( int index, intp &val ) const
+const tchar *CVProfile::GetCounterNameAndValue( int index, long long &val ) const
 {
 	Assert( index >= 0 && index < m_NumCounters );
 	val = m_Counters[index];

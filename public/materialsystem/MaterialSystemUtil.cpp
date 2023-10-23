@@ -63,7 +63,7 @@ void CMaterialReference::Init( const char *pMaterialName, KeyValues *pVMTKeyValu
 
 void CMaterialReference::Init( const char *pMaterialName, const char *pTextureGroupName, KeyValues *pVMTKeyValues )
 {
-	IMaterial *pMaterial = materials->FindProceduralMaterial( pMaterialName, pTextureGroupName, pVMTKeyValues );
+	IMaterial *pMaterial = materials->FindProceduralMaterial( pMaterialName, pTextureGroupName, pVMTKeyValues );// ToDo: CMaterialReference is invalid! fix it
 	Assert( pMaterial );
 	Init( pMaterial );
 }

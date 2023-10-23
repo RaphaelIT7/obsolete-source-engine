@@ -7,10 +7,6 @@
 
 * CMake. Can be [`C++ CMake Tools`](https://learn.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio#installation) component of Visual Studio.
 * [windows] Visual Studio 2022 with v143+ platform toolset.
-
-
-## How to build
-
 * Use `git clone --recurse-submodules`
 * Run `create_<GAME_NAME>_dev_<ARCH>.bat` from `Developer Command Prompt` (Use x64 version for x64 CPU arch). See directory tree for supported games.
 * Open `<GAME_NAME>_<ARCH>.sln`.

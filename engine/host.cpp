@@ -355,7 +355,11 @@ CON_COMMAND( mem_test, "" )
 	MemAlloc_CrtCheckMemory();
 }
 
+#ifdef BUILD_GMOD
+static ConVar host_competitive_ever_enabled( "host_competitive_ever_enabled", "0", FCVAR_HIDDEN, "Has competitive ever been enabled this run?");
+#else
 static ConVar host_competitive_ever_enabled( "host_competitive_ever_enabled", "0", FCVAR_HIDDEN, "Has competitive ever been enabled this run?", true, 0, true, 1, true, 1, false, 1, NULL  );
+#endif
 
 static ConVar mem_test_each_frame( "mem_test_each_frame", "0", 0, "Run heap check at end of every frame\n" );
 static ConVar mem_test_every_n_seconds( "mem_test_every_n_seconds", "0", 0, "Run heap check at a specified interval\n" );

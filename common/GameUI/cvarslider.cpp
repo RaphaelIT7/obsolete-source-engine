@@ -53,6 +53,7 @@ CCvarSlider::CCvarSlider( Panel *parent, const char *panelName, char const *capt
 void CCvarSlider::SetupSlider( float minValue, float maxValue, const char *cvarname, bool bAllowOutOfRange )
 {
 	// make sure min/max don't go outside cvar range if there's one
+#ifndef BUILD_GMOD
 	ConVarRef var( cvarname, true );
 	if ( var.IsValid() )
 	{
@@ -67,6 +68,7 @@ void CCvarSlider::SetupSlider( float minValue, float maxValue, const char *cvarn
 			maxValue = m_bUseConVarMinMax ? flCVarMax : MIN( maxValue, flCVarMax );
 		}
 	}
+#endif
 
 	m_flMinValue = minValue;
 	m_flMaxValue = maxValue;

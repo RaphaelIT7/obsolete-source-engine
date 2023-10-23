@@ -62,7 +62,11 @@ static ConVar mat_tonemapping_occlusion_use_stencil( "mat_tonemapping_occlusion_
 // In GL mode, we currently require mat_dxlevel to be between 90-92
 static ConVar mat_dxlevel( "mat_dxlevel", "92", 0, "", true, 90, true, 92, NULL );
 #else
+#ifdef BUILD_GMOD
+static ConVar mat_dxlevel( "mat_dxlevel", "0", 0, "Current DirectX Level. Competitive play requires at least mat_dxlevel 90", false, 0, false, 0, NULL  );
+#else
 static ConVar mat_dxlevel( "mat_dxlevel", "0", 0, "Current DirectX Level. Competitive play requires at least mat_dxlevel 90", false, 0, false, 0, true, 90, false, 0, NULL  );
+#endif
 #endif
 
 IMaterialInternal *g_pErrorMaterial = NULL;
@@ -474,10 +478,12 @@ void CMaterialSystem::SetShaderAPI( char const *pShaderAPIDLL )
 //-----------------------------------------------------------------------------
 // Checks we using shader.
 //-----------------------------------------------------------------------------
+#ifndef BUILD_GMOD
 bool CMaterialSystem::HasShaderAPI() const
 {
 	return m_ShaderAPIFactory != nullptr;
 }
+#endif
 	
 
 //-----------------------------------------------------------------------------
@@ -4464,6 +4470,7 @@ ITexture *CMaterialSystem::CreateNamedTextureFromBitsEx( const char* pName, cons
 	return tex;
 }
 
+#ifndef BUILD_GMOD
 bool CMaterialSystem::AddTextureCompositorTemplate( const char* pName, KeyValues* pTmplDesc, int /* nTexCompositeTemplateFlags */ )
 {
 	// Flags are currently unused, but added for futureproofing.
@@ -4474,6 +4481,7 @@ bool CMaterialSystem::VerifyTextureCompositorTemplates()
 {
 	return TextureManager()->VerifyTextureCompositorTemplates();
 }
+#endif
 
 
 void CMaterialSystem::BeginRenderTargetAllocation( void )
@@ -4687,7 +4695,9 @@ MaterialLock_t CMaterialSystem::Lock()
 		}
 	}
 
+#ifndef BUILD_GMOD
 	g_pShaderAPI->ShaderLock();
+#endif
 
 	if ( do_report )
 	{
@@ -4719,7 +4729,10 @@ void CMaterialSystem::Unlock( MaterialLock_t hMaterialLock )
 
 	IMatRenderContextInternal *pRenderContext = (IMatRenderContextInternal *)hMaterialLock;
 	m_pRenderContext.Set( pRenderContext );
+
+#ifndef BUILD_GMOD
 	g_pShaderAPI->ShaderUnlock();
+#endif
 
 #ifdef MAT_QUEUE_MODE_PROFILE
 	if ( m_ThreadMode == MATERIAL_QUEUED_SINGLE_THREADED )
@@ -4728,7 +4741,7 @@ void CMaterialSystem::Unlock( MaterialLock_t hMaterialLock )
 	}
 	else 
 #endif
-		if ( m_ThreadMode == MATERIAL_QUEUED_THREADED )
+	if ( m_ThreadMode == MATERIAL_QUEUED_THREADED )
 	{
 		if ( pRenderContext->GetCallQueueInternal() )
 		{

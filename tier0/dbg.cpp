@@ -841,6 +841,7 @@ void SpewActivate( const tchar* pGroupName, int level )
 	s_pSpewGroups[ind].m_Level = level;
 }
 
+#ifndef BUILD_GMOD
 void SpewDeactivate()
 {
 	PvFree( s_pSpewGroups );
@@ -851,6 +852,7 @@ void SpewDeactivate()
 		gi = std::numeric_limits<size_t>::max();
 	}
 }
+#endif
 
 // If we don't have a function from math.h, then it doesn't link certain floating-point
 // functions in and printfs with %f cause runtime errors in the C libraries.

@@ -296,8 +296,9 @@ void CHostState::Init()
 	m_flShortFrameTime = 1.0;
 
 	CCS_Init();
-
+#ifndef BUILD_GMOD
 	Plat_SetWatchdogHandlerFunction( WatchDogHandler );
+#endif
 }
 
 void CHostState::SetState( HOSTSTATES newState, bool clearNext )
@@ -494,14 +495,18 @@ void CHostState::State_Run( float frameTime )
 	}
 	if ( sv.IsDedicated() )
 	{
+#ifndef BUILD_GMOD
 		Plat_BeginWatchdogTimer( nTimerWaitSeconds );
+#endif
 	}
 
 	Host_RunFrame( frameTime );
 
 	if ( sv.IsDedicated() )
 	{
+#ifndef BUILD_GMOD
 		Plat_EndWatchdogTimer();
+#endif
 	}
 
 	switch( m_nextState )

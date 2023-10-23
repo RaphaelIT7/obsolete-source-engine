@@ -316,19 +316,21 @@ public:
 
 	ConVar( const char *pName, const char *pDefaultValue, int flags = 0);
 
-	ConVar( const char *pName, const char *pDefaultValue, int flags, 
-		const char *pHelpString );
-	ConVar( const char *pName, const char *pDefaultValue, int flags, 
-		const char *pHelpString, bool bMin, float fMin, bool bMax, float fMax );
-	ConVar( const char *pName, const char *pDefaultValue, int flags, 
-		const char *pHelpString, FnChangeCallback_t callback );
-	ConVar( const char *pName, const char *pDefaultValue, int flags, 
-		const char *pHelpString, bool bMin, float fMin, bool bMax, float fMax,
-		FnChangeCallback_t callback );
-	ConVar( const char *pName, const char *pDefaultValue, int flags,
-		const char *pHelpString, bool bMin, float fMin, bool bMax, float fMax,
-		bool bCompMin, float fCompMin, bool bCompMax, float fCompMax,
-		FnChangeCallback_t callback );
+								ConVar( const char *pName, const char *pDefaultValue, int flags, 
+									const char *pHelpString );
+								ConVar( const char *pName, const char *pDefaultValue, int flags, 
+									const char *pHelpString, bool bMin, float fMin, bool bMax, float fMax );
+								ConVar( const char *pName, const char *pDefaultValue, int flags, 
+									const char *pHelpString, FnChangeCallback_t callback );
+								ConVar( const char *pName, const char *pDefaultValue, int flags, 
+									const char *pHelpString, bool bMin, float fMin, bool bMax, float fMax,
+									FnChangeCallback_t callback );
+#ifndef BUILD_GMOD
+								ConVar( const char *pName, const char *pDefaultValue, int flags,
+									const char *pHelpString, bool bMin, float fMin, bool bMax, float fMax,
+									bool bCompMin, float fCompMin, bool bCompMax, float fCompMax,
+									FnChangeCallback_t callback );
+#endif
 
 
 
@@ -369,28 +371,40 @@ public:
 
 	// dimhotepus: Comment till shader_dx9 is fixed.
 	// True if it has a min/max competitive setting
+#ifndef BUILD_GMOD
 	/*bool						GetCompMin( float& minVal ) const;
 	bool						GetCompMax( float& maxVal ) const;
 
 	FORCEINLINE_CVAR bool		IsCompetitiveRestricted() const;
 	bool						SetCompetitiveMode( bool bCompetitive );*/
+#endif
 
 private:
 	// Called by CCvar when the value of a var is changing.
 	virtual void				InternalSetValue(const char *value);
 	// For CVARs marked FCVAR_NEVER_AS_STRING
+#ifdef BUILD_GMOD
+	virtual void				InternalSetFloatValue( float fNewValue );
+#else
 	virtual void				InternalSetFloatValue( float fNewValue, bool bForce = false );
+#endif
 	virtual void				InternalSetIntValue( int nValue );
 
 	virtual bool				ClampValue( float& value );
 	virtual void				ChangeStringValue( const char *tempVal, float flOldValue );
 
-	void						Create( const char *pName, const char *pDefaultValue, int flags = 0,
-									const char *pHelpString = nullptr, bool bMin = false, float fMin = 0.0,
+#ifdef BUILD_GMOD
+	virtual void				Create( const char *pName, const char *pDefaultValue, int flags = 0,
+									const char *pHelpString = 0, bool bMin = false, float fMin = 0.0,
+									bool bMax = false, float fMax = false, FnChangeCallback_t callback = 0 );
+#else
+	virtual void				Create( const char *pName, const char *pDefaultValue, int flags = 0,
+									const char *pHelpString = 0, bool bMin = false, float fMin = 0.0,
 									bool bMax = false, float fMax = 0.0, 
 									bool bCompMin = false, float fCompMin = 0.0, 
 									bool bCompMax = false, float fCompMax = 0.0,
-									FnChangeCallback_t callback = nullptr );
+									FnChangeCallback_t callback = 0 );
+#endif
 
 
 	// Used internally by OneTimeInit to initialize.
@@ -423,16 +437,19 @@ private:
 
 	// dimhotepus: Comment till shader_dx9 is fixed.
 	// Min/Max values for competitive.
+#ifndef BUILD_GMOD
 	/*bool						m_bHasCompMin;
 	float						m_fCompMinVal;
 	bool						m_bHasCompMax;
 	float						m_fCompMaxVal;
 
 	bool						m_bCompetitiveRestrictions;*/
+#endif
 
 	
 	// Call this function when ConVar changes
 	FnChangeCallback_t			m_fnChangeCallback;
+	CUtlString m_unknown;
 };
 
 
@@ -472,6 +489,7 @@ FORCEINLINE_CVAR const char *ConVar::GetString( void ) const
 // Output : bool
 //-----------------------------------------------------------------------------
 // dimhotepus: Comment till shader_dx9 is fixed.
+#ifndef BUILD_GMOD
 //FORCEINLINE_CVAR bool ConVar::IsCompetitiveRestricted() const
 //{
 //	const int nFlags = m_pParent->m_nFlags;
@@ -482,6 +500,7 @@ FORCEINLINE_CVAR const char *ConVar::GetString( void ) const
 //
 //	return bHasCompSettings || !( bClientCanAdjust || bInternalUseOnly );
 //}
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -505,129 +524,98 @@ public:
 	bool GetBool() const { return !!GetInt(); }
 	const char *GetString( void ) const;
 	// True if it has a min/max setting
+#ifndef BUILD_GMOD
 	bool GetMin( float& minVal ) const;
 	bool GetMax( float& maxVal ) const;
-
-	void SetValue( const char *pValue );
-	void SetValue( float flValue );
-	void SetValue( int nValue );
-	void SetValue( bool bValue );
-
-	const char *GetName() const;
-
-	const char *GetDefault() const;
-
+#endif
+        void SetValue( const char *pValue );
+        void SetValue( float flValue );
+        void SetValue( int nValue );
+        void SetValue( bool bValue );
+        const char *GetName() const;
+        const char *GetDefault() const;
 private:
-	// High-speed method to read convar data
-	IConVar *m_pConVar;
-	ConVar *m_pConVarState;
+        // High-speed method to read convar data
+        IConVar *m_pConVar;
+        ConVar *m_pConVarState;
 };
-
-
 //-----------------------------------------------------------------------------
 // Did we find an existing convar of that name?
 //-----------------------------------------------------------------------------
 FORCEINLINE_CVAR bool ConVarRef::IsFlagSet( int nFlags ) const
 {
-	return ( m_pConVar->IsFlagSet( nFlags ) != 0 );
+        return ( m_pConVar->IsFlagSet( nFlags ) != 0 );
 }
-
 FORCEINLINE_CVAR IConVar *ConVarRef::GetLinkedConVar()
 {
-	return m_pConVar;
+        return m_pConVar;
 }
-
 FORCEINLINE_CVAR const char *ConVarRef::GetName() const
 {
-	return m_pConVar->GetName();
+        return m_pConVar->GetName();
 }
-
-
 //-----------------------------------------------------------------------------
 // Purpose: Return ConVar value as a float
 //-----------------------------------------------------------------------------
 FORCEINLINE_CVAR float ConVarRef::GetFloat( void ) const
 {
-	return m_pConVarState->m_fValue;
+        return m_pConVarState->m_fValue;
 }
-
 //-----------------------------------------------------------------------------
 // Purpose: Return ConVar value as an int
 //-----------------------------------------------------------------------------
-FORCEINLINE_CVAR int ConVarRef::GetInt( void ) const 
+FORCEINLINE_CVAR int ConVarRef::GetInt( void ) const
 {
-	return m_pConVarState->m_nValue;
+        return m_pConVarState->m_nValue;
 }
-
 //-----------------------------------------------------------------------------
 // Purpose: Return ConVar value as a string, return "" for bogus string pointer, etc.
 //-----------------------------------------------------------------------------
-FORCEINLINE_CVAR const char *ConVarRef::GetString( void ) const 
+FORCEINLINE_CVAR const char *ConVarRef::GetString( void ) const
 {
-	Assert( !IsFlagSet( FCVAR_NEVER_AS_STRING ) );
-	return m_pConVarState->m_pszString;
+        Assert( !IsFlagSet( FCVAR_NEVER_AS_STRING ) );
+        return m_pConVarState->m_pszString;
 }
-
-FORCEINLINE_CVAR bool ConVarRef::GetMin( float& minVal ) const
-{
-	return m_pConVarState->GetMin( minVal );
-}
-
-FORCEINLINE_CVAR bool ConVarRef::GetMax( float& maxVal ) const
-{
-	return m_pConVarState->GetMax( maxVal );
-}
-
 FORCEINLINE_CVAR void ConVarRef::SetValue( const char *pValue )
 {
-	m_pConVar->SetValue( pValue );
+        m_pConVar->SetValue( pValue );
 }
-
 FORCEINLINE_CVAR void ConVarRef::SetValue( float flValue )
 {
-	m_pConVar->SetValue( flValue );
+        m_pConVar->SetValue( flValue );
 }
-
 FORCEINLINE_CVAR void ConVarRef::SetValue( int nValue )
 {
-	m_pConVar->SetValue( nValue );
+        m_pConVar->SetValue( nValue );
 }
-
 FORCEINLINE_CVAR void ConVarRef::SetValue( bool bValue )
 {
-	m_pConVar->SetValue( bValue ? 1 : 0 );
+        m_pConVar->SetValue( bValue ? 1 : 0 );
 }
-
 FORCEINLINE_CVAR const char *ConVarRef::GetDefault() const
 {
-	return m_pConVarState->m_pszDefaultValue;
+        return m_pConVarState->m_pszDefaultValue;
 }
-
-
 //-----------------------------------------------------------------------------
 // Called by the framework to register ConCommands with the ICVar
 //-----------------------------------------------------------------------------
 void ConVar_Register( int nCVarFlag = 0, IConCommandBaseAccessor *pAccessor = nullptr );
 void ConVar_Unregister( );
-
-
 //-----------------------------------------------------------------------------
-// Utility methods 
+// Utility methods
 //-----------------------------------------------------------------------------
 void ConVar_PrintFlags( const ConCommandBase *var );
 void ConVar_PrintDescription( const ConCommandBase *pVar );
-
-
 //-----------------------------------------------------------------------------
 // Purpose: Utility class to quickly allow ConCommands to call member methods
 //-----------------------------------------------------------------------------
+#pragma warning (disable : 4355 )
 template< class T >
 class CConCommandMemberAccessor : public ConCommand, public ICommandCallback, public ICommandCompletionCallback
 {
-	typedef ConCommand BaseClass;
-	typedef void ( T::*FnMemberCommandCallback_t )( const CCommand &command );
-	typedef int  ( T::*FnMemberCommandCompletionCallback_t )( const char *pPartial, CUtlVector< CUtlString > &commands );
-
+        typedef ConCommand BaseClass;
+        typedef void ( T::*FnMemberCommandCallback_t )( const CCommand &command );
+        typedef int  ( T::*FnMemberCommandCompletionCallback_t )( const char *pPartial, CUtlVector< CUtlString > &commands );
 public:
 	CConCommandMemberAccessor( T* pOwner, const char *pName, FnMemberCommandCallback_t callback, const char *pHelpString = nullptr,
 		int flags = 0, FnMemberCommandCompletionCallback_t completionFunc = nullptr ) :
@@ -661,12 +649,11 @@ public:
 	}
 
 private:
-	T* m_pOwner;
-	FnMemberCommandCallback_t m_Func;
-	FnMemberCommandCompletionCallback_t m_CompletionFunc;
+        T* m_pOwner;
+        FnMemberCommandCallback_t m_Func;
+        FnMemberCommandCompletionCallback_t m_CompletionFunc;
 };
-
-
+#pragma warning ( default : 4355 )
 //-----------------------------------------------------------------------------
 // Purpose: Utility macros to quicky generate a simple console command
 //-----------------------------------------------------------------------------
@@ -681,20 +668,17 @@ private:
    static void name( [[maybe_unused]] const CCommand &args )
 
 #define CON_COMMAND_F_COMPLETION( name, description, flags, completion ) \
-	static void name( const CCommand &args ); \
-	static ConCommand name##_command( #name, name, description, flags, completion ); \
-	static void name( const CCommand &args )
-
+        static void name( const CCommand &args ); \
+        static ConCommand name##_command( #name, name, description, flags, completion ); \
+        static void name( const CCommand &args )
 #define CON_COMMAND_EXTERN( name, _funcname, description ) \
-	void _funcname( const CCommand &args ); \
-	static ConCommand name##_command( #name, _funcname, description ); \
-	void _funcname( const CCommand &args )
-
+        void _funcname( const CCommand &args ); \
+        static ConCommand name##_command( #name, _funcname, description ); \
+        void _funcname( const CCommand &args )
 #define CON_COMMAND_EXTERN_F( name, _funcname, description, flags ) \
-	void _funcname( const CCommand &args ); \
-	static ConCommand name##_command( #name, _funcname, description, flags ); \
-	void _funcname( const CCommand &args )
-
+        void _funcname( const CCommand &args ); \
+        static ConCommand name##_command( #name, _funcname, description, flags ); \
+        void _funcname( const CCommand &args )
 #define CON_COMMAND_MEMBER_F( _thisclass, name, _funcname, description, flags ) \
 	void _funcname( const CCommand &args );						\
 	friend class CCommandMemberInitializer_##_funcname;			\

@@ -70,7 +70,11 @@ typedef uint64 VertexFormat_t;
 // V081 - 10/25/2016 - Added new Suspend/Resume texture streaming interfaces. Might also have added more calls here due
 //                     to the streaming work that didn't get bumped, but we're not guarding versions on the TF branch
 //                     very judiciously since we need to audit them when merging to SDK branch either way.
+#ifdef BUILD_GMOD
+#define MATERIAL_SYSTEM_INTERFACE_VERSION "VMaterialSystem080"
+#else
 #define MATERIAL_SYSTEM_INTERFACE_VERSION "VMaterialSystem081"
+#endif
 
 #ifdef POSIX
 #define ABSOLUTE_MINIMUM_DXLEVEL 90
@@ -818,8 +822,10 @@ public:
 
 	// Stop attempting to stream in textures in response to usage.  Useful for phases such as loading or other explicit
 	// operations that shouldn't take usage of textures as a signal to stream them in at full rez.
+#ifndef BUILD_GMOD
 	virtual void				SuspendTextureStreaming( ) = 0;
 	virtual void				ResumeTextureStreaming( ) = 0;
+#endif
 
 	// uncache all materials. .  good for forcing reload of materials.
 	virtual void				UncacheAllMaterials( ) = 0;
@@ -1099,12 +1105,14 @@ public:
 	virtual ITexture*			CreateNamedTextureFromBitsEx( const char* pName, const char *pTextureGroupName, int w, int h, int mips, ImageFormat fmt, int srcBufferSize, byte* srcBits, int nFlags ) = 0;
 
 	// Creates a texture compositor template for use in later code. 
+#ifndef BUILD_GMOD
 	virtual bool				AddTextureCompositorTemplate( const char* pName, KeyValues* pTmplDesc, int nTexCompositeTemplateFlags = 0 ) = 0;
 
 	// Performs final verification of all compositor templates (after they've all been initially loaded).
 	virtual bool				VerifyTextureCompositorTemplates( ) = 0;
 
 	virtual bool				HasShaderAPI() const = 0;
+#endif
 };
 
 

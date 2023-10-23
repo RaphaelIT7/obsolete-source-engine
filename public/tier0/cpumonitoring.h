@@ -1,7 +1,8 @@
 // Copyright Valve Corporation, All rights reserved.
 
-#ifndef TIER0_CPU_MONITORING_H_
-#define TIER0_CPU_MONITORING_H_
+#ifndef BUILD_GMOD
+#ifndef CPU_MONITORING_H
+#define CPU_MONITORING_H
 
 /*
 This header defines functions and structures for controlling the measurement of CPU frequency
@@ -32,4 +33,5 @@ PLATFORM_INTERFACE void SetCPUMonitoringInterval( unsigned nDelayMilliseconds );
 constexpr int kCPUMonitoringWarning1 = 80;
 constexpr int kCPUMonitoringWarning2 = 50;
 
-#endif  // TIER0_CPU_MONITORING_H_
+#endif
+#endif

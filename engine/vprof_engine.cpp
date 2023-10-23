@@ -237,7 +237,7 @@ void PreUpdateProfile( float filteredtime )
 			if( g_VProfCurrentProfile.GetCounterGroup( i ) != ( nCounterType - 1 ) )
 				continue;
 			const char *pName;
-			intp val;
+			long long val;
 			pName = g_VProfCurrentProfile.GetCounterNameAndValue( i, val );
 			Con_NPrintf( nprintIndex, "%s = %d\n", pName, val );
 			nprintIndex++;
@@ -380,7 +380,7 @@ DEFERRED_CON_COMMAND( vprof, "Toggle VProf profiler" )
 	}
 }
 
-#ifdef	ETW_MARKS_ENABLED
+#if defined(ETW_MARKS_ENABLED) && !defined(BUILD_GMOD)
 CON_COMMAND( vprof_vtrace, "Toggle whether vprof data is sent to VTrace" )
 {
 	if ( g_fVprofToVTrace )

@@ -1,52 +1,53 @@
 [submodule "thirdparty/SDL"]
 	path = thirdparty/SDL
-	url = git@github.com:Source-Authors/SDL.git
+	url = https://github.com/Source-Authors/SDL.git
 [submodule "thirdparty/stb"]
 	path = thirdparty/stb
-	url = git@github.com:Source-Authors/stb.git
+	url = https://github.com/Source-Authors/stb.git
 [submodule "thirdparty/DirectXMath"]
 	path = thirdparty/DirectXMath
-	url = git@github.com:Source-Authors/DirectXMath.git
+	url = https://github.com/Source-Authors/DirectXMath.git
 [submodule "thirdparty/zlib"]
 	path = thirdparty/zlib
-	url = git@github.com:Source-Authors/zlib.git
+	url = https://github.com/Source-Authors/zlib.git
 [submodule "thirdparty/libpng"]
 	path = thirdparty/libpng
-	url = git@github.com:Source-Authors/libpng.git
+	url = https://github.com/Source-Authors/libpng.git
 [submodule "thirdparty/libjpeg-turbo"]
 	path = thirdparty/libjpeg-turbo
-	url = git@github.com:Source-Authors/libjpeg-turbo.git
+	url = https://github.com/Source-Authors/libjpeg-turbo.git
 [submodule "thirdparty/openvr"]
 	path = thirdparty/openvr
-	url = git@github.com:Source-Authors/openvr.git
+	url = https://github.com/Source-Authors/openvr.git
 	branch = 061cf411ee1125fe4b7cdf3837451a1c6a32a3c8
 [submodule "thirdparty/protobuf"]
 	path = thirdparty/protobuf
-	url = git@github.com:Source-Authors/protobuf.git
+	url = https://github.com/Source-Authors/protobuf.git
+	branch = v2.6.2
 [submodule "thirdparty/bzip2"]
 	path = thirdparty/bzip2
-	url = git@github.com:Source-Authors/bzip2.git
+	url = https://github.com/Source-Authors/bzip2.git
 [submodule "thirdparty/cryptopp"]
 	path = thirdparty/cryptopp
-	url = git@github.com:Source-Authors/cryptopp.git
+	url = https://github.com/Source-Authors/cryptopp.git
 [submodule "ivp"]
 	path = ivp
-	url = git@github.com:Source-Authors/source-physics.git
+	url = https://github.com/Source-Authors/source-physics.git
 [submodule "thirdparty/snappy"]
 	path = thirdparty/snappy
-	url = git@github.com:Source-Authors/snappy.git
+	url = https://github.com/Source-Authors/snappy.git
 [submodule "external/vpc"]
 	path = external/vpc
-	url = git@github.com:Source-Authors/vpc.git
+	url = https://github.com/Source-Authors/vpc.git
 [submodule "thirdparty/mpaheaderinfo"]
 	path = thirdparty/mpaheaderinfo
-	url = git@github.com:Source-Authors/mpaheaderInfo.git
+	url = https://github.com/Source-Authors/mpaheaderInfo.git
 [submodule "thirdparty/minimp3"]
 	path = thirdparty/minimp3
-	url = git@github.com:Source-Authors/minimp3.git
+	url = https://github.com/Source-Authors/minimp3.git
 [submodule "thirdparty/celt"]
 	path = thirdparty/celt
-	url = git@github.com:Source-Authors/celt.git
+	url = https://github.com/Source-Authors/celt.git
 [submodule "thirdparty/speex"]
 	path = thirdparty/speex
-	url = git@github.com:Source-Authors/speex.git
+	url = https://github.com/Source-Authors/speex.git

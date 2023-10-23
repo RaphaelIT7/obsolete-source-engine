@@ -2736,12 +2736,14 @@ void CTextureManager::WarmTextureCache()
 	// Disable cache for osx/linux for now.
 	if ( CommandLine()->CheckParm( "-no_texture_stream" ) )
 		return;
+#ifndef BUILD_GMOD
 	MemoryInformation memInfo;
 	if ( GetMemoryInformation( &memInfo ) )
 	{
 		if ( memInfo.m_nPhysicalRamMbTotal <= 3584 )
 			return;
 	}
+#endif
 
 	COM_TimestampedLog( "WarmTextureCache() - Begin" );
 

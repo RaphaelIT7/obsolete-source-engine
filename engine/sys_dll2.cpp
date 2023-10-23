@@ -433,12 +433,14 @@ public:
 			//  never ever reach (currently our minidump supports 32 of these.)
 			for( int i = 0; i < 4096; i++ )
 			{
+#ifndef BUILD_GMOD
 				const char *pUserStreamInfo = MinidumpUserStreamInfoGet( i );
 				if( !pUserStreamInfo )
 					break;
 
 				if ( pUserStreamInfo[ 0 ] )
 					CommentPrintf( "%s", pUserStreamInfo );
+#endif
 			}
 
 			bool bExtendedSpew = sys_minidumpexpandedspew.GetBool();
@@ -873,7 +875,9 @@ static eSteamInfoInit Sys_TryInitSteamInfo( [[maybe_unused]] void *pvAPI, SteamI
 	}
 #endif // NO_STEAM
 
+#ifndef BUILD_GMOD
 	MinidumpUserStreamInfoSetHeader( "%sLaunching \"%s\"\n", ( bDedicated ? "DedicatedServerAPI " : "" ), CommandLine()->GetCmdLine() );
+#endif
 
 
 	return initState;
@@ -1008,6 +1012,7 @@ bool CEngineAPI::Connect( CreateInterfaceFn factory )
 #endif
 	
 	ConnectMDLCacheNotify();
+
 
 	return true; 
 }
