@@ -887,6 +887,7 @@ void CNetGraphPanel::DrawTextFields( int graphvalue, int x, int y, int w, netban
 	}
 	else
 	{
+#ifndef BUILD_GMOD
 		const CPUFrequencyResults frequency = GetCPUFrequencyResults();
 		double currentTime = Plat_FloatTime();
 		const double displayTime = 5.0f; // Display frequency results for this long.
@@ -913,6 +914,7 @@ void CNetGraphPanel::DrawTextFields( int graphvalue, int x, int y, int w, netban
 			g_pMatSystemSurface->DrawColoredText( font, x, y, cpuColor[0], cpuColor[1], cpuColor[2], cpuColor[3],
 						"CPU freq: %3.1f%%   Min: %3.1f%%", frequency.m_percentage, frequency.m_lowestPercentage );
 		}
+#endif
 	}
 }
 

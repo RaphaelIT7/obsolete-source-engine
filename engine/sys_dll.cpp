@@ -979,7 +979,9 @@ void Sys_ShutdownGame( void )
 	SpewOutputFunc( nullptr );
 
 	// dimhotepus: Free spew memory, etc.
+#ifndef BUILD_GMOD
 	SpewDeactivate();
+#endif
 }
 
 //

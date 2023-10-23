@@ -1204,11 +1204,13 @@ void CMatRenderContext::Flush( bool flushHardware )
 {
 	VPROF( "CMatRenderContextBase::Flush" );
 
+#ifndef BUILD_GMOD
 	g_pShaderAPI->FlushBufferedPrimitives();
 	if ( IsPC() && flushHardware )
 	{
 		g_pShaderAPI->FlushBufferedPrimitives();
 	}
+#endif
 }
 
 bool CMatRenderContext::TestMatrixSync( MaterialMatrixMode_t mode )

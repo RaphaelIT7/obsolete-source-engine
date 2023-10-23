@@ -16,9 +16,11 @@ public:
 	virtual const char	*GetCmdLine( void ) const = 0;
 
 	// Check whether a particular parameter exists
-	virtual	const char	*CheckParm( const char *psz, const char **ppszValue = nullptr ) const = 0;
+	virtual	const char	*CheckParm( const char *psz, const char **ppszValue = 0 ) const = 0;
+#ifndef BUILD_GMOD
 	// A bool return of whether param exists, useful for just checking if param that is just a flag is set
 	virtual bool		HasParm( const char *psz ) const = 0;
+#endif
 	virtual void		RemoveParm( const char *parm ) = 0;
 	virtual void		AppendParm( const char *pszParm, const char *pszValues ) = 0;
 

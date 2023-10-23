@@ -619,6 +619,7 @@ public:
 	virtual void LockRect( void** pOutBits, int* pOutPitch, ShaderAPITextureHandle_t texHandle, int mipmap, int x, int y, int w, int h, bool bWrite, bool bRead ) = 0;
 	virtual void UnlockRect( ShaderAPITextureHandle_t texHandle, int mipmap ) = 0;
 
+#ifndef BUILD_GMOD
 	// Set the finest mipmap that can be used for the texture which is currently being modified. 
 	virtual void TexLodClamp( int finest ) = 0;
 
@@ -626,7 +627,7 @@ public:
 	virtual void TexLodBias( float bias ) = 0;
 	
 	virtual void CopyTextureToTexture( ShaderAPITextureHandle_t srcTex, ShaderAPITextureHandle_t dstTex ) = 0;
-	
+#endif
 };
 
 

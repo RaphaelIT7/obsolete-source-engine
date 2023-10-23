@@ -58,7 +58,7 @@ struct PanelKeyBindingMap;
 template< class T >
 inline T *SETUP_PANEL(T *panel)
 {
-	panel->MakeReadyForUse();
+	//panel->MakeReadyForUse(); ToDo: Fix this crash
 	return panel;
 }
 

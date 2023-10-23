@@ -659,19 +659,28 @@ ConVar::ConVar( const char *pName, const char *pDefaultValue, int flags, const c
 
 ConVar::ConVar( const char *pName, const char *pDefaultValue, int flags, const char *pHelpString, FnChangeCallback_t callback )
 {
+#ifdef BUILD_GMOD
+	Create( pName, pDefaultValue, flags, pHelpString, false, 0.0, false, 0.0, callback );
+#else
 	Create( pName, pDefaultValue, flags, pHelpString, false, 0.0, false, 0.0, false, 0.0, false, 0.0, callback );
+#endif
 }
 
 ConVar::ConVar( const char *pName, const char *pDefaultValue, int flags, const char *pHelpString, bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t callback )
 {
+#ifdef BUILD_GMOD
+	Create( pName, pDefaultValue, flags, pHelpString, bMin, fMin, bMax, fMax, callback );
+#else
 	Create( pName, pDefaultValue, flags, pHelpString, bMin, fMin, bMax, fMax, false, 0.0, false, 0.0, callback );
+#endif
 }
 
+#ifndef BUILD_GMOD
 ConVar::ConVar( const char *pName, const char *pDefaultValue, int flags, const char *pHelpString, bool bMin, float fMin, bool bMax, float fMax, bool bCompMin, float fCompMin, bool bCompMax, float fCompMax, FnChangeCallback_t callback )
 {
 	Create( pName, pDefaultValue, flags, pHelpString, bMin, fMin, bMax, fMax, bCompMin, fCompMin, bCompMax, fCompMax, callback );
 }
-
+#endif
 
 //-----------------------------------------------------------------------------
 // Destructor
@@ -891,8 +900,16 @@ bool ConVar::ClampValue( float& value )
 // Purpose: 
 // Input  : *value - 
 //-----------------------------------------------------------------------------
-void ConVar::InternalSetFloatValue( float fNewValue, bool bForce /*= false */ )
+#ifdef BUILD_GMOD
+void ConVar::InternalSetFloatValue( float fNewValue )
+#else
+void ConVar::InternalSetFloatValue( float fNewValue, bool bForce /*= false*/ )
+#endif
 {
+#ifdef BUILD_GMOD
+	bool bForce = false;
+#endif
+
 	if ( fNewValue == m_fValue && !bForce )
 		return;
 
@@ -975,11 +992,17 @@ void ConVar::InternalSetIntValue( int nValue )
 //-----------------------------------------------------------------------------
 // Purpose: Private creation
 //-----------------------------------------------------------------------------
+#ifdef BUILD_GMOD
+void ConVar::Create( const char *pName, const char *pDefaultValue, int flags,
+	const char *pHelpString, bool bMin, float fMin,
+	bool bMax, float fMax, FnChangeCallback_t callback )
+#else
 void ConVar::Create( const char *pName, const char *pDefaultValue, int flags /*= 0*/,
 	const char *pHelpString /*= NULL*/, bool bMin /*= false*/, float fMin /*= 0.0*/,
 	bool bMax /*= false*/, float fMax /*= false*/, [[maybe_unused]] bool bCompMin /*= false */, 
 	[[maybe_unused]] float fCompMin /*= 0.0*/, [[maybe_unused]] bool bCompMax /*= false*/, [[maybe_unused]] float fCompMax /*= 0.0*/,
 	FnChangeCallback_t callback /*= NULL*/ )
+#endif
 {
 	m_pParent = this;
 
