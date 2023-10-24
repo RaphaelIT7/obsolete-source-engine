@@ -483,10 +483,11 @@ public:
 	const tchar *GetCounterName( int index ) const;
 #ifdef BUILD_GMOD
 	int64 GetCounterValue( int index ) const;
+	const tchar *GetCounterNameAndValue( int index, long long &val ) const;
 #else
 	int GetCounterValue( int index ) const;
+	const tchar *GetCounterNameAndValue( int index, int &val ) const;
 #endif
-	const tchar *GetCounterNameAndValue( int index, long long &val ) const;
 	CounterGroup_t GetCounterGroup( int index ) const;
 
 	// Performance monitoring events.
