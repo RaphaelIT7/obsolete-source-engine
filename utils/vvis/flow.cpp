@@ -118,24 +118,27 @@ winding_t	*ChopWinding (winding_t *in, pstack_t *stack, plane_t *split)
 	int		i, j;
 	Vector	mid;
 	winding_t	*neww;
+	int side, next_side;
 
 	counts[0] = counts[1] = counts[2] = 0;
 
 // determine sides for each point
 	for (i=0 ; i<in->numpoints ; i++)
 	{
-		dot = DotProduct (in->points[i], split->normal);
-		dot -= split->dist;
+		//dot = DotProduct (in->points[i], split->normal);
+		//dot -= split->dist;
+		dot = DotProduct(in->points[i], split->normal) - split->dist;
 		dists[i] = dot;
 		if (dot > ON_VIS_EPSILON)
-			sides[i] = SIDE_FRONT;
+			side = SIDE_FRONT;
 		else if (dot < -ON_VIS_EPSILON)
-			sides[i] = SIDE_BACK;
+			side = SIDE_BACK;
 		else
 		{
-			sides[i] = SIDE_ON;
+			side = SIDE_ON;
 		}
-		counts[sides[i]]++;
+		counts[side]++;
+		sides[i] = side;
 	}
 
 	if (!counts[1])
@@ -164,20 +167,22 @@ winding_t	*ChopWinding (winding_t *in, pstack_t *stack, plane_t *split)
 			return in;		// can't chop -- fall back to original
 		}
 
-		if (sides[i] == SIDE_ON)
+		side = sides[i];
+		if (side == SIDE_ON)
 		{
 			VectorCopy (p1, neww->points[neww->numpoints]);
 			neww->numpoints++;
 			continue;
 		}
 	
-		if (sides[i] == SIDE_FRONT)
+		if (side == SIDE_FRONT)
 		{
 			VectorCopy (p1, neww->points[neww->numpoints]);
 			neww->numpoints++;
 		}
 		
-		if (sides[i+1] == SIDE_ON || sides[i+1] == sides[i])
+		next_side = sides[i+1];
+		if (next_side == SIDE_ON || next_side == side)
 			continue;
 			
 		if (neww->numpoints == MAX_POINTS_ON_FIXED_WINDING)
@@ -235,19 +240,22 @@ winding_t	*ClipToSeperators (winding_t *source, winding_t *pass, winding_t *targ
 	vec_t		length;
 	int			counts[3];
 	bool		fliptest;
+	Vector point, j_point;
 
 // check all combinations	
 	for (i=0 ; i<source->numpoints ; i++)
 	{
 		l = (i+1)%source->numpoints;
-		VectorSubtract (source->points[l] , source->points[i], v1);
+		point = source->points[i];
+		VectorSubtract (source->points[l] , point, v1);
 
 	// fing a vertex of pass that makes a plane that puts all of the
 	// vertexes of pass on the front side and all of the vertexes of
 	// source on the back side
 		for (j=0 ; j<pass->numpoints ; j++)
 		{
-			VectorSubtract (pass->points[j], source->points[i], v2);
+			j_point = pass->points[j];
+			VectorSubtract (j_point, point, v2);
 
 			plane.normal[0] = v1[1]*v2[2] - v1[2]*v2[1];
 			plane.normal[1] = v1[2]*v2[0] - v1[0]*v2[2];
@@ -268,7 +276,7 @@ winding_t	*ClipToSeperators (winding_t *source, winding_t *pass, winding_t *targ
 			plane.normal[1] *= length;
 			plane.normal[2] *= length;
 
-			plane.dist = DotProduct (pass->points[j], plane.normal);
+			plane.dist = DotProduct (j_point, plane.normal);
 
 		//
 		// find out which side of the generated seperating plane has the
@@ -474,8 +482,9 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 	plane_t		backplane;
 	leaf_t 		*leaf;
 	int			i, j;
-	long		*test, *might, *vis, more;
+	long		*test, *might, *vis, more, *mightsee;
 	int			pnum;
+	byte		*b_mightsee, *portalvis;
 
 	// Early-out if we're a VMPI worker that's told to exit. If we don't do this here, then the
 	// worker might spin its wheels for a while on an expensive work unit and not be available to the pool.
@@ -498,17 +507,19 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 	stack.leaf = leaf;
 	stack.portal = NULL;
 
+	mightsee = (long *)prevstack->mightsee;
 	might = (long *)stack.mightsee;
 	vis = (long *)thread->base->portalvis;
+
+	b_mightsee = prevstack->mightsee;
+	portalvis = thread->base->portalvis;
 	
 	// check all portals for flowing into other leafs	
-	for (i=0 ; i<leaf->portals.Count() ; i++)
+	for (const auto &p : leaf->portals)
 	{
-
-		p = leaf->portals[i];
 		pnum = p - portals;
 
-		if ( ! (prevstack->mightsee[pnum >> 3] & (1<<(pnum&7)) ) )
+		if ( ! (b_mightsee[pnum >> 3] & (1<<(pnum&7)) ) )
 		{
 			continue;	// can't possibly see it
 		}
@@ -526,11 +537,11 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 		more = 0;
 		for (j=0 ; j<portallongs ; j++)
 		{
-			might[j] = ((long *)prevstack->mightsee)[j] & test[j];
+			might[j] = (mightsee)[j] & test[j];
 			more |= (might[j] & ~vis[j]);
 		}
 		
-		if ( !more && CheckBit( thread->base->portalvis, pnum ) )
+		if ( !more && CheckBit( portalvis, pnum ) )
 		{	// can't see anything new
 			continue;
 		}
@@ -586,7 +597,7 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 		{	// the second leaf can only be blocked if coplanar
 
 			// mark the portal as visible
-			SetBit( thread->base->portalvis, pnum );
+			SetBit( portalvis, pnum );
 
 			RecursiveLeafFlow (p->leaf, thread, &stack);
 			continue;
@@ -677,18 +688,20 @@ void SimpleFlood (portal_t *srcportal, int leafnum)
 	int		pnum;
 
 	leaf = &leafs[leafnum];
+
+	byte* portalfront = srcportal->portalfront;
+	byte* portalflood = srcportal->portalflood;
 	
-	for (i=0 ; i<leaf->portals.Count(); i++)
+	for (const auto &p : leaf->portals)
 	{
-		p = leaf->portals[i];
 		pnum = p - portals;
-		if ( !CheckBit( srcportal->portalfront, pnum ) )
+		if ( !CheckBit( portalfront, pnum ) )
 			continue;
 
-		if ( CheckBit( srcportal->portalflood, pnum ) )
+		if ( CheckBit( portalflood, pnum ) )
 			continue;
 
-		SetBit( srcportal->portalflood, pnum );
+		SetBit( portalflood, pnum );
 		
 		SimpleFlood (srcportal, p->leaf);
 	}

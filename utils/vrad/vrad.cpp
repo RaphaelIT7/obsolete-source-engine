@@ -126,6 +126,11 @@ bool        g_bDisablePropSelfShadowing = false;
 
 CUtlVector<byte> g_FacesVisibleToLights;
 
+#ifdef EMBREE
+//RTCDevice g_device = nullptr;
+//RTCScene g_scene = nullptr;
+#endif
+
 RayTracingEnvironment g_RtEnv;
 
 dface_t *g_pFaces=0;
@@ -2355,6 +2360,11 @@ void VRAD_Finish()
 	Msg( "%s elapsed\n", str );
 
 	ReleasePakFileLumps();
+
+#ifdef EMBREE
+	rtcReleaseScene(g_scene);
+	rtcReleaseDevice(g_device);
+#endif
 }
 
 
@@ -2365,7 +2375,10 @@ void VRAD_Init()
 	MathLib_Init( 2.2f, 2.2f, 0.0f, 2.0f, false, false, false, false );
 	InstallAllocationFunctions();
 	InstallSpewFunction();
-	SpewActivate( "developer", 1 );
+#ifdef EMBREE
+	g_device = rtcNewDevice(nullptr);
+	g_scene = rtcNewScene(g_device);
+#endif
 }
 
 

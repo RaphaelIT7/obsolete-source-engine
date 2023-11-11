@@ -148,6 +148,49 @@ public:
 	}
 };
 
+#ifdef EMBREE
+void TestLine(const FourVectors& start, const FourVectors& stop, fltx4* pFractionVisible, int static_prop_index_to_ignore)
+{
+    RTCRayHit rayhit; // Initialize RTCRayHit structure
+
+    // Set ray origin and direction
+    rayhit.ray.org_x = start.x.m128_f32[1];
+    rayhit.ray.org_y = start.y.m128_f32[1];
+    rayhit.ray.org_z = start.z.m128_f32[1];
+    rayhit.ray.dir_x = stop.x.m128_f32[1] - start.x.m128_f32[1];
+    rayhit.ray.dir_y = stop.y.m128_f32[1] - start.y.m128_f32[1];
+    rayhit.ray.dir_z = stop.z.m128_f32[1] - start.z.m128_f32[1];
+    
+    // Set other ray properties
+    rayhit.ray.tnear = 0.0f;
+    rayhit.ray.tfar = 1.0f;
+    rayhit.ray.mask = 0xFFFFFFFF;  // Ray mask is enabled by default in Embree 4.x
+    rayhit.ray.flags = 0;
+
+    // Set hit structure properties
+    rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
+    rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
+
+    // Perform ray intersection with Embree scene
+    rtcIntersect1(g_scene, &rayhit);
+
+    // Assume we can see the targets unless we get hits
+	//CCoverageCountTexture coverageCallback;
+
+    float visibility[4];
+    for (int i = 0; i < 4; i++) {
+        visibility[i] = 1.0f;
+        if (rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID) {
+            // Handle intersection using the provided callback
+            //if (coverageCallback.GetFractionVisible())
+                visibility[i] = 0.0f;
+        }
+    }
+
+    *pFractionVisible = LoadUnalignedSIMD(visibility);
+}
+
+#else
 void TestLine( const FourVectors& start, const FourVectors& stop,
                fltx4 *pFractionVisible, int static_prop_index_to_ignore )
 {
@@ -178,7 +221,7 @@ void TestLine( const FourVectors& start, const FourVectors& stop,
 	if ( g_bTextureShadows )
 		*pFractionVisible = MinSIMD( *pFractionVisible, coverageCallback.GetFractionVisible() );
 }
-
+#endif
 
 
 /*
@@ -349,6 +392,61 @@ void DM_ClipBoxToBrush( CToolTrace *trace, const Vector& mins, const Vector& max
 	}
 }
 
+#ifdef EMBREE
+void TestLine_DoesHitSky(const FourVectors& start, const FourVectors& stop, fltx4* pFractionVisible, bool canRecurse, int static_prop_to_skip, bool bDoDebug)
+{
+    RTCRayHit rayhit; // Initialize RTCRayHit structure
+
+    // Set ray origin and direction
+    rayhit.ray.org_x = start.x.m128_f32[1];
+    rayhit.ray.org_y = start.y.m128_f32[1];
+    rayhit.ray.org_z = start.z.m128_f32[1];
+    rayhit.ray.dir_x = stop.x.m128_f32[1] - start.x.m128_f32[1];
+    rayhit.ray.dir_y = stop.y.m128_f32[1] - start.y.m128_f32[1];
+    rayhit.ray.dir_z = stop.z.m128_f32[1] - start.z.m128_f32[1];
+    rayhit.ray.tnear = 0.0f;
+    rayhit.ray.tfar = MAX_TRACE_LENGTH; // Set maximum trace length
+    rayhit.ray.mask = 0xFFFFFFFF; // Ray mask is enabled by default in Embree 4.x
+    rayhit.ray.flags = 0;
+
+    // Set hit structure properties
+    rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
+    rayhit.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
+
+    // Perform ray intersection with Embree scene
+    rtcIntersect1(g_scene, &rayhit);
+
+    float aOcclusion[4];
+    for (int i = 0; i < 4; i++) {
+        aOcclusion[i] = 0.0f;
+        if (rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID && rayhit.ray.tfar < MAX_TRACE_LENGTH) {
+            int id = rayhit.hit.geomID;
+            // Handle specific geometry filtering (e.g., skipping static props)
+            // Add your filtering logic here as needed
+            if (!(id & static_prop_to_skip)) {
+                aOcclusion[i] = 1.0f;
+            }
+        }
+    }
+
+    fltx4 occlusion = LoadUnalignedSIMD(aOcclusion);
+
+    // Handle occlusion using Embree hits (occlusion values are either 0 or 1)
+    occlusion = MaxSIMD(occlusion, Four_Zeros);
+    occlusion = MinSIMD(occlusion, Four_Ones);
+
+    // Recursion for sky cameras
+    if (!FullyOccluded(occlusion) && canRecurse && !g_bNoSkyRecurse) {
+        // Add logic here for recursion into sky cameras if needed
+        // You might need to modify the parameters based on your implementation
+        // TestLine_DoesHitSky(new_start, new_stop, &occlusion, canRecurse, static_prop_to_skip, bDoDebug, scene);
+        // Update occlusion and *pFractionVisible accordingly after recursion
+    }
+
+    *pFractionVisible = SubSIMD(Four_Ones, occlusion);
+}
+
+#else
 void TestLine_DoesHitSky( FourVectors const& start, FourVectors const& stop,
 	fltx4 *pFractionVisible, bool canRecurse, int static_prop_to_skip, bool bDoDebug )
 {
@@ -427,8 +525,7 @@ void TestLine_DoesHitSky( FourVectors const& start, FourVectors const& stop,
 	occlusion = MinSIMD( occlusion, Four_Ones );
 	*pFractionVisible = SubSIMD( Four_Ones, occlusion );
 }
-
-
+#endif
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -647,7 +744,25 @@ void AddBrushesForRayTrace( void )
 		{
 			Vector fullCoverage;
 			fullCoverage.x = 1.0f;
+#ifdef EMBREE
+			float vertices[9];
+			int indices[3] = {0, 1, 2};
+
+			for (int k = 0; k < 3; ++k) {
+				vertices[k * 3] = points[j - 2 + k].x;
+				vertices[k * 3 + 1] = points[j - 2 + k].y;
+				vertices[k * 3 + 2] = points[j - 2 + k].z;
+			}
+
+			RTCGeometry mesh = rtcNewGeometry(g_device, RTC_GEOMETRY_TYPE_TRIANGLE);
+			rtcSetSharedGeometryBuffer(mesh, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT3, vertices, 0, sizeof(float) * 3, 3);
+			rtcSetSharedGeometryBuffer(mesh, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3, indices, 0, sizeof(int) * 3, 1);
+			rtcCommitGeometry(mesh);
+			rtcAttachGeometry(g_scene, mesh);
+			rtcCommitScene(g_scene);
+#else
 			g_RtEnv.AddTriangle ( TRACE_ID_SKY, points[0], points[j - 1], points[j], fullCoverage );
+#endif
 		}
 	}
 }
