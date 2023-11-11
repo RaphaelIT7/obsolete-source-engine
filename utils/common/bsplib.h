@@ -320,7 +320,7 @@ int		IntForKeyWithDefault(entity_t *ent, char *key, int nDefault );
 vec_t	FloatForKey (entity_t *ent, char *key);
 vec_t	FloatForKeyWithDefault (entity_t *ent, char *key, float default_value);
 void 	GetVectorForKey (entity_t *ent, char *key, Vector& vec);
-void 	GetVector2DForKey (entity_t *ent, char *key, Vector2D& vec);
+//void 	GetVector2DForKey (entity_t *ent, char *key, Vector2D& vec);
 void 	GetAnglesForKey (entity_t *ent, char *key, QAngle& vec);
 epair_t *ParseEpair (void);
 void StripTrailing (char *e);

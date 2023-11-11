@@ -120,6 +120,10 @@ extern int g_TraceClusterStart, g_TraceClusterStop;
 
 int CountBits (byte *bits, int numbits);
 
-#define CheckBit( bitstring, bitNumber )	( (bitstring)[ ((bitNumber) >> 3) ] & ( 1 << ( (bitNumber) & 7 ) ) )
-#define SetBit( bitstring, bitNumber )	( (bitstring)[ ((bitNumber) >> 3) ] |= ( 1 << ( (bitNumber) & 7 ) ) )
+//#define CheckBit( bitstring, bitNumber )	( (bitstring)[ ((bitNumber) >> 3) ] & ( 1 << ( (bitNumber) & 7 ) ) )
+//#define SetBit( bitstring, bitNumber )	( (bitstring)[ ((bitNumber) >> 3) ] |= ( 1 << ( (bitNumber) & 7 ) ) )
 #define ClearBit( bitstring, bitNumber )	( (bitstring)[ ((bitNumber) >> 3) ] &= ~( 1 << ( (bitNumber) & 7 ) ) )
+
+// Optimized CheckBit and SetBit macro
+#define CheckBit(bitstring, bitNumber) (((bitstring)[(bitNumber) >> 3] >> ((bitNumber) & 7)) & 1)
+#define SetBit(bitstring, bitNumber) ((bitstring)[(bitNumber) >> 3] |= (1 << ((bitNumber) & 7)))

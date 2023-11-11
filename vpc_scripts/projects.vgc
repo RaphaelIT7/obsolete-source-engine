@@ -63,15 +63,15 @@ $Project "bugreporter_public"
 	"utils\bugreporter_public\bugreporter_public.vpc" [$WINDOWS||$POSIX]
 }
 
-$Project "bugreporter_text"
-{
-	"utils\bugreporter_text\bugreporter_text.vpc" [$WINDOWS]
-}
+//$Project "bugreporter_text"
+//{
+//	"utils\bugreporter_text\bugreporter_text.vpc" [$WIN32]
+//}
 
-$Project "bugreporter_filequeue"
-{
-	"utils\bugreporter_filequeue\bugreporter_filequeue.vpc" [$WINDOWS||$POSIX]
-}
+//$Project "bugreporter_filequeue"
+//{
+//	"utils\bugreporter_filequeue\bugreporter_filequeue.vpc" [$WINDOWS||$POSIX]
+//}
 
 // dimhotepus: Thirdparty.
 //$Project "bzip2"
@@ -340,6 +340,10 @@ $Project "glview"
 	"utils\glview\glview.vpc" [$WINDOWS]
 }
 
+//$Project "hammer_dll"
+//{
+//	"hammer\hammer_dll.vpc" [$WIN32]
+//}
 $Project "hammer_dll"
 {
 	"hammer\hammer_dll.vpc" [$WINDOWS]
@@ -383,11 +387,6 @@ $Project "hk_math"
 $Project "particles"
 {
 	"particles\particles.vpc"
-}
-
-$Project "sdktoolslib"
-{
-	"sdktools/sdktoolslib/sdktoolslib.vpc"
 }
 
 $Project "server"
@@ -462,21 +461,6 @@ $Project "inputtest"
 $Project "ivp_compactbuilder"
 {
 	"ivp\ivp_compact_builder\ivp_compactbuilder.vpc" [$WINDOWS||$POSIX]
-}
-
-$Project "itemtest_com"
-{
-	"utils\itemtest\itemtest_com.vpc"
-}
-
-$Project "itemtest_controls"
-{
-	"utils\itemtest_controls\itemtest_controls.vpc"
-}
-
-$Project "itemtest_lib"
-{
-	"utils\itemtest_lib\itemtest_lib.vpc"
 }
 
 $Project "ivp_physics"
@@ -1214,11 +1198,6 @@ $Project "vconfig"
 $Project "vcrtrace"
 {
 	"utils\vcrtrace\vcrtrace.vpc" [$WINDOWS]
-}
-
-$Project "video_bink"
-{
-	"video\video_bink.vpc" [($WINDOWS||$LINUX)]
 }
 
 $Project "video_quicktime"

@@ -1194,21 +1194,58 @@ int RunVVis( int argc, char **argv )
 	// don't write out results when simply doing a trace
 	if ( g_TraceClusterStart < 0 )
 	{
-		CalcVis ();
-		CalcPAS ();
+		double vis_start, vis_end;
+		vis_start = Plat_FloatTime();
+		CalcVis();
+		vis_end = Plat_FloatTime();
+
+		double pas_start, pas_end;
+		pas_start = Plat_FloatTime();
+		CalcPAS();
+		pas_end = Plat_FloatTime();
 
 		// We need a mapping from cluster to leaves, since the PVS
 		// deals with clusters for both CalcVisibleFogVolumes and
+		double BuildClusterTable_start, BuildClusterTable_end;
+		BuildClusterTable_start = Plat_FloatTime();
 		BuildClusterTable();
+		BuildClusterTable_end = Plat_FloatTime();
 
+		double CalcVisibleFogVolumes_start, CalcVisibleFogVolumes_end;
+		CalcVisibleFogVolumes_start = Plat_FloatTime();
 		CalcVisibleFogVolumes();
+		CalcVisibleFogVolumes_end = Plat_FloatTime();
+
+		double CalcDistanceFromLeavesToWater_start, CalcDistanceFromLeavesToWater_end;
+		CalcDistanceFromLeavesToWater_start = Plat_FloatTime();
 		CalcDistanceFromLeavesToWater();
+		CalcDistanceFromLeavesToWater_end = Plat_FloatTime();
 
 		visdatasize = vismap_p - dvisdata;
 		Msg ("visdatasize:%i  compressed from %i\n", visdatasize, originalvismapsize*2);
 
 		Msg ("writing %s\n", mapFile);
 		WriteBSPFile (mapFile);
+
+		char vis_str[512];
+		GetHourMinuteSecondsString( (int)( vis_end - vis_start ), vis_str, sizeof( vis_str ) );
+		Msg( "Time spent on CalcVis: %s\n", vis_str );
+
+		char pas_str[512];
+		GetHourMinuteSecondsString( (int)( pas_end - pas_start ), pas_str, sizeof( pas_str ) );
+		Msg( "Time spent on CalcPAS: %s\n", pas_str );
+
+		char BuildClusterTable_str[512];
+		GetHourMinuteSecondsString( (int)( BuildClusterTable_end - BuildClusterTable_start ), BuildClusterTable_str, sizeof( BuildClusterTable_str ) );
+		Msg( "Time spent on BuildClusterTable: %s\n", BuildClusterTable_str );
+
+		char CalcVisibleFogVolumes_str[512];
+		GetHourMinuteSecondsString( (int)( CalcVisibleFogVolumes_end - CalcVisibleFogVolumes_start ), CalcVisibleFogVolumes_str, sizeof( CalcVisibleFogVolumes_str ) );
+		Msg( "Time spent on CalcVisibleFogVolumes: %s\n", CalcVisibleFogVolumes_str );
+
+		char CalcDistanceFromLeavesToWater_str[512];
+		GetHourMinuteSecondsString( (int)( CalcDistanceFromLeavesToWater_end - CalcDistanceFromLeavesToWater_start ), CalcDistanceFromLeavesToWater_str, sizeof( CalcDistanceFromLeavesToWater_str ) );
+		Msg( "Time spent on CalcDistanceFromLeavesToWater: %s\n", CalcDistanceFromLeavesToWater_str );
 	}
 	else
 	{

@@ -126,6 +126,20 @@ $Project "vrad_dll"
 			$File	"..\vmpi\vmpi_filesystem.h"
 		}
 
+		$Folder	"Embree Header Files"
+		{
+			$File	"embree4\rtcore.h"
+			$File	"embree4\rtcore_buffer.h"
+			$File	"embree4\rtcore_builder.h"
+			$File	"embree4\rtcore_common.h"
+			$File	"embree4\rtcore_config.h"
+			$File	"embree4\rtcore_device.h"
+			$File	"embree4\rtcore_geometry.h"
+			$File	"embree4\rtcore_quaternion.h"
+			$File	"embree4\rtcore_ray.h"
+			$File	"embree4\rtcore_scene.h"
+		}
+
 		$Folder	"Public Header Files"
 		{
 			$File	"$SRCDIR\public\mathlib\ANORMS.H"
@@ -219,6 +233,7 @@ $Project "vrad_dll"
 		$Lib vmpi
 		$Lib vtf
 		$Lib "$LIBCOMMON/lzma"
+		$Lib "embree4\embree4"
 	}
 
 	$File	"notes.txt"
