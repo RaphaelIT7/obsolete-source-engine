@@ -964,7 +964,11 @@ int CVProfile::GetCounterValue( int index ) const
 	return m_Counters[index];
 }
 
+#ifdef BUILD_GMOD
 const tchar *CVProfile::GetCounterNameAndValue( int index, long long &val ) const
+#else
+const tchar *CVProfile::GetCounterNameAndValue( int index, int &val ) const
+#endif
 {
 	Assert( index >= 0 && index < m_NumCounters );
 	val = m_Counters[index];
