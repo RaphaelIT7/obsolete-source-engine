@@ -455,6 +455,17 @@ void CSteam3Server::OnLogonSuccess( SteamServersConnected_t *pLogonSuccess )
 			WarningAndLog( "Assigned Steam ID %s, which is of an unexpected type!\n", m_SteamIDGS.Render() );
 			AssertMsg( false, "Unexpected steam ID type!" );
 		}
+
+		if (CommandLine()->FindParm("-p2p"))
+		{
+			ConMsg("\n------------------------ ");
+			ConColorMsg(Color(249, 241, 165), "Steam P2P");
+			ConMsg(" ------------------------\n");
+
+			ConMsg("Run the following command in a client's console to connect:\n");
+			ConMsg("    `connect p2p:%llu`\n", (long long)0); // ToDo: Finish this!
+			ConMsg("-----------------------------------------------------------\n");
+		}
 	}
 	else
 	{
