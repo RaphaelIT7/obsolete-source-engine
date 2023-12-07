@@ -3,6 +3,15 @@
 [![Build](https://github.com/Source-Authors/Obsoletium/actions/workflows/build.yml/badge.svg)](https://github.com/Source-Authors/Obsoletium/actions/workflows/build.yml)
 [![GitHub Repo Size in Bytes](https://img.shields.io/github/repo-size/Source-Authors/Obsoletium.svg)](https://github.com/Source-Authors/Obsoletium)
 
+List of currently working dlls:
+- datacache.dll
+- icudt.dll (IDK what it even does xd)
+- icudt42.dll (IDK what it even does xd)
+- vstdlist.dll (only with `-noasync`)
+- vvis_dll.dll (~40% faster than Gmod's version. Compile it in Release for the Performance)
+- vvis.exe
+- vrad.exe
+
 ## Prerequisites
 
 * CMake. Can be [`C++ CMake Tools`](https://learn.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio#installation) component of Visual Studio.
