@@ -65,7 +65,7 @@ jobs:
           script: |
             cd ${{env.PROJECT_PATH}}
             mv /var/www/uploads/repo.zip ./
-            unzip -q repo.zip
+            unzip -q -o repo.zip
 
       - name: Prepare Gmod
         uses: appleboy/ssh-action@v0.1.10
