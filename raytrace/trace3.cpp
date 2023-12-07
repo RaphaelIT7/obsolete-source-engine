@@ -41,13 +41,13 @@ void RayTracingEnvironment::AddBSPFace(int id,dface_t const &face)
 		printf("id %d flags=%x\n",id,tx->flags);
 	}
 	printf("side: ");
-	for(int v=0;v<face.numedges;v++)
+	for(int v=0;v<face.numedges;++v)
 	{
 		printf("(%f %f %f) ",XYZ(VertCoord(face,v)));
 	}
 	printf("\n");
 	int ntris=face.numedges-2;
-	for(int tri=0;tri<ntris;tri++)
+	for(int tri=0;tri<ntris;++tri)
 	{
 		
 		AddTriangle(id,VertCoord(face,0),VertCoord(face,(tri+1)%face.numedges),
@@ -116,7 +116,7 @@ void RayTracingEnvironment::InitializeFromLoadedBSP(void)
 // 		dface_t const &f=dorigfaces[c];
 // 		AddBSPFace(c,dorigfaces[c]);
 // 	}
-	for(int c=0;c<numfaces;c++)
+	for(int c=0;c<numfaces;++c)
 	{
 //		dface_t const &f=dfaces[c];
 		AddBSPFace(c,dorigfaces[c]);

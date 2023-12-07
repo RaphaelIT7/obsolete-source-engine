@@ -35,7 +35,7 @@ int CountBits (byte *bits, int numbits)
 	int		c;
 
 	c = 0;
-	for (i=0 ; i<numbits ; i++)
+	for (i=0 ; i<numbits ; ++i)
 		if ( CheckBit( bits, i ) )
 			c++;
 
@@ -74,7 +74,7 @@ winding_t *AllocStackWinding (pstack_t *stack)
 {
 	int		i;
 
-	for (i=0 ; i<3 ; i++)
+	for (i=0 ; i<3 ; ++i)
 	{
 		if (stack->freewindings[i])
 		{
@@ -123,7 +123,7 @@ winding_t	*ChopWinding (winding_t *in, pstack_t *stack, plane_t *split)
 	counts[0] = counts[1] = counts[2] = 0;
 
 // determine sides for each point
-	for (i=0 ; i<in->numpoints ; i++)
+	for (i=0 ; i<in->numpoints ; ++i)
 	{
 		//dot = DotProduct (in->points[i], split->normal);
 		//dot -= split->dist;
@@ -137,7 +137,7 @@ winding_t	*ChopWinding (winding_t *in, pstack_t *stack, plane_t *split)
 		{
 			side = SIDE_ON;
 		}
-		counts[side]++;
+		++counts[side];
 		sides[i] = side;
 	}
 
@@ -157,7 +157,7 @@ winding_t	*ChopWinding (winding_t *in, pstack_t *stack, plane_t *split)
 
 	neww->numpoints = 0;
 
-	for (i=0 ; i<in->numpoints ; i++)
+	for (i=0 ; i<in->numpoints ; ++i)
 	{
 		Vector& p1 = in->points[i];
 
@@ -171,14 +171,14 @@ winding_t	*ChopWinding (winding_t *in, pstack_t *stack, plane_t *split)
 		if (side == SIDE_ON)
 		{
 			VectorCopy (p1, neww->points[neww->numpoints]);
-			neww->numpoints++;
+			++neww->numpoints;
 			continue;
 		}
 	
 		if (side == SIDE_FRONT)
 		{
 			VectorCopy (p1, neww->points[neww->numpoints]);
-			neww->numpoints++;
+			++neww->numpoints;
 		}
 		
 		next_side = sides[i+1];
@@ -195,7 +195,7 @@ winding_t	*ChopWinding (winding_t *in, pstack_t *stack, plane_t *split)
 		Vector& p2 = in->points[(i+1)%in->numpoints];
 		
 		dot = dists[i] / (dists[i]-dists[i+1]);
-		for (j=0 ; j<3 ; j++)
+		for (j=0 ; j<3 ; ++j)
 		{	// avoid round off error when possible
 			switch ((int)split->normal[j])
 			{
@@ -217,7 +217,7 @@ winding_t	*ChopWinding (winding_t *in, pstack_t *stack, plane_t *split)
 		}
 			
 		VectorCopy (mid, neww->points[neww->numpoints]);
-		neww->numpoints++;
+		++neww->numpoints;
 	}
 	
 // free the original winding
@@ -341,9 +341,9 @@ winding_t	*ClipToSeperators (winding_t *source, winding_t *pass, winding_t *targ
 				if (d < -ON_VIS_EPSILON)
 					break;
 				else if (d > ON_VIS_EPSILON)
-					counts[0]++;
+					++counts[0];
 				else
-					counts[2]++;
+					++counts[2];
 			}
 			if (k != pass->numpoints)
 				continue;	// points on negative side, not a seperating plane
@@ -398,7 +398,7 @@ void WindingCenter (winding_t *w, Vector &center)
 	float	scale;
 
 	VectorCopy (vec3_origin, center);
-	for (i=0 ; i<w->numpoints ; i++)
+	for (i=0 ; i<w->numpoints ; ++i)
 		VectorAdd (w->points[i], center, center);
 
 	scale = 1.0/w->numpoints;
@@ -410,10 +410,10 @@ Vector ClusterCenter( int cluster )
 	Vector mins, maxs;
 	ClearBounds(mins, maxs);
 	int count = leafs[cluster].portals.Count();
-	for ( int i = 0; i < count; i++ )
+	for ( int i = 0; i < count; ++i )
 	{
 		winding_t *w = leafs[cluster].portals[i]->winding;
-		for ( int j = 0; j < w->numpoints; j++ )
+		for ( int j = 0; j < w->numpoints; ++j )
 		{
 			AddPointToBounds( w->points[j], mins, maxs );
 		}
@@ -437,12 +437,12 @@ void DumpPortalTrace( pstack_t *pStack )
 		winding_t *w = pStack->pass ? pStack->pass : pStack->portal->winding;
 		WindingCenter (w, mid);
 		g_PortalTrace.m_list.AddToTail(mid);
-		for ( int i = 0; i < w->numpoints; i++ )
+		for ( int i = 0; i < w->numpoints; ++i )
 		{
 			g_PortalTrace.m_list.AddToTail(w->points[i]);
 			g_PortalTrace.m_list.AddToTail(mid);
 		}
-		for ( int i = 0; i < w->numpoints; i++ )
+		for ( int i = 0; i < w->numpoints; ++i )
 		{
 			g_PortalTrace.m_list.AddToTail(w->points[i]);
 		}
@@ -470,7 +470,7 @@ void WritePortalTrace( const char *source )
 	if (!linefile)
 		Error ("Couldn't open %s\n", filename);
 
-	for ( int i = 0; i < g_PortalTrace.m_list.Count(); i++ )
+	for ( int i = 0; i < g_PortalTrace.m_list.Count(); ++i )
 	{
 		Vector p = g_PortalTrace.m_list[i];
 		fprintf (linefile, "%f %f %f\n", p[0], p[1], p[2]);
@@ -509,7 +509,7 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 		DumpPortalTrace(&thread->pstack_head);
 		return;
 	}
-	thread->c_chains++;
+	++thread->c_chains;
 
 	leaf = &leafs[leafnum];
 
@@ -547,7 +547,7 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 		}
 
 		more = 0;
-		for (j=0 ; j<portallongs ; j++)
+		for (j=0 ; j<portallongs ; ++j)
 		{
 			might_val = (mightsee)[j] & test[j];
 			might[j] = might_val;
@@ -658,7 +658,7 @@ void PortalFlow (int iThread, int portalnum)
 	data.pstack_head.portal = p;
 	data.pstack_head.source = p->winding;
 	data.pstack_head.portalplane = p->plane;
-	for (i=0 ; i<portallongs ; i++)
+	for (i=0 ; i<portallongs ; ++i)
 		((long *)data.pstack_head.mightsee)[i] = ((long *)p->portalflood)[i];
 
 	RecursiveLeafFlow (p->leaf, &data, &data.pstack_head);
@@ -747,7 +747,7 @@ void BasePortalVis (int iThread, int portalnum)
 	//
 	// test the given portal against all of the portals in the map
 	//
-	for (j=0, tp = portals ; j<g_numportals*2 ; j++, tp++)
+	for (j=0, tp = portals ; j<g_numportals*2 ; ++j, ++tp)
 	{
 		// don't test against itself
 		if (j == portalnum)
@@ -770,7 +770,7 @@ void BasePortalVis (int iThread, int portalnum)
 		//
 		//
 		w = p->winding;
-		for (k=0 ; k<w->numpoints ; k++)
+		for (k=0 ; k<w->numpoints ; ++k)
 		{
 			d = DotProduct (w->points[k], tp->plane.normal) - tp->plane.dist;
 			if (d < -ON_VIS_EPSILON)
@@ -787,7 +787,7 @@ void BasePortalVis (int iThread, int portalnum)
 		{
 			w = tp->winding;
 			minDist2 = 1024000000.0;			// 32000^2
-			for( k = 0; k < w->numpoints; k++ )
+			for( k = 0; k < w->numpoints; ++k )
 			{
 				VectorSubtract( w->points[k], p->origin, segment );
 				dist2 = ( segment[0] * segment[0] ) + ( segment[1] * segment[1] ) + ( segment[2] * segment[2] );
@@ -846,7 +846,7 @@ void RecursiveLeafBitFlow (int leafnum, byte *mightsee, byte *cansee)
 	leaf = &leafs[leafnum];
 	
 // check all portals for flowing into other leafs	
-	for (i=0 ; i<leaf->portals.Count(); i++)
+	for (i=0 ; i<leaf->portals.Count(); ++i)
 	{
 		p = leaf->portals[i];
 		pnum = p - portals;
@@ -857,7 +857,7 @@ void RecursiveLeafBitFlow (int leafnum, byte *mightsee, byte *cansee)
 
 		// if this portal can see some portals we mightsee, recurse
 		more = 0;
-		for (j=0 ; j<portallongs ; j++)
+		for (j=0 ; j<portallongs ; ++j)
 		{
 			((long *)newmight)[j] = ((long *)mightsee)[j] 
 				& ((long *)p->portalflood)[j];
