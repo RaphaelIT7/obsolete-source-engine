@@ -166,8 +166,9 @@ public:
 private:
 	void	DeleteFrameSnapshot( CFrameSnapshot* pSnapshot );
 
-	CUtlLinkedList<CFrameSnapshot*, int>		m_FrameSnapshots;
-	CClassMemoryPool< PackedEntity >			m_PackedEntitiesPool;
+	CThreadFastMutex									m_FrameSnapshotsWriteMutex;
+	CUtlLinkedList<CFrameSnapshot*, unsigned short>		m_FrameSnapshots;
+	CClassMemoryPool< PackedEntity >					m_PackedEntitiesPool;
 
 	int								m_nPackedEntityCacheCounter;  // increase with every cache access
 	CUtlVector<UnpackedDataCache_t>	m_PackedEntityCache;	// cache for uncompressed packed entities

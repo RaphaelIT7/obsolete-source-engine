@@ -79,6 +79,8 @@ CFrameSnapshot*	CFrameSnapshotManager::NextSnapshot( const CFrameSnapshot *pSnap
 
 CFrameSnapshot*	CFrameSnapshotManager::CreateEmptySnapshot( int tickcount, int maxEntities )
 {
+	AUTO_LOCK(m_FrameSnapshotsWriteMutex);
+
 	CFrameSnapshot *snap = new CFrameSnapshot;
 	snap->AddReference();
 	snap->m_nTickCount = tickcount;
@@ -181,6 +183,8 @@ CFrameSnapshot* CFrameSnapshotManager::TakeTickSnapshot( int tickcount )
 
 void CFrameSnapshotManager::DeleteFrameSnapshot( CFrameSnapshot* pSnapshot )
 {
+	AUTO_LOCK(m_FrameSnapshotsWriteMutex);
+
 	// Decrement reference counts of all packed entities
 	for (int i = 0; i < pSnapshot->m_nNumEntities; ++i)
 	{
