@@ -203,7 +203,7 @@ void CacheOptimizedTriangle::ChangeIntoIntersectionFormat(void)
 	N.NormalizeInPlace();
 	// now, determine which axis to drop
 	int drop_axis = 0;
-	for(int c=1 ; c<3 ; c++)
+	for(int c=1 ; c<3 ; ++c)
 		if ( fabs(N[c]) > fabs( N[drop_axis] ) )
 			drop_axis = c;
 
@@ -292,7 +292,7 @@ void RayTracingEnvironment::Trace4Rays(const FourRays &rays, fltx4 TMin, fltx4 T
 		tmprays.origin=rays.origin;
 
 		uint8 need_trace[4]={1,1,1,1};
-		for(int try_trace=0;try_trace<4;try_trace++)
+		for(int try_trace=0;try_trace<4;++try_trace)
 		{
 			if (need_trace[try_trace])
 			{
@@ -302,7 +302,7 @@ void RayTracingEnvironment::Trace4Rays(const FourRays &rays, fltx4 TMin, fltx4 T
 				tmprays.direction.y=ReplicateX4(rays.direction.Y(try_trace));
 				tmprays.direction.z=ReplicateX4(rays.direction.Z(try_trace));
 				// now, see if any of the other remaining rays can be handled at the same time.
-				for(int try2=try_trace+1;try2<4;try2++)
+				for(int try2=try_trace+1;try2<4;++try2)
 					if (need_trace[try2])
 					{
 						if (
@@ -325,7 +325,7 @@ void RayTracingEnvironment::Trace4Rays(const FourRays &rays, fltx4 TMin, fltx4 T
 				Assert(msk!=-1);
 				Trace4Rays(tmprays,TMin,TMax,msk,&tmpresults,skip_id, pCallback);
 				// now, move results to proper place
-				for(int i=0;i<4;i++)
+				for(int i=0;i<4;++i)
 					if (need_trace[i]==2)
 					{
 						need_trace[i]=0;
@@ -357,7 +357,7 @@ void RayTracingEnvironment::Trace4Rays(const FourRays &rays, fltx4 TMin, fltx4 T
 	OneOverRayDir.MakeReciprocalSaturate();
 	
 	// now, clip rays against bounding box
-	for(int c=0;c<3;c++)
+	for(int c=0;c<3;++c)
 	{
 		fltx4 isect_min_t=
 			MulSIMD(SubSIMD(ReplicateX4(m_MinBound[c]),rays.origin[c]),OneOverRayDir[c]);
@@ -613,11 +613,11 @@ void RayTracingEnvironment::CalculateTriangleListBounds(int32 const *tris,int nt
 {
 	minout = Vector( 1.0e23f, 1.0e23f, 1.0e23f);
 	maxout = Vector( -1.0e23f, -1.0e23f, -1.0e23f);
-	for(int i=0; i<ntris; i++)
+	for(int i=0; i<ntris; ++i)
 	{
 		CacheOptimizedTriangle const &tri=OptimizedTriangleList[tris[i]];
-		for(int v=0; v<3; v++)
-			for(int c=0; c<3; c++)
+		for(int v=0; v<3; ++v)
+			for(int c=0; c<3; ++c)
 			{
 				minout[c]=min(minout[c],tri.Vertex(v)[c]);
 							  maxout[c]=max(maxout[c],tri.Vertex(v)[c]);
@@ -669,11 +669,11 @@ float RayTracingEnvironment::CalculateCostsOfSplit(
 	nboth=0;
 	float min_coord=1.0e23f,max_coord=-1.0e23f;
 
-	for(int t=0;t<ntris;t++)
+	for(int t=0;t<ntris;++t)
 	{
 		CacheOptimizedTriangle &tri=OptimizedTriangleList[tri_list[t]];
 		// determine max and min coordinate values for later optimization
-		for(int v=0;v<3;v++)
+		for(int v=0;v<3;++v)
 		{
 			min_coord = min( min_coord, tri.Vertex(v)[split_plane] );
 			max_coord = max( max_coord, tri.Vertex(v)[split_plane] );
@@ -746,11 +746,11 @@ void RayTracingEnvironment::RefineNode(int node_number,int32 const *tri_list,int
 
 	int tri_skip=1+(ntris/10);								// don't try all trinagles as split
 															// points when there are a lot of them
-	for(int axis=0;axis<3;axis++)
+	for(int axis=0;axis<3;++axis)
 	{
 		for(int ts=-1;ts<ntris;ts+=tri_skip)
 		{
-			for(int tv=0;tv<3;tv++)
+			for(int tv=0;tv<3;++tv)
 			{
 				int trial_nleft,trial_nright,trial_nboth;
 				float trial_splitvalue;
@@ -780,7 +780,7 @@ void RayTracingEnvironment::RefineNode(int node_number,int32 const *tri_list,int
 					best_nboth=trial_nboth;
 					best_splitvalue=trial_splitvalue;
 					// save away the axis classification of each triangle
-					for(int t=0 ; t < ntris; t++)
+					for(int t=0 ; t < ntris; ++t)
 					{
 						CacheOptimizedTriangle &tri=OptimizedTriangleList[tri_list[t]];
 						tri.m_Data.m_GeometryData.m_nTmpData1 = tri.m_Data.m_GeometryData.m_nTmpData0;
@@ -825,7 +825,7 @@ void RayTracingEnvironment::RefineNode(int node_number,int32 const *tri_list,int
 		int n_left_output=0;
 		int n_both_output=0;
 		int n_right_output=0;
-		for(int t=0;t<ntris;t++)
+		for(int t=0;t<ntris;++t)
 		{
 			CacheOptimizedTriangle &tri=OptimizedTriangleList[tri_list[t]];
 			switch( tri.m_Data.m_GeometryData.m_nTmpData1 )

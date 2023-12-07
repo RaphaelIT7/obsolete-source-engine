@@ -110,7 +110,7 @@ void RayTracingEnvironment::RenderScene(
 				// set up colors
 				FourVectors surf_colors;
 				surf_colors.DuplicateVector(Vector(0,0,0));
-				for(int i=0;i<4;i++)
+				for(int i=0;i<4;++i)
 				{
 					if (rslt.HitIds[i]>=0)
 					{
@@ -129,7 +129,7 @@ void RayTracingEnvironment::RenderScene(
 					case DIRECT_LIGHTING:
 					{
 						// light all points
-						for(intp l=0;l<LightList.Count();l++)
+						for(intp l=0;l<LightList.Count();++l)
 						{
 							LightList[l].ComputeLightAtPoints(surface_pos,rslt.surface_normal,
 															  intens);
@@ -140,7 +140,7 @@ void RayTracingEnvironment::RenderScene(
 					case DIRECT_LIGHTING_WITH_SHADOWS:
 					{
 						// light all points
-						for(intp l=0;l<LightList.Count();l++)
+						for(intp l=0;l<LightList.Count();++l)
 						{
 							FourVectors ldir;
 							ldir.DuplicateVector(LightList[l].m_Position);
@@ -201,13 +201,13 @@ void RayTracingEnvironment::ComputeVirtualLightSources(void)
 		intp nl=LightList.Count();
 		intp where_to_start=start_pos;
 		start_pos=nl;
-		for(intp l=where_to_start;l<nl;l++)
+		for(intp l=where_to_start;l<nl;++l)
 		{
 			DirectionalSampler_t sample_generator;
 			int n_desired=1*LightList[l].m_Color.Length();
 			if (LightList[l].m_Type==MATERIAL_LIGHT_SPOT)
 				n_desired*=LightList[l].m_Phi/2;
-			for(int try1=0;try1<n_desired;try1++)
+			for(int try1=0;try1<n_desired;++try1)
 			{
 				LightDesc_t const &li=LightList[l];
 				FourRays myrays;
@@ -304,7 +304,7 @@ inline void RayTracingEnvironment::FlushStreamEntry(RayStream &s,int msk)
 	RayTracingResult tmpresult;
 	Trace4Rays(s.PendingRays[msk],Four_Zeros,tmax,msk,&tmpresult);
 	// now, write out results
-	for(int r=0;r<4;r++)
+	for(int r=0;r<4;++r)
 	{
 		RayTracingSingleResult *out=s.PendingStreamOutputs[msk][r];
 		out->ray_length=SubFloat( tmax, r );
@@ -345,13 +345,13 @@ void RayTracingEnvironment::AddToRayStream(RayStream &s,
 
 void RayTracingEnvironment::FinishRayStream(RayStream &s)
 {
-	for(int msk=0;msk<8;msk++)
+	for(int msk=0;msk<8;++msk)
 	{
 		int cnt=s.n_in_stream[msk];
 		if (cnt)
 		{
 			// fill in unfilled entries with dups of first
-			for(int c=cnt;c<4;c++)
+			for(int c=cnt;c<4;++c)
 			{
 				s.PendingRays[msk].origin.X(c) = s.PendingRays[msk].origin.X(0);
 				s.PendingRays[msk].origin.Y(c) = s.PendingRays[msk].origin.Y(0);
