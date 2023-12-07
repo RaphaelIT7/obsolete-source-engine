@@ -3,3 +3,4 @@ test.log
 test.prt
 test.bsp
 test_dev.vmf
+!*.dll
