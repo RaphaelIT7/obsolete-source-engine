@@ -4,13 +4,14 @@ on:
   workflow_dispatch:
   push:
     paths:
+      - '.github/workflows/verify-vvis.yml'
       - '__vvis_test/**'
       - 'utils/vvis/**'
 
 env:
   THREADS: 3
-  COMPILE_PATH: 'vvis_test/test'
-  PROJECT_PATH: 'vvis_test/'
+  COMPILE_PATH: '__vvis_test/test'
+  PROJECT_PATH: '__vvis_test/'
 
 jobs:
  prepare:
