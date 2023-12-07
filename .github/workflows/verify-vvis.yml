@@ -76,7 +76,7 @@ jobs:
           port: ${{secrets.PORT}}
           script: |
             rm -rf gmod/garrysmod/materials
-            rsync -av -q "__vvis_text/_content/" "gmod/garrysmod"
+            rsync -av -q "__vvis_test/_content/" "gmod/garrysmod"
 
       - name: VBSP
         uses: appleboy/ssh-action@v0.1.10
