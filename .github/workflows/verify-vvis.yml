@@ -111,7 +111,7 @@ jobs:
           port: ${{secrets.PORT}}
           script: |
             cp gmod/bin/vvis_dll.dll gmod/bin/vvis_dll_orig.dll
-            cp project/__vvis_test/vvis_dll.dll gmod/bin/vvis_dll.dll
+            cp __vvis_test/vvis_dll.dll gmod/bin/vvis_dll.dll
             cp ${{env.COMPILE_PATH}}.bsp ${{env.COMPILE_PATH}}_gmod_vvis.bsp
             cp ${{env.COMPILE_PATH}}_orig.bsp ${{env.COMPILE_PATH}}.bsp
             wine gmod/bin/vvis.exe -threads ${{env.THREADS}} -game "gmod/garrysmod" "${{env.COMPILE_PATH}}"
