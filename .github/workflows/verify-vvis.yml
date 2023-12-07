@@ -1,0 +1,126 @@
+name: VVIS Verification
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '__vvis_test/**'
+      - 'utils/vvis/**'
+
+env:
+  THREADS: 3
+  COMPILE_PATH: 'vvis_test/test'
+  PROJECT_PATH: 'vvis_test/'
+
+jobs:
+ prepare:
+    if: false
+    runs-on: ubuntu-latest
+    name: Compile vvis_dll.dll
+    steps:
+      - name: Create repo folder
+        run: |
+          mkdir repo
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          path: 'repo/'
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Build app for release
+        run: |
+          cd repo
+          msbuild everything.sln /target:vvis_dll:Rebuild
+
+ compile:
+    runs-on: ubuntu-latest
+    name: Prepare Gmod and Compile
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github
+            __vvis_test
+
+      - name: Pack repo
+        run: |
+          zip ${{env.DEBUG_ARGS}} -r repo.zip __vvis_test/
+          ls -l repo.zip
+
+      - name: Upload repo
+        run: |
+          curl -F "repo=@repo.zip" ${{secrets.URL}}
+
+      - name: Unpack repo
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{secrets.IP}}
+          username: ${{secrets.USER}}
+          password: ${{secrets.PW}}
+          port: ${{secrets.PORT}}
+          script: |
+            cd ${{env.PROJECT_PATH}}
+            mv /var/www/uploads/repo.zip ./
+            unzip -q repo.zip
+
+      - name: Prepare Gmod
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{secrets.IP}}
+          username: ${{secrets.USER}}
+          password: ${{secrets.PW}}
+          port: ${{secrets.PORT}}
+          script: |
+            rm -rf gmod/garrysmod/materials
+            rsync -av -q "__vvis_text/_content/" "gmod/garrysmod"
+
+      - name: VBSP
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{secrets.IP}}
+          username: ${{secrets.USER}}
+          password: ${{secrets.PW}}
+          port: ${{secrets.PORT}}
+          script: |
+            wine gmod/bin/vbsp.exe -threads ${{env.THREADS}} -notjunc -game "gmod/garrysmod" "${{env.COMPILE_PATH}}"
+            cp ${{env.COMPILE_PATH}}.bsp ${{env.COMPILE_PATH}}_orig.bsp
+
+      - name: VVIS (Gmod)
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{secrets.IP}}
+          username: ${{secrets.USER}}
+          password: ${{secrets.PW}}
+          port: ${{secrets.PORT}}
+          script: |
+            wine gmod/bin/vvis.exe -threads ${{env.THREADS}} -notjunc -game "gmod/garrysmod" "${{env.COMPILE_PATH}}"
+
+      - name: VVIS (Custom)
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{secrets.IP}}
+          username: ${{secrets.USER}}
+          password: ${{secrets.PW}}
+          port: ${{secrets.PORT}}
+          script: |
+            cp gmod/bin/vvis_dll.dll gmod/bin/vvis_dll_orig.dll
+            cp project/__vvis_test/vvis_dll.dll gmod/bin/vvis_dll.dll
+            cp ${{env.COMPILE_PATH}}.bsp ${{env.COMPILE_PATH}}_gmod_vvis.bsp
+            cp ${{env.COMPILE_PATH}}_orig.bsp ${{env.COMPILE_PATH}}.bsp
+            wine gmod/bin/vvis.exe -threads ${{env.THREADS}} -notjunc -game "gmod/garrysmod" "${{env.COMPILE_PATH}}"
+            cp gmod/bin/vvis_dll_orig.dll gmod/bin/vvis_dll.dll
+
+      - name: Show files
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{secrets.IP}}
+          username: ${{secrets.USER}}
+          password: ${{secrets.PW}}
+          port: ${{secrets.PORT}}
+          script: |
+            ls -l ${{env.COMPILE_PATH}}.bsp
+            ls -l ${{env.COMPILE_PATH}}_gmod_vvis.bsp
