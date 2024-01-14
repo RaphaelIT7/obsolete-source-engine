@@ -289,6 +289,11 @@ float	CMatRenderContextBase::Knob( char *knobname, float *setvalue )
 	return 0.0f;
 }
 
+bool CMatRenderContextBase::GMOD_IsLowOnMemory()
+{
+    return false;
+}
+
 
 //-----------------------------------------------------------------------------
 //
@@ -1004,6 +1009,7 @@ Vector CMatRenderContextBase::GetToneMappingScaleLinear( void )
 		return m_LastSetToneMapScale;
 }
 
+#ifndef BUILD_GMOD
 void CMatRenderContextBase::OnAsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, const char** ppDstName, IAsyncTextureOperationReceiver* pRecipient )
 {
 	Assert( pSrcRt != NULL );
@@ -1047,6 +1053,7 @@ void CMatRenderContextBase::OnAsyncCopyRenderTargetToStagingTexture( ITexture* p
 	pSrc->AddRef();
 	pRecipient->AddRef();
 }
+#endif
 
 #undef g_pShaderAPI 
 
@@ -1106,7 +1113,7 @@ void CMatRenderContext::OnReleaseShaderObjects()
 	m_pBoundMorph = NULL;
 }
 
-#ifdef DX_TO_GL_ABSTRACTION
+#if defined(DX_TO_GL_ABSTRACTION) || defined(BUILD_GMOD)
 void CMatRenderContext::DoStartupShaderPreloading( void )
 {
 	g_pShaderDevice->DoStartupShaderPreloading();
@@ -3012,6 +3019,7 @@ bool CMatRenderContext::OnDrawMesh( IMesh *pMesh, CPrimList *pLists, int nLists 
 	return true;
 }
 
+#ifndef BUILD_GMOD
 void CMatRenderContext::AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, const char* pDstName, ImageFormat dstFmt, bool bGenMips, int nAdditionalCreationFlags, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs )
 {
 	if ( g_pMaterialSystem->GetThreadMode() == MATERIAL_SINGLE_THREADED ) 
@@ -3066,7 +3074,7 @@ void CMatRenderContext::AsyncCopyRenderTargetToStagingTexture( ITexture* pDst, I
 	SafeRelease( &pSrc );
 	SafeRelease( &pRecipient );
 }
-
+#endif
 
 //-----------------------------------------------------------------------------
 // Methods related to morph accumulation

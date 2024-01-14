@@ -5,10 +5,12 @@
 
 List of currently working dlls:
 - datacache.dll
+- shaderapidx9.dll (Needs further testing)
 - icudt.dll (IDK what it even does xd)
 - icudt42.dll (IDK what it even does xd)
+- unicode.dll
 - vstdlist.dll (only with `-noasync`)
-- vvis_dll.dll (~40% faster than Gmod's version. Compile it in Release for the Performance)
+- vvis_dll.dll (~40% faster than Gmod's version. Compile it in Release for the Performance benefit)
 - vvis.exe
 - vrad.exe
 

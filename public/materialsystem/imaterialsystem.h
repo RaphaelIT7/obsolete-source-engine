@@ -1081,7 +1081,9 @@ public:
 	virtual void				GetRenderTargetFrameBufferDimensions( int & nWidth, int & nHeight ) = 0;
 
 	// returns the display device name that matches the adapter index we were started with
-	virtual const char *GetDisplayDeviceName() const = 0;
+#ifndef BUILD_GMOD
+	virtual char *GetDisplayDeviceName() const = 0;
+#endif
 
 	// creates a texture suitable for use with materials from a raw stream of bits.
 	// The bits will be retained by the material system and can be freed upon return.
@@ -1575,10 +1577,17 @@ public:
 
 	virtual void ClearBuffersObeyStencilEx( bool bClearColor, bool bClearAlpha, bool bClearDepth ) = 0;
 
+#ifdef BUILD_GMOD
+	virtual void GMOD_ForceFilterMode(bool, int) = 0;
+	virtual void GMOD_FlushQueue() = 0;
+#endif
+
 	// Create a texture from the specified src render target, then call pRecipient->OnAsyncCreateComplete from the main thread.
 	// The texture will be created using the destination format, and will optionally have mipmaps generated.
 	// In case of error, the provided callback function will be called with the error texture.
+#ifndef BUILD_GMOD
 	virtual void AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, const char* pDstName, ImageFormat dstFmt, bool bGenMips, int nAdditionalCreationFlags, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) = 0;
+#endif
 };
 
 template< class E > inline E* IMatRenderContext::LockRenderDataTyped( int nCount, const E* pSrcData )

@@ -614,6 +614,9 @@ public:
 
 	// Allows copying a render target to another texture by specifying them both.
 	virtual void CopyRenderTargetToScratchTexture( ShaderAPITextureHandle_t srcRt, ShaderAPITextureHandle_t dstTex, Rect_t *pSrcRect = NULL, Rect_t *pDstRect = NULL ) = 0;
+#ifdef BUILD_GMOD
+	virtual void GMOD_ForceFilterMode( bool, int ) = 0;
+#endif
 
 	// Allows locking and unlocking of very specific surface types.
 	virtual void LockRect( void** pOutBits, int* pOutPitch, ShaderAPITextureHandle_t texHandle, int mipmap, int x, int y, int w, int h, bool bWrite, bool bRead ) = 0;

@@ -704,7 +704,8 @@ public:
 		AssertMsg( 0, "CMatNullRenderContext only provides base features, not a stub (right now)" );
 	}
 
-	void AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, const char* pDstName, ImageFormat dstFmt, bool bGenMips, int nAdditionalCreationFlags, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) override
+#ifndef BUILD_GMOD
+	void AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, const char* pDstName, ImageFormat dstFmt, bool bGenMips, int nAdditionalCreationFlags, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) OVERRIDE
 	{
 		AssertMsg( 0, "CMatNullRenderContext only provides base features, not a stub (right now)" );
 	}
@@ -723,6 +724,7 @@ public:
 	{
 
 	}
+#endif
 
 	void SetShadowDepthBiasFactors( float fSlopeScaleDepthBias, float fDepthBias )
 	{
@@ -819,6 +821,11 @@ public:
 	virtual void EnableNonInteractiveMode( MaterialNonInteractiveMode_t mode ) {}
 	virtual void RefreshFrontBufferNonInteractive() {}
 
+#ifdef BUILD_GMOD
+	virtual void GMOD_ForceFilterMode(bool, int) {};
+	virtual void GMOD_FlushQueue() {};
+#endif
+
 #if defined( _X360 )
 	virtual void PushVertexShaderGPRAllocation( int iVertexShaderCount = 64 )
 	{
@@ -831,7 +838,7 @@ public:
 	}
 #endif
 
-#ifdef DX_TO_GL_ABSTRACTION
+#if defined(DX_TO_GL_ABSTRACTION) || defined(BUILD_GMOD)
 	void									DoStartupShaderPreloading( void ) {};
 #endif
 

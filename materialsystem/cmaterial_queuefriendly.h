@@ -151,6 +151,9 @@ public:
 	}
 	void UpdateToRealTime( void ); //update cached off variables using the real time version as a base.
 
+#ifdef BUILD_GMOD
+	virtual bool GMOD_Persist() const { return true; }
+#endif
 
 protected:
 	IMaterialInternal *m_pRealTimeVersion; //the material we're wrapping with queued delays
