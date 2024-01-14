@@ -803,6 +803,10 @@ public:
 	virtual bool			WasReloadedFromWhitelist() {return false;}
 
 	virtual bool			IsPrecached() const {return true;}
+
+#ifdef BUILD_GMOD
+	virtual bool			GMOD_Persist() const { return true; }
+#endif
 };
 
 CDummyMaterial g_DummyMaterial;
@@ -1797,10 +1801,12 @@ public:
 		return 0;
 	}
 
-	const char *GetDisplayDeviceName() const override
+#ifndef BUILD_GMOD
+	virtual char *GetDisplayDeviceName() const OVERRIDE
 	{
 		return "";
 	}
+#endif
 
 	// Creates/destroys morph data associated w/ a particular material
 	IMorph *CreateMorph( MorphFormat_t, const char *pDebugName )
@@ -1926,7 +1932,7 @@ public:
 		pFallbackShader[0] = 0;
 	}
 
-#ifdef DX_TO_GL_ABSTRACTION
+#if defined(DX_TO_GL_ABSTRACTION) || defined(BUILD_GMOD)
 	virtual void DoStartupShaderPreloading( void )
 	{
 	}
@@ -2323,6 +2329,11 @@ public:
 	{
 		return NULL;
 	}
+
+#ifdef BUILD_GMOD
+	virtual void GMOD_ForceFilterMode(bool, int) {};
+	virtual void GMOD_FlushQueue() {};
+#endif
 
 #ifndef BUILD_GMOD
 	virtual bool				AddTextureCompositorTemplate( const char* pName, KeyValues* pTmplDesc, int nTexCompositeTemplateFlags ) OVERRIDE

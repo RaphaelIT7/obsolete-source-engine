@@ -268,10 +268,12 @@ public:
 	virtual void RefreshFrontBufferNonInteractive( ) = 0;
 	virtual void HandleThreadEvent( uint32 threadEvent ) = 0;
 
-#ifdef DX_TO_GL_ABSTRACTION
+#if defined(DX_TO_GL_ABSTRACTION) || defined(BUILD_GMOD)
 	virtual void DoStartupShaderPreloading( void ) = 0;
 #endif
-	virtual const char *GetDisplayDeviceName() = 0;
+#ifndef BUILD_GMOD
+	virtual char *GetDisplayDeviceName() = 0;
+#endif
 
 };
 

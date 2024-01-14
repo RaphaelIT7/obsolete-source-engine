@@ -1014,10 +1014,20 @@ public:
 	void CopyTextureToRenderTargetEx( int nRenderTargetID, ShaderAPITextureHandle_t textureHandle, Rect_t *pSrcRect = NULL, Rect_t *pDstRect = NULL );
 	void CopyRenderTargetToScratchTexture( ShaderAPITextureHandle_t srcHandle, ShaderAPITextureHandle_t dstHandle, Rect_t *pSrcRect = NULL, Rect_t *pDstRect = NULL );
 
+#ifdef BUILD_GMOD
+	virtual void GMOD_ForceFilterMode( bool, int );
+#endif
+
+
 	virtual void LockRect( void** pOutBits, int* pOutPitch, ShaderAPITextureHandle_t texHandle, int mipmap, int x, int y, int w, int h, bool bWrite, bool bRead );
 	virtual void UnlockRect( ShaderAPITextureHandle_t texHandle, int mipmap );
-
+#ifndef BUILD_GMOD
 	virtual void CopyTextureToTexture( ShaderAPITextureHandle_t srcTex, ShaderAPITextureHandle_t dstTex );
+#endif
+
+#ifdef BUILD_GMOD
+	virtual void GMOD_SamplerBorderClamp(Sampler_t);
+#endif
 
 	// Returns the cull mode (for fill rate computation)
 	D3DCULL GetCullMode() const;
@@ -3635,7 +3645,7 @@ IMesh *CShaderAPIDx8::GetFlexMesh()
 IMesh* CShaderAPIDx8::GetDynamicMesh( IMaterial* pMaterial, int nHWSkinBoneCount, bool buffered,
 								IMesh* pVertexOverride, IMesh* pIndexOverride )
 {
-	Assert( (pMaterial == NULL) || ((IMaterialInternal *)pMaterial)->IsRealTimeVersion() );
+	//Assert( (pMaterial == NULL) || ((IMaterialInternal *)pMaterial)->IsRealTimeVersion() );
 
 	LOCK_SHADERAPI();
 	return MeshMgr()->GetDynamicMesh( pMaterial, 0, nHWSkinBoneCount, buffered, pVertexOverride, pIndexOverride );
@@ -3644,7 +3654,7 @@ IMesh* CShaderAPIDx8::GetDynamicMesh( IMaterial* pMaterial, int nHWSkinBoneCount
 IMesh* CShaderAPIDx8::GetDynamicMeshEx( IMaterial* pMaterial, VertexFormat_t vertexFormat, int nHWSkinBoneCount, 
 	bool bBuffered, IMesh* pVertexOverride, IMesh* pIndexOverride )
 {
-	Assert( (pMaterial == NULL) || ((IMaterialInternal *)pMaterial)->IsRealTimeVersion() );
+	//Assert( (pMaterial == NULL) || ((IMaterialInternal *)pMaterial)->IsRealTimeVersion() );
 
 	LOCK_SHADERAPI();
 	return MeshMgr()->GetDynamicMesh( pMaterial, vertexFormat, nHWSkinBoneCount, bBuffered, pVertexOverride, pIndexOverride );
@@ -8628,6 +8638,10 @@ void CShaderAPIDx8::CopyRenderTargetToScratchTexture( ShaderAPITextureHandle_t s
 	Assert( SUCCEEDED( hr ) );
 }
 
+void CShaderAPIDx8::GMOD_ForceFilterMode(bool, int)
+{
+}
+
 //-------------------------------------------------------------------------
 // Allows locking and unlocking of very specific surface types. pOutBits and pOutPitch will not be touched if 
 // the lock fails.
@@ -8781,6 +8795,7 @@ static int FindCommonMipmapRange( int *pOutSrcFine, int *pOutDstFine, Texture_t 
 	return Min( src.mipmaps, dst.mipmaps );
 }
 
+#ifndef BUILD_GMOD
 void CShaderAPIDx8::CopyTextureToTexture( ShaderAPITextureHandle_t srcTex, ShaderAPITextureHandle_t dstTex )
 {
 	LOCK_SHADERAPI();
@@ -8836,8 +8851,11 @@ void CShaderAPIDx8::CopyTextureToTexture( ShaderAPITextureHandle_t srcTex, Shade
 		pDstSurf->Release();
 	}
 }
+#endif
 
-
+void CShaderAPIDx8::GMOD_SamplerBorderClamp(Sampler_t)
+{
+}
 
 void CShaderAPIDx8::CopyRenderTargetToTexture( ShaderAPITextureHandle_t textureHandle )
 {

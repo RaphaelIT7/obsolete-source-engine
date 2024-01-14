@@ -1825,7 +1825,8 @@ unsigned CShaderDeviceDx8::GetCurrentAdapter() const
 //-----------------------------------------------------------------------------
 // Returns the current adapter in use
 //-----------------------------------------------------------------------------
-const char *CShaderDeviceDx8::GetDisplayDeviceName() 
+#ifndef BUILD_GMOD
+char *CShaderDeviceDx8::GetDisplayDeviceName() 
 {
 	if( m_sDisplayDeviceName.IsEmpty() )
 	{
@@ -1843,7 +1844,7 @@ const char *CShaderDeviceDx8::GetDisplayDeviceName()
 	}
 	return m_sDisplayDeviceName.Get();
 }
-
+#endif
 
 //-----------------------------------------------------------------------------
 // Use this to spew information about the 3D layer 
@@ -3175,7 +3176,7 @@ void CShaderDeviceDx8::DestroyPixelShader( PixelShaderHandle_t hShader )
 	ShaderManager()->DestroyPixelShader( hShader );
 }
 
-#ifdef DX_TO_GL_ABSTRACTION
+#if defined(DX_TO_GL_ABSTRACTION) || defined(BUILD_GMOD)
 void CShaderDeviceDx8::DoStartupShaderPreloading( void )
 {
 	ShaderManager()->DoStartupShaderPreloading();

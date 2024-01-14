@@ -62,18 +62,24 @@ public:
 	virtual void MarkRenderDataUnused( bool bBeginFrame ) = 0;
 	virtual CMatCallQueue *GetCallQueueInternal() = 0;
 
+#ifdef BUILD_GMOD
+	virtual bool GMOD_IsLowOnMemory() = 0;
+#else
 	// Map and unmap a texture. The pRecipient->OnAsyncMapComplete is called when complete. 
 	virtual void AsyncMap( ITextureInternal* pTexToMap, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) = 0;
 	virtual void AsyncUnmap( ITextureInternal* pTexToUnmap ) = 0;
 	
 	// Copy from a render target to a staging texture, in order with other async commands.
 	virtual void AsyncCopyRenderTargetToStagingTexture( ITexture* pDst, ITexture* pSrc, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) = 0;
+#endif
 
-#ifdef DX_TO_GL_ABSTRACTION
+#if defined(DX_TO_GL_ABSTRACTION) ||defined(BUILD_GMOD)
 	virtual void DoStartupShaderPreloading( void ) = 0;
 #endif
 
+#ifndef BUILD_GMOD
 	virtual void TextureManagerUpdate() = 0;
+#endif
 };
 
 #endif // IMATRENDERCONTEXTINTERNAL_H

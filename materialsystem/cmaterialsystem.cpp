@@ -842,11 +842,12 @@ unsigned CMaterialSystem::GetCurrentAdapter() const
 //-----------------------------------------------------------------------------
 // Returns the device name for the current adapter
 //-----------------------------------------------------------------------------
-const char *CMaterialSystem::GetDisplayDeviceName() const 
+#ifndef BUILD_GMOD
+char *CMaterialSystem::GetDisplayDeviceName() const 
 {
 	return g_pShaderDevice->GetDisplayDeviceName();
 }
-
+#endif
 
 //-----------------------------------------------------------------------------
 // 

@@ -74,14 +74,18 @@ public:
 	virtual IShader *GetShader() const = 0;
 
 	// Can we use it?
+#ifndef BUILD_GMOD
 	virtual bool	IsPrecached( ) const = 0;
+#endif
 	virtual bool	IsPrecachedVars() const = 0;
 
 	// main draw method
 	virtual void	DrawMesh( VertexCompressionType_t vertexCompression ) = 0;
 
 	// Gets the vertex format
+#ifndef BUILD_GMOD
 	virtual VertexFormat_t GetVertexFormat() const = 0;
+#endif
 	virtual VertexFormat_t GetVertexUsage() const = 0;
 
 	// Performs a debug trace on this material

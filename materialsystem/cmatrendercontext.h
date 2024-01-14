@@ -155,11 +155,19 @@ public:
 	virtual void							Printf( PRINTF_FORMAT_STRING const char *fmt, ... );
 	virtual	float							Knob( char *knobname, float *setvalue = NULL );
 
+#ifdef BUILD_GMOD
+	virtual bool GMOD_IsLowOnMemory();
+	virtual void GMOD_ForceFilterMode(bool, int) {};
+	virtual void GMOD_FlushQueue() {};
+#endif
+
+#ifndef BUILD_GMOD
 protected:
 	void									OnAsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, const char** pDstName, IAsyncTextureOperationReceiver* pRecipient );
 	void									OnAsyncMap( ITextureInternal* pTexToMap, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs );
 	void									OnAsyncUnmap( ITextureInternal* pTexToUnmap );
 	void									OnAsyncCopyRenderTargetToStagingTexture( ITexture* pDst, ITexture* pSrc, IAsyncTextureOperationReceiver* pRecipient );
+#endif
 
 protected:
 	enum MatrixStackFlags_t
@@ -536,11 +544,12 @@ public:
 	DELEGATE_TO_OBJECT_0V(					BeginFrame, g_pShaderAPI );
 	DELEGATE_TO_OBJECT_0V(					EndFrame, g_pShaderAPI );
 
+#ifndef BUILD_GMOD
 	virtual void							AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, const char* pDstName, ImageFormat dstFmt, bool bGenMips, int nAdditionalCreationFlags, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs );
-
-	virtual void							AsyncMap( ITextureInternal* pTexToMap, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) override;
-	virtual void							AsyncUnmap( ITextureInternal* pTexToUnmap ) override;
-	virtual void							AsyncCopyRenderTargetToStagingTexture( ITexture* pDst, ITexture* pSrc, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) override;
+	virtual void							AsyncMap( ITextureInternal* pTexToMap, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) OVERRIDE;
+	virtual void							AsyncUnmap( ITextureInternal* pTexToUnmap ) OVERRIDE;
+	virtual void							AsyncCopyRenderTargetToStagingTexture( ITexture* pDst, ITexture* pSrc, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) OVERRIDE;
+#endif
 
 
 
@@ -582,7 +591,7 @@ public:
 	virtual void							Printf( PRINTF_FORMAT_STRING const char *fmt, ... );
 	virtual float							Knob( char *knobname, float *setvalue=NULL );
 
-#ifdef DX_TO_GL_ABSTRACTION
+#if defined(DX_TO_GL_ABSTRACTION) || defined(BUILD_GMOD)
 	void									DoStartupShaderPreloading( void );
 #endif
 
