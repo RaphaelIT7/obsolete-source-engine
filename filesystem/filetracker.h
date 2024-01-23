@@ -62,7 +62,9 @@ struct TrackedFile_t
 
 	// The crcIdentifier is a CRC32 of the filename and path. It could be used for quick comparisons of
 	//  path+filename, but since we don't do that at the moment we don't need this.
-	// CRC32_t m_crcIdentifier;
+#ifdef BUILD_GMOD
+	CRC32_t m_crcIdentifier;
+#endif
 
 	void RebuildFileName( CStringPool &stringPool, const char *pFilename, const char *pPathID, int nFileFraction );
 

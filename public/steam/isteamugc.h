@@ -11,6 +11,7 @@
 #endif
 
 #include "isteamclient.h"
+#include "isteamremotestorage.h"
 
 // callbacks
 #if defined( VALVE_CALLBACK_PACK_SMALL )
