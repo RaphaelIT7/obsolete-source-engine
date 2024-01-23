@@ -27,6 +27,7 @@
 #include "tier1/fmtstr.h"
 #include "tier1/utlrbtree.h"
 #include "vstdlib/osversion.h"
+#include "steam/isteamugc.h"
 
 #ifdef _X360
 #undef WaitForSingleObject
@@ -63,6 +64,21 @@ public:
 	bool GetOptimalIOConstraints( FileHandle_t hFile, unsigned *pOffsetAlign, unsigned *pSizeAlign, unsigned *pBufferAlign );
 	void *AllocOptimalReadBuffer( FileHandle_t hFile, unsigned nSize, unsigned nOffset );
 	void FreeOptimalReadBuffer( void *p );
+
+#ifdef BUILD_GMOD
+	virtual void RemoveSearchPathsByGroup( int group );
+	virtual void SetGet( IGet *get );
+	virtual Addon::FileSystem *Addons( );
+	virtual Gamemode::System *Gamemodes( );
+	virtual GameDepot::System *Games( );
+	virtual LegacyAddons::System *LegacyAddons( );
+	virtual CLanguage *Language( );
+	virtual void DoFilesystemRefresh( );
+	virtual int LastFilesystemRefresh( );
+	virtual void AddVPKFileFromPath( const char *a, const char *b, unsigned int c );
+	virtual void GMOD_SetupDefaultPaths( const char *a, const char *b );
+	virtual void GMOD_FixPathCase( char *a, size_t b );
+#endif
 
 protected:
 	// implementation of CBaseFileSystem virtual functions
@@ -1509,3 +1525,533 @@ char *CWin32ReadOnlyFile::FS_fgets( char *dest, int destSize )
 
 
 #endif // _WIN32
+
+#ifdef BUILD_GMOD
+void CFileSystem_Stdio::RemoveSearchPathsByGroup(int group)
+{
+	Msg("CFileSystem_Stdio::RemoveSearchPathsByGroup\n");
+	// Don't care
+}
+
+void CFileSystem_Stdio::SetGet(IGet* get)
+{
+	Msg("CAddonFileSystem::SetGet\n");
+	// Don't know
+}
+
+class CAddonFileSystem : public Addon::FileSystem
+{
+public:
+	virtual void Clear( );
+	virtual void Refresh( );
+	virtual int MountFile( const std::string &, std::vector<std::string> * );
+	virtual bool ShouldMount( const std::string & );
+	virtual bool ShouldMount( uint64_t );
+	virtual void SetShouldMount( const std::string &, bool );
+	virtual void Save( );
+	virtual const std::list<IAddonSystem::Information> &GetList( ) const;
+	virtual const std::list<IAddonSystem::UGCInfo> &GetUGCList( ) const;
+	virtual void ScanForSubscriptions( CSteamAPIContext *, const char * );
+	virtual void Think( );
+	virtual void SetDownloadNotify( IAddonDownloadNotification * );
+	virtual int Notify( );
+	virtual bool IsSubscribed( uint64_t );
+	virtual const IAddonSystem::Information *FindFileOwner( const std::string & );
+	virtual void AddFile( const IAddonSystem::Information & );
+	virtual void ClearAllGMAs( );
+	virtual void GetSteamUGCFile( uint64_t, bool );
+	virtual void UnmountAddon( uint64_t );
+	virtual void UnmountServerAddons( );
+	virtual void MountFloatingAddons( );
+	virtual void Shutdown( );
+	virtual void AddFile( const SteamUGCDetails_t & );
+	virtual void AddSubscription( const SteamUGCDetails_t & );
+	virtual void AddJob( Addon::Job::Base * );
+	virtual bool HasChanges( );
+	virtual void MarkChanged( );
+	virtual void AddonDownloaded( IAddonSystem::Information & );
+	virtual void NotifyAddonFailedToDownload( IAddonSystem::Information & );
+	virtual const std::list<SteamUGCDetails_t> &GetSubList( ) const;
+	virtual void IsAddonValidPreInstall( SteamUGCDetails_t );
+	virtual void Load( );
+private:
+	std::list<IAddonSystem::Information> addons;
+	std::list<IAddonSystem::UGCInfo> ugcaddons;
+	std::list<SteamUGCDetails_t> subscriptions;
+};
+
+void CAddonFileSystem::Clear()
+{
+	Msg("CAddonFileSystem::Clear\n");
+}
+
+void CAddonFileSystem::Refresh()
+{
+	Msg("CAddonFileSystem::Refresh\n");
+}
+
+int CAddonFileSystem::MountFile(const std::string& file, std::vector<std::string>* filelist)
+{
+	Msg("CAddonFileSystem::MountFile\n");
+	return 0;
+}
+
+bool CAddonFileSystem::ShouldMount(const std::string& file)
+{
+	Msg("CAddonFileSystem::ShouldMount\n");
+	return false;
+}
+
+bool CAddonFileSystem::ShouldMount(uint64_t workshopid)
+{
+	Msg("CAddonFileSystem::ShouldMount\n");
+	return false;
+}
+
+void CAddonFileSystem::SetShouldMount(const std::string& file, bool shouldmount)
+{
+	Msg("CAddonFileSystem::SetShouldMount\n");
+}
+
+void CAddonFileSystem::Save()
+{
+	Msg("CAddonFileSystem::Save\n");
+}
+
+const std::list<IAddonSystem::Information>& CAddonFileSystem::GetList( ) const
+{
+	Msg("CAddonFileSystem::GetList\n");
+	return addons;
+}
+
+const std::list<IAddonSystem::UGCInfo>& CAddonFileSystem::GetUGCList( ) const
+{
+	Msg("CAddonFileSystem::GetUGCList\n");
+	return ugcaddons;
+}
+
+void CAddonFileSystem::ScanForSubscriptions(CSteamAPIContext* context, const char* unknown)
+{
+	Msg("CAddonFileSystem::ScanForSubscriptions\n");
+}
+
+void CAddonFileSystem::Think()
+{
+	//Msg("CAddonFileSystem::Think\n");
+}
+
+void CAddonFileSystem::SetDownloadNotify(IAddonDownloadNotification*)
+{
+	Msg("CAddonFileSystem::SetDownloadNotify\n");
+}
+
+int CAddonFileSystem::Notify()
+{
+	Msg("CAddonFileSystem::Notify\n");
+	return 0;
+}
+
+bool CAddonFileSystem::IsSubscribed(uint64_t)
+{
+	Msg("CAddonFileSystem::IsSubscribed\n");
+	return false;
+}
+
+const IAddonSystem::Information* CAddonFileSystem::FindFileOwner(const std::string&)
+{
+	Msg("CAddonFileSystem::FindFileOwner\n");
+	return nullptr;
+}
+
+void CAddonFileSystem::AddFile(const IAddonSystem::Information&)
+{
+	Msg("CAddonFileSystem::AddFile\n");
+}
+
+void CAddonFileSystem::ClearAllGMAs()
+{
+	Msg("CAddonFileSystem::ClearAllGMAs\n");
+}
+
+void CAddonFileSystem::GetSteamUGCFile(uint64_t, bool)
+{
+	Msg("CAddonFileSystem::GetSteamUGCFile\n");
+}
+
+void CAddonFileSystem::UnmountAddon(uint64_t)
+{
+	Msg("CAddonFileSystem::UnmountAddon\n");
+}
+
+void CAddonFileSystem::UnmountServerAddons()
+{
+	Msg("CAddonFileSystem::UnmountServerAddons\n");
+}
+
+void CAddonFileSystem::MountFloatingAddons()
+{
+	Msg("CAddonFileSystem::MountFloatingAddons\n");
+}
+
+void CAddonFileSystem::Shutdown()
+{
+	Msg("CAddonFileSystem::Shutdown\n");
+}
+
+void CAddonFileSystem::AddFile(const SteamUGCDetails_t&)
+{
+	Msg("CAddonFileSystem::AddFile\n");
+}
+
+void CAddonFileSystem::AddSubscription(const SteamUGCDetails_t&)
+{
+	Msg("CAddonFileSystem::AddSubscription\n");
+}
+
+void CAddonFileSystem::AddJob(Addon::Job::Base*)
+{
+	Msg("CAddonFileSystem::AddJob\n");
+}
+
+bool CAddonFileSystem::HasChanges()
+{
+	Msg("CAddonFileSystem::HasChanges\n");
+	return false;
+}
+
+void CAddonFileSystem::MarkChanged()
+{
+	Msg("CAddonFileSystem::MarkChanged\n");
+}
+
+void CAddonFileSystem::AddonDownloaded(IAddonSystem::Information&)
+{
+	Msg("CAddonFileSystem::AddonDownloaded\n");
+}
+
+void CAddonFileSystem::NotifyAddonFailedToDownload(IAddonSystem::Information&)
+{
+	Msg("CAddonFileSystem::NotifyAddonFailedToDownload\n");
+}
+
+const std::list<SteamUGCDetails_t>& CAddonFileSystem::GetSubList() const
+{
+	Msg("CAddonFileSystem::GetSubList\n");
+	return subscriptions;
+}
+
+void CAddonFileSystem::IsAddonValidPreInstall(SteamUGCDetails_t)
+{
+	Msg("CAddonFileSystem::IsAddonValidPreInstall\n");
+}
+
+void CAddonFileSystem::Load()
+{
+	Msg("CAddonFileSystem::Load\n");
+}
+
+CAddonFileSystem g_pAddonFileSystem;
+Addon::FileSystem* CFileSystem_Stdio::Addons()
+{
+	//Msg("CFileSystem_Stdio::Addons\n");
+	return &g_pAddonFileSystem;
+}
+
+ConVar gamemode("gamemode", "sandbox", 0, "The current gamemode");
+
+class CGamemodeSystem : public Gamemode::System
+{
+public:
+	virtual void OnJoinServer( const std::string & );
+	virtual void OnLeaveServer( );
+	virtual void Refresh( );
+	virtual void Clear( );
+	virtual const IGamemodeSystem::Information &Active( );
+	virtual void FindByName( const std::string & );
+	virtual void SetActive( const std::string & );
+	virtual const std::list<IGamemodeSystem::Information> &GetList( ) const;
+	virtual bool IsServerBlacklisted( char const*, char const*, char const*, char const*, char const* );
+private:
+	std::list<IGamemodeSystem::Information> gamemodes;
+	IGamemodeSystem::Information active;
+};
+
+void CGamemodeSystem::OnJoinServer(const std::string&)
+{
+	Msg("CGamemodeSystem::OnJoinServer\n");
+}
+
+void CGamemodeSystem::OnLeaveServer()
+{
+	Msg("CGamemodeSystem::OnLeaveServer\n");
+}
+
+void CGamemodeSystem::Refresh()
+{
+	Msg("CGamemodeSystem::Refresh\n");
+}
+
+void CGamemodeSystem::Clear()
+{
+	Msg("CGamemodeSystem::Clear\n");
+}
+
+const IGamemodeSystem::Information& CGamemodeSystem::Active()
+{
+	Msg("CGamemodeSystem::Active\n");
+	return active;
+}
+
+void CGamemodeSystem::FindByName(const std::string&)
+{
+	Msg("CGamemodeSystem::FindByName\n");
+}
+
+void CGamemodeSystem::SetActive(const std::string&)
+{
+	Msg("CGamemodeSystem::SetActive\n");
+}
+
+const std::list<IGamemodeSystem::Information>& CGamemodeSystem::GetList() const
+{
+	Msg("CGamemodeSystem::GetList\n");
+	return gamemodes;
+}
+
+bool CGamemodeSystem::IsServerBlacklisted(char const*, char const*, char const*, char const*, char const*)
+{
+	Msg("CGamemodeSystem::IsServerBlacklisted\n");
+	return false;
+}
+
+CGamemodeSystem g_pGamemodeSystem;
+Gamemode::System* CFileSystem_Stdio::Gamemodes()
+{
+	Msg("CFileSystem_Stdio::Gamemodes\n");
+	return &g_pGamemodeSystem;
+}
+
+class CGameDepotySystem : public GameDepot::System
+{
+public:
+	virtual void Refresh( );
+	virtual void Clear( );
+	virtual void Save( );
+	virtual void SetMount( uint32_t, bool );
+	virtual void MarkGameAsMounted( const std::string );
+	virtual const std::list<IGameDepotSystem::Information> &GetList( ) const;
+	virtual void MountAsMapFix( uint32_t );
+	virtual void MountCurrentGame( const std::string & );
+private:
+	std::list<IGameDepotSystem::Information> games;
+};
+
+void CGameDepotySystem::Refresh()
+{
+	Msg("CGameDepotySystem::Refresh\n");
+}
+
+void CGameDepotySystem::Clear()
+{
+	Msg("CGameDepotySystem::Clear\n");
+}
+
+void CGameDepotySystem::Save()
+{
+	Msg("CGameDepotySystem::Save\n");
+}
+
+void CGameDepotySystem::SetMount(uint32_t, bool)
+{
+	Msg("CGameDepotySystem::SetMount\n");
+}
+
+void CGameDepotySystem::MarkGameAsMounted(const std::string)
+{
+	Msg("CGameDepotySystem::MarkGameAsMounted\n");
+}
+
+const std::list<IGameDepotSystem::Information>& CGameDepotySystem::GetList() const
+{
+	Msg("CGameDepotySystem::GetList\n");
+	return games;
+}
+
+void CGameDepotySystem::MountAsMapFix(uint32_t)
+{
+	Msg("CGameDepotySystem::MountAsMapFix\n");
+}
+
+void CGameDepotySystem::MountCurrentGame(const std::string&)
+{
+	Msg("CGameDepotySystem::MountCurrentGame\n");
+}
+
+CGameDepotySystem g_pGameDepoSystem;
+GameDepot::System* CFileSystem_Stdio::Games()
+{
+	Msg("CFileSystem_Stdio::Games\n");
+	return &g_pGameDepoSystem;
+}
+
+class CLegacyAddonSystem : public LegacyAddons::System
+{
+public:
+	virtual void Refresh( );
+	virtual const std::list<ILegacyAddons::Information> &GetList( ) const;
+private:
+	std::list<ILegacyAddons::Information> addons;
+};
+
+void CLegacyAddonSystem::Refresh()
+{
+	Msg("CLegacyAddonSystem::Refresh\n");
+}
+
+const std::list<ILegacyAddons::Information>& CLegacyAddonSystem::GetList() const
+{
+	Msg("CLegacyAddonSystem::GetList\n");
+	return addons;
+}
+
+CLegacyAddonSystem g_pLegacyAddonSystem;
+LegacyAddons::System* CFileSystem_Stdio::LegacyAddons()
+{
+	Msg("CFileSystem_Stdio::LegacyAddons\n");
+	return &g_pLegacyAddonSystem;
+}
+
+ConVar gmod_language("gmod_language", "", 0, "Changes language of Garry's mod");
+
+class Language2 : public CLanguage
+{
+public:
+	virtual void ChangeLanguage( const char * );
+	virtual void ChangeLanguage_Steam( const char * );
+	virtual void ReloadLanguage( );
+	virtual void GetString( const char *, wchar_t *, int32_t );
+	virtual void UpdateSourceEngineLanguage( );
+};
+
+void Language2::ChangeLanguage(const char*)
+{
+	Msg("Language::ChangeLanguage\n");
+}
+
+void Language2::ChangeLanguage_Steam(const char*)
+{
+	Msg("Language::ChangeLanguage_Steam\n");
+}
+
+void Language2::ReloadLanguage()
+{
+	Msg("Language::ReloadLanguage\n");
+}
+
+void Language2::GetString(const char* inputString, wchar_t* outputString, int32_t bufferSize)
+{
+	std::wcsncpy(outputString, L"RandomString", bufferSize);
+	Msg("Language::GetString %s\n", inputString);
+}
+
+void Language2::UpdateSourceEngineLanguage()
+{
+	Msg("Language::UpdateSourceEngineLanguage\n");
+}
+
+Language2 g_pLanguage;
+CLanguage* CFileSystem_Stdio::Language( )
+{
+	Msg("CFileSystem_Stdio::Language\n");
+	return &g_pLanguage;
+}
+
+void CFileSystem_Stdio::DoFilesystemRefresh()
+{
+	Msg("CFileSystem_Stdio::DoFilesystemRefresh\n");
+}
+
+int CFileSystem_Stdio::LastFilesystemRefresh()
+{
+	//Msg("CFileSystem_Stdio::LastFilesystemRefresh\n");
+	return 1;
+}
+
+void CFileSystem_Stdio::AddVPKFileFromPath(const char *vpk, const char *path, unsigned int id)
+{
+	Msg("CFileSystem_Stdio::AddVPKFileFromPath called with %s %s (%u)\n", vpk, path, id);
+	AddVPKFile(vpk, path, (SearchPathAdd_t)id);
+}
+
+void CFileSystem_Stdio::GMOD_SetupDefaultPaths(const char *path, const char *game)
+{
+	Msg("CFileSystem_Stdio::GMOD_SetupDefaultPaths called with %s %s\n", path, game);
+
+	std::string strpath = path;
+	std::string folder = strpath + "/" + game + "/";
+
+	AddSearchPath((strpath + "/bin/").c_str(), "EXECUTABLE_PATH", PATH_ADD_TO_TAIL);
+	AddSearchPath((strpath + "/bin/").c_str(), "BASE_PATH", PATH_ADD_TO_TAIL);
+	AddSearchPath((folder + "bin/").c_str(), "GAMEBIN", PATH_ADD_TO_TAIL);
+	AddSearchPath(folder.c_str(), "LOGDIR", PATH_ADD_TO_TAIL);
+	AddSearchPath((strpath + "/platform/config/").c_str(), "CONFIG", PATH_ADD_TO_TAIL);
+	AddSearchPath((strpath + "/platform/").c_str(), "PLATFORM", PATH_ADD_TO_TAIL);
+
+	AddSearchPath(folder.c_str(), "MOD", PATH_ADD_TO_TAIL);
+	AddSearchPath(folder.c_str(), "MOD_WRITE", PATH_ADD_TO_TAIL);
+	AddSearchPath(folder.c_str(), "DEFAULT_WRITE_PATH", PATH_ADD_TO_TAIL);
+	AddSearchPath(folder.c_str(), "GAME", PATH_ADD_TO_TAIL);
+	AddSearchPath(folder.c_str(), "GAME_WRITE", PATH_ADD_TO_TAIL);
+	AddSearchPath(folder.c_str(), "garrysmod", PATH_ADD_TO_TAIL);
+	AddSearchPath((folder + "data/").c_str(), "DATA", PATH_ADD_TO_TAIL);
+
+	AddSearchPath((folder + "download/").c_str(), "GAME", PATH_ADD_TO_TAIL);
+	AddSearchPath((folder + "download/").c_str(), "DOWNLOAD", PATH_ADD_TO_TAIL);
+
+	AddVPKFile((folder + "garrysmod_dir.vpk").c_str(), "garrysmod", PATH_ADD_TO_TAIL);
+	AddVPKFile((folder + "garrysmod_dir.vpk").c_str(), "GAME", PATH_ADD_TO_TAIL);
+	AddVPKFile((folder + "garrysmod_dir.vpk").c_str(), "MOD", PATH_ADD_TO_TAIL);
+
+	AddSearchPath((folder + "workshop/").c_str(), "GAME", PATH_ADD_TO_TAIL);
+	AddSearchPath((folder + "workshop/").c_str(), "workshop", PATH_ADD_TO_TAIL);
+	AddSearchPath((folder + "workshop/").c_str(), "thirdparty", PATH_ADD_TO_TAIL);
+
+	AddSearchPath((folder + "overrides/").c_str(), "GAME", PATH_ADD_TO_TAIL);
+	AddSearchPath((folder + "overrides/").c_str(), "MOD", PATH_ADD_TO_TAIL);
+	AddSearchPath((folder + "overrides/").c_str(), "garrysmod", PATH_ADD_TO_TAIL);
+	
+	AddVPKFile((folder + "fallbacks_dir.vpk").c_str(), "GAME", PATH_ADD_TO_TAIL);
+	AddVPKFile((folder + "fallbacks_dir.vpk").c_str(), "MOD", PATH_ADD_TO_TAIL);
+	AddSearchPath((folder + "fallbacks/").c_str(), "GAME", PATH_ADD_TO_TAIL);
+	AddSearchPath((folder + "fallbacks/").c_str(), "MOD", PATH_ADD_TO_TAIL);
+
+	AddVPKFile((folder + "fallbacks_dir.vpk").c_str(), "GAME", PATH_ADD_TO_TAIL);
+	AddVPKFile((folder + "fallbacks_dir.vpk").c_str(), "MOD", PATH_ADD_TO_TAIL);
+	AddSearchPath((folder + "fallbacks/").c_str(), "GAME", PATH_ADD_TO_TAIL);
+	AddSearchPath((folder + "fallbacks/").c_str(), "MOD", PATH_ADD_TO_TAIL);
+
+	std::string sourceengine = path;
+	sourceengine = sourceengine + "/sourceengine/";
+	AddSearchPath(sourceengine.c_str(), "GAME", PATH_ADD_TO_TAIL);
+	AddVPKFile((sourceengine + "hl2_misc.vpk").c_str(), "MOD", PATH_ADD_TO_TAIL);
+	AddVPKFile((sourceengine + "hl2_misc.vpk").c_str(), "GAME", PATH_ADD_TO_TAIL);
+	AddVPKFile((sourceengine + "hl2_sound_misc.vpk").c_str(), "MOD", PATH_ADD_TO_TAIL);
+	AddVPKFile((sourceengine + "hl2_sound_misc.vpk").c_str(), "GAME", PATH_ADD_TO_TAIL);
+	AddVPKFile((sourceengine + "hl2_sound_vo_english.vpk").c_str(), "MOD", PATH_ADD_TO_TAIL);
+	AddVPKFile((sourceengine + "hl2_sound_vo_english.vpk").c_str(), "GAME", PATH_ADD_TO_TAIL);
+	AddVPKFile((sourceengine + "hl2_textures.vpk").c_str(), "MOD", PATH_ADD_TO_TAIL);
+	AddVPKFile((sourceengine + "hl2_textures.vpk").c_str(), "GAME", PATH_ADD_TO_TAIL);
+
+	std::string platform = path;
+	platform = platform + "/platform/";
+	AddSearchPath(platform.c_str(), "GAME", PATH_ADD_TO_TAIL);
+	AddVPKFile((platform + "platform_misc.vpk").c_str(), "MOD", PATH_ADD_TO_TAIL);
+
+	PrintSearchPaths();
+}
+
+void CFileSystem_Stdio::GMOD_FixPathCase(char *a, size_t b)
+{
+	Msg("CFileSystem_Stdio::GMOD_FixPathCase\n");
+}
+#endif

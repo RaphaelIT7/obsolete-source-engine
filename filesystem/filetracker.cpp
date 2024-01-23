@@ -288,13 +288,15 @@ void TrackedFile_t::RebuildFileName( CStringPool &stringPool, const char *pFilen
 	V_strupr( szPathName ); // !KLUDGE!
 	m_path = stringPool.Allocate( szPathName );
 
-	// CRC32_t crcFilename;
-	// CRC32_Init( &crcFilename );
-	// CRC32_ProcessBuffer( &crcFilename, m_filename, Q_strlen( m_filename ) );
-	// CRC32_ProcessBuffer( &crcFilename, m_path, Q_strlen( m_path ) );
-	// CRC32_Final( &crcFilename );
+#ifdef BUILD_GMOD
+	CRC32_t crcFilename;
+	CRC32_Init( &crcFilename );
+	CRC32_ProcessBuffer( &crcFilename, m_filename, Q_strlen( m_filename ) );
+	CRC32_ProcessBuffer( &crcFilename, m_path, Q_strlen( m_path ) );
+	CRC32_Final( &crcFilename );
 
-	// m_crcIdentifier = crcFilename;
+	m_crcIdentifier = crcFilename;
+#endif
 
 	m_nFileFraction = nFileFraction;
 }

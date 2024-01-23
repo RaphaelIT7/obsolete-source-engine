@@ -121,46 +121,48 @@ SRC_GCC_END_WARNING_OVERRIDE_SCOPE()
 		va_end( marker );
 		return m_pFileSystemPassThru->FPrintf( file, "%s", str );
 	}
-	CSysModule 		*LoadModule( const char *pFileName, const char *pPathID, bool bValidatedDllOnly )	override { return m_pFileSystemPassThru->LoadModule( pFileName, pPathID, bValidatedDllOnly ); }
-	void			UnloadModule( CSysModule *pModule )													override { m_pFileSystemPassThru->UnloadModule( pModule ); }
-	const char		*FindFirst( const char *pWildCard, FileFindHandle_t *pHandle )						override { return m_pFileSystemPassThru->FindFirst( pWildCard, pHandle ); }
-	const char		*FindNext( FileFindHandle_t handle )												override { return m_pFileSystemPassThru->FindNext( handle ); }
-	bool			FindIsDirectory( FileFindHandle_t handle )											override { return m_pFileSystemPassThru->FindIsDirectory( handle ); }
-	void			FindClose( FileFindHandle_t handle )												override { m_pFileSystemPassThru->FindClose( handle ); }
-	const char		*GetLocalPath( const char *pFileName, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars )	override { return m_pFileSystemPassThru->GetLocalPath( pFileName, pDest, maxLenInChars ); }
-	bool			FullPathToRelativePath( const char *pFullpath, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars )		override { return m_pFileSystemPassThru->FullPathToRelativePath( pFullpath, pDest, maxLenInChars ); }
-	bool			GetCaseCorrectFullPath_Ptr( const char *pFullPath, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars ) override { return m_pFileSystemPassThru->GetCaseCorrectFullPath_Ptr( pFullPath, pDest, maxLenInChars ); }
-	bool			GetCurrentDirectory( char* pDirectory, int maxlen )									override { return m_pFileSystemPassThru->GetCurrentDirectory( pDirectory, maxlen ); }
-	void			PrintOpenedFiles( void )															override { m_pFileSystemPassThru->PrintOpenedFiles(); }
-	void			PrintSearchPaths( void )															override { m_pFileSystemPassThru->PrintSearchPaths(); }
-	void			SetWarningFunc( void (*pfnWarning)( PRINTF_FORMAT_STRING const char *fmt, ... ) )						override { m_pFileSystemPassThru->SetWarningFunc( pfnWarning ); }
-	void			SetWarningLevel( FileWarningLevel_t level )											override { m_pFileSystemPassThru->SetWarningLevel( level ); } 
-	void			AddLoggingFunc( void (*pfnLogFunc)( const char *fileName, const char *accessType ) )override { m_pFileSystemPassThru->AddLoggingFunc( pfnLogFunc ); }
-	void			RemoveLoggingFunc( FileSystemLoggingFunc_t logFunc )								override { m_pFileSystemPassThru->RemoveLoggingFunc( logFunc ); }
-	FSAsyncStatus_t	AsyncReadMultiple( const FileAsyncRequest_t *pRequests, int nRequests, FSAsyncControl_t *pControls )			override { return m_pFileSystemPassThru->AsyncReadMultiple( pRequests, nRequests, pControls ); }
-	FSAsyncStatus_t	AsyncReadMultipleCreditAlloc( const FileAsyncRequest_t *pRequests, int nRequests, const char *pszFile, int line, FSAsyncControl_t *pControls ) override { return m_pFileSystemPassThru->AsyncReadMultipleCreditAlloc( pRequests, nRequests, pszFile, line, pControls ); }
-	FSAsyncStatus_t	AsyncFinish(FSAsyncControl_t hControl, bool wait)									override { return m_pFileSystemPassThru->AsyncFinish( hControl, wait ); }
-	FSAsyncStatus_t	AsyncGetResult( FSAsyncControl_t hControl, void **ppData, int *pSize )				override { return m_pFileSystemPassThru->AsyncGetResult( hControl, ppData, pSize ); }
-	FSAsyncStatus_t	AsyncAbort(FSAsyncControl_t hControl)												override { return m_pFileSystemPassThru->AsyncAbort( hControl ); }
-	FSAsyncStatus_t	AsyncStatus(FSAsyncControl_t hControl)												override { return m_pFileSystemPassThru->AsyncStatus( hControl ); }
-	FSAsyncStatus_t	AsyncFlush()																		override { return m_pFileSystemPassThru->AsyncFlush(); }
-	void			AsyncAddRef( FSAsyncControl_t hControl )											override { m_pFileSystemPassThru->AsyncAddRef( hControl ); }
-	void			AsyncRelease( FSAsyncControl_t hControl )											override { m_pFileSystemPassThru->AsyncRelease( hControl ); }
-	FSAsyncStatus_t	AsyncBeginRead( const char *pszFile, FSAsyncFile_t *phFile )						override { return m_pFileSystemPassThru->AsyncBeginRead( pszFile, phFile ); }
-	FSAsyncStatus_t	AsyncEndRead( FSAsyncFile_t hFile )													override { return m_pFileSystemPassThru->AsyncEndRead( hFile ); }
-	void			AsyncAddFetcher( IAsyncFileFetch *pFetcher )										override { m_pFileSystemPassThru->AsyncAddFetcher( pFetcher ); }
-	void			AsyncRemoveFetcher( IAsyncFileFetch *pFetcher )										override { m_pFileSystemPassThru->AsyncRemoveFetcher( pFetcher ); }
-	const FileSystemStatistics *GetFilesystemStatistics()												override { return m_pFileSystemPassThru->GetFilesystemStatistics(); }
-	WaitForResourcesHandle_t WaitForResources( const char *resourcelist )								override { return m_pFileSystemPassThru->WaitForResources( resourcelist ); }
-	bool			GetWaitForResourcesProgress( WaitForResourcesHandle_t handle, 
-								float *progress, bool *complete )												override { return m_pFileSystemPassThru->GetWaitForResourcesProgress( handle, progress, complete ); }
-	void			CancelWaitForResources( WaitForResourcesHandle_t handle )							override { m_pFileSystemPassThru->CancelWaitForResources( handle ); }
-	int				HintResourceNeed( const char *hintlist, int forgetEverything )						override { return m_pFileSystemPassThru->HintResourceNeed( hintlist, forgetEverything ); }
-	bool			IsFileImmediatelyAvailable(const char *pFileName)									override { return m_pFileSystemPassThru->IsFileImmediatelyAvailable( pFileName ); }
-	void			GetLocalCopy( const char *pFileName )												override { m_pFileSystemPassThru->GetLocalCopy( pFileName ); }
-	FileNameHandle_t	FindOrAddFileName( char const *pFileName )										override { return m_pFileSystemPassThru->FindOrAddFileName( pFileName ); }
-	FileNameHandle_t	FindFileName( char const *pFileName )											override { return m_pFileSystemPassThru->FindFileName( pFileName ); }
-	bool				String( const FileNameHandle_t& handle, char *buf, int buflen )					override { return m_pFileSystemPassThru->String( handle, buf, buflen ); }
+	virtual CSysModule 		*LoadModule( const char *pFileName, const char *pPathID, bool bValidatedDllOnly )	{ return m_pFileSystemPassThru->LoadModule( pFileName, pPathID, bValidatedDllOnly ); }
+	virtual void			UnloadModule( CSysModule *pModule )													{ m_pFileSystemPassThru->UnloadModule( pModule ); }
+	virtual const char		*FindFirst( const char *pWildCard, FileFindHandle_t *pHandle )						{ return m_pFileSystemPassThru->FindFirst( pWildCard, pHandle ); }
+	virtual const char		*FindNext( FileFindHandle_t handle )												{ return m_pFileSystemPassThru->FindNext( handle ); }
+	virtual bool			FindIsDirectory( FileFindHandle_t handle )											{ return m_pFileSystemPassThru->FindIsDirectory( handle ); }
+	virtual void			FindClose( FileFindHandle_t handle )												{ m_pFileSystemPassThru->FindClose( handle ); }
+	virtual const char		*GetLocalPath( const char *pFileName, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars )	{ return m_pFileSystemPassThru->GetLocalPath( pFileName, pDest, maxLenInChars ); }
+	virtual bool			FullPathToRelativePath( const char *pFullpath, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars )		{ return m_pFileSystemPassThru->FullPathToRelativePath( pFullpath, pDest, maxLenInChars ); }
+#ifndef BUILD_GMOD
+	virtual bool			GetCaseCorrectFullPath_Ptr( const char *pFullPath, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars ) { return m_pFileSystemPassThru->GetCaseCorrectFullPath_Ptr( pFullPath, pDest, maxLenInChars ); }
+#endif
+	virtual bool			GetCurrentDirectory( char* pDirectory, int maxlen )									{ return m_pFileSystemPassThru->GetCurrentDirectory( pDirectory, maxlen ); }
+	virtual void			PrintOpenedFiles( void )															{ m_pFileSystemPassThru->PrintOpenedFiles(); }
+	virtual void			PrintSearchPaths( void )															{ m_pFileSystemPassThru->PrintSearchPaths(); }
+	virtual void			SetWarningFunc( void (*pfnWarning)( PRINTF_FORMAT_STRING const char *fmt, ... ) )						{ m_pFileSystemPassThru->SetWarningFunc( pfnWarning ); }
+	virtual void			SetWarningLevel( FileWarningLevel_t level )											{ m_pFileSystemPassThru->SetWarningLevel( level ); } 
+	virtual void			AddLoggingFunc( void (*pfnLogFunc)( const char *fileName, const char *accessType ) ){ m_pFileSystemPassThru->AddLoggingFunc( pfnLogFunc ); }
+	virtual void			RemoveLoggingFunc( FileSystemLoggingFunc_t logFunc )								{ m_pFileSystemPassThru->RemoveLoggingFunc( logFunc ); }
+	virtual FSAsyncStatus_t	AsyncReadMultiple( const FileAsyncRequest_t *pRequests, int nRequests, FSAsyncControl_t *pControls )			{ return m_pFileSystemPassThru->AsyncReadMultiple( pRequests, nRequests, pControls ); }
+	virtual FSAsyncStatus_t	AsyncReadMultipleCreditAlloc( const FileAsyncRequest_t *pRequests, int nRequests, const char *pszFile, int line, FSAsyncControl_t *pControls ) { return m_pFileSystemPassThru->AsyncReadMultipleCreditAlloc( pRequests, nRequests, pszFile, line, pControls ); }
+	virtual FSAsyncStatus_t	AsyncFinish(FSAsyncControl_t hControl, bool wait)									{ return m_pFileSystemPassThru->AsyncFinish( hControl, wait ); }
+	virtual FSAsyncStatus_t	AsyncGetResult( FSAsyncControl_t hControl, void **ppData, int *pSize )				{ return m_pFileSystemPassThru->AsyncGetResult( hControl, ppData, pSize ); }
+	virtual FSAsyncStatus_t	AsyncAbort(FSAsyncControl_t hControl)												{ return m_pFileSystemPassThru->AsyncAbort( hControl ); }
+	virtual FSAsyncStatus_t	AsyncStatus(FSAsyncControl_t hControl)												{ return m_pFileSystemPassThru->AsyncStatus( hControl ); }
+	virtual FSAsyncStatus_t	AsyncFlush()																		{ return m_pFileSystemPassThru->AsyncFlush(); }
+	virtual void			AsyncAddRef( FSAsyncControl_t hControl )											{ m_pFileSystemPassThru->AsyncAddRef( hControl ); }
+	virtual void			AsyncRelease( FSAsyncControl_t hControl )											{ m_pFileSystemPassThru->AsyncRelease( hControl ); }
+	virtual FSAsyncStatus_t	AsyncBeginRead( const char *pszFile, FSAsyncFile_t *phFile )						{ return m_pFileSystemPassThru->AsyncBeginRead( pszFile, phFile ); }
+	virtual FSAsyncStatus_t	AsyncEndRead( FSAsyncFile_t hFile )													{ return m_pFileSystemPassThru->AsyncEndRead( hFile ); }
+	virtual void			AsyncAddFetcher( IAsyncFileFetch *pFetcher )										{ m_pFileSystemPassThru->AsyncAddFetcher( pFetcher ); }
+	virtual void			AsyncRemoveFetcher( IAsyncFileFetch *pFetcher )										{ m_pFileSystemPassThru->AsyncRemoveFetcher( pFetcher ); }
+	virtual const FileSystemStatistics *GetFilesystemStatistics()												{ return m_pFileSystemPassThru->GetFilesystemStatistics(); }
+	virtual WaitForResourcesHandle_t WaitForResources( const char *resourcelist )								{ return m_pFileSystemPassThru->WaitForResources( resourcelist ); }
+	virtual bool			GetWaitForResourcesProgress( WaitForResourcesHandle_t handle, 
+								float *progress, bool *complete )												{ return m_pFileSystemPassThru->GetWaitForResourcesProgress( handle, progress, complete ); }
+	virtual void			CancelWaitForResources( WaitForResourcesHandle_t handle )							{ m_pFileSystemPassThru->CancelWaitForResources( handle ); }
+	virtual int				HintResourceNeed( const char *hintlist, int forgetEverything )						{ return m_pFileSystemPassThru->HintResourceNeed( hintlist, forgetEverything ); }
+	virtual bool			IsFileImmediatelyAvailable(const char *pFileName)									{ return m_pFileSystemPassThru->IsFileImmediatelyAvailable( pFileName ); }
+	virtual void			GetLocalCopy( const char *pFileName )												{ m_pFileSystemPassThru->GetLocalCopy( pFileName ); }
+	virtual FileNameHandle_t	FindOrAddFileName( char const *pFileName )										{ return m_pFileSystemPassThru->FindOrAddFileName( pFileName ); }
+	virtual FileNameHandle_t	FindFileName( char const *pFileName )											{ return m_pFileSystemPassThru->FindFileName( pFileName ); }
+	virtual bool				String( const FileNameHandle_t& handle, char *buf, int buflen )					{ return m_pFileSystemPassThru->String( handle, buf, buflen ); }
 	virtual bool			IsOk2( FileHandle_t file )															{ return IsOk(file); }
 	void			RemoveSearchPaths( const char *szPathID )											override { m_pFileSystemPassThru->RemoveSearchPaths( szPathID ); }
 	bool			IsSteam() const																		override { return m_pFileSystemPassThru->IsSteam(); }
@@ -252,6 +254,20 @@ SRC_GCC_END_WARNING_OVERRIDE_SCOPE()
 		override { return m_pFileSystemPassThru->CheckVPKFileHash( PackFileID, nPackFileNumber, nFileFraction, md5Value ); }
 	void			NotifyFileUnloaded( const char *pszFilename, const char *pPathId ) override { m_pFileSystemPassThru->NotifyFileUnloaded( pszFilename, pPathId ); }
 
+#ifdef BUILD_GMOD
+	virtual void RemoveSearchPathsByGroup( int group ) OVERRIDE { m_pFileSystemPassThru->RemoveSearchPathsByGroup( group ); }
+	virtual void SetGet( IGet *get ) OVERRIDE { m_pFileSystemPassThru->SetGet( get ); }
+	virtual Addon::FileSystem *Addons( ) OVERRIDE { return m_pFileSystemPassThru->Addons( ); }
+	virtual Gamemode::System *Gamemodes( ) OVERRIDE { return m_pFileSystemPassThru->Gamemodes( ); }
+	virtual GameDepot::System *Games( ) OVERRIDE { return m_pFileSystemPassThru->Games( ); }
+	virtual LegacyAddons::System *LegacyAddons( ) OVERRIDE { return m_pFileSystemPassThru->LegacyAddons( ); }
+	virtual CLanguage *Language( ) OVERRIDE { return m_pFileSystemPassThru->Language( ); }
+	virtual void DoFilesystemRefresh( ) OVERRIDE { m_pFileSystemPassThru->DoFilesystemRefresh( ); }
+	virtual int LastFilesystemRefresh( ) OVERRIDE { return m_pFileSystemPassThru->LastFilesystemRefresh( ); }
+	virtual void AddVPKFileFromPath( const char *a, const char *b, unsigned int c ) OVERRIDE { m_pFileSystemPassThru->AddVPKFileFromPath( a, b, c ); }
+	virtual void GMOD_SetupDefaultPaths( const char *a, const char *b ) OVERRIDE { m_pFileSystemPassThru->GMOD_SetupDefaultPaths( a, b ); }
+	virtual void GMOD_FixPathCase( char *a, size_t b ) OVERRIDE { m_pFileSystemPassThru->GMOD_FixPathCase( a, b ); }
+#endif
 protected:
 	IFileSystem *m_pFileSystemPassThru;
 };
