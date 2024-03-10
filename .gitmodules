@@ -32,7 +32,8 @@
 	url = https://github.com/Source-Authors/cryptopp.git
 [submodule "ivp"]
 	path = ivp
-	url = https://github.com/Source-Authors/source-physics.git
+	url = https://github.com/RaphaelIT7/source-physics.git
+	branch = "gmod"
 [submodule "thirdparty/snappy"]
 	path = thirdparty/snappy
 	url = https://github.com/Source-Authors/snappy.git
