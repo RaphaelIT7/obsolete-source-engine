@@ -49,9 +49,11 @@
 
 ConVar fs_report_sync_opens( "fs_report_sync_opens", "0", 0, "0:Off, 1:Blocking only, 2:All" );
 ConVar fs_warning_mode( "fs_warning_mode", "0", 0, "0:Off, 1:Warn main thread, 2:Warn other threads" );
+
+// Raphael: Custom CVars.
 ConVar fs_guessfile( "fs_guessfile", "1", 0, "IsDirectory will check if a file ends with a file extension. If so, it guesses that it's a file" );
 ConVar fs_nopackfile( "fs_nopackfile", "1", 0, "IsDirectory won't check files in pack files" );
-ConVar fs_threadedsearch( "fs_threadedsearch", "1", 0, "Uses the Threadpool to search for files" );
+ConVar fs_threadedsearch( "fs_threadedsearch", "0", 0, "Uses the Threadpool to search for files." ); // This didn't quiet work out as expected. It's fast if the file doesn't exist, but it's slow if it exists.
 
 constexpr inline int BSPOUTPUT{0};	// bsp output flag -- determines type of fs_log output to generate
 
@@ -2271,6 +2273,8 @@ FileHandle_t CBaseFileSystem::FindFileInSearchPath( CFileOpenInfo &openInfo )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+// Raphael: This doesn't exist in Gmod, but I'm testing a bit around to maybe come up with an improvement for Gmods filesystem.
+// Custom stuff starts
 struct AsyncThreadedFindFile
 {
 	CFileOpenInfo* file;
@@ -2328,6 +2332,7 @@ void AsyncFindFileInSearchPath(AsyncThreadedFindFile*& thread)
 
 	delete thread;
 }
+// Custom stuff ends
 
 FileHandle_t CBaseFileSystem::OpenForRead( const char *pFileNameT, const char *pOptions, unsigned flags, const char *pathID, char **ppszResolvedFilename )
 {
@@ -2472,7 +2477,7 @@ FileHandle_t CBaseFileSystem::OpenForRead( const char *pFileNameT, const char *p
 	}
 
 	CSearchPathsIterator iter( this, &pFileName, pathID, pathFilter );
-	if (fs_threadedsearch.GetBool())
+	if (fs_threadedsearch.GetBool()) // Custom Stuff starts
 	{
 		CUtlVector<AsyncThreadedFindFile*> jobvec;
 		for ( CSearchPath* path = iter.GetFirst(); path != NULL; path = iter.GetNext() )
@@ -2501,7 +2506,7 @@ FileHandle_t CBaseFileSystem::OpenForRead( const char *pFileNameT, const char *p
 			openInfo.HandleFileCRCTracking( openInfo.m_pFileName );
 			return asyncfoundresult.handle;
 		}
-	} else {
+	} else { // Custom stuff ends
 		for ( openInfo.m_pSearchPath = iter.GetFirst(); openInfo.m_pSearchPath != NULL; openInfo.m_pSearchPath = iter.GetNext() )
 		{
 			FileHandle_t filehandle = FindFileInSearchPath( openInfo );

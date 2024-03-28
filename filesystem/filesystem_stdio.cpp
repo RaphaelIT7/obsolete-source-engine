@@ -444,6 +444,14 @@ FILE *CFileSystem_Stdio::FS_fopen( const char *filenameT, const char *options, u
 	if ( CWin32ReadOnlyFile::CanOpen( filename, options ) )
 	{
 		pFile = CWin32ReadOnlyFile::FS_fopen( filename, options, size );
+		/*if ( pFile )
+		{
+			return (FILE *)pFile;
+		}
+		
+			Always returning here can / will save the call to CStdioFile::FS_fopen and be about a 50% performance improvement to this function on Windows.
+			Gmod doesn't have this, I think, but it would probably improve most functions also by 50% as this function seems to always be the bottleneck.
+		*/
 		return (FILE *)pFile;
 	}
 #endif
