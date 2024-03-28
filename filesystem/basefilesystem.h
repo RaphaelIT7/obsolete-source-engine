@@ -772,6 +772,7 @@ protected:
 public:
 	void						LogAccessToFile( char const *accesstype, char const *fullpath, char const *options );
 	void						Warning( FileWarningLevel_t level, PRINTF_FORMAT_STRING const char *fmt, ... );
+	FileHandle_t				FindFileInSearchPath( CFileOpenInfo &openInfo );
 
 protected:
 	// Note: if pFoundStoreID is passed in, then it will set that to the CSearchPath::m_storeId value of the search path it found the file in.
@@ -788,7 +789,6 @@ protected:
 
 	void						HandleOpenRegularFile( CFileOpenInfo &openInfo, bool bIsAbsolutePath );
 
-	FileHandle_t				FindFileInSearchPath( CFileOpenInfo &openInfo );
 	long						FastFileTime( const CSearchPath *path, const char *pFileName );
 
 	const char					*GetWritePath( const char *pFilename, const char *pathID );
@@ -852,6 +852,9 @@ protected:
 	/// Remove a custom fetch job from the list (and release our reference)
 	friend class CFileAsyncReadJob;
 	void RemoveAsyncCustomFetchJob( CFileAsyncReadJob *pJob );
+
+	char m_pBaseDir[MAX_PATH];
+	int m_pBaseLength;
 };
 
 inline const CUtlSymbol& CBaseFileSystem::CPathIDInfo::GetPathID() const
