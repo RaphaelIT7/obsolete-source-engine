@@ -433,6 +433,7 @@ void CFileSystem_Stdio::FreeOptimalReadBuffer( void *p )
 //-----------------------------------------------------------------------------
 FILE *CFileSystem_Stdio::FS_fopen( const char *filenameT, const char *options, unsigned flags, int64 *size )
 {
+	VPROF_BUDGET( "CFileSystem_Stdio::FS_fopen", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CStdFilesystemFile *pFile = NULL;
 
 	char filename[ MAX_PATH ];
@@ -443,10 +444,7 @@ FILE *CFileSystem_Stdio::FS_fopen( const char *filenameT, const char *options, u
 	if ( CWin32ReadOnlyFile::CanOpen( filename, options ) )
 	{
 		pFile = CWin32ReadOnlyFile::FS_fopen( filename, options, size );
-		if ( pFile )
-		{
-			return (FILE *)pFile;
-		}
+		return (FILE *)pFile;
 	}
 #endif
 
@@ -766,6 +764,7 @@ int CFileSystem_Stdio::HintResourceNeed( const char *hintlist, int forgetEveryth
 //-----------------------------------------------------------------------------
 CStdioFile *CStdioFile::FS_fopen( const char *filenameT, const char *options, int64 *size )
 {
+	VPROF_BUDGET( "CBaseFileSystem::FS_fopen", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	FILE *pFile = NULL;
 	char *p = NULL;
 	char filename[MAX_PATH];
@@ -1167,9 +1166,9 @@ bool CWin32ReadOnlyFile::CanOpen( const char *, const char *options )
 //-----------------------------------------------------------------------------
 // 
 //-----------------------------------------------------------------------------
-
 static HANDLE OpenWin32File( const char *filename, bool bOverlapped, bool bUnbuffered, int64 *pFileSize )
 {
+	VPROF_BUDGET( "OpenWin32File", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	HANDLE hFile;
 
 	DWORD createFlags = FILE_ATTRIBUTE_NORMAL;
@@ -1200,6 +1199,7 @@ static HANDLE OpenWin32File( const char *filename, bool bOverlapped, bool bUnbuf
 
 CWin32ReadOnlyFile *CWin32ReadOnlyFile::FS_fopen( const char *filename, const char *options, int64 *size )
 {
+	VPROF_BUDGET( "CWin32ReadOnlyFile::FS_fopen", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	Assert( CanOpen( filename, options ) );
 
 	int sectorSize = 0;
