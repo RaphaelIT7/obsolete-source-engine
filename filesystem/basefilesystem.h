@@ -824,6 +824,7 @@ protected:
 
 	// Custom functions
 	void	AddFileToSearchCache(const char* pFileName, CSearchPath* pPath);
+	void	RemoveFileFromSearchCache(const char* pFileName);
 	CSearchPath*	GetPathFromSearchCache(const char* pFileName);
 	void			NukeSearchCache(); // Do we even need this function?
 

@@ -2342,6 +2342,11 @@ void CBaseFileSystem::AddFileToSearchCache(const char* pFileName, CSearchPath* p
 	m_SearchCache[pFileName] = path->m_storeId;
 }
 
+void CBaseFileSystem::RemoveFileFromSearchCache(const char* pFileName)
+{
+	m_SearchCache.erase(pFileName);
+}
+
 CBaseFileSystem::CSearchPath* CBaseFileSystem::GetPathFromSearchCache(const char* pFileName)
 {
 	if (!fs_searchcache.GetBool())
@@ -2528,6 +2533,8 @@ FileHandle_t CBaseFileSystem::OpenForRead( const char *pFileNameT, const char *p
 				openInfo.HandleFileCRCTracking( openInfo.m_pFileName );
 				return filehandle;
 			}
+		} else {
+			RemoveFileFromSearchCache( pFileName ); // Somehow the file was not found? It probably was deleted
 		}
 	}
 
