@@ -29,6 +29,11 @@
 #include "vstdlib/osversion.h"
 #include "steam/isteamugc.h"
 
+#include <iostream>
+#include <string>
+#include <locale>
+#include <codecvt>
+
 #ifdef _X360
 #undef WaitForSingleObject
 #endif
@@ -1583,9 +1588,10 @@ public:
 	virtual void IsAddonValidPreInstall( SteamUGCDetails_t );
 	virtual void Load( );
 private:
-	std::list<IAddonSystem::Information> addons;
-	std::list<IAddonSystem::UGCInfo> ugcaddons;
-	std::list<SteamUGCDetails_t> subscriptions;
+	std::list<IAddonSystem::Information> m_pAddons;
+	std::list<IAddonSystem::UGCInfo> m_pUgcAddons;
+	std::list<SteamUGCDetails_t> m_pSubscriptions;
+	IAddonDownloadNotification* m_pDownloadNotify;
 };
 
 void CAddonFileSystem::Clear()
@@ -1629,13 +1635,13 @@ void CAddonFileSystem::Save()
 const std::list<IAddonSystem::Information>& CAddonFileSystem::GetList( ) const
 {
 	Msg("CAddonFileSystem::GetList\n");
-	return addons;
+	return m_pAddons;
 }
 
 const std::list<IAddonSystem::UGCInfo>& CAddonFileSystem::GetUGCList( ) const
 {
 	Msg("CAddonFileSystem::GetUGCList\n");
-	return ugcaddons;
+	return m_pUgcAddons;
 }
 
 void CAddonFileSystem::ScanForSubscriptions(CSteamAPIContext* context, const char* unknown)
@@ -1745,7 +1751,7 @@ void CAddonFileSystem::NotifyAddonFailedToDownload(IAddonSystem::Information&)
 const std::list<SteamUGCDetails_t>& CAddonFileSystem::GetSubList() const
 {
 	Msg("CAddonFileSystem::GetSubList\n");
-	return subscriptions;
+	return m_pSubscriptions;
 }
 
 void CAddonFileSystem::IsAddonValidPreInstall(SteamUGCDetails_t)
@@ -1929,8 +1935,6 @@ LegacyAddons::System* CFileSystem_Stdio::LegacyAddons()
 	return &g_pLegacyAddonSystem;
 }
 
-ConVar gmod_language("gmod_language", "", 0, "Changes language of Garry's mod");
-
 class Language2 : public CLanguage
 {
 public:
@@ -1939,16 +1943,23 @@ public:
 	virtual void ReloadLanguage( );
 	virtual void GetString( const char *, wchar_t *, int32_t );
 	virtual void UpdateSourceEngineLanguage( );
+
+protected:
+	void ProcessFile(std::string, const char*);
+
+private:
+	std::unordered_map<std::string, std::string> m_pStrings;
 };
 
-void Language2::ChangeLanguage(const char*)
+void Language2::ChangeLanguage(const char* lang)
 {
-	Msg("Language::ChangeLanguage\n");
+	ProcessFile(lang, "");
+	Msg("Language::ChangeLanguage %s\n\n", lang);
 }
 
-void Language2::ChangeLanguage_Steam(const char*)
+void Language2::ChangeLanguage_Steam(const char* lang)
 {
-	Msg("Language::ChangeLanguage_Steam\n");
+	Msg("Language::ChangeLanguage_Steam %s\n", lang);
 }
 
 void Language2::ReloadLanguage()
@@ -1956,9 +1967,17 @@ void Language2::ReloadLanguage()
 	Msg("Language::ReloadLanguage\n");
 }
 
+std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 void Language2::GetString(const char* inputString, wchar_t* outputString, int32_t bufferSize)
 {
-	std::wcsncpy(outputString, L"RandomString", bufferSize);
+	auto it = m_pStrings.find(inputString);
+	if (it == m_pStrings.end())
+	{
+		std::wcsncpy(outputString, converter.from_bytes(inputString).c_str(), bufferSize);
+		return;
+	}
+
+	std::wcsncpy(outputString, converter.from_bytes(it->second).c_str(), bufferSize);
 	Msg("Language::GetString %s\n", inputString);
 }
 
@@ -1967,7 +1986,53 @@ void Language2::UpdateSourceEngineLanguage()
 	Msg("Language::UpdateSourceEngineLanguage\n");
 }
 
+void Language2::ProcessFile( std::string language, const char* idk ) // Gmod does this definetly differently but this completly works
+{
+	m_pStrings.clear();
+
+	std::string lang_path = "resource/localization/" + language + "/";
+
+	FileFindHandle_t findHandle;
+	const char* pFilename = g_pFullFileSystem->FindFirstEx((lang_path + "*.properties").c_str(), "MOD", &findHandle);
+	while (pFilename)
+	{
+		FileHandle_t fh = g_pFullFileSystem->Open((lang_path + pFilename).c_str(), "r", "MOD");
+		if(fh)
+		{
+			int max_size = g_pFullFileSystem->Size(fh) + 1;
+			char* content = new char[max_size];
+			g_pFullFileSystem->Read(content, max_size, fh);
+
+			char* token = std::strtok(content, "\n");
+			while (token != nullptr) { // Loops thru each line and checks if a "=" exists.
+				char* equalsSign = std::strchr(token, '=');
+				if (equalsSign != nullptr) {
+					*equalsSign = '\0';
+					std::string key(token);
+					std::string value(equalsSign + 1);
+					m_pStrings[key] = value;
+				}
+
+				token = std::strtok(nullptr, "\n");
+			}
+
+			delete[] content;
+		}
+		g_pFullFileSystem->Close(fh);
+
+		pFilename = g_pFullFileSystem->FindNext( findHandle );
+	}
+
+	g_pFullFileSystem->FindClose( findHandle );
+}
+
 Language2 g_pLanguage;
+static void language_Changed( IConVar *var, const char *pOldValue, float flOldValue )
+{
+	g_pLanguage.ChangeLanguage( ((ConVar*)var)->GetString() );
+}
+ConVar gmod_language( "gmod_language", "", 0, "Changes language of Garry's mod", language_Changed );
+
 CLanguage* CFileSystem_Stdio::Language( )
 {
 	Msg("CFileSystem_Stdio::Language\n");
