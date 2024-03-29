@@ -824,8 +824,8 @@ protected:
 
 	// Custom functions
 	void	AddFileToSearchCache(const char* pFileName, CSearchPath* pPath);
-	void	RemoveFileFromSearchCache(const char* pFileName);
-	CSearchPath*	GetPathFromSearchCache(const char* pFileName);
+	void	RemoveFileFromSearchCache(const char* pFileName, const char* pathID);
+	CSearchPath*	GetPathFromSearchCache(const char* pFileName, const char* pathID);
 	void			NukeSearchCache(); // Do we even need this function?
 
 	std::unordered_map<std::string, int> m_SearchCache;

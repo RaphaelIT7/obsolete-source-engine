@@ -2334,20 +2334,20 @@ void AsyncFindFileInSearchPath(AsyncThreadedFindFile*& thread)
 	delete thread;
 }
 
-void CBaseFileSystem::AddFileToSearchCache(const char* pFileName, CSearchPath* path)
+void CBaseFileSystem::AddFileToSearchCache( const char* pFileName, CSearchPath* path )
 {
-	if (!fs_searchcache.GetBool())
+	if ( !fs_searchcache.GetBool() )
 		return;
 
-	m_SearchCache[pFileName] = path->m_storeId;
+	m_SearchCache[ pFileName ] = path->m_storeId;
 }
 
-void CBaseFileSystem::RemoveFileFromSearchCache(const char* pFileName)
+void CBaseFileSystem::RemoveFileFromSearchCache( const char* pFileName, const char* pathID ) // ToDo: Check the pathID to not possibly give wrong results?
 {
-	m_SearchCache.erase(pFileName);
+	m_SearchCache.erase( pFileName );
 }
 
-CBaseFileSystem::CSearchPath* CBaseFileSystem::GetPathFromSearchCache(const char* pFileName)
+CBaseFileSystem::CSearchPath* CBaseFileSystem::GetPathFromSearchCache( const char* pFileName, const char* pathID )
 {
 	if (!fs_searchcache.GetBool())
 		return nullptr;
@@ -2508,7 +2508,7 @@ FileHandle_t CBaseFileSystem::OpenForRead( const char *pFileNameT, const char *p
 		}
 	}
 
-	const CBaseFileSystem::CSearchPath* cache_path = GetPathFromSearchCache( pFileName );
+	const CBaseFileSystem::CSearchPath* cache_path = GetPathFromSearchCache( pFileName, pathID );
 	if ( cache_path )
 	{
 		openInfo.m_pSearchPath = cache_path;
@@ -2534,7 +2534,7 @@ FileHandle_t CBaseFileSystem::OpenForRead( const char *pFileNameT, const char *p
 				return filehandle;
 			}
 		} else {
-			RemoveFileFromSearchCache( pFileName ); // Somehow the file was not found? It probably was deleted
+			RemoveFileFromSearchCache( pFileName, pathID ); // Somehow the file was not found? It probably was deleted
 		}
 	}
 
@@ -3392,6 +3392,35 @@ long CBaseFileSystem::GetFileTime( const char *pFileName, const char *pPathID )
 	Q_strlower( tempFileName );
 #endif
 
+	CSearchPath* cSearchPath = GetPathFromSearchCache( pFileName, pPathID );
+	if ( cSearchPath )
+	{
+		long ft = FastFileTime( cSearchPath, tempFileName );
+		if ( ft != 0L )
+		{
+			if ( !cSearchPath->GetPackFile() && m_LogFuncs.Count() )
+			{
+				char pTmpFileName[ MAX_FILEPATH ]; 
+				if ( strchr( tempFileName, ':' ) )
+				{
+					Q_strncpy( pTmpFileName, tempFileName, sizeof( pTmpFileName ) );
+				}
+				else
+				{
+					Q_snprintf( pTmpFileName, sizeof( pTmpFileName ), "%s%s", cSearchPath->GetPathString(), tempFileName );
+				}
+
+				Q_FixSlashes( tempFileName );
+
+				LogAccessToFile( "filetime", pTmpFileName, "" );
+			}
+
+			return ft;
+		} else {
+			RemoveFileFromSearchCache( pFileName, pPathID ); // We failed to find the file?
+		}
+	}
+
 	for ( CSearchPath *pSearchPath = iter.GetFirst(); pSearchPath != NULL; pSearchPath = iter.GetNext() )
 	{
 		long ft = FastFileTime( pSearchPath, tempFileName );
@@ -3413,6 +3442,8 @@ long CBaseFileSystem::GetFileTime( const char *pFileName, const char *pPathID )
 
 				LogAccessToFile( "filetime", pTmpFileName, "" );
 			}
+
+			AddFileToSearchCache( pFileName, pSearchPath );
 
 			return ft;
 		}
@@ -3941,6 +3972,38 @@ bool CBaseFileSystem::IsDirectory( const char *pFileName, const char *pathID )
 	}
 
 	bool nopackfile = fs_nopackfile.GetBool();
+	CSearchPath* cSearchPath = GetPathFromSearchCache( pFileName, pathID );
+	if ( cSearchPath )
+	{
+#ifdef SUPPORT_PACKED_STORE
+		if ( !nopackfile && cSearchPath->GetPackedStore() )
+		{
+			CUtlStringList outDir, outFile;
+			cSearchPath->GetPackedStore()->GetFileAndDirLists( outDir, outFile, false );
+			FOR_EACH_VEC( outDir, i )
+			{
+				if ( !Q_stricmp( outDir[i], pFileName ) )
+					return true;
+			}
+
+		}
+		else
+#endif // SUPPORT_PACKED_STORE
+		{
+			char pTmpFileName[ MAX_FILEPATH ];
+			Q_snprintf( pTmpFileName, sizeof( pTmpFileName ), "%s%s", cSearchPath->GetPathString(), pFileName );
+			Q_FixSlashes( pTmpFileName );
+
+			if ( FS_stat( pTmpFileName, &buf ) != -1 )
+			{
+				if ( buf.st_mode & _S_IFDIR )
+					return true;
+			} else {
+				RemoveFileFromSearchCache( pFileName, pathID ); // We failed to find the file?
+			}
+		}
+	}
+
 	CSearchPathsIterator iter( this, &pFileName, pathID, FILTER_CULLPACK );
 	for ( CSearchPath *pSearchPath = iter.GetFirst(); pSearchPath != NULL; pSearchPath = iter.GetNext() )
 	{
