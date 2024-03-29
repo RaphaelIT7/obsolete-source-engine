@@ -62,6 +62,7 @@
 #include "threadsaferefcountedobject.h"
 #include "filetracker.h"
 // #include "filesystem_init.h"
+#include <unordered_map>
 
 #if defined( SUPPORT_PACKED_STORE )
 #include "vpklib/packedstore.h"
@@ -820,6 +821,14 @@ protected:
 	FSDirtyDiskReportFunc_t m_DirtyDiskReportFunc;
 
 	void	SetSearchPathIsTrustedSource( CSearchPath *pPath );
+
+	// Custom functions
+	void	AddFileToSearchCache(const char* pFileName, CSearchPath* pPath);
+	CSearchPath*	GetPathFromSearchCache(const char* pFileName);
+	void			NukeSearchCache(); // Do we even need this function?
+
+	std::unordered_map<std::string, int> m_SearchCache;
+	// End of custom functions
 
 	struct CompiledKeyValuesPreloaders_t
 	{

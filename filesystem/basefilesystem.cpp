@@ -54,6 +54,7 @@ ConVar fs_warning_mode( "fs_warning_mode", "0", 0, "0:Off, 1:Warn main thread, 2
 ConVar fs_guessfile( "fs_guessfile", "1", 0, "IsDirectory will check if a file ends with a file extension. If so, it guesses that it's a file" );
 ConVar fs_nopackfile( "fs_nopackfile", "1", 0, "IsDirectory won't check files in pack files" );
 ConVar fs_threadedsearch( "fs_threadedsearch", "0", 0, "Uses the Threadpool to search for files." ); // This didn't quiet work out as expected. It's fast if the file doesn't exist, but it's slow if it exists.
+ConVar fs_searchcache( "fs_searchcache", "1", 0, "Uses a cache to reduce the amount of searched searchpaths." ); // A huge performance improvement to find files that exist. More Searchpaths = Bigger Performance improvement
 
 constexpr inline int BSPOUTPUT{0};	// bsp output flag -- determines type of fs_log output to generate
 
@@ -2332,6 +2333,32 @@ void AsyncFindFileInSearchPath(AsyncThreadedFindFile*& thread)
 
 	delete thread;
 }
+
+void CBaseFileSystem::AddFileToSearchCache(const char* pFileName, CSearchPath* path)
+{
+	if (!fs_searchcache.GetBool())
+		return;
+
+	m_SearchCache[pFileName] = path->m_storeId;
+}
+
+CBaseFileSystem::CSearchPath* CBaseFileSystem::GetPathFromSearchCache(const char* pFileName)
+{
+	if (!fs_searchcache.GetBool())
+		return nullptr;
+
+	auto it = m_SearchCache.find(pFileName);
+	if (it == m_SearchCache.end())
+		return nullptr;
+
+	return FindSearchPathByStoreId(it->second);
+}
+
+void CBaseFileSystem::NukeSearchCache()
+{
+	m_SearchCache.clear();
+}
+
 // Custom stuff ends
 
 FileHandle_t CBaseFileSystem::OpenForRead( const char *pFileNameT, const char *pOptions, unsigned flags, const char *pathID, char **ppszResolvedFilename )
@@ -2476,6 +2503,34 @@ FileHandle_t CBaseFileSystem::OpenForRead( const char *pFileNameT, const char *p
 		}
 	}
 
+	const CBaseFileSystem::CSearchPath* cache_path = GetPathFromSearchCache( pFileName );
+	if ( cache_path )
+	{
+		openInfo.m_pSearchPath = cache_path;
+		FileHandle_t filehandle = FindFileInSearchPath( openInfo );
+		if ( filehandle )
+		{
+			if ( !openInfo.m_pSearchPath->m_bIsTrustedForPureServer && openInfo.m_ePureFileClass == ePureServerFileClass_AnyTrusted )
+			{
+				#ifdef PURE_SERVER_DEBUG_SPEW
+					Msg( "Ignoring %s from %s for pure server operation\n", openInfo.m_pFileName, openInfo.m_pSearchPath->GetDebugString() );
+				#endif
+
+				m_FileTracker2.NoteFileIgnoredForPureServer( openInfo.m_pFileName, pathID, openInfo.m_pSearchPath->m_storeId );
+				Close( filehandle );
+				openInfo.m_pFileHandle = NULL;
+				if ( ppszResolvedFilename && *ppszResolvedFilename )
+				{
+					free( *ppszResolvedFilename );
+					*ppszResolvedFilename = NULL;
+				}
+			} else {
+				openInfo.HandleFileCRCTracking( openInfo.m_pFileName );
+				return filehandle;
+			}
+		}
+	}
+
 	CSearchPathsIterator iter( this, &pFileName, pathID, pathFilter );
 	if (fs_threadedsearch.GetBool()) // Custom Stuff starts
 	{
@@ -2507,8 +2562,9 @@ FileHandle_t CBaseFileSystem::OpenForRead( const char *pFileNameT, const char *p
 			return asyncfoundresult.handle;
 		}
 	} else { // Custom stuff ends
-		for ( openInfo.m_pSearchPath = iter.GetFirst(); openInfo.m_pSearchPath != NULL; openInfo.m_pSearchPath = iter.GetNext() )
+		for ( CSearchPath* path = iter.GetFirst(); path != NULL; path = iter.GetNext() )
 		{
+			openInfo.m_pSearchPath = path;
 			FileHandle_t filehandle = FindFileInSearchPath( openInfo );
 			if ( filehandle )
 			{
@@ -2533,6 +2589,7 @@ FileHandle_t CBaseFileSystem::OpenForRead( const char *pFileNameT, const char *p
 
 				// 
 				openInfo.HandleFileCRCTracking( openInfo.m_pFileName );
+				AddFileToSearchCache(pFileName, path);
 				return filehandle;
 			}
 		}
