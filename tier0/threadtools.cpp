@@ -2043,7 +2043,6 @@ void CThread::Sleep(unsigned duration)
 
 //---------------------------------------------------------
 
-#ifndef BUILD_GMOD
 bool CThread::Init()
 {
 	return true;
@@ -2054,7 +2053,6 @@ bool CThread::Init()
 void CThread::OnExit()
 {
 }
-#endif
 
 //---------------------------------------------------------
 
