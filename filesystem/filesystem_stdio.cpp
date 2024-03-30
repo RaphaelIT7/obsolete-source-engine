@@ -28,10 +28,12 @@
 #include "tier1/utlrbtree.h"
 #include "vstdlib/osversion.h"
 #include "steam/isteamugc.h"
+
 #include <GarrysMod/IGet.h>
 #include <GarrysMod/IMenuSystem.h>
 #include <GarrysMod/Lua/LuaShared.h>
 #include <GarrysMod/Lua/LuaInterface.h>
+#include "tier1/KeyValues.h"
 
 #include <iostream>
 #include <string>
@@ -1775,8 +1777,6 @@ Addon::FileSystem* CFileSystem_Stdio::Addons()
 	return &g_pAddonFileSystem;
 }
 
-ConVar gamemode("gamemode", "sandbox", 0, "The current gamemode");
-
 class CGamemodeSystem : public Gamemode::System
 {
 public:
@@ -1785,13 +1785,18 @@ public:
 	virtual void Refresh( );
 	virtual void Clear( );
 	virtual const IGamemodeSystem::Information &Active( );
-	virtual void FindByName( const std::string & );
+	virtual IGamemodeSystem::Information FindByName( const std::string & );
 	virtual void SetActive( const std::string & );
 	virtual const std::list<IGamemodeSystem::Information> &GetList( ) const;
 	virtual bool IsServerBlacklisted( char const*, char const*, char const*, char const*, char const* );
+
+	CGamemodeSystem();
+protected:
+	void AddGamemode(std::string gamemode);
+
 private:
-	std::list<IGamemodeSystem::Information> gamemodes;
-	IGamemodeSystem::Information active;
+	std::list<IGamemodeSystem::Information> m_pGamemodes;
+	IGamemodeSystem::Information m_pActive;
 };
 
 void CGamemodeSystem::OnJoinServer(const std::string&)
@@ -1804,8 +1809,63 @@ void CGamemodeSystem::OnLeaveServer()
 	Msg("CGamemodeSystem::OnLeaveServer\n");
 }
 
+uint64_t StringToUInt64(const char* str)
+{
+	char* end;
+	return strtoull( str, &end, 10);
+}
+
 void CGamemodeSystem::Refresh()
 {
+	m_pGamemodes.clear();
+
+	FileFindHandle_t findHandle;
+	const char* pFilename = g_pFullFileSystem->FindFirstEx( "gamemodes/*", "GAME", &findHandle);
+	while (pFilename)
+	{
+		std::string strFilename = pFilename;
+		if (g_pFullFileSystem->FindIsDirectory( findHandle ))
+		{
+			std::string path = "gamemodes/" + strFilename + "/" + strFilename + ".txt";
+			if (!g_pFullFileSystem->FileExists(path.c_str(), "GAME"))
+			{
+				pFilename = g_pFullFileSystem->FindNext( findHandle );
+				continue;
+			}
+
+			// Gmod adds the gamemode inside Gamemode::System::AddGamemode
+
+			KeyValues* kv = new KeyValues(pFilename);
+			kv->LoadFromFile(g_pFullFileSystem, path.c_str(), "GAME");
+
+			IGamemodeSystem::Information information;
+			KeyValues* settings = kv->FindKey("settings");
+
+			information.title = kv->GetString("title", "Missing Title");
+			information.name = kv->GetString("name", pFilename);
+			information.basename = kv->GetString("base", "base");
+			information.category = kv->GetString("category", "");
+			information.maps = kv->GetString("maps", "");
+			information.menusystem = kv->GetBool("menusystem", false);
+			information.dontcreate = kv->GetBool("dontcreate", false);
+			information.workshopid = StringToUInt64(kv->GetString("workshopid", "0"));
+
+			if (information.name == "")
+				information.name = information.title;
+
+			m_pGamemodes.push_back(information);
+
+			// ToDo: Fix an exploit that I reported a good while ago about the gamemode system
+		}
+
+		pFilename = g_pFullFileSystem->FindNext( findHandle );
+	}
+
+	g_pFullFileSystem->FindClose( findHandle );
+
+	if (m_pActive.title == "")
+		m_pActive = FindByName("sandbox");
+
 	Msg("CGamemodeSystem::Refresh\n");
 }
 
@@ -1817,23 +1877,36 @@ void CGamemodeSystem::Clear()
 const IGamemodeSystem::Information& CGamemodeSystem::Active()
 {
 	Msg("CGamemodeSystem::Active\n");
-	return active;
+	return m_pActive;
 }
 
-void CGamemodeSystem::FindByName(const std::string&)
+IGamemodeSystem::Information CGamemodeSystem::FindByName(const std::string& gamemode)
 {
 	Msg("CGamemodeSystem::FindByName\n");
+	for ( IGamemodeSystem::Information info : m_pGamemodes )
+	{
+		if ( info.name == gamemode )
+			return info;
+	}
+
+	IGamemodeSystem::Information info;
+	info.basename = "INVALID";
+
+	return info;
 }
 
-void CGamemodeSystem::SetActive(const std::string&)
+void CGamemodeSystem::SetActive(const std::string& gamemode)
 {
-	Msg("CGamemodeSystem::SetActive\n");
+	Msg("CGamemodeSystem::SetActive %s\n", gamemode.c_str());
+	IGamemodeSystem::Information info = FindByName(gamemode);
+	if ( info.basename != "INVALID" )
+		m_pActive = info;
 }
 
 const std::list<IGamemodeSystem::Information>& CGamemodeSystem::GetList() const
 {
 	Msg("CGamemodeSystem::GetList\n");
-	return gamemodes;
+	return m_pGamemodes;
 }
 
 bool CGamemodeSystem::IsServerBlacklisted(char const* address, char const* hostname, char const* description, char const* gm, char const* map)
@@ -1843,7 +1916,19 @@ bool CGamemodeSystem::IsServerBlacklisted(char const* address, char const* hostn
 	return false; //((CBaseFileSystem*)g_pFullFileSystem)->GetIGet()->MenuSystem()->IsServerBlacklisted(address, hostname, description, gm, map);
 }
 
+CGamemodeSystem::CGamemodeSystem()
+{
+	Refresh();
+	SetActive( "sandbox" );
+}
+
 CGamemodeSystem g_pGamemodeSystem;
+static void gamemode_Changed( IConVar *var, const char *pOldValue, float flOldValue )
+{
+	g_pGamemodeSystem.SetActive( ((ConVar*)var)->GetString() );
+}
+ConVar gamemode("gamemode", "sandbox", 0, "The current gamemode", gamemode_Changed);
+
 Gamemode::System* CFileSystem_Stdio::Gamemodes()
 {
 	Msg("CFileSystem_Stdio::Gamemodes\n");
@@ -1862,7 +1947,7 @@ public:
 	virtual void MountAsMapFix( uint32_t );
 	virtual void MountCurrentGame( const std::string & );
 private:
-	std::list<IGameDepotSystem::Information> games;
+	std::list<IGameDepotSystem::Information> m_pGames;
 };
 
 void CGameDepotySystem::Refresh()
@@ -1893,7 +1978,7 @@ void CGameDepotySystem::MarkGameAsMounted(const std::string)
 const std::list<IGameDepotSystem::Information>& CGameDepotySystem::GetList() const
 {
 	Msg("CGameDepotySystem::GetList\n");
-	return games;
+	return m_pGames;
 }
 
 void CGameDepotySystem::MountAsMapFix(uint32_t)
@@ -1948,7 +2033,6 @@ public:
 	virtual void ReloadLanguage( );
 	virtual void GetString( const char *, wchar_t *, int32_t );
 	virtual void UpdateSourceEngineLanguage( );
-
 protected:
 	void ProcessFile( std::string, const char* );
 	void TellLuaLanguageChanged( const char* );
@@ -1956,6 +2040,13 @@ protected:
 private:
 	std::unordered_map<std::string, std::string> m_pStrings;
 };
+
+extern Language2 g_pLanguage;
+static void language_Changed( IConVar *var, const char *pOldValue, float flOldValue )
+{
+	g_pLanguage.ReloadLanguage();
+}
+ConVar gmod_language( "gmod_language", "en", 0, "Changes language of Garry's mod", language_Changed );
 
 void Language2::ChangeLanguage( const char* lang )
 {
@@ -1971,6 +2062,7 @@ void Language2::ChangeLanguage_Steam(const char* lang)
 
 void Language2::ReloadLanguage()
 {
+	g_pLanguage.ChangeLanguage( gmod_language.GetString() );
 	Msg("Language::ReloadLanguage\n");
 }
 
@@ -2036,6 +2128,9 @@ void Language2::ProcessFile( std::string language, const char* idk ) // Gmod doe
 void Language2::TellLuaLanguageChanged( const char* language )
 {
 	IGet* get = ((CBaseFileSystem*)g_pFullFileSystem)->GetIGet();
+	if (!get)
+		return;
+
 	GarrysMod::Lua::ILuaShared* shared = (GarrysMod::Lua::ILuaShared*)get->LuaShared();
 	GarrysMod::Lua::ILuaInterface* LUA = shared->GetLuaInterface( GarrysMod::Lua::State::MENU );
 
@@ -2056,12 +2151,6 @@ void Language2::TellLuaLanguageChanged( const char* language )
 }
 
 Language2 g_pLanguage;
-static void language_Changed( IConVar *var, const char *pOldValue, float flOldValue )
-{
-	g_pLanguage.ChangeLanguage( ((ConVar*)var)->GetString() );
-}
-ConVar gmod_language( "gmod_language", "", 0, "Changes language of Garry's mod", language_Changed );
-
 CLanguage* CFileSystem_Stdio::Language( )
 {
 	Msg("CFileSystem_Stdio::Language\n");
