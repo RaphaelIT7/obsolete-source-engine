@@ -773,7 +773,10 @@ protected:
 public:
 	void						LogAccessToFile( char const *accesstype, char const *fullpath, char const *options );
 	void						Warning( FileWarningLevel_t level, PRINTF_FORMAT_STRING const char *fmt, ... );
-	FileHandle_t				FindFileInSearchPath( CFileOpenInfo &openInfo );
+	FileHandle_t				FindFileInSearchPath( CFileOpenInfo &openInfo ); // Is normally a protected function.
+#ifdef BUILD_GMOD
+	IGet*	GetIGet() { return m_pIGet; }; // Doesn't exist in Gmod
+#endif
 
 protected:
 	// Note: if pFoundStoreID is passed in, then it will set that to the CSearchPath::m_storeId value of the search path it found the file in.
@@ -827,6 +830,10 @@ protected:
 	void	RemoveFileFromSearchCache(const char* pFileName, const char* pathID);
 	CSearchPath*	GetPathFromSearchCache(const char* pFileName, const char* pathID);
 	void			NukeSearchCache(); // Do we even need this function?
+
+#ifdef BUILD_GMOD
+	IGet* m_pIGet;
+#endif
 
 	std::unordered_map<std::string, int> m_SearchCache;
 	// End of custom functions
