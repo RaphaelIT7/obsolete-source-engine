@@ -29,6 +29,7 @@
 #include "vstdlib/osversion.h"
 #include "steam/isteamugc.h"
 #include <GarrysMod/IGet.h>
+#include <GarrysMod/IMenuSystem.h>
 #include <GarrysMod/Lua/LuaShared.h>
 #include <GarrysMod/Lua/LuaInterface.h>
 
@@ -1835,10 +1836,11 @@ const std::list<IGamemodeSystem::Information>& CGamemodeSystem::GetList() const
 	return gamemodes;
 }
 
-bool CGamemodeSystem::IsServerBlacklisted(char const*, char const*, char const*, char const*, char const*)
+bool CGamemodeSystem::IsServerBlacklisted(char const* address, char const* hostname, char const* description, char const* gm, char const* map)
 {
 	Msg("CGamemodeSystem::IsServerBlacklisted\n");
-	return false;
+	// ToDo: Why do u crash :<
+	return false; //((CBaseFileSystem*)g_pFullFileSystem)->GetIGet()->MenuSystem()->IsServerBlacklisted(address, hostname, description, gm, map);
 }
 
 CGamemodeSystem g_pGamemodeSystem;
@@ -1998,32 +2000,32 @@ void Language2::ProcessFile( std::string language, const char* idk ) // Gmod doe
 	std::string lang_path = "resource/localization/" + language + "/";
 
 	FileFindHandle_t findHandle;
-	const char* pFilename = g_pFullFileSystem->FindFirstEx((lang_path + "*.properties").c_str(), "MOD", &findHandle);
+	const char* pFilename = g_pFullFileSystem->FindFirstEx( (lang_path + "*.properties").c_str(), "MOD", &findHandle );
 	while (pFilename)
 	{
-		FileHandle_t fh = g_pFullFileSystem->Open((lang_path + pFilename).c_str(), "r", "MOD");
+		FileHandle_t fh = g_pFullFileSystem->Open( (lang_path + pFilename).c_str(), "r", "MOD" );
 		if(fh)
 		{
-			int max_size = g_pFullFileSystem->Size(fh) + 1;
-			char* content = new char[max_size];
-			g_pFullFileSystem->Read(content, max_size, fh);
+			int max_size = g_pFullFileSystem->Size( fh ) + 1;
+			char* content = new char[ max_size ];
+			g_pFullFileSystem->Read( content, max_size, fh );
 
-			char* token = std::strtok(content, "\n");
-			while (token != nullptr) { // Loops thru each line and checks if a "=" exists.
-				char* equalsSign = std::strchr(token, '=');
-				if (equalsSign != nullptr) {
+			char* token = std::strtok( content, "\n" );
+			while ( token != nullptr ) { // Loops thru each line and checks if a "=" exists.
+				char* equalsSign = std::strchr( token, '=' );
+				if ( equalsSign != nullptr ) {
 					*equalsSign = '\0';
-					std::string key(token);
-					std::string value(equalsSign + 1);
-					m_pStrings[key] = value;
+					std::string key( token );
+					std::string value( equalsSign + 1 );
+					m_pStrings[ key ] = value;
 				}
 
-				token = std::strtok(nullptr, "\n");
+				token = std::strtok( nullptr, "\n" );
 			}
 
 			delete[] content;
 		}
-		g_pFullFileSystem->Close(fh);
+		g_pFullFileSystem->Close( fh );
 
 		pFilename = g_pFullFileSystem->FindNext( findHandle );
 	}
@@ -2035,7 +2037,7 @@ void Language2::TellLuaLanguageChanged( const char* language )
 {
 	IGet* get = ((CBaseFileSystem*)g_pFullFileSystem)->GetIGet();
 	GarrysMod::Lua::ILuaShared* shared = (GarrysMod::Lua::ILuaShared*)get->LuaShared();
-	GarrysMod::Lua::ILuaInterface* LUA = shared->GetLuaInterface(GarrysMod::Lua::State::MENU);
+	GarrysMod::Lua::ILuaInterface* LUA = shared->GetLuaInterface( GarrysMod::Lua::State::MENU );
 
 	if ( LUA )
 	{
