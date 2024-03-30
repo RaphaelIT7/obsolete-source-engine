@@ -434,3 +434,5 @@ thirdparty/**/out/
 # CMake
 out/
 CMakeFiles/
+
+enc_temp_folder/*

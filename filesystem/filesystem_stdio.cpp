@@ -28,6 +28,9 @@
 #include "tier1/utlrbtree.h"
 #include "vstdlib/osversion.h"
 #include "steam/isteamugc.h"
+#include <GarrysMod/IGet.h>
+#include <GarrysMod/Lua/LuaShared.h>
+#include <GarrysMod/Lua/LuaInterface.h>
 
 #include <iostream>
 #include <string>
@@ -1548,8 +1551,8 @@ void CFileSystem_Stdio::RemoveSearchPathsByGroup(int group)
 
 void CFileSystem_Stdio::SetGet(IGet* get)
 {
-	Msg("CAddonFileSystem::SetGet\n");
-	// Don't know
+	m_pIGet = get;
+	Msg("CFileSystem_Stdio::SetGet\n");
 }
 
 class CAddonFileSystem : public Addon::FileSystem
@@ -1945,16 +1948,18 @@ public:
 	virtual void UpdateSourceEngineLanguage( );
 
 protected:
-	void ProcessFile(std::string, const char*);
+	void ProcessFile( std::string, const char* );
+	void TellLuaLanguageChanged( const char* );
 
 private:
 	std::unordered_map<std::string, std::string> m_pStrings;
 };
 
-void Language2::ChangeLanguage(const char* lang)
+void Language2::ChangeLanguage( const char* lang )
 {
-	ProcessFile(lang, "");
-	Msg("Language::ChangeLanguage %s\n\n", lang);
+	ProcessFile( lang, "" );
+	TellLuaLanguageChanged( lang );
+	Msg( "Language::ChangeLanguage %s\n", lang );
 }
 
 void Language2::ChangeLanguage_Steam(const char* lang)
@@ -2024,6 +2029,28 @@ void Language2::ProcessFile( std::string language, const char* idk ) // Gmod doe
 	}
 
 	g_pFullFileSystem->FindClose( findHandle );
+}
+
+void Language2::TellLuaLanguageChanged( const char* language )
+{
+	IGet* get = ((CBaseFileSystem*)g_pFullFileSystem)->GetIGet();
+	GarrysMod::Lua::ILuaShared* shared = (GarrysMod::Lua::ILuaShared*)get->LuaShared();
+	GarrysMod::Lua::ILuaInterface* LUA = shared->GetLuaInterface(GarrysMod::Lua::State::MENU);
+
+	if ( LUA )
+	{
+		LUA->PushSpecial( GarrysMod::Lua::SPECIAL_GLOB );
+			LUA->GetField( -1, "LanguageChanged" );
+			if ( LUA->IsType(-1, GarrysMod::Lua::Type::Function ) )
+			{
+				LUA->PushString( language );
+				LUA->Call( 1, 0 );
+			} else {
+				LUA->Pop(1);
+			}
+
+		LUA->Pop(1);
+	}
 }
 
 Language2 g_pLanguage;
