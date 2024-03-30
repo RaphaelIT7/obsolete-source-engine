@@ -37,11 +37,22 @@ namespace IAddonSystem
 	};
 }
 
+namespace Steamworks::FileDetails
+{
+	class Request;
+}
+
 namespace Addon
 {
+	class FileSystem;
+
 	namespace Job
 	{
-		class Base;
+		class Base
+		{
+			public:
+				virtual void Init( Addon::FileSystem *, CSteamAPIContext * ) = 0;
+		};
 	}
 
 	class FileSystem
@@ -81,4 +92,107 @@ namespace Addon
 			virtual void Load( ) = 0;
 	};
 
+	namespace Task
+	{
+		class DownloadAddons : Addon::Job::Base
+		{
+			public:
+				virtual ~DownloadAddons( ) = 0;
+				virtual void Start( ) = 0;
+				virtual void Cycle( ) = 0;
+				virtual void Finished( ) = 0;
+				virtual void Init( Addon::FileSystem *, CSteamAPIContext * ) = 0;
+		};
+
+		class DownloadFile : Addon::Job::Base
+		{
+			public:
+				virtual ~DownloadFile( ) = 0;
+				virtual void Start( ) = 0;
+				virtual void Cycle( ) = 0;
+				virtual void Finished( ) = 0;
+				virtual void Init( Addon::FileSystem *, CSteamAPIContext * ) = 0;
+		};
+
+		class AddFloatingAddons : Addon::Job::Base
+		{
+			public:
+				virtual ~AddFloatingAddons( ) = 0;
+				virtual void Start( ) = 0;
+				virtual void Cycle( ) = 0;
+				virtual void Finished( ) = 0;
+				virtual void Init( Addon::FileSystem *, CSteamAPIContext * ) = 0;
+		};
+
+		class GetSubscriptions : Addon::Job::Base
+		{
+			public:
+				virtual ~GetSubscriptions( ) = 0;
+				virtual void Start( ) = 0;
+				virtual void Cycle( ) = 0;
+				virtual void Finished( ) = 0;
+				virtual void Init( Addon::FileSystem *, CSteamAPIContext * ) = 0;
+		};
+
+		class GetSubscriptions_Offline : Addon::Job::Base
+		{
+			public:
+				virtual ~GetSubscriptions_Offline( ) = 0;
+				virtual void Start( ) = 0;
+				virtual void Cycle( ) = 0;
+				virtual void Finished( ) = 0;
+				virtual void Init( Addon::FileSystem *, CSteamAPIContext * ) = 0;
+		};
+
+		class MountAvailable : Addon::Job::Base
+		{
+			public:
+				virtual ~MountAvailable( ) = 0;
+				virtual void Start( ) = 0;
+				virtual void Cycle( ) = 0;
+				virtual void Finished( ) = 0;
+				virtual void Init( Addon::FileSystem *, CSteamAPIContext * ) = 0;
+		};
+
+		class NotifyStart : Addon::Job::Base
+		{
+			public:
+				virtual ~NotifyStart( ) = 0;
+				virtual void Start( ) = 0;
+				virtual void Cycle( ) = 0;
+				virtual void Finished( ) = 0;
+				virtual void Init( Addon::FileSystem *, CSteamAPIContext * ) = 0;
+		};
+
+		class NotifyEnd : Addon::Job::Base
+		{
+			public:
+				virtual ~NotifyEnd( ) = 0;
+				virtual void Start( ) = 0;
+				virtual void Cycle( ) = 0;
+				virtual void Finished( ) = 0;
+				virtual void Init( Addon::FileSystem *, CSteamAPIContext * ) = 0;
+		};
+
+		class OnSubscribed : Addon::Job::Base
+		{
+			public:
+				virtual ~OnSubscribed( ) = 0;
+				virtual void Start( ) = 0;
+				virtual void Cycle( ) = 0;
+				virtual void Finished( ) = 0;
+				virtual void Init( Addon::FileSystem *, CSteamAPIContext * ) = 0;
+				virtual void OnReceiveFileInfo( Steamworks::FileDetails::Request * ) = 0;
+		};
+
+		class UpdateTotals : Addon::Job::Base
+		{
+			public:
+				virtual ~UpdateTotals( ) = 0;
+				virtual void Start( ) = 0;
+				virtual void Cycle( ) = 0;
+				virtual void Finished( ) = 0;
+				virtual void Init( Addon::FileSystem *, CSteamAPIContext * ) = 0;
+		};
+	}
 }
