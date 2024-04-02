@@ -2004,18 +2004,54 @@ public:
 	virtual void Refresh( );
 	virtual const std::list<ILegacyAddons::Information> &GetList( ) const;
 private:
-	std::list<ILegacyAddons::Information> addons;
+	std::list<ILegacyAddons::Information> m_pAddons;
 };
 
 void CLegacyAddonSystem::Refresh()
 {
+	for ( ILegacyAddons::Information info : m_pAddons )
+	{
+		g_pFullFileSystem->RemoveSearchPath( info.path.c_str(), "GAME" );
+		g_pFullFileSystem->RemoveSearchPath( info.path.c_str(), "thirdparty" );
+	}
+
+	m_pAddons.clear();
+
+	FileFindHandle_t findHandle;
+	const char* pFilename = g_pFullFileSystem->FindFirstEx("addons/*", "MOD", &findHandle );
+	while ( pFilename )
+	{
+		if( g_pFullFileSystem->FindIsDirectory( findHandle ) )
+		{
+			std::string path = "addons/";
+			path = path + pFilename;
+
+			char fullpath[1024];
+			g_pFullFileSystem->RelativePathToFullPath( path.c_str(), "MOD", fullpath, sizeof(fullpath) );
+
+
+			g_pFullFileSystem->AddSearchPath(fullpath, "GAME");
+			g_pFullFileSystem->AddSearchPath(fullpath, "thirdparty");
+
+			ILegacyAddons::Information information;
+			information.name = pFilename;
+			information.path = (std::string)fullpath;
+			information.luapath = path;
+			information.placeholder4 = ""; // ToDo: Find out.
+
+			m_pAddons.push_back(information);
+		}
+
+		pFilename = g_pFullFileSystem->FindNext( findHandle );
+	}
+
 	Msg("CLegacyAddonSystem::Refresh\n");
 }
 
 const std::list<ILegacyAddons::Information>& CLegacyAddonSystem::GetList() const
 {
 	Msg("CLegacyAddonSystem::GetList\n");
-	return addons;
+	return m_pAddons;
 }
 
 CLegacyAddonSystem g_pLegacyAddonSystem;
