@@ -1499,6 +1499,8 @@ void CBaseFileSystem::AddSearchPath( const char *pPath, const char *pathID, Sear
 
 	if (!m_pBaseLength || m_pBaseLength < 3)
 		m_pBaseLength = GetSearchPath( "BASE_PATH", true, m_pBaseDir, sizeof( m_pBaseDir ) );
+
+	NukeSearchCache(pathID);
 }
 
 //-----------------------------------------------------------------------------
@@ -1605,6 +1607,10 @@ bool CBaseFileSystem::RemoveSearchPath( const char *pPath, const char *pathID )
 		m_SearchPaths.Remove( i );
 		bret = true;
 	}
+
+	if (bret)
+		NukeSearchCache(pathID);
+
 	return bret;
 }
 
@@ -1625,6 +1631,8 @@ void CBaseFileSystem::RemoveSearchPaths( const char *pathID )
 			m_SearchPaths.FastRemove(i);
 		}
 	}
+
+	NukeSearchCache(pathID);
 }
 
 
@@ -2020,6 +2028,7 @@ void CBaseFileSystem::RemoveAllSearchPaths( void )
 	AUTO_LOCK( m_SearchPathsMutex );
 	m_SearchPaths.Purge();
 	//m_PackFileHandles.Purge();
+	NukeSearchCache(NULL);
 }
 
 
@@ -2339,29 +2348,52 @@ void CBaseFileSystem::AddFileToSearchCache( const char* pFileName, CSearchPath* 
 	if ( !fs_searchcache.GetBool() )
 		return;
 
-	m_SearchCache[ pFileName ] = path->m_storeId;
+	std::unordered_map<std::string, int> cache = m_SearchCache[path->GetPathIDString()];
+	cache[ pFileName ] = path->m_storeId;
 }
 
-void CBaseFileSystem::RemoveFileFromSearchCache( const char* pFileName, const char* pathID ) // ToDo: Check the pathID to not possibly give wrong results?
+void CBaseFileSystem::RemoveFileFromSearchCache( const char* pFileName, const char* pathID )
 {
-	m_SearchCache.erase( pFileName );
+	std::unordered_map<std::string, int> cache = m_SearchCache[pathID];
+	cache.erase( pFileName );
 }
 
 CBaseFileSystem::CSearchPath* CBaseFileSystem::GetPathFromSearchCache( const char* pFileName, const char* pathID )
 {
-	if (!fs_searchcache.GetBool())
+	if ( !fs_searchcache.GetBool() )
 		return nullptr;
 
-	auto it = m_SearchCache.find(pFileName);
-	if (it == m_SearchCache.end())
+	if ( pathID == NULL ) 
 		return nullptr;
 
-	return FindSearchPathByStoreId(it->second);
+	auto it = m_SearchCache.find( pathID );
+	if ( it == m_SearchCache.end() )
+		return nullptr;
+
+	std::unordered_map<std::string, int> cache = it->second;
+	auto fit = cache.find( pFileName );
+	if ( fit == cache.end() )
+		return nullptr;
+
+	return FindSearchPathByStoreId( fit->second );
 }
 
-void CBaseFileSystem::NukeSearchCache()
+void CBaseFileSystem::NukeSearchCache( const char* pathID )
 {
-	m_SearchCache.clear();
+	if ( !fs_searchcache.GetBool() )
+		return;
+
+	if ( pathID == NULL ) // Nuke Everything
+	{
+		m_SearchCache.clear();
+		return;
+	}
+
+	auto it = m_SearchCache.find( pathID );
+	if ( it == m_SearchCache.end() )
+		return;
+
+	it->second.clear(); // Clear the cache for that specific path
 }
 
 // Custom stuff ends
