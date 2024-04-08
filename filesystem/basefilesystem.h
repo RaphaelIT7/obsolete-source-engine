@@ -829,13 +829,13 @@ protected:
 	void	AddFileToSearchCache(const char* pFileName, CSearchPath* pPath);
 	void	RemoveFileFromSearchCache(const char* pFileName, const char* pathID);
 	CSearchPath*	GetPathFromSearchCache(const char* pFileName, const char* pathID);
-	void			NukeSearchCache(); // Do we even need this function?
+	void			NukeSearchCache(const char* pathID);
 
 #ifdef BUILD_GMOD
 	IGet* m_pIGet;
 #endif
 
-	std::unordered_map<std::string, int> m_SearchCache;
+	std::unordered_map<std::string, std::unordered_map<std::string, int>> m_SearchCache; // Key = PathId, Value = Cache for that path
 	// End of custom functions
 
 	struct CompiledKeyValuesPreloaders_t
