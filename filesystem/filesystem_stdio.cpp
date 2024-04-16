@@ -1554,6 +1554,7 @@ void CFileSystem_Stdio::SetGet(IGet* get)
 	Msg("CFileSystem_Stdio::SetGet\n");
 }
 
+ConVar fs_tellmeyoursecrets("fs_tellmeyoursecrets", "0");
 class CAddonFileSystem : public Addon::FileSystem
 {
 public:
@@ -2089,6 +2090,7 @@ void Language2::ChangeLanguage( const char* lang )
 
 void Language2::ChangeLanguage_Steam(const char* lang)
 {
+	g_pLanguage.ReloadLanguage(); // Should fix a bug where the Language is just not set.
 	Msg("Language::ChangeLanguage_Steam %s\n", lang);
 }
 
@@ -2117,6 +2119,17 @@ void Language2::UpdateSourceEngineLanguage()
 	Msg("Language::UpdateSourceEngineLanguage\n");
 }
 
+// Workaround to relace all \ in language strings. Gmod uses them for something but idk.
+std::string ReplaceAll( std::string str, const std::string& from, const std::string& to ) {
+    size_t start_pos = 0;
+    while( ( start_pos = str.find( from, start_pos ) ) != std::string::npos ) {
+        str.replace( start_pos, from.length(), to );
+        start_pos += to.length();
+    }
+
+    return str;
+}
+
 void Language2::ProcessFile( std::string language, const char* idk ) // Gmod does this definetly differently but this completly works
 {
 	m_pStrings.clear();
@@ -2141,7 +2154,7 @@ void Language2::ProcessFile( std::string language, const char* idk ) // Gmod doe
 					*equalsSign = '\0';
 					std::string key( token );
 					std::string value( equalsSign + 1 );
-					m_pStrings[ key ] = value;
+					m_pStrings[ key ] = ReplaceAll( value, "\\", "" );
 				}
 
 				token = std::strtok( nullptr, "\n" );
