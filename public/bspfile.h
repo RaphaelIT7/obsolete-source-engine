@@ -68,23 +68,23 @@ constexpr inline T NUM_DISP_POWER_TRIS(T power)
 // Common limits
 // leaffaces, leafbrushes, planes, and verts are still bounded by
 // 16 bit short limits
-#define	MAX_MAP_MODELS					1024
-#define	MAX_MAP_BRUSHES					8192
+#define	MAX_MAP_MODELS					4096
+#define	MAX_MAP_BRUSHES					16384
 #define	MAX_MAP_ENTITIES				8192
-#define	MAX_MAP_TEXINFO					12288
-#define MAX_MAP_TEXDATA					2048
+#define	MAX_MAP_TEXINFO					16384
+#define MAX_MAP_TEXDATA					8192
 #define MAX_MAP_DISPINFO				2048
 #define MAX_MAP_DISP_VERTS				( MAX_MAP_DISPINFO * ((1<<MAX_MAP_DISP_POWER)+1) * ((1<<MAX_MAP_DISP_POWER)+1) )
 #define MAX_MAP_DISP_TRIS				( (1 << MAX_MAP_DISP_POWER) * (1 << MAX_MAP_DISP_POWER) * 2 )
 #define MAX_DISPVERTS					NUM_DISP_POWER_VERTS( MAX_MAP_DISP_POWER )
 #define MAX_DISPTRIS					NUM_DISP_POWER_TRIS( MAX_MAP_DISP_POWER )
-#define	MAX_MAP_AREAS					256
+#define	MAX_MAP_AREAS					1024
 #define MAX_MAP_AREA_BYTES				(MAX_MAP_AREAS/8)
 #define	MAX_MAP_AREAPORTALS				1024
 // Planes come in pairs, thus an even number.
 #define	MAX_MAP_PLANES					65536
 #define	MAX_MAP_NODES					65536
-#define	MAX_MAP_BRUSHSIDES				65536
+#define	MAX_MAP_BRUSHSIDES				163840
 #define	MAX_MAP_LEAFS					65536
 #define	MAX_MAP_VERTS					65536
 #define MAX_MAP_VERTNORMALS				256000
@@ -103,7 +103,7 @@ constexpr inline T NUM_DISP_POWER_TRIS(T power)
 #define	MAX_MAP_TEXTURES				1024
 #define MAX_MAP_WORLDLIGHTS				8192
 #define MAX_MAP_CUBEMAPSAMPLES			1024
-#define MAX_MAP_OVERLAYS				512 
+#define MAX_MAP_OVERLAYS				8192 
 #define MAX_MAP_WATEROVERLAYS			16384
 #define MAX_MAP_TEXDATA_STRING_DATA		256000
 #define MAX_MAP_TEXDATA_STRING_TABLE	65536
@@ -801,6 +801,7 @@ constexpr int LEAF_FLAGS_SKY2D{0x04};  // This leaf has 2D sky in its PVS;
 #if defined( _X360 )
 #pragma bitfield_order( push, lsb_to_msb )
 #endif
+#pragma warning( disable:4201 )	// C4201: nonstandard extension used: nameless struct/union
 struct dleaf_version_0_t
 {
 	DECLARE_BYTESWAP_DATADESC();
@@ -854,6 +855,7 @@ struct dleaf_t
 	// Precaculated light info for entities.
 //	CompressedLightCube m_AmbientLighting;
 };
+#pragma warning( default:4201 )	// C4201: nonstandard extension used: nameless struct/union
 #if defined( _X360 )
 #pragma bitfield_order( pop )
 #endif
