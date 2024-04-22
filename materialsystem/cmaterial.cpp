@@ -719,10 +719,12 @@ bool CMaterial::IsPrecached( ) const
 	return (m_Flags & MATERIAL_IS_PRECACHED) != 0;
 }
 
+#ifdef BUILD_GMOD
 bool CMaterial::GMOD_Persist() const
 {
 	return true; // ToDo: Look into it.
 }
+#endif
 
 
 //-----------------------------------------------------------------------------

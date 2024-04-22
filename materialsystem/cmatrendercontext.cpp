@@ -289,10 +289,12 @@ float	CMatRenderContextBase::Knob( char *knobname, float *setvalue )
 	return 0.0f;
 }
 
+#ifdef BUILD_GMOD
 bool CMatRenderContextBase::GMOD_IsLowOnMemory()
 {
     return false;
 }
+#endif
 
 
 //-----------------------------------------------------------------------------

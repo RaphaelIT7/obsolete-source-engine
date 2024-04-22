@@ -33,12 +33,15 @@
 #include <GarrysMod/IMenuSystem.h>
 #include <GarrysMod/Lua/LuaShared.h>
 #include <GarrysMod/Lua/LuaInterface.h>
+#include <GarrysMod/Lua/LuaConVars.h>
 #include "tier1/KeyValues.h"
 
 #include <iostream>
 #include <string>
 #include <locale>
 #include <codecvt>
+#define VERSION_SAFE_STEAM_API_INTERFACES 1
+#include <steam/steam_api.h>
 
 #ifdef _X360
 #undef WaitForSingleObject
@@ -1554,7 +1557,22 @@ void CFileSystem_Stdio::SetGet(IGet* get)
 	Msg("CFileSystem_Stdio::SetGet\n");
 }
 
+class class_OnRemoteStoragePublishedFileSubscribed : CCallbackBase
+{
+	virtual void Run(void* subscribtion);
+	virtual void Run(void* subscribtion, bool bIOFailure, SteamAPICall_t callback_api) { Run(subscribtion); }
+	virtual int GetCallbackSizeBytes() { return sizeof(RemoteStoragePublishedFileSubscribed_t); }
+};
+
+class class_OnRemoteStoragePublishedFileUnsubscribed : CCallbackBase
+{
+	virtual void Run(void* subscribtion);
+	virtual void Run(void* subscribtion, bool bIOFailure, SteamAPICall_t callback_api) { Run(subscribtion); }
+	virtual int GetCallbackSizeBytes() { return sizeof(RemoteStoragePublishedFileUnsubscribed_t); }
+};
+
 ConVar fs_tellmeyoursecrets("fs_tellmeyoursecrets", "0");
+
 class CAddonFileSystem : public Addon::FileSystem
 {
 public:
@@ -1590,12 +1608,32 @@ public:
 	virtual const std::list<SteamUGCDetails_t> &GetSubList( ) const;
 	virtual void IsAddonValidPreInstall( SteamUGCDetails_t );
 	virtual void Load( );
+public:
+	void OnRemoteStoragePublishedFileSubscribed(RemoteStoragePublishedFileSubscribed_t*);
+	void OnRemoteStoragePublishedFileUnsubscribed(RemoteStoragePublishedFileUnsubscribed_t*);
+
 private:
 	std::list<IAddonSystem::Information> m_pAddons;
 	std::list<IAddonSystem::UGCInfo> m_pUgcAddons;
 	std::list<SteamUGCDetails_t> m_pSubscriptions;
-	IAddonDownloadNotification* m_pDownloadNotify;
+	std::list<Addon::Job::Base*> m_pJobs;
+	IAddonDownloadNotification* m_pDownloadNotify = nullptr;
+	class_OnRemoteStoragePublishedFileSubscribed* m_pSubscribeNotify = nullptr;
+	class_OnRemoteStoragePublishedFileUnsubscribed* m_pUnsubscribeNotify = nullptr;
+	CSteamAPIContext* m_pSteamContext = nullptr;
+	bool m_pChanged = false;
 };
+extern CAddonFileSystem g_pAddonFileSystem;
+
+void class_OnRemoteStoragePublishedFileSubscribed::Run(void* subscribed)
+{
+	g_pAddonFileSystem.OnRemoteStoragePublishedFileSubscribed((RemoteStoragePublishedFileSubscribed_t*)subscribed);
+}
+
+void class_OnRemoteStoragePublishedFileUnsubscribed::Run(void* subscribed)
+{
+	g_pAddonFileSystem.OnRemoteStoragePublishedFileUnsubscribed((RemoteStoragePublishedFileUnsubscribed_t*)subscribed);
+}
 
 void CAddonFileSystem::Clear()
 {
@@ -1650,6 +1688,38 @@ const std::list<IAddonSystem::UGCInfo>& CAddonFileSystem::GetUGCList( ) const
 void CAddonFileSystem::ScanForSubscriptions(CSteamAPIContext* context, const char* unknown)
 {
 	Msg("CAddonFileSystem::ScanForSubscriptions\n");
+
+	// if dedicated
+	//	GarrysMod::DedicatedServer::RunAddonProcess
+	if (!m_pSteamContext)
+	{
+		m_pSteamContext = context;
+	}
+
+	if (!m_pSubscribeNotify)
+	{
+		m_pSubscribeNotify = new class_OnRemoteStoragePublishedFileSubscribed;
+		SteamAPI_RegisterCallback((CCallbackBase*)m_pSubscribeNotify, RemoteStoragePublishedFileSubscribed_t::k_iCallback);
+	}
+
+	if (!m_pUnsubscribeNotify)
+	{
+		m_pUnsubscribeNotify = new class_OnRemoteStoragePublishedFileUnsubscribed;
+		SteamAPI_RegisterCallback((CCallbackBase*)m_pUnsubscribeNotify, RemoteStoragePublishedFileUnsubscribed_t::k_iCallback);
+	}
+
+	//AddJob(new Addon::Task::GetSubscriptions);
+	//AddJob(new Addon::Task::AddFloatingAddons);
+	//AddJob(new Addon::Task::MountAvailable);
+	//AddJob(new Addon::Task::DownloadAddons);
+
+	/*uint32 numSubscribedItems = m_pSteamContext->SteamUGC()->GetNumSubscribedItems();
+	PublishedFileId_t* subscribedItems = new PublishedFileId_t[numSubscribedItems];
+	m_pSteamContext->SteamUGC()->GetSubscribedItems(subscribedItems, numSubscribedItems);
+
+	for (uint32 i = 0; i < numSubscribedItems; ++i) {
+        std::cout << "Item ID: " << subscribedItems[i] << std::endl;
+    }*/
 }
 
 void CAddonFileSystem::Think()
@@ -1657,9 +1727,10 @@ void CAddonFileSystem::Think()
 	//Msg("CAddonFileSystem::Think\n");
 }
 
-void CAddonFileSystem::SetDownloadNotify(IAddonDownloadNotification*)
+void CAddonFileSystem::SetDownloadNotify(IAddonDownloadNotification* download_notify)
 {
 	Msg("CAddonFileSystem::SetDownloadNotify\n");
+	m_pDownloadNotify = download_notify;
 }
 
 int CAddonFileSystem::Notify()
@@ -1725,20 +1796,24 @@ void CAddonFileSystem::AddSubscription(const SteamUGCDetails_t&)
 	Msg("CAddonFileSystem::AddSubscription\n");
 }
 
-void CAddonFileSystem::AddJob(Addon::Job::Base*)
+void CAddonFileSystem::AddJob(Addon::Job::Base* base)
 {
 	Msg("CAddonFileSystem::AddJob\n");
+
+	m_pJobs.push_back(base);
+	base->Init(this, m_pSteamContext);
 }
 
 bool CAddonFileSystem::HasChanges()
 {
 	Msg("CAddonFileSystem::HasChanges\n");
-	return false;
+	return m_pChanged;
 }
 
 void CAddonFileSystem::MarkChanged()
 {
 	Msg("CAddonFileSystem::MarkChanged\n");
+	m_pChanged = true;
 }
 
 void CAddonFileSystem::AddonDownloaded(IAddonSystem::Information&)
@@ -1767,6 +1842,16 @@ void CAddonFileSystem::Load()
 	Msg("CAddonFileSystem::Load\n");
 }
 
+void CAddonFileSystem::OnRemoteStoragePublishedFileSubscribed(RemoteStoragePublishedFileSubscribed_t* addon) // Called when we subscribe to an Addon
+{
+	Msg("CAddonFileSystem::OnRemoteStoragePublishedFileSubscribed\n");
+}
+
+void CAddonFileSystem::OnRemoteStoragePublishedFileUnsubscribed(RemoteStoragePublishedFileUnsubscribed_t* addon) // Called when we subscribe to an Addon
+{
+	Msg("CAddonFileSystem::OnRemoteStoragePublishedFileSubscribed\n");
+}
+
 CAddonFileSystem g_pAddonFileSystem;
 Addon::FileSystem* CFileSystem_Stdio::Addons()
 {
@@ -1782,7 +1867,7 @@ public:
 	virtual void Refresh( );
 	virtual void Clear( );
 	virtual const IGamemodeSystem::Information &Active( );
-	virtual IGamemodeSystem::Information FindByName( const std::string & );
+	virtual const IGamemodeSystem::Information &FindByName( const std::string & ); // NOTE: On failure it will return an Information where everything is empty and only the name is set.
 	virtual void SetActive( const std::string & );
 	virtual const std::list<IGamemodeSystem::Information> &GetList( ) const;
 	virtual bool IsServerBlacklisted( char const*, char const*, char const*, char const*, char const* );
@@ -1795,6 +1880,13 @@ private:
 	std::list<IGamemodeSystem::Information> m_pGamemodes;
 	IGamemodeSystem::Information m_pActive;
 };
+
+extern CGamemodeSystem g_pGamemodeSystem;
+static void gamemode_Changed( IConVar *var, const char *pOldValue, float flOldValue )
+{
+	g_pGamemodeSystem.SetActive( ((ConVar*)var)->GetString() );
+}
+ConVar gamemode("gamemode", "sandbox", 0, "The current gamemode", gamemode_Changed);
 
 void CGamemodeSystem::OnJoinServer(const std::string&)
 {
@@ -1837,6 +1929,24 @@ void CGamemodeSystem::Refresh()
 
 			IGamemodeSystem::Information information;
 			KeyValues* settings = kv->FindKey("settings");
+			if (settings)
+			{
+				for ( KeyValues *sub = settings->GetFirstSubKey(); sub; sub = sub->GetNextKey() )
+				{
+					if (sub->GetBool("dontcreate", false))
+						continue;
+
+					const char* name = sub->GetString("name", "");
+					const char* text = sub->GetString("text", "");
+					const char* help = sub->GetString("help", "");
+					//const char* type = sub->GetString("type", "");
+					const char* default = sub->GetString("default", "");
+
+					Msg("Trying to create cvar: %s\n", name);
+					((GarrysMod::Lua::ILuaConVars*)((CBaseFileSystem*)g_pFullFileSystem)->GetIGet()->LuaConVars())->CreateConVar(name, default, help, FCVAR_ARCHIVE | FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_LUA_SERVER);
+				}
+			}
+
 
 			information.title = kv->GetString("title", "Missing Title");
 			information.name = kv->GetString("name", pFilename);
@@ -1844,7 +1954,7 @@ void CGamemodeSystem::Refresh()
 			information.category = kv->GetString("category", "");
 			information.maps = kv->GetString("maps", "");
 			information.menusystem = kv->GetBool("menusystem", false);
-			information.dontcreate = kv->GetBool("dontcreate", false);
+			information.exists = true;
 			information.workshopid = StringToUInt64(kv->GetString("workshopid", "0"));
 
 			if (information.name == "")
@@ -1860,8 +1970,7 @@ void CGamemodeSystem::Refresh()
 
 	g_pFullFileSystem->FindClose( findHandle );
 
-	if (m_pActive.title == "")
-		m_pActive = FindByName("sandbox");
+	SetActive( (std::string)gamemode.GetString() );
 
 	Msg("CGamemodeSystem::Refresh\n");
 }
@@ -1877,7 +1986,7 @@ const IGamemodeSystem::Information& CGamemodeSystem::Active()
 	return m_pActive;
 }
 
-IGamemodeSystem::Information CGamemodeSystem::FindByName(const std::string& gamemode)
+const IGamemodeSystem::Information &CGamemodeSystem::FindByName(const std::string& gamemode)
 {
 	Msg("CGamemodeSystem::FindByName\n");
 	for ( IGamemodeSystem::Information info : m_pGamemodes )
@@ -1887,7 +1996,7 @@ IGamemodeSystem::Information CGamemodeSystem::FindByName(const std::string& game
 	}
 
 	IGamemodeSystem::Information info;
-	info.basename = "INVALID";
+	info.name = gamemode;
 
 	return info;
 }
@@ -1895,9 +2004,14 @@ IGamemodeSystem::Information CGamemodeSystem::FindByName(const std::string& game
 void CGamemodeSystem::SetActive(const std::string& gamemode)
 {
 	Msg("CGamemodeSystem::SetActive %s\n", gamemode.c_str());
-	IGamemodeSystem::Information info = FindByName(gamemode);
-	if ( info.basename != "INVALID" )
-		m_pActive = info;
+	for ( IGamemodeSystem::Information info : m_pGamemodes )
+	{
+		if ( info.name == gamemode )
+		{
+			m_pActive = info;
+			break;
+		}
+	}
 }
 
 const std::list<IGamemodeSystem::Information>& CGamemodeSystem::GetList() const
@@ -1920,11 +2034,6 @@ CGamemodeSystem::CGamemodeSystem()
 }
 
 CGamemodeSystem g_pGamemodeSystem;
-static void gamemode_Changed( IConVar *var, const char *pOldValue, float flOldValue )
-{
-	g_pGamemodeSystem.SetActive( ((ConVar*)var)->GetString() );
-}
-ConVar gamemode("gamemode", "sandbox", 0, "The current gamemode", gamemode_Changed);
 
 Gamemode::System* CFileSystem_Stdio::Gamemodes()
 {
@@ -2090,8 +2199,8 @@ void Language2::ChangeLanguage( const char* lang )
 
 void Language2::ChangeLanguage_Steam(const char* lang)
 {
-	g_pLanguage.ReloadLanguage(); // Should fix a bug where the Language is just not set.
 	Msg("Language::ChangeLanguage_Steam %s\n", lang);
+	ReloadLanguage();
 }
 
 void Language2::ReloadLanguage()
@@ -2103,15 +2212,30 @@ void Language2::ReloadLanguage()
 std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 void Language2::GetString(const char* inputString, wchar_t* outputString, int32_t bufferSize)
 {
+	bool custom = false;
+	if (inputString[0] == '#')
+	{
+		char* copy = new char[strlen(inputString)];
+		strcpy(copy, inputString + 1);
+		inputString = copy;
+	}
+
 	auto it = m_pStrings.find(inputString);
 	if (it == m_pStrings.end())
 	{
 		std::wcsncpy(outputString, converter.from_bytes(inputString).c_str(), bufferSize);
+		Msg("Language::GetString FAILED! %s\n", inputString);
+		if (custom)
+			delete inputString;
+
 		return;
 	}
 
 	std::wcsncpy(outputString, converter.from_bytes(it->second).c_str(), bufferSize);
 	Msg("Language::GetString %s\n", inputString);
+
+	if (custom)
+			delete inputString;
 }
 
 void Language2::UpdateSourceEngineLanguage()
@@ -2155,10 +2279,14 @@ void Language2::ProcessFile( std::string language, const char* idk ) // Gmod doe
 					std::string key( token );
 					std::string value( equalsSign + 1 );
 					m_pStrings[ key ] = ReplaceAll( value, "\\", "" );
+
+					Msg("Added string %s\n", key.c_str());
 				}
 
 				token = std::strtok( nullptr, "\n" );
 			}
+
+			Msg("Loaded language file %s\n", pFilename);
 
 			delete[] content;
 		}
