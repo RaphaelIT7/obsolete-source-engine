@@ -34,6 +34,7 @@
 #include <GarrysMod/Lua/LuaShared.h>
 #include <GarrysMod/Lua/LuaInterface.h>
 #include <GarrysMod/Lua/LuaConVars.h>
+#include <GarrysMod/IAddonDownloadNotify.h>
 #include "tier1/KeyValues.h"
 
 #include <iostream>
@@ -1612,6 +1613,10 @@ public:
 	void OnRemoteStoragePublishedFileSubscribed(RemoteStoragePublishedFileSubscribed_t*);
 	void OnRemoteStoragePublishedFileUnsubscribed(RemoteStoragePublishedFileUnsubscribed_t*);
 
+public:
+	void OnSteam_OnQueryUGCDetails( SteamUGCQueryCompleted_t* pResult, bool error);
+	CCallResult<CAddonFileSystem, SteamUGCQueryCompleted_t> m_callbackQueryUGCDetails;
+
 private:
 	std::list<IAddonSystem::Information> m_pAddons;
 	std::list<IAddonSystem::UGCInfo> m_pUgcAddons;
@@ -1622,6 +1627,7 @@ private:
 	class_OnRemoteStoragePublishedFileUnsubscribed* m_pUnsubscribeNotify = nullptr;
 	CSteamAPIContext* m_pSteamContext = nullptr;
 	bool m_pChanged = false;
+	std::vector<std::string> addonnomount;
 };
 extern CAddonFileSystem g_pAddonFileSystem;
 
@@ -1643,6 +1649,9 @@ void CAddonFileSystem::Clear()
 void CAddonFileSystem::Refresh()
 {
 	Msg("CAddonFileSystem::Refresh\n");
+
+	Load();
+	MarkChanged();
 }
 
 int CAddonFileSystem::MountFile(const std::string& file, std::vector<std::string>* filelist)
@@ -1653,29 +1662,72 @@ int CAddonFileSystem::MountFile(const std::string& file, std::vector<std::string
 
 bool CAddonFileSystem::ShouldMount(const std::string& file)
 {
-	Msg("CAddonFileSystem::ShouldMount\n");
+	Msg("CAddonFileSystem::ShouldMount1 %s\n", file.c_str());
+	auto itr = std::find(addonnomount.begin(), addonnomount.end(), file);
+	if (itr != addonnomount.end())
+		return false;
+
 	return false;
 }
 
 bool CAddonFileSystem::ShouldMount(uint64_t workshopid)
 {
-	Msg("CAddonFileSystem::ShouldMount\n");
+	Msg("CAddonFileSystem::ShouldMount2 %llu\n", workshopid);
+	auto itr = std::find(addonnomount.begin(), addonnomount.end(), std::to_string(workshopid));
+	if (itr != addonnomount.end())
+		return false;
+
+	for (IAddonSystem::Information info : m_pAddons)
+	{
+		if (info.wsid == workshopid)
+		{
+			return true;
+		}
+	}
+
+	Msg("CAddonFileSystem::ShouldMount2 Nope? %llu\n", workshopid);
+
 	return false;
 }
 
 void CAddonFileSystem::SetShouldMount(const std::string& file, bool shouldmount)
 {
 	Msg("CAddonFileSystem::SetShouldMount\n");
+
+	auto itr = std::find(addonnomount.begin(), addonnomount.end(), file);
+	if (itr != addonnomount.end())
+	{
+		if (shouldmount)
+		{
+			addonnomount.erase(itr);
+		}
+	} else if (!shouldmount) {
+		addonnomount.push_back(file);
+	}
 }
 
 void CAddonFileSystem::Save()
 {
+	KeyValues* kv = new KeyValues("addonnomount");
+	KeyValues* list = kv->CreateNewKey();
+
+	int i = 0;
+	for (std::string wsid : addonnomount)
+	{
+		++i;
+		list->SetString(std::to_string(i).c_str(), wsid.c_str());
+	}
+
+	//kv->SaveToFile(g_pFullFileSystem, "cfg/addonnomount.txt", "DEFAULT_WRITE_PATH"); // BUG: It crashes here
+	kv->deleteThis();
+
 	Msg("CAddonFileSystem::Save\n");
 }
 
 const std::list<IAddonSystem::Information>& CAddonFileSystem::GetList( ) const
 {
 	Msg("CAddonFileSystem::GetList\n");
+
 	return m_pAddons;
 }
 
@@ -1685,7 +1737,7 @@ const std::list<IAddonSystem::UGCInfo>& CAddonFileSystem::GetUGCList( ) const
 	return m_pUgcAddons;
 }
 
-void CAddonFileSystem::ScanForSubscriptions(CSteamAPIContext* context, const char* unknown)
+void CAddonFileSystem::ScanForSubscriptions(CSteamAPIContext* context, const char* unknown) // NOTE: Gmod uses the Steamworks 1.57. The sourcesdk-minimal is outdated.
 {
 	Msg("CAddonFileSystem::ScanForSubscriptions\n");
 
@@ -1708,23 +1760,78 @@ void CAddonFileSystem::ScanForSubscriptions(CSteamAPIContext* context, const cha
 		SteamAPI_RegisterCallback((CCallbackBase*)m_pUnsubscribeNotify, RemoteStoragePublishedFileUnsubscribed_t::k_iCallback);
 	}
 
+	// ToDo: Move the code below into Addon::Task::GetSubscriptions
 	//AddJob(new Addon::Task::GetSubscriptions);
+
+	if (m_pDownloadNotify)
+		m_pDownloadNotify->Start();
+
+	CUtlVector<PublishedFileId_t> m_vecSubscribedAddons;
+	uint32 numSubscribedItems = m_pSteamContext->SteamUGC()->GetNumSubscribedItems();
+	m_vecSubscribedAddons.AddMultipleToTail( numSubscribedItems );
+	m_pSteamContext->SteamUGC()->GetSubscribedItems(m_vecSubscribedAddons.Base(), numSubscribedItems);
+
+	Msg("Addon count: %i\n", (int)numSubscribedItems);
+
+	UGCQueryHandle_t ugcQuery = m_pSteamContext->SteamUGC()->CreateQueryUGCDetailsRequest( m_vecSubscribedAddons.Base(), numSubscribedItems );
+	bool setmeta = m_pSteamContext->SteamUGC()->SetReturnMetadata( ugcQuery, true );
+	bool setcache = m_pSteamContext->SteamUGC()->SetAllowCachedResponse( ugcQuery, 0 );
+	if (ugcQuery == k_UGCQueryHandleInvalid || !setmeta || !setcache)
+	{
+		Msg("Failed to get data for all Addons\n");
+		return;
+	}
+
+	for (int i=0; i<numSubscribedItems;++i)
+	{
+		PublishedFileId_t id = m_vecSubscribedAddons[i];
+		/*IAddonSystem::UGCInfo ugcinfo;
+		ugcinfo.creator = 0;
+		ugcinfo.file = ""; // Contains type and tags like Dupe,machines
+		ugcinfo.placeholder1 = "";
+		ugcinfo.pubdate = 0;
+		ugcinfo.title = ((std::string)"Unknown Addon #") + std::to_string(id);
+		ugcinfo.wsid = id;
+		m_pUgcAddons.push_back(ugcinfo);*/
+
+		// NOTE: Gmod precreates the Addon information for each addon before it even received their Information. Only the Addon Title and wsid will be set!
+		/*IAddonSystem::Information info;
+		info.creator = 0;
+		info.file = "";
+		info.hcontent_file = 0;
+		info.hcontent_preview = 0;
+		info.placeholder1 = ""; // Always an empty string?
+		info.size = 0;
+		info.timeadded = 0;
+		info.tags = "";
+		info.time_updated = 0;
+		info.title = ((std::string)"Unknown Addon #") + std::to_string(id);
+		info.wsid = id;
+
+		m_pAddons.push_back(info);*/
+	}
+
+	SteamAPICall_t hSteamAPICall = m_pSteamContext->SteamUGC()->SendQueryUGCRequest( ugcQuery );
+	m_callbackQueryUGCDetails.Set( hSteamAPICall, this, &CAddonFileSystem::OnSteam_OnQueryUGCDetails );
+
 	//AddJob(new Addon::Task::AddFloatingAddons);
 	//AddJob(new Addon::Task::MountAvailable);
 	//AddJob(new Addon::Task::DownloadAddons);
-
-	/*uint32 numSubscribedItems = m_pSteamContext->SteamUGC()->GetNumSubscribedItems();
-	PublishedFileId_t* subscribedItems = new PublishedFileId_t[numSubscribedItems];
-	m_pSteamContext->SteamUGC()->GetSubscribedItems(subscribedItems, numSubscribedItems);
-
-	for (uint32 i = 0; i < numSubscribedItems; ++i) {
-        std::cout << "Item ID: " << subscribedItems[i] << std::endl;
-    }*/
 }
 
 void CAddonFileSystem::Think()
 {
 	//Msg("CAddonFileSystem::Think\n");
+	((CBaseFileSystem*)g_pFullFileSystem)->GetIGet()->RunSteamCallbacks();
+
+	if (m_pChanged)
+	{
+		m_pChanged = false;
+		//IGet* get = ((CBaseFileSystem*)g_pFullFileSystem)->GetIGet();
+		
+		if (m_pDownloadNotify)
+			m_pDownloadNotify->NotifySubscriptionChanges();
+	}
 }
 
 void CAddonFileSystem::SetDownloadNotify(IAddonDownloadNotification* download_notify)
@@ -1739,9 +1846,17 @@ int CAddonFileSystem::Notify()
 	return 0;
 }
 
-bool CAddonFileSystem::IsSubscribed(uint64_t)
+bool CAddonFileSystem::IsSubscribed(uint64_t workshopid)
 {
-	Msg("CAddonFileSystem::IsSubscribed\n");
+	Msg("CAddonFileSystem::IsSubscribed %llu\n", workshopid);
+	for (IAddonSystem::Information info : m_pAddons)
+	{
+		if (info.wsid == workshopid)
+		{
+			return true;
+		}
+	}
+
 	return false;
 }
 
@@ -1791,8 +1906,49 @@ void CAddonFileSystem::AddFile(const SteamUGCDetails_t&)
 	Msg("CAddonFileSystem::AddFile\n");
 }
 
-void CAddonFileSystem::AddSubscription(const SteamUGCDetails_t&)
+void CAddonFileSystem::AddSubscription(const SteamUGCDetails_t& details)
 {
+	/*IAddonSystem::UGCInfo ugcinfo; // UGC addons are for dupes and probably saves
+	ugcinfo.creator = details.m_ulSteamIDOwner;
+	ugcinfo.file = details.m_pchFileName;
+	ugcinfo.placeholder1 = "";
+	ugcinfo.pubdate = details.m_rtimeCreated;
+	ugcinfo.title = details.m_rgchTitle;
+	ugcinfo.wsid = details.m_nPublishedFileId;
+	m_pUgcAddons.push_back(ugcinfo);*/
+
+	IAddonSystem::Information info;
+	/*bool found = false;
+	for (IAddonSystem::Information addon : m_pAddons)
+	{
+		if (addon.wsid == details.m_nPublishedFileId)
+		{
+			info = addon;
+			found = true;
+			break;
+		}
+	}
+
+	if (!found)
+		m_pAddons.push_back(info);*/
+
+	info.creator = details.m_ulSteamIDOwner;
+	info.file = ""; //details.m_pchFileName;
+	info.hcontent_file = details.m_hFile;
+	info.hcontent_preview = details.m_hPreviewFile;
+	info.placeholder1 = "";
+	info.size = details.m_nFileSize;
+	info.timeadded = details.m_rtimeCreated;
+	info.tags = details.m_rgchTags;
+	info.time_updated = details.m_rtimeUpdated;
+	info.title = details.m_rgchTitle;
+	info.wsid = (uint64_t)details.m_nPublishedFileId;
+
+	m_pAddons.push_back(info);
+
+	Msg("Addon ID: %llu\n", info.wsid);
+
+	MarkChanged();
 	Msg("CAddonFileSystem::AddSubscription\n");
 }
 
@@ -1839,7 +1995,21 @@ void CAddonFileSystem::IsAddonValidPreInstall(SteamUGCDetails_t)
 
 void CAddonFileSystem::Load()
 {
-	Msg("CAddonFileSystem::Load\n");
+	addonnomount.clear();
+
+	KeyValues* kv = new KeyValues("addonnomount");
+	kv->LoadFromFile(g_pFullFileSystem, "cfg/addonnomount.txt", "DEFAULT_WRITE_PATH");
+
+	int i = 0;
+	for (KeyValues *sub = kv->GetFirstValue(); sub; sub = sub->GetNextValue())
+	{
+		++i;
+		addonnomount.push_back(sub->GetString(std::to_string(i).c_str(), ""));
+	}
+
+	kv->deleteThis();
+
+	Msg("CAddonFileSystem::Load %i\n", addonnomount.size());
 }
 
 void CAddonFileSystem::OnRemoteStoragePublishedFileSubscribed(RemoteStoragePublishedFileSubscribed_t* addon) // Called when we subscribe to an Addon
@@ -1850,6 +2020,38 @@ void CAddonFileSystem::OnRemoteStoragePublishedFileSubscribed(RemoteStoragePubli
 void CAddonFileSystem::OnRemoteStoragePublishedFileUnsubscribed(RemoteStoragePublishedFileUnsubscribed_t* addon) // Called when we subscribe to an Addon
 {
 	Msg("CAddonFileSystem::OnRemoteStoragePublishedFileSubscribed\n");
+}
+
+void CAddonFileSystem::OnSteam_OnQueryUGCDetails(SteamUGCQueryCompleted_t* pResult, bool error)
+{
+	Msg("Results: %i\n", (int)pResult->m_unNumResultsReturned);
+	for (int i=0; i<pResult->m_unNumResultsReturned;++i)
+	{
+		SteamUGCDetails_t details = { 0 };
+		if (!error && !(m_pSteamContext->SteamUGC()->GetQueryUGCResult(pResult->m_handle, i, &details) && details.m_eResult == k_EResultOK))
+		{
+			Warning("Failed to fetch information for some Addon\n");
+			error = true;
+		}
+
+		char szMeta[k_cchDeveloperMetadataMax] = { 0 };
+		if ( !error && !m_pSteamContext->SteamUGC()->GetQueryUGCMetadata( pResult->m_handle, i, szMeta, sizeof( szMeta ) ) )
+		{
+			error = true;
+			Warning("Failed to get metadata for UGC file %llu\n", details.m_nPublishedFileId);
+		}
+
+		if (error)
+		{
+			Warning("Failed to get details for some addon.");
+			continue;
+		}
+
+		AddSubscription(details);
+	}
+
+	if (m_pDownloadNotify)
+			m_pDownloadNotify->Finish();
 }
 
 CAddonFileSystem g_pAddonFileSystem;
@@ -1941,8 +2143,6 @@ void CGamemodeSystem::Refresh()
 					const char* help = sub->GetString("help", "");
 					//const char* type = sub->GetString("type", "");
 					const char* default = sub->GetString("default", "");
-
-					Msg("Trying to create cvar: %s\n", name);
 					((GarrysMod::Lua::ILuaConVars*)((CBaseFileSystem*)g_pFullFileSystem)->GetIGet()->LuaConVars())->CreateConVar(name, default, help, FCVAR_ARCHIVE | FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_LUA_SERVER);
 				}
 			}
@@ -2238,7 +2438,7 @@ void Language2::GetString(const char* inputString, wchar_t* outputString, int32_
 			delete inputString;
 }
 
-void Language2::UpdateSourceEngineLanguage()
+void Language2::UpdateSourceEngineLanguage() // Unused?
 {
 	Msg("Language::UpdateSourceEngineLanguage\n");
 }
@@ -2279,14 +2479,10 @@ void Language2::ProcessFile( std::string language, const char* idk ) // Gmod doe
 					std::string key( token );
 					std::string value( equalsSign + 1 );
 					m_pStrings[ key ] = ReplaceAll( value, "\\", "" );
-
-					Msg("Added string %s\n", key.c_str());
 				}
 
 				token = std::strtok( nullptr, "\n" );
 			}
-
-			Msg("Loaded language file %s\n", pFilename);
 
 			delete[] content;
 		}

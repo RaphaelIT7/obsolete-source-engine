@@ -5,6 +5,8 @@
 #include <vector>
 #include <list>
 
+// #define GMOD_DEDICATED
+
 class CSteamAPIContext;
 class IAddonDownloadNotification;
 struct SteamUGCDetails_t;
@@ -21,9 +23,9 @@ namespace IAddonSystem
 		uint64_t wsid;
 		uint64_t creator;
 		uint64_t hcontent_file;
-		uint64_t placeholder4;
+		uint64_t size;
 		uint64_t hcontent_preview;
-		uint32_t placeholder6;
+		uint32_t timeadded;
 	};
 
 	struct UGCInfo
@@ -60,13 +62,17 @@ namespace Addon
 		public:
 			virtual void Clear( ) = 0;
 			virtual void Refresh( ) = 0;
+#ifndef GMOD_DEDICATED
 			virtual int MountFile( const std::string &, std::vector<std::string> * ) = 0;
+#endif
 			virtual bool ShouldMount( const std::string & ) = 0;
 			virtual bool ShouldMount( uint64_t ) = 0;
 			virtual void SetShouldMount( const std::string &, bool ) = 0;
 			virtual void Save( ) = 0;
 			virtual const std::list<IAddonSystem::Information> &GetList( ) const = 0;
+#ifndef GMOD_DEDICATED
 			virtual const std::list<IAddonSystem::UGCInfo> &GetUGCList( ) const = 0;
+#endif
 			virtual void ScanForSubscriptions( CSteamAPIContext *, const char * ) = 0;
 			virtual void Think( ) = 0;
 			virtual void SetDownloadNotify( IAddonDownloadNotification * ) = 0;
@@ -74,21 +80,30 @@ namespace Addon
 			virtual bool IsSubscribed( uint64_t ) = 0;
 			virtual const IAddonSystem::Information *FindFileOwner( const std::string & ) = 0;
 			virtual void AddFile( const IAddonSystem::Information & ) = 0;
+#ifndef GMOD_DEDICATED
 			virtual void ClearAllGMAs( ) = 0;
 			virtual void GetSteamUGCFile( uint64_t, bool ) = 0;
 			virtual void UnmountAddon( uint64_t ) = 0;
 			virtual void UnmountServerAddons( ) = 0;
 			virtual void MountFloatingAddons( ) = 0;
+#endif
 			virtual void Shutdown( ) = 0;
 			virtual void AddFile( const SteamUGCDetails_t & ) = 0;
+#ifndef GMOD_DEDICATED
 			virtual void AddSubscription( const SteamUGCDetails_t & ) = 0;
+#endif
 			virtual void AddJob( Job::Base * ) = 0;
+#ifdef GMOD_DEDICATED
+			virtual void* Notify( ) = 0;
+#endif
 			virtual bool HasChanges( ) = 0;
 			virtual void MarkChanged( ) = 0;
 			virtual void AddonDownloaded( IAddonSystem::Information & ) = 0;
+#ifndef GMOD_DEDICATED
 			virtual void NotifyAddonFailedToDownload( IAddonSystem::Information & ) = 0;
 			virtual const std::list<SteamUGCDetails_t> &GetSubList( ) const = 0;
 			virtual void IsAddonValidPreInstall( SteamUGCDetails_t ) = 0;
+#endif
 			virtual void Load( ) = 0;
 	};
 
