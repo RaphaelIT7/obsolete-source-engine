@@ -85,7 +85,6 @@ namespace Addon
 			virtual void AddFile( const SteamUGCDetails_t & ) = 0;
 			virtual void AddSubscription( const SteamUGCDetails_t & ) = 0;
 			virtual void AddJob( Job::Base * ) = 0;
-			virtual void* Notify( ) = 0;
 			virtual bool HasChanges( ) = 0;
 			virtual void MarkChanged( ) = 0;
 			virtual void AddonDownloaded( IAddonSystem::Information & ) = 0;
