@@ -14,7 +14,11 @@
 #include <tier0/dbg.h>		// for Assert & AssertMsg
 #include "tier1/passwordhash.h"
 #include "tier1/utlmemory.h"
-#include <steam/steamtypes.h> // for Salt_t
+
+//#include <steam/steamtypes.h> // for Salt_t
+// NOTE: SteamWorks 1.57 doesn't include Salt_t anymore
+const int k_cubSaltSize   = 8;
+typedef	uint8 Salt_t[ k_cubSaltSize ];
 
 extern void FreeListRNG();
 
