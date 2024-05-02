@@ -1081,9 +1081,9 @@ public:
 	virtual void				GetRenderTargetFrameBufferDimensions( int & nWidth, int & nHeight ) = 0;
 
 	// returns the display device name that matches the adapter index we were started with
-#ifndef BUILD_GMOD
+//#ifndef BUILD_GMOD
 	virtual char *GetDisplayDeviceName() const = 0;
-#endif
+//#endif
 
 	// creates a texture suitable for use with materials from a raw stream of bits.
 	// The bits will be retained by the material system and can be freed upon return.

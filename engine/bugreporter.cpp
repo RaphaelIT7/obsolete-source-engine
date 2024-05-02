@@ -2801,14 +2801,14 @@ void CBugUIPanel::CheckContinueQueryingSteamForCSERList()
 		return;
 	}
 	
-	uint32 unIP;
+	/*uint32 unIP;
 	uint16 usPort;
 	Steam3Client().SteamUtils()->GetCSERIPPort( &unIP, &usPort );
 	if ( unIP )
 	{
 		m_cserIP.SetIPAndPort( unIP, usPort );
 		m_bQueryingSteamForCSER = false;
-	}
+	}*/
 }
 
 static CBugUIPanel *g_pBugUI = NULL;

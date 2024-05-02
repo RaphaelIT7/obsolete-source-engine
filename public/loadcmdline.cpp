@@ -76,7 +76,7 @@ void LoadCmdLineFromFile( int &argc, char **&argv, const char *keyname, const ch
 {
 	sFoundConfigArgs = false;
 
-	Assert( g_pFileSystem );
+	//assert( g_pFileSystem );
 	if( !g_pFileSystem )
 		return;
 

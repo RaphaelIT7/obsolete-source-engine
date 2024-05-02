@@ -1801,12 +1801,12 @@ public:
 		return 0;
 	}
 
-#ifndef BUILD_GMOD
+//#ifndef BUILD_GMOD
 	virtual char *GetDisplayDeviceName() const OVERRIDE
 	{
 		return "";
 	}
-#endif
+//#endif
 
 	// Creates/destroys morph data associated w/ a particular material
 	IMorph *CreateMorph( MorphFormat_t, const char *pDebugName )

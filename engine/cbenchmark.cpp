@@ -130,16 +130,7 @@ void CBenchmarkResults::Upload()
 	{
 		Warning("No benchmark results to upload. Please use bench_start <file_name> and bench_end.\n");
 		return;
-	}
-	
-	// dimhotepus: Notify when no Steam.
-	if (!Steam3Client().SteamUtils())
-	{
-		Warning("Steam connection required. Please login into Steam.\n");
-		return;
-	}
-
-	uint32 cserIP = 0;
+	/*uint32 cserIP = 0;
 	uint16 cserPort = 0;
 	uint32 remainingAttempts = 50;
 	while ( cserIP == 0 && remainingAttempts-- > 0 )
@@ -172,6 +163,8 @@ void CBenchmarkResults::Upload()
 				m_szFilename, netadr_CserIP.ToString());
 		}
 	}
+
+	kv->deleteThis();*/
 #endif
 }
 

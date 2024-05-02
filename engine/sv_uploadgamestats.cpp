@@ -320,7 +320,8 @@ public:
 		if ( VCRGetMode() != VCR_Playback )
 #endif
 		{
-			pSteamUtils->GetCSERIPPort( &unIP, &usPort );
+			// ToDo: What did it do?
+			//pSteamUtils->GetCSERIPPort( &unIP, &usPort );
 		}
 #if !defined( NO_VCR )
 		VCRGenericValue( "a", &unIP, sizeof( unIP ) );	

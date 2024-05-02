@@ -483,11 +483,11 @@ CON_COMMAND( status, "Display map and connection status." )
 		CUtlString sPublicIPInfo;
 		if ( !Steam3Server().BLanOnly() )
 		{
-			uint32 unPublicIP = Steam3Server().GetPublicIP();
-			if ( unPublicIP != 0 )
+			SteamIPAddress_t unPublicIP = Steam3Server().GetPublicIP();
+			if ( unPublicIP.IsSet() )
 			{
 				netadr_t addr;
-				addr.SetIP( unPublicIP );
+				addr.SetIP( unPublicIP.m_unIPv4 );
 				sPublicIPInfo.Format("  (public ip: %s)", addr.ToString( true ) );
 			}
 		}

@@ -505,7 +505,7 @@ IClient *CBaseServer::ConnectClient ( netadr_t &adr, int protocol, int challenge
 		// Need to make sure the master server is updated with the rejected connection because
 		// we called Steam3Server().NotifyClientConnect() in CheckChallengeType() above.
 		if ( pSteamGameServer && authProtocol == PROTOCOL_STEAM )
-			pSteamGameServer->SendUserDisconnect( client->m_SteamID ); 
+			pSteamGameServer->SendUserDisconnect_DEPRECATED( client->m_SteamID ); 
 
 		RejectConnection( adr, clientChallenge, "#GameUI_ServerRejectBanned" );
 		return NULL;
@@ -517,7 +517,7 @@ IClient *CBaseServer::ConnectClient ( netadr_t &adr, int protocol, int challenge
 		// Need to make sure the master server is updated with the rejected connection because
 		// we called Steam3Server().NotifyClientConnect() in CheckChallengeType() above.
 		if ( pSteamGameServer && authProtocol == PROTOCOL_STEAM )
-			pSteamGameServer->SendUserDisconnect( client->m_SteamID ); 
+			pSteamGameServer->SendUserDisconnect_DEPRECATED( client->m_SteamID ); 
 
 		return NULL;
 	}
@@ -533,7 +533,7 @@ IClient *CBaseServer::ConnectClient ( netadr_t &adr, int protocol, int challenge
 		// Need to make sure the master server is updated with the rejected connection because
 		// we called Steam3Server().NotifyClientConnect() in CheckChallengeType() above.
 		if ( pSteamGameServer && authProtocol == PROTOCOL_STEAM )
-			pSteamGameServer->SendUserDisconnect( client->m_SteamID ); 
+			pSteamGameServer->SendUserDisconnect_DEPRECATED( client->m_SteamID ); 
 
 		RejectConnection( adr, clientChallenge, "#GameUI_ServerRejectFailedChannel" );
 		return NULL;
@@ -1482,7 +1482,7 @@ bool CBaseServer::CheckChallengeType( CBaseClient * client, int nNewUserID, neta
 			{
 				ISteamGameServer *pSteamGameServer = Steam3Server().SteamGameServer();
 				if ( pSteamGameServer )
-					pSteamGameServer->SendUserDisconnect( client->m_SteamID);
+					pSteamGameServer->SendUserDisconnect_DEPRECATED( client->m_SteamID);
 
 				RejectConnection( adr, clientChallenge, "#GameUI_ServerRejectMustUseMatchmaking" );
 				return false;
@@ -1820,7 +1820,7 @@ void CBaseServer::UpdateMasterServer()
 	if ( serverGameDLL && serverGameDLL->ShouldHideServer() )
 		bActive = false;
 	
-	Steam3Server().SteamGameServer()->EnableHeartbeats( bActive );
+	Steam3Server().SteamGameServer()->SetAdvertiseServerActive( bActive );
 
 	if ( !bActive )
 		return;

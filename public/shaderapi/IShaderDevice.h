@@ -271,9 +271,9 @@ public:
 #if defined(DX_TO_GL_ABSTRACTION) || defined(BUILD_GMOD)
 	virtual void DoStartupShaderPreloading( void ) = 0;
 #endif
-#ifndef BUILD_GMOD
+//#ifndef BUILD_GMOD // We need this.
 	virtual char *GetDisplayDeviceName() = 0;
-#endif
+//#endif
 
 };
 

@@ -63,7 +63,10 @@ public:
 	uint16 GetQueryPort() const	{ return m_QueryPort; }
 
 	// Fetch public IP.  Might return 0 if we don't know
-	uint32 GetPublicIP() { return SteamGameServer() ? SteamGameServer()->GetPublicIP() : 0; }
+	SteamIPAddress_t GetPublicIP() { 
+		SteamIPAddress_t fallback;
+		return SteamGameServer() ? SteamGameServer()->GetPublicIP() : fallback;
+	}
 	
 	bool IsMasterServerUpdaterSharingGameSocket();
 

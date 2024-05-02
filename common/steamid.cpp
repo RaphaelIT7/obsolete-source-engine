@@ -478,46 +478,6 @@ bool CSteamID::SetFromStringStrict( const char *pchSteamID, EUniverse eDefaultUn
     return bValid;
 }
 
-
-#if defined( INCLUDED_STEAM2_USERID_STRUCTS ) 
-//-----------------------------------------------------------------------------
-// Purpose: Initializes a steam ID from a Steam2 ID string
-// Input:	pchSteam2ID -	Steam2 ID (as a string #:#:#) to convert
-//			eUniverse -		universe this ID belongs to
-// Output:	true if successful, false otherwise
-//-----------------------------------------------------------------------------
-bool CSteamID::SetFromSteam2String( const char *pchSteam2ID, EUniverse eUniverse )
-{
-	Assert( pchSteam2ID );
-
-	// Convert the Steam2 ID string to a Steam2 ID structure
-	TSteamGlobalUserID steam2ID;
-	steam2ID.m_SteamInstanceID = 0;
-	steam2ID.m_SteamLocalUserID.Split.High32bits = 0;
-	steam2ID.m_SteamLocalUserID.Split.Low32bits	= 0;
-
-	const char *pchTSteam2ID = pchSteam2ID;
-
-	// Customer support is fond of entering steam IDs in the following form:  STEAM_n:x:y
-	const char *pchOptionalLeadString = "STEAM_";
-	if ( V_strnicmp( pchSteam2ID, pchOptionalLeadString, V_strlen( pchOptionalLeadString ) ) == 0 )
-		pchTSteam2ID = pchSteam2ID + V_strlen( pchOptionalLeadString );
-
-	char cExtraCharCheck = 0;
-
-	int cFieldConverted = sscanf( pchTSteam2ID, "%hu:%u:%u%c", &steam2ID.m_SteamInstanceID, 
-		&steam2ID.m_SteamLocalUserID.Split.High32bits, &steam2ID.m_SteamLocalUserID.Split.Low32bits, &cExtraCharCheck );
-
-	// Validate the conversion ... a special case is steam2 instance ID 1 which is reserved for special DoD handling
-	if ( cExtraCharCheck != 0 || cFieldConverted == EOF || cFieldConverted < 2 || ( cFieldConverted < 3 && steam2ID.m_SteamInstanceID != 1 ) )
-		return false;
-
-	// Now convert to steam ID from the Steam2 ID structure
-	SetFromSteam2( &steam2ID, eUniverse );
-	return true;
-}
-#endif
-
 //-----------------------------------------------------------------------------
 // Purpose: Renders the steam ID to a buffer.  NOTE: for convenience of calling
 //			code, this code returns a pointer to a static buffer and is NOT thread-safe.
@@ -583,9 +543,9 @@ const char * CSteamID::Render() const
 	}
 	else if ( k_EAccountTypeIndividual == m_steamid.m_comp.m_EAccountType )
 	{
-		if ( m_steamid.m_comp.m_unAccountInstance != k_unSteamUserDesktopInstance )
-			V_snprintf( pchBuf, k_cBufLen, "[U:%u:%u:%u]", m_steamid.m_comp.m_EUniverse, m_steamid.m_comp.m_unAccountID, m_steamid.m_comp.m_unAccountInstance );
-		else
+		//if ( m_steamid.m_comp.m_unAccountInstance != k_unSteamUserDesktopInstance )
+		//	V_snprintf( pchBuf, k_cBufLen, "[U:%u:%u:%u]", m_steamid.m_comp.m_EUniverse, m_steamid.m_comp.m_unAccountID, m_steamid.m_comp.m_unAccountInstance );
+		//else
 			V_snprintf( pchBuf, k_cBufLen, "[U:%u:%u]", m_steamid.m_comp.m_EUniverse, m_steamid.m_comp.m_unAccountID );
 	}
 	else if ( k_EAccountTypeAnonUser == m_steamid.m_comp.m_EAccountType )
