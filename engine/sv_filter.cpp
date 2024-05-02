@@ -482,6 +482,7 @@ USERID_t *Filter_StringToUserID( const char *str )
 			args.Tokenize( szTemp );
 			if ( args.ArgC() >= 5 )
 			{
+				// ToDo: Fix SetFromSteam2
 				// allow settings from old style steam2 format
 				TSteamGlobalUserID steam2ID;
 				steam2ID.m_SteamInstanceID = (SteamInstanceID_t)atoi( args[ 0 ] );
@@ -495,8 +496,7 @@ USERID_t *Filter_StringToUserID( const char *str )
 				else if ( Steam3Client().SteamUser() )
 					eUniverse = Steam3Client().SteamUser()->GetSteamID().GetEUniverse();
 #endif
-
-				id.steamid.SetFromSteam2( &steam2ID, eUniverse );
+				id.steamid = SteamIDFromSteam2UserID( &steam2ID, eUniverse );
 			}
 		}
 		else

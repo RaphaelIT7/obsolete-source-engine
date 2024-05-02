@@ -242,8 +242,9 @@ void CDialogGameInfo::SetFriend( uint64 ulSteamIDFriend )
 	if ( steamapicontext->SteamFriends()->GetFriendGamePlayed( ulSteamIDFriend, &friendGameInfo ) )
 	{
 		uint16 usConnPort = friendGameInfo.m_usGamePort;
-		if ( friendGameInfo.m_usQueryPort < QUERY_PORT_ERROR )
-			usConnPort = friendGameInfo.m_usQueryPort;
+		Warning("ToDo: Fix this someday! (CDialogGameInfo::SetFriend)");
+		//if ( friendGameInfo.m_usQueryPort < QUERY_PORT_ERROR )
+			//usConnPort = friendGameInfo.m_usQueryPort;
 		ChangeGame( friendGameInfo.m_unGameIP, usConnPort, friendGameInfo.m_usGamePort );
 	}
 }

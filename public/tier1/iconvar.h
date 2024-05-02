@@ -82,6 +82,7 @@ class CCommand;
 #ifdef BUILD_GMOD
 #define FCVAR_LUA_CLIENT			(1<<18)
 #define FCVAR_LUA_SERVER			(1<<19)
+#define FCVAR_ALLOWED_IN_COMPETITIVE	(1<<26)
 #else
 #define FCVAR_ALLOWED_IN_COMPETITIVE	(1<<18) // This convar can be changed in competitive (strict) settings mode even though it is not archived. Meant for one-offs like cl_showfps that are not user facing settings but are benign
 #endif

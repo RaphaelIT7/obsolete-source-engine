@@ -237,7 +237,11 @@ void PreUpdateProfile( float filteredtime )
 			if( g_VProfCurrentProfile.GetCounterGroup( i ) != ( nCounterType - 1 ) )
 				continue;
 			const char *pName;
+#ifdef BUILD_GMOD
 			long long val;
+#else
+			int val;
+#endif
 			pName = g_VProfCurrentProfile.GetCounterNameAndValue( i, val );
 			Con_NPrintf( nprintIndex, "%s = %d\n", pName, val );
 			nprintIndex++;

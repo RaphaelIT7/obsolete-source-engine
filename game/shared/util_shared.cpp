@@ -1115,9 +1115,10 @@ CBasePlayer* UTIL_PlayerByCommandArg( const char *arg )
 	const char szPrefix[] = "STEAM_";
 	if ( nLength >= std::size( szPrefix ) && V_strncmp( szPrefix, arg, ssize( szPrefix ) - 1 ) == 0 )
 	{
-		CSteamID steamID;
-		bool bMatch = steamID.SetFromSteam2String( arg, GetUniverse() );
-		UTIL_PLAYERBYCMDARG_CHECKMATCH( bMatch ? UTIL_PlayerBySteamID( steamID ) : NULL );
+		//CSteamID steamID = SteamIDFromSteam2UserID();
+		//bool bMatch = SteamIDFromSteam2UserID();
+		//UTIL_PLAYERBYCMDARG_CHECKMATCH( bMatch ? UTIL_PlayerBySteamID( steamID ) : NULL );
+		Warning("This needs to be fixed! (util_shared.cpp, UTIL_PlayerByCommandArg)");
 	}
 
 	// UserID preceded by a pound (#4)

@@ -342,14 +342,14 @@ public:
 	// Sets post-processing flags (settings are copied, pointer passed to distinguish between structure versions)
 	virtual void SetPostProcessingSettings( VtfProcessingOptions const *pOptions ) = 0;
 
-#ifndef BUILD_GMOD
+//#ifndef BUILD_GMOD
 	// Like Unserialize, but allows you to additionally specify some flags to forcibly enable. 
 	virtual bool UnserializeEx( CUtlBuffer &buf, bool bHeaderOnly = false, int nForceFlags = 0, int nSkipMipLevels = 0 ) = 0;
 
 	// Data is included in [ finest, coarsest ] mips--other ranges have garbage. This is particularly useful for 
 	// streaming textures.
 	virtual void GetMipmapRange( int* pOutFinest, int* pOutCoarsest ) = 0;
-#endif
+//#endif
 };
 
 //-----------------------------------------------------------------------------

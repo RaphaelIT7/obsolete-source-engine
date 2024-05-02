@@ -260,10 +260,10 @@ public:
 // If you really need these, please contact us and help us understand what you are
 // using them for.
 
-	STEAM_PRIVATE_API(
+	//STEAM_PRIVATE_API(
 		virtual void SetMasterServerHeartbeatInterval_DEPRECATED( int iHeartbeatInterval ) = 0;
 		virtual void ForceMasterServerHeartbeat_DEPRECATED() = 0;
-	)
+	//)
 };
 
 #define STEAMGAMESERVER_INTERFACE_VERSION "SteamGameServer015"

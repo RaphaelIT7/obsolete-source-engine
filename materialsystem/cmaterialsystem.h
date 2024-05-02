@@ -173,9 +173,9 @@ public:
 	// -----------------------------------------------------------
 	unsigned										GetDisplayAdapterCount() const;
 	unsigned										GetCurrentAdapter() const;
-#ifndef BUILD_GMOD
+//#ifndef BUILD_GMOD
 	char									*GetDisplayDeviceName() const OVERRIDE;
-#endif
+//#endif
 	void									GetDisplayAdapterInfo( unsigned adapter, MaterialAdapterInfo_t& info ) const;
 	unsigned										GetModeCount( unsigned adapter ) const;
 	void									GetModeInfo( unsigned adapter, unsigned mode, MaterialVideoMode_t& info ) const;
