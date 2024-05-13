@@ -337,10 +337,6 @@ public:
 	virtual void SetPSNearAndFarZ( int pshReg ) = 0;
 
 	virtual void SetDepthFeatheringPixelShaderConstant( int iConstant, float fDepthBlendScale ) = 0;
-
-#ifdef BUILD_GMOD
-	virtual void GMOD_SamplerBorderClamp(Sampler_t sSampler) = 0;
-#endif
 };
 // end class IShaderDynamicAPI
 

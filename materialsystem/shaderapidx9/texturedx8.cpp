@@ -391,9 +391,9 @@ void DestroyD3DTexture( IDirect3DBaseTexture* pD3DTex )
 #endif
 
 #if !defined( _X360 )
-		/*CMatRenderContextPtr pRenderContext( materials ); // ToDo: VTable of CMatRenderContextPtr is shit?
+		CMatRenderContextPtr pRenderContext( materials );
 		ICallQueue *pCallQueue;
-		if ( ( pCallQueue = pRenderContext->GetCallQueue() ) != NULL)
+		if ( ( pCallQueue = pRenderContext->GetCallQueue() ) != NULL )
 		{
 			pCallQueue->QueueCall( ReleaseD3DTexture, pD3DTex );
 		}
@@ -401,7 +401,6 @@ void DestroyD3DTexture( IDirect3DBaseTexture* pD3DTex )
 		{
 			ReleaseD3DTexture( pD3DTex );
 		}
-		*/
 #else
 		g_TextureHeap.FreeTexture( pD3DTex );
 #endif

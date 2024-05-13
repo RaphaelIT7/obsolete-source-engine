@@ -511,7 +511,7 @@ bool CSteamID::SetFromSteam2String( const char *pchSteam2ID, EUniverse eUniverse
 		return false;
 
 	// Now convert to steam ID from the Steam2 ID structure
-	SetFromSteam2( &steam2ID, eUniverse );
+	//SetFromSteam2( &steam2ID, eUniverse );
 	return true;
 }
 #endif
@@ -581,10 +581,10 @@ const char * CSteamID::Render() const
 	}
 	else if ( k_EAccountTypeIndividual == m_steamid.m_comp.m_EAccountType )
 	{
-		if ( m_steamid.m_comp.m_unAccountInstance != k_unSteamUserDesktopInstance )
+		//if ( m_steamid.m_comp.m_unAccountInstance != k_unSteamUserDesktopInstance )
 			V_snprintf( pchBuf, k_cBufLen, "[U:%u:%u:%u]", m_steamid.m_comp.m_EUniverse, m_steamid.m_comp.m_unAccountID, m_steamid.m_comp.m_unAccountInstance );
-		else
-			V_snprintf( pchBuf, k_cBufLen, "[U:%u:%u]", m_steamid.m_comp.m_EUniverse, m_steamid.m_comp.m_unAccountID );
+		//else
+		//	V_snprintf( pchBuf, k_cBufLen, "[U:%u:%u]", m_steamid.m_comp.m_EUniverse, m_steamid.m_comp.m_unAccountID );
 	}
 	else if ( k_EAccountTypeAnonUser == m_steamid.m_comp.m_EAccountType )
 	{

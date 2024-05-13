@@ -82,6 +82,12 @@ typedef unsigned int uintp;
 
 #endif // else _WIN32
 
+typedef uint64 GID_t;
+
+constexpr GID_t k_GIDNil = 0xffffffffffffffffull;
+typedef GID_t JobID_t;			// Each Job has a unique ID
+typedef GID_t TxnID_t;			// Each financial transaction has a unique ID
+
 typedef uint32 AppId_t;
 const AppId_t k_uAppIdInvalid = 0x0;
 

@@ -2001,9 +2001,7 @@ void CTexture::MigrateShaderAPITextures()
 		if ( !g_pShaderAPI->IsTexture( pTextureHandles[ i ] ) )
 			continue;
 
-#ifndef BUILD_GMOD
 		g_pShaderAPI->CopyTextureToTexture( pTextureHandles[ i ], m_pTextureHandles[ i ] );
-#endif
 	}
 
 	for ( int i = 0; i < m_nFrameCount; ++i )
@@ -2228,10 +2226,8 @@ void CTexture::SetFilterState()
 void CTexture::SetLodState()
 {
 	// Set the lod clamping value to ensure we don't see anything we're not supposed to.
-#ifndef BUILD_GMOD
 	g_pShaderAPI->TexLodClamp( m_lodClamp );
 	g_pShaderAPI->TexLodBias( m_lodBiasCurrent );
-#endif
 }
 
 //-----------------------------------------------------------------------------

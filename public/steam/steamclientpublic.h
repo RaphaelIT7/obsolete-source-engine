@@ -778,6 +778,8 @@ public:
 	// DEBUG function
 	bool BValidExternalSteamID() const;
 
+	bool SetFromSteam2String( const char *pchSteam2ID, EUniverse eUniverse );
+
 private:
 	// These are defined here to prevent accidental implicit conversion of a u32AccountID to a CSteamID.
 	// If you get a compiler error about an ambiguous constructor/function then it may be because you're

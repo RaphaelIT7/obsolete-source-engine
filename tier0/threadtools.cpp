@@ -1816,7 +1816,7 @@ bool CThread::Join([[maybe_unused]] unsigned timeout)
 
 //---------------------------------------------------------
 
-#if defined(_WIN32) && !defined(BUILD_GMOD)
+#ifdef _WIN32
 
 HANDLE CThread::GetThreadHandle()
 {
@@ -1858,9 +1858,7 @@ void CThread::Stop(int exitCode)
 		m_result = exitCode;
 		if ( !( m_flags & SUPPORT_STOP_PROTOCOL ) )
 		{
-#ifndef BUILD_GMOD
 			OnExit();
-#endif
 			g_pCurThread = NULL;
 
 #ifdef _WIN32
@@ -1903,7 +1901,6 @@ bool CThread::SetPriority(int priority)
 
 //---------------------------------------------------------
 
-#ifndef BUILD_GMOD
 void CThread::SuspendCooperative()
 {
 	if ( ThreadGetCurrentId() == m_threadId )
@@ -1934,7 +1931,6 @@ void CThread::BWaitForThreadSuspendCooperative()
 {
 	m_SuspendEventSignal.Wait();
 }
-#endif
 
 
 #ifndef LINUX
@@ -2043,7 +2039,6 @@ void CThread::Sleep(unsigned duration)
 
 //---------------------------------------------------------
 
-#ifndef BUILD_GMOD
 bool CThread::Init()
 {
 	return true;
@@ -2054,7 +2049,6 @@ bool CThread::Init()
 void CThread::OnExit()
 {
 }
-#endif
 
 //---------------------------------------------------------
 
@@ -2119,11 +2113,7 @@ unsigned __stdcall CThread::ThreadProc(LPVOID pv)
 	
 	try
 	{
-#ifdef BUILD_GMOD
-		bInitSuccess = true;
-#else
 		bInitSuccess = pThread->Init();
-#endif
 	}
 	catch (...)
 	{
@@ -2141,11 +2131,7 @@ unsigned __stdcall CThread::ThreadProc(LPVOID pv)
 	{
 		try
 		{
-#ifndef BUILD_GMOD
 			pThread->m_result = pThread->Run();
-#else
-			pThread->m_result = 0;
-#endif
 		}
 		catch ( const std::exception &e )
 		{
@@ -2154,16 +2140,10 @@ unsigned __stdcall CThread::ThreadProc(LPVOID pv)
 	}
 	else
 	{
-#ifndef BUILD_GMOD
-			pThread->m_result = pThread->Run();
-#else
-			pThread->m_result = 0;
-#endif
+		pThread->m_result = pThread->Run();
 	}
-
-#ifndef BUILD_GMOD
+	
 	pThread->OnExit();
-#endif
 	g_pCurThread = NULL;
 	pThread->Cleanup();
 	
@@ -2283,13 +2263,13 @@ int CWorkerThread::WaitForReply( unsigned timeout, WaitFunc_t pfnWait )
 		pfnWait = DefaultWaitFunc;
 	}
 
-#if defined(WIN32) && !defined(BUILD_GMOD)
+#ifdef WIN32
 	CThreadEvent threadEvent( GetThreadHandle() );
 #endif
 	
 	CThreadEvent *waits[] =
 	{
-#if defined(WIN32) && !defined(BUILD_GMOD)
+#ifdef WIN32
 		&threadEvent,
 #endif
 		&m_EventComplete
@@ -2301,7 +2281,7 @@ int CWorkerThread::WaitForReply( unsigned timeout, WaitFunc_t pfnWait )
 
 	do
 	{
-#if defined(WIN32) && !defined(BUILD_GMOD)
+#ifdef WIN32
 		// Make sure the thread handle hasn't been closed
 		if ( !GetThreadHandle() )
 		{

@@ -233,9 +233,6 @@ public:
 
 	virtual void PrecacheMappingDimensions( void ) { m_pMaterialPage->PrecacheMappingDimensions(); }
 	virtual void FindRepresentativeTexture( void ) { m_pMaterialPage->FindRepresentativeTexture(); }
-#ifdef BUILD_GMOD
-	virtual bool GMOD_Persist() const { return true; }
-#endif
 
 private:
 

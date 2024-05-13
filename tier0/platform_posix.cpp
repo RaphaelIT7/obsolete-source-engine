@@ -557,7 +557,6 @@ PLATFORM_INTERFACE const char *Plat_GetCommandLineA()
 	return Plat_GetCommandLine();
 }
 
-#ifndef BUILD_GMOD
 PLATFORM_INTERFACE bool GetMemoryInformation( MemoryInformation *pOutMemoryInfo )
 {
 	if ( !pOutMemoryInfo )
@@ -627,7 +626,7 @@ PLATFORM_INTERFACE bool GetMemoryInformation( MemoryInformation *pOutMemoryInfo 
 	#error "Need to fill out GetMemoryInformation or at least return false for this platform"
 #endif
 }
-#endif
+
 
 PLATFORM_INTERFACE bool Is64BitOS()
 {
@@ -658,9 +657,7 @@ PLATFORM_INTERFACE void Plat_ExitProcess( int nCode )
 static int s_nWatchDogTimerTimeScale = 0;
 static bool s_bInittedWD = false;
 static int s_WatchdogTime = 0;
-#ifndef BUILD_GMOD
 static Plat_WatchDogHandlerFunction_t s_pWatchDogHandlerFunction;
-#endif
 
 static void InitWatchDogTimer( void )
 {
@@ -682,7 +679,7 @@ static void WatchDogHandler( int s )
 	Plat_DebugString( "WatchDog! Server took too long to process (probably infinite loop).\n" );
 
 	DebuggerBreakIfDebugging();
-#ifndef BUILD_GMOD
+
 	if ( s_pWatchDogHandlerFunction )
 	{
 		s_pWatchDogHandlerFunction();
@@ -692,9 +689,6 @@ static void WatchDogHandler( int s )
 		// force a crash
 		abort();
 	}
-#else
-	abort()
-#endif
 }
 
 // watchdog timer support
@@ -728,12 +722,10 @@ PLATFORM_INTERFACE int Plat_GetWatchdogTime( void )
 	return s_WatchdogTime;
 }
 
-#ifndef BUILD_GMOD
 PLATFORM_INTERFACE void Plat_SetWatchdogHandlerFunction( Plat_WatchDogHandlerFunction_t function )
 {
 	s_pWatchDogHandlerFunction = function;
 }
-#endif
 
 #ifndef NO_HOOK_MALLOC
 
