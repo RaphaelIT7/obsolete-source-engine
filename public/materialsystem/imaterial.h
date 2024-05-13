@@ -603,9 +603,6 @@ public:
 	virtual bool			WasReloadedFromWhitelist() = 0;
 
 	virtual bool			IsPrecached() const = 0;
-#ifdef BUILD_GMOD
-	virtual bool			GMOD_Persist() const = 0;
-#endif
 };
 
 

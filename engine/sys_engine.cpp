@@ -102,10 +102,8 @@ extern IVEngineClient *engineClient;
 #ifdef WIN32
 static void cpu_frequency_monitoring_callback( IConVar *var, const char *pOldValue, float flOldValue )
 {
-#ifndef BUILD_GMOD
 	// Set the specified interval for CPU frequency monitoring
 	SetCPUMonitoringInterval( (unsigned)( ( (ConVar *)var)->GetFloat() * 1000 ) );
-#endif
 }
 ConVar cpu_frequency_monitoring( "cpu_frequency_monitoring", "0", 0, "Set CPU frequency monitoring interval in seconds. Zero means disabled.", true, 0.0f, true, 10.0f, cpu_frequency_monitoring_callback );
 #endif
@@ -304,7 +302,6 @@ void CEngine::Frame( void )
 	}
 
 	// Watch for data from the CPU frequency monitoring system and print it to the console.
-#ifndef BUILD_GMOD
 	const CPUFrequencyResults frequency = GetCPUFrequencyResults();
 	static double s_lastFrequencyTimestamp;
 	if ( frequency.m_timeStamp > s_lastFrequencyTimestamp )
@@ -313,7 +310,6 @@ void CEngine::Frame( void )
 		Msg( "~CPU Freq: %1.3f GHz    Percent of requested: %3.1f%%    Minimum percent seen: %3.1f%%\n",
 					frequency.m_GHz, frequency.m_percentage, frequency.m_lowestPercentage );
 	}
-#endif
 
 	// Loop until it is time for our frame. Don't return early because pumping messages
 	// and processing console input is expensive (0.1 ms for each call to ProcessConsoleInput).

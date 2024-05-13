@@ -403,7 +403,6 @@ public:
 	DEFINE_QUEUED_CALL_3(					ClearBuffersObeyStencilEx, bool, bool, bool, IMatRenderContext, m_pHardwareContext );
 	DEFINE_QUEUED_CALL_0(					PerformFullScreenStencilOperation, IMatRenderContext, m_pHardwareContext );
 
-#ifndef BUILD_GMOD
 	virtual void AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, const char* pDstName, ImageFormat dstFmt, bool bGenMips, int nAdditionalCreationFlags, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) OVERRIDE
 	{
 		OnAsyncCreateTextureFromRenderTarget( pSrcRt, &pDstName, pRecipient );
@@ -433,10 +432,6 @@ public:
 	}
 
 	DEFINE_QUEUED_CALL_0(					TextureManagerUpdate, IMatRenderContextInternal, m_pHardwareContext );
-#else
-	virtual void GMOD_ForceFilterMode(bool, int) {};
-	virtual void GMOD_FlushQueue() {};
-#endif
 	
 	bool GetUserClipTransform( VMatrix &worldToView )
 	{
@@ -600,7 +595,7 @@ public:
 	virtual void							PrintfVA( char *fmt, va_list vargs ){};
 	virtual float							Knob( char *knobname, float *setvalue=NULL ) { return 0.0f; };
 	
-#if defined(DX_TO_GL_ABSTRACTION) || defined(BUILD_GMOD)
+#ifdef DX_TO_GL_ABSTRACTION
 	void									DoStartupShaderPreloading( void ) {};
 #endif
 

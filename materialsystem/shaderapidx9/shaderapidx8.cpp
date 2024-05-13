@@ -452,8 +452,13 @@ struct Texture_t
 
 	CUtlSymbol				m_DebugName;
 	CUtlSymbol				m_TextureGroupName;
+#ifdef BUILD_GMOD
+	int64					*m_pTextureGroupCounterGlobal;	// Global counter for this texture's group.
+	int64					*m_pTextureGroupCounterFrame;	// Per-frame global counter for this texture's group.
+#else
 	intp						*m_pTextureGroupCounterGlobal;	// Global counter for this texture's group.
 	intp						*m_pTextureGroupCounterFrame;	// Per-frame global counter for this texture's group.
+#endif
 
 	// stats stuff
 	intp					m_SizeBytes;
@@ -1014,20 +1019,10 @@ public:
 	void CopyTextureToRenderTargetEx( int nRenderTargetID, ShaderAPITextureHandle_t textureHandle, Rect_t *pSrcRect = NULL, Rect_t *pDstRect = NULL );
 	void CopyRenderTargetToScratchTexture( ShaderAPITextureHandle_t srcHandle, ShaderAPITextureHandle_t dstHandle, Rect_t *pSrcRect = NULL, Rect_t *pDstRect = NULL );
 
-#ifdef BUILD_GMOD
-	virtual void GMOD_ForceFilterMode( bool, int );
-#endif
-
-
 	virtual void LockRect( void** pOutBits, int* pOutPitch, ShaderAPITextureHandle_t texHandle, int mipmap, int x, int y, int w, int h, bool bWrite, bool bRead );
 	virtual void UnlockRect( ShaderAPITextureHandle_t texHandle, int mipmap );
-#ifndef BUILD_GMOD
-	virtual void CopyTextureToTexture( ShaderAPITextureHandle_t srcTex, ShaderAPITextureHandle_t dstTex );
-#endif
 
-#ifdef BUILD_GMOD
-	virtual void GMOD_SamplerBorderClamp(Sampler_t);
-#endif
+	virtual void CopyTextureToTexture( ShaderAPITextureHandle_t srcTex, ShaderAPITextureHandle_t dstTex );
 
 	// Returns the cull mode (for fill rate computation)
 	D3DCULL GetCullMode() const;
@@ -3645,7 +3640,7 @@ IMesh *CShaderAPIDx8::GetFlexMesh()
 IMesh* CShaderAPIDx8::GetDynamicMesh( IMaterial* pMaterial, int nHWSkinBoneCount, bool buffered,
 								IMesh* pVertexOverride, IMesh* pIndexOverride )
 {
-	//Assert( (pMaterial == NULL) || ((IMaterialInternal *)pMaterial)->IsRealTimeVersion() );
+	Assert( (pMaterial == NULL) || ((IMaterialInternal *)pMaterial)->IsRealTimeVersion() );
 
 	LOCK_SHADERAPI();
 	return MeshMgr()->GetDynamicMesh( pMaterial, 0, nHWSkinBoneCount, buffered, pVertexOverride, pIndexOverride );
@@ -3654,7 +3649,7 @@ IMesh* CShaderAPIDx8::GetDynamicMesh( IMaterial* pMaterial, int nHWSkinBoneCount
 IMesh* CShaderAPIDx8::GetDynamicMeshEx( IMaterial* pMaterial, VertexFormat_t vertexFormat, int nHWSkinBoneCount, 
 	bool bBuffered, IMesh* pVertexOverride, IMesh* pIndexOverride )
 {
-	//Assert( (pMaterial == NULL) || ((IMaterialInternal *)pMaterial)->IsRealTimeVersion() );
+	Assert( (pMaterial == NULL) || ((IMaterialInternal *)pMaterial)->IsRealTimeVersion() );
 
 	LOCK_SHADERAPI();
 	return MeshMgr()->GetDynamicMesh( pMaterial, vertexFormat, nHWSkinBoneCount, bBuffered, pVertexOverride, pIndexOverride );
@@ -7054,10 +7049,10 @@ void CShaderAPIDx8::SetupTextureGroup( ShaderAPITextureHandle_t hTexture, const 
 #if defined( VPROF_ENABLED ) && !defined( _X360 )
 	char counterName[256];
 	Q_snprintf( counterName, sizeof( counterName ), "TexGroup_global_%s", pTexture->m_TextureGroupName.String() );
-	pTexture->m_pTextureGroupCounterGlobal = 0; // ToDo: Fix it | g_VProfCurrentProfile.FindOrCreateCounter( counterName, COUNTER_GROUP_TEXTURE_GLOBAL );
+	pTexture->m_pTextureGroupCounterGlobal = g_VProfCurrentProfile.FindOrCreateCounter( counterName, COUNTER_GROUP_TEXTURE_GLOBAL );
 
 	Q_snprintf( counterName, sizeof( counterName ), "TexGroup_frame_%s", pTexture->m_TextureGroupName.String() );
-	pTexture->m_pTextureGroupCounterFrame = 0; // ToDo: Fix it | g_VProfCurrentProfile.FindOrCreateCounter( counterName, COUNTER_GROUP_TEXTURE_PER_FRAME );
+	pTexture->m_pTextureGroupCounterFrame = g_VProfCurrentProfile.FindOrCreateCounter( counterName, COUNTER_GROUP_TEXTURE_PER_FRAME );
 #else
 	pTexture->m_pTextureGroupCounterGlobal = NULL;
 	pTexture->m_pTextureGroupCounterFrame  = NULL;
@@ -8638,12 +8633,6 @@ void CShaderAPIDx8::CopyRenderTargetToScratchTexture( ShaderAPITextureHandle_t s
 	Assert( SUCCEEDED( hr ) );
 }
 
-#ifdef BUILD_GMOD
-void CShaderAPIDx8::GMOD_ForceFilterMode(bool, int)
-{
-}
-#endif
-
 //-------------------------------------------------------------------------
 // Allows locking and unlocking of very specific surface types. pOutBits and pOutPitch will not be touched if 
 // the lock fails.
@@ -8797,7 +8786,6 @@ static int FindCommonMipmapRange( int *pOutSrcFine, int *pOutDstFine, Texture_t 
 	return Min( src.mipmaps, dst.mipmaps );
 }
 
-#ifndef BUILD_GMOD
 void CShaderAPIDx8::CopyTextureToTexture( ShaderAPITextureHandle_t srcTex, ShaderAPITextureHandle_t dstTex )
 {
 	LOCK_SHADERAPI();
@@ -8853,13 +8841,8 @@ void CShaderAPIDx8::CopyTextureToTexture( ShaderAPITextureHandle_t srcTex, Shade
 		pDstSurf->Release();
 	}
 }
-#endif
 
-#ifdef BUILD_GMOD
-void CShaderAPIDx8::GMOD_SamplerBorderClamp(Sampler_t)
-{
-}
-#endif
+
 
 void CShaderAPIDx8::CopyRenderTargetToTexture( ShaderAPITextureHandle_t textureHandle )
 {

@@ -144,7 +144,7 @@ static FILE *GetDebugFileHandle( void )
 }
 #endif // PROFILE_SHADER_CREATE
 
-#if defined( DX_TO_GL_ABSTRACTION ) || defined( BUILD_GMOD )
+#ifdef DX_TO_GL_ABSTRACTION
 	// mat_autoload_glshaders instructs the engine to load a cached shader table at startup
 	// it will try for glshaders.cfg first, then fall back to glbaseshaders.cfg if not found
 ConVar mat_autoload_glshaders( "mat_autoload_glshaders", "1" );
@@ -576,7 +576,7 @@ public:
 	bool						CreateDynamicCombos_Ver4( void *pContext, uint8 *pComboBuffer );
 	bool						CreateDynamicCombos_Ver5( void *pContext, uint8 *pComboBuffer, char *debugLabel = NULL );
 
-#if defined( DX_TO_GL_ABSTRACTION ) || defined ( BUILD_GMOD )
+#if defined( DX_TO_GL_ABSTRACTION )
 	virtual void				DoStartupShaderPreloading();
 #endif
 
@@ -3675,7 +3675,7 @@ CON_COMMAND( mat_shadercount, "display count of all shaders and reset that count
 	s_NumPixelShadersCreated = 0;
 }
 
-#if defined( DX_TO_GL_ABSTRACTION ) || defined(BUILD_GMOD)
+#if defined( DX_TO_GL_ABSTRACTION )
 void	CShaderManager::DoStartupShaderPreloading()
 {
 	if (mat_autoload_glshaders.GetInt())

@@ -286,24 +286,12 @@ private:
 
 //-----------------------------------------------------------------------------
 
-JOB_INTERFACE IThreadPool *
-#ifdef BUILD_GMOD
-V_CreateThreadPool
-#else
-CreateThreadPool
-#endif
-()
+JOB_INTERFACE IThreadPool *CreateThreadPool()
 {
 	return new CThreadPool;
 }
 
-JOB_INTERFACE void
-#ifdef BUILD_GMOD
-V_DestroyThreadPool
-#else
-DestroyThreadPool
-#endif
-( IThreadPool *pPool )
+JOB_INTERFACE void DestroyThreadPool( IThreadPool *pPool )
 {
 	delete pPool;
 }
@@ -438,9 +426,7 @@ private:
 
 				case TPM_SUSPEND:
 					Reply( true );
-					#ifndef BUILD_GMOD
 					SuspendCooperative();
-					#endif
 					break;
 
 				case TPM_RUNFUNCTOR:
@@ -585,12 +571,10 @@ int CThreadPool::SuspendExecution()
 
 		// Because worker must signal before suspending, we could reach
 		// here with the thread not actually suspended
-#ifndef BUILD_GMOD
 		for ( i = 0; i < m_Threads.Count(); i++ )
 		{
 			t->BWaitForThreadSuspendCooperative();
 		}
-#endif
 	}
 
 	return m_nSuspend++;
@@ -605,12 +589,10 @@ int CThreadPool::ResumeExecution()
 	int result = m_nSuspend--;
 	if ( m_nSuspend == 0 )
 	{
-#ifndef BUILD_GMOD
 		for ( int i = 0; i < m_Threads.Count(); i++ )
 		{
 			t->ResumeCooperative();
 		}
-#endif
 	}
 	return result;
 }
@@ -933,9 +915,6 @@ int CThreadPool::AbortAll()
 
 bool CThreadPool::Start( const ThreadPoolStartParams_t &startParams, const char *pszName )
 {
-	if (true) // ToDo: Fix m_Threads[iThread]->Start( nStackSize ); shitting the bed
-		return false;
-
 	int nThreads = startParams.nThreads;
 
 	m_bExecOnThreadPoolThreadsOnly = startParams.bExecOnThreadPoolThreadsOnly;
@@ -1074,10 +1053,7 @@ void CThreadPool::Distribute( bool bDistribute, int *pAffinityTable )
 							iProc = ( iProc + 1 ) % nHwThreadsPer;
 						}
 					}
-
-#ifndef BUILD_GMOD
 					SetThreadIdealProcessor( (ThreadHandle_t)m_Threads[i]->GetThreadHandle(), iProc );
-#endif
 				}
 #else
 				// no affinity table, distribution is cycled across all available
@@ -1120,9 +1096,7 @@ void CThreadPool::Distribute( bool bDistribute, int *pAffinityTable )
 		{
 			for ( auto &&t : m_Threads )
 			{
-#ifndef BUILD_GMOD
 				ThreadSetAffinity( (ThreadHandle_t)m_Threads[i]->GetThreadHandle(), dwProcessAffinity );
-#endif
 			}
 		}
 #endif

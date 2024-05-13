@@ -1,6 +1,5 @@
 // Copyright Valve Corporation, All rights reserved.
 
-#ifndef BUILD_GMOD
 #ifndef CPU_MONITORING_H
 #define CPU_MONITORING_H
 
@@ -33,5 +32,4 @@ PLATFORM_INTERFACE void SetCPUMonitoringInterval( unsigned nDelayMilliseconds );
 constexpr int kCPUMonitoringWarning1 = 80;
 constexpr int kCPUMonitoringWarning2 = 50;
 
-#endif
 #endif

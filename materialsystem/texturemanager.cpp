@@ -935,9 +935,7 @@ struct AsyncReadJob_t
 			if ( m_pAsyncMap )
 			{
 				extern CMaterialSystem g_MaterialSystem;
-#ifndef BUILD_GMOD
 				g_MaterialSystem.GetRenderContextInternal()->AsyncUnmap( m_pSysmemTex );
-#endif
 			}
 
 			assert_cast< CTextureManager* >( g_pTextureManager )->ReleaseReadbackTexture( m_pSysmemTex );
@@ -1199,9 +1197,7 @@ public:
 				SafeAssign( &pRead->m_pAsyncMap, new CAsyncMapResult( pRead->m_pSysmemTex ) );
 				// Trigger the map.
 				extern CMaterialSystem g_MaterialSystem;
-#ifndef BUILD_GMOD
 				g_MaterialSystem.GetRenderContextInternal()->AsyncMap( pRead->m_pSysmemTex, pRead->m_pAsyncMap, NULL );
-#endif
 				m_queuedMaps.Insert( pRead );
 
 				// Stop as soon as we complete one successfully.
@@ -1225,9 +1221,7 @@ public:
 		{
 			SafeAssign( &pRequestCopy->m_pAsyncRead, new CAsyncCopyRequest );
 			extern CMaterialSystem g_MaterialSystem;
-#ifndef BUILD_GMOD
 			g_MaterialSystem.GetRenderContextInternal()->AsyncCopyRenderTargetToStagingTexture( pRequestCopy->m_pSysmemTex, pRequestCopy->m_pSrcRt, pRequestCopy->m_pAsyncRead, NULL );
-#endif
 
 			m_scheduledReads.Insert( pRequestCopy );
 		}
@@ -1247,9 +1241,7 @@ public:
 				}
 
 				extern CMaterialSystem g_MaterialSystem;
-#ifndef BUILD_GMOD
 				g_MaterialSystem.GetRenderContextInternal()->AsyncUnmap( pCreate->m_pSysmemTex );
-#endif
 				SafeRelease( &pCreate->m_pAsyncMap );
 
 				assert_cast< CTextureManager* >( g_pTextureManager )->CompleteAsyncRead( pCreate );
@@ -2744,14 +2736,12 @@ void CTextureManager::WarmTextureCache()
 	// Disable cache for osx/linux for now.
 	if ( CommandLine()->CheckParm( "-no_texture_stream" ) )
 		return;
-#ifndef BUILD_GMOD
 	MemoryInformation memInfo;
 	if ( GetMemoryInformation( &memInfo ) )
 	{
 		if ( memInfo.m_nPhysicalRamMbTotal <= 3584 )
 			return;
 	}
-#endif
 
 	COM_TimestampedLog( "WarmTextureCache() - Begin" );
 

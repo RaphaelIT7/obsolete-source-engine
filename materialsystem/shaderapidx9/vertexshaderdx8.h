@@ -108,7 +108,7 @@ public:
 	virtual const char *GetActivePixelShaderName() = 0;
 #endif
 
-#if defined( DX_TO_GL_ABSTRACTION ) || defined ( BUILD_GMOD )
+#if defined( DX_TO_GL_ABSTRACTION )
 	virtual void DoStartupShaderPreloading() = 0;
 #endif
 };

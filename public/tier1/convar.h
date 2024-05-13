@@ -524,10 +524,10 @@ public:
 	bool GetBool() const { return !!GetInt(); }
 	const char *GetString( void ) const;
 	// True if it has a min/max setting
-#ifndef BUILD_GMOD
-	bool GetMin( float& minVal ) const;
-	bool GetMax( float& maxVal ) const;
-#endif
+//#ifndef BUILD_GMOD
+	bool GetMin( float& minVal ) const { float min=0; m_pConVarState->GetMin(min); return min; };
+	bool GetMax( float& maxVal ) const { float max=0; m_pConVarState->GetMax(max); return max; };
+//#endif
         void SetValue( const char *pValue );
         void SetValue( float flValue );
         void SetValue( int nValue );

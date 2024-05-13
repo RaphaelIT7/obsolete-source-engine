@@ -609,7 +609,6 @@ static char g_UserStreamInfo[ 64 ][ 128 ];
 static int g_UserStreamInfoIndex = 0;
 
 // Set the single g_UserStreamInfoHeader string.
-#ifndef BUILD_GMOD
 void MinidumpUserStreamInfoSetHeader( const char *pFormat, ... )
 {
 	va_list marker;
@@ -619,7 +618,6 @@ void MinidumpUserStreamInfoSetHeader( const char *pFormat, ... )
 	g_UserStreamInfoHeader[ std::size( g_UserStreamInfoHeader ) - 1 ] = 0;
 	va_end( marker );
 }
-#endif
 
 // Set the next comment in the g_UserStreamInfo array.
 void MinidumpUserStreamInfoAppend( const char *pFormat, ... )
@@ -651,7 +649,6 @@ void MinidumpUserStreamInfoAppend( const char *pFormat, ... )
 //	Index 1+: comment string
 //	Returns nullptr when you've reached the end of the comment string array
 //  Empty strings ("\0") can be returned if comment hasn't been set
-#ifndef BUILD_GMOD
 const char *MinidumpUserStreamInfoGet( int Index )
 {
 	if( ( Index < 0 ) || ( Index >= ssize( g_UserStreamInfo ) + 1) ) //+1 because we map 0 to the header
@@ -666,4 +663,5 @@ const char *MinidumpUserStreamInfoGet( int Index )
 
 	return g_UserStreamInfo[ Index ];
 }
-#endif
+
+

@@ -21,7 +21,6 @@
 #include "stdafx.h"
 #include "tier0/cpumonitoring.h"
 
-#ifndef BUILD_GMOD
 #ifdef PLATFORM_WINDOWS_PC32
 #include "tier0/threadtools.h"
 #include "winlite.h"
@@ -321,5 +320,4 @@ PLATFORM_INTERFACE void SetCPUMonitoringInterval( unsigned nDelayMilliseconds )
 	NOTE_UNUSED( nDelayMilliseconds );
 }
 
-#endif
 #endif

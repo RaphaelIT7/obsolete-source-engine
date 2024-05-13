@@ -188,9 +188,7 @@ DBG_INTERFACE const Color* GetSpewOutputColor( void );
 
 /* Used to manage spew groups and subgroups */
 DBG_INTERFACE void   SpewActivate( const tchar* pGroupName, int level );
-#ifndef BUILD_GMOD
 DBG_INTERFACE void   SpewDeactivate();
-#endif
 DBG_INTERFACE bool   IsSpewActive( const tchar* pGroupName, int level );
 
 /* Used to display messages, should never be called directly. */

@@ -188,9 +188,7 @@ public:
 	unsigned GetCurrentAdapter() const override;
 	void EnableNonInteractiveMode( MaterialNonInteractiveMode_t mode, ShaderNonInteractiveInfo_t *pInfo = NULL ) override;
 	void RefreshFrontBufferNonInteractive() override;
-#ifndef BUILD_GMOD
 	const char *GetDisplayDeviceName() override; 
-#endif
 
 	// Alternative method for ib/vs
 	// NOTE: If this works, remove GetDynamicVertexBuffer/IndexBuffer
@@ -301,7 +299,7 @@ protected:
 
 	void ReacquireResourcesInternal( bool bResetState = false, bool bForceReacquire = false, char const *pszForceReason = NULL );
 
-#if defined(DX_TO_GL_ABSTRACTION) || defined(BUILD_GMOD)
+#ifdef DX_TO_GL_ABSTRACTION
 public:
 	virtual void DoStartupShaderPreloading( void );
 protected:

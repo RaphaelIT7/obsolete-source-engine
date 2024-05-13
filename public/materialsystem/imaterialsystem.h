@@ -70,11 +70,7 @@ typedef uint64 VertexFormat_t;
 // V081 - 10/25/2016 - Added new Suspend/Resume texture streaming interfaces. Might also have added more calls here due
 //                     to the streaming work that didn't get bumped, but we're not guarding versions on the TF branch
 //                     very judiciously since we need to audit them when merging to SDK branch either way.
-#ifdef BUILD_GMOD
-#define MATERIAL_SYSTEM_INTERFACE_VERSION "VMaterialSystem080"
-#else
 #define MATERIAL_SYSTEM_INTERFACE_VERSION "VMaterialSystem081"
-#endif
 
 #ifdef POSIX
 #define ABSOLUTE_MINIMUM_DXLEVEL 90
@@ -822,10 +818,8 @@ public:
 
 	// Stop attempting to stream in textures in response to usage.  Useful for phases such as loading or other explicit
 	// operations that shouldn't take usage of textures as a signal to stream them in at full rez.
-#ifndef BUILD_GMOD
 	virtual void				SuspendTextureStreaming( ) = 0;
 	virtual void				ResumeTextureStreaming( ) = 0;
-#endif
 
 	// uncache all materials. .  good for forcing reload of materials.
 	virtual void				UncacheAllMaterials( ) = 0;
@@ -1081,9 +1075,7 @@ public:
 	virtual void				GetRenderTargetFrameBufferDimensions( int & nWidth, int & nHeight ) = 0;
 
 	// returns the display device name that matches the adapter index we were started with
-//#ifndef BUILD_GMOD
 	virtual char *GetDisplayDeviceName() const = 0;
-//#endif
 
 	// creates a texture suitable for use with materials from a raw stream of bits.
 	// The bits will be retained by the material system and can be freed upon return.
@@ -1107,14 +1099,12 @@ public:
 	virtual ITexture*			CreateNamedTextureFromBitsEx( const char* pName, const char *pTextureGroupName, int w, int h, int mips, ImageFormat fmt, int srcBufferSize, byte* srcBits, int nFlags ) = 0;
 
 	// Creates a texture compositor template for use in later code. 
-#ifndef BUILD_GMOD
 	virtual bool				AddTextureCompositorTemplate( const char* pName, KeyValues* pTmplDesc, int nTexCompositeTemplateFlags = 0 ) = 0;
 
 	// Performs final verification of all compositor templates (after they've all been initially loaded).
 	virtual bool				VerifyTextureCompositorTemplates( ) = 0;
 
 	virtual bool				HasShaderAPI() const = 0;
-#endif
 };
 
 
@@ -1577,17 +1567,10 @@ public:
 
 	virtual void ClearBuffersObeyStencilEx( bool bClearColor, bool bClearAlpha, bool bClearDepth ) = 0;
 
-#ifdef BUILD_GMOD
-	virtual void GMOD_ForceFilterMode(bool, int) = 0;
-	virtual void GMOD_FlushQueue() = 0;
-#endif
-
 	// Create a texture from the specified src render target, then call pRecipient->OnAsyncCreateComplete from the main thread.
 	// The texture will be created using the destination format, and will optionally have mipmaps generated.
 	// In case of error, the provided callback function will be called with the error texture.
-#ifndef BUILD_GMOD
 	virtual void AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, const char* pDstName, ImageFormat dstFmt, bool bGenMips, int nAdditionalCreationFlags, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) = 0;
-#endif
 };
 
 template< class E > inline E* IMatRenderContext::LockRenderDataTyped( int nCount, const E* pSrcData )

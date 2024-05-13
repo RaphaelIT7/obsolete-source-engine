@@ -4,8 +4,11 @@
 [![GitHub Repo Size in Bytes](https://img.shields.io/github/repo-size/Source-Authors/Obsoletium.svg)](https://github.com/Source-Authors/Obsoletium)
 
 List of dlls that are worked on:
+- `shaderapidx9.dll` (Everything was reverted.)
+- `vstdlist.dll` (Everything was reverted.)
 - `filesystem_stdio.dll`
 Progress:  
+- [ ] Update Steamworks
 - [x] Implementing basic Gmod functions  
 - [x] Implement Language System  
 - [x] Implement Gamemode System  
@@ -18,11 +21,9 @@ Progress:
 
 List of currently working dlls:
 - `datacache.dll`
-- `shaderapidx9.dll` (Needs further testing)
 - `icudt.dll` (IDK what it even does xd)
 - `icudt42.dll` (IDK what it even does xd)
 - `unicode.dll`
-- `vstdlist.dll` (only with `-noasync`)
 - `vvis_dll.dll` (~40% faster than Gmod's version. Compile it in Release for the Performance benefit)
 - `vvis.exe`
 - `vrad.exe`

@@ -341,7 +341,7 @@ void CAchievementMgr::PostInit()
 	if ( !g_AchievementSaveThread.IsAlive() )
 	{
 		g_AchievementSaveThread.Start();
-#if defined(WIN32) && !defined(BUILD_GMOD)
+#ifdef WIN32
 		if ( IsX360() )
 		{
 			ThreadSetAffinity( (ThreadHandle_t)g_AchievementSaveThread.GetThreadHandle(), XBOX_PROCESSOR_3 );
