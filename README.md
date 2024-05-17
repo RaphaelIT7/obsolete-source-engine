@@ -1,4 +1,5 @@
-# Source V1 Engine
+The goal of this branch is to be able to create our own dlls that are compatible with gmod.
+There is also the [gmod-improvements](https://github.com/RaphaelIT7/obsolete-source-engine/tree/gmod-improvements) branch, which will contain bug fixes or improvements.
 
 [![Build](https://github.com/Source-Authors/Obsoletium/actions/workflows/build.yml/badge.svg)](https://github.com/Source-Authors/Obsoletium/actions/workflows/build.yml)
 [![GitHub Repo Size in Bytes](https://img.shields.io/github/repo-size/Source-Authors/Obsoletium.svg)](https://github.com/Source-Authors/Obsoletium)
