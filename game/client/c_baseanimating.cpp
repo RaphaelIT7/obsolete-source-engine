@@ -789,6 +789,9 @@ C_BaseAnimating::~C_BaseAnimating()
 		m_pAttachedTo->RemoveBoneAttachment( this );
 		m_pAttachedTo = NULL;
 	}
+
+	if (m_pScaledCollidable != NULL)
+		physcollision->DestroyCollide( m_pScaledCollidable );
 }
 
 bool C_BaseAnimating::UsesPowerOfTwoFrameBufferTexture( void )
@@ -5156,9 +5159,67 @@ void C_BaseAnimating::Simulate()
 	}
 }
 
+void C_BaseAnimating::RebuildScaledCollidable() // Based off UTIL_CreateScaledPhysObject
+{
+	if ( GetModelScale() != 1.0f )
+	{
+		ICollisionQuery *pQuery = physcollision->CreateQueryModel( modelinfo->GetVCollide(GetModelIndex())->solids[0] );
+		if ( pQuery == NULL )
+			return;
+
+		const int nNumConvex = pQuery->ConvexCount();
+		CPhysConvex **pConvexes = (CPhysConvex **) stackalloc( sizeof(CPhysConvex *) * nNumConvex );
+
+		for ( int i = 0; i < nNumConvex; i++ )
+		{
+			int nNumTris = pQuery->TriangleCount( i );
+			int nNumVerts = nNumTris * 3;
+
+			Vector *pVerts = (Vector *) stackalloc( sizeof(Vector) * nNumVerts );
+			Vector **ppVerts = (Vector **) stackalloc( sizeof(Vector *) * nNumVerts );
+			for ( int j = 0; j < nNumTris; j++ )
+			{
+				pQuery->GetTriangleVerts( i, j, pVerts+(j*3) );
+				*(pVerts+(j*3)) *= GetModelScale();
+				*(pVerts+(j*3)+1) *= GetModelScale();
+				*(pVerts+(j*3)+2) *= GetModelScale();
+
+				*(ppVerts+(j*3)) = pVerts+(j*3);
+				*(ppVerts+(j*3)+1) = pVerts+(j*3)+1;
+				*(ppVerts+(j*3)+2) = pVerts+(j*3)+2;
+			}
+
+			pConvexes[i] = physcollision->ConvexFromVerts( ppVerts, nNumVerts );
+			Assert( pConvexes[i] != NULL );
+			if ( pConvexes[i] == NULL )
+				return;
+		}
+
+		physcollision->DestroyQueryModel( pQuery );
+
+		m_pScaledCollidable = physcollision->ConvertConvexToCollide( pConvexes, nNumConvex );
+		if ( m_pScaledCollidable == NULL )
+			return;
+	}
+
+	m_fLastScale = GetModelScale();
+}
 
 bool C_BaseAnimating::TestCollision( const Ray_t &ray, unsigned int fContentsMask, trace_t& tr )
 {
+	if ( GetModelScale() != 1.0f )
+	{
+		if ( m_fLastScale != GetModelScale() )
+			RebuildScaledCollidable();
+		
+		if ( m_pScaledCollidable != NULL )
+		{
+			physcollision->TraceBox( ray, m_pScaledCollidable, GetAbsOrigin(), GetAbsAngles(), &tr );
+		
+			return tr.DidHit();
+		}
+	}
+
 	if ( ray.m_IsRay && IsSolidFlagSet( FSOLID_CUSTOMRAYTEST ))
 	{
 		if (!TestHitboxes( ray, fContentsMask, tr ))
