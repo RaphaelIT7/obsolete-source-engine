@@ -1360,6 +1360,14 @@ bool CGameServer::FinishCertificateCheck( netadr_t &adr, int nAuthProtocol, cons
 		if ( AllowDebugDedicatedServerOutsideSteam() )
 			return true;
 
+#ifndef SWDS	
+		// don't auth SP games or local mp games if steam isn't running
+		if ( Host_IsSinglePlayerGame() || ( !Steam3Client().SteamUser() && !IsDedicated() ))
+		{
+			return true;
+		}
+#endif
+
 		if ( !Host_IsSinglePlayerGame() || sv.IsDedicated()) // PROTOCOL_HASHEDCDKEY isn't allowed for multiplayer servers
 		{
 			RejectConnection( adr, clientChallenge, "#GameUI_ServerCDKeyAuthInvalid" );
