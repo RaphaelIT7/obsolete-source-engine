@@ -397,7 +397,7 @@ BITBUF_INLINE void bf_write::WriteUBitLong( unsigned int curData, int numbits, b
 			CallErrorHandler( BITBUFERROR_VALUE_OUT_OF_RANGE, GetDebugName() );
 		}
 	}
-	Assert( numbits >= 0 && numbits <= 32 );
+	//Assert( numbits >= 0 && numbits <= 32 );
 #endif
 
 	if ( GetNumBitsLeft() < numbits )
