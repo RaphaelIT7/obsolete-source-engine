@@ -1391,7 +1391,8 @@ int CProtoSniper::SelectSchedule ( void )
 		return SCHED_RELOAD;
 	}
 
-	if( !AI_GetSinglePlayer()->IsAlive() && m_bKilledPlayer )
+	CBasePlayer *pPlayer = AI_GetSinglePlayer();
+	if( pPlayer != NULL && !pPlayer->IsAlive() && m_bKilledPlayer )
 	{
 		if( HasCondition(COND_IN_PVS) )
 		{
@@ -2603,7 +2604,7 @@ CBaseEntity *CProtoSniper::PickDeadPlayerTarget()
 	CBaseEntity *pTarget = AI_GetSinglePlayer();
 	CBaseEntity *pEntities[ iSearchSize ];
 
-	int iNumEntities = UTIL_EntitiesInSphere( pEntities, iSearchSize, AI_GetSinglePlayer()->GetAbsOrigin(), 180.0f, 0 );
+	int iNumEntities = pTarget != NULL ? UTIL_EntitiesInSphere( pEntities, iSearchSize, AI_GetSinglePlayer()->GetAbsOrigin(), 180.0f, 0 ) : 0;
 
 	// Not very robust, but doesn't need to be. Randomly select a nearby object in the list that isn't an NPC.
 	if( iNumEntities > 0 )

@@ -590,6 +590,9 @@ CBasePlayer *UTIL_GetLocalPlayer( void )
 #endif
 		}
 
+		if ( !engine->IsDedicatedServer() ) // Raphael: I don't want broken stuff :/ (I should probably go thru all functions that use this and edit them to support multiplayer properly. Also look into AI_GetSinglePlayer)
+			return UTIL_PlayerByIndex( 1 );
+
 		return NULL;
 	}
 
