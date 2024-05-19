@@ -5162,7 +5162,7 @@ bool C_BaseAnimating::TestCollision( const Ray_t &ray, unsigned int fContentsMas
 {
 	if ( GetModelScale() != 1.0f )
 	{
-		CPhysCollide* physCollide = UTIL_GetScaledPhysCollide( GetModelIndex(), GetModelScale() );
+		CPhysCollide* physCollide = UTIL_GetScaledPhysCollide( this, GetModelIndex(), GetModelScale() );
 		if ( physCollide != NULL )
 		{
 			physcollision->TraceBox( ray, physCollide, GetAbsOrigin(), GetAbsAngles(), &tr );
@@ -6716,4 +6716,15 @@ void C_BaseAnimating::MoveBoneAttachments( C_BaseAnimating* attachTarget )
 			m_BoneAttachments.Remove(0);
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Called when the model is changed.
+//-----------------------------------------------------------------------------
+void C_BaseAnimating::OnModelChange( int oldModelIndex, int newModelIndex )
+{
+	if ( oldModelIndex == 0 )
+		return;
+
+	UTIL_RemoveScaledPhysCollide( this, oldModelIndex );
 }

@@ -29,6 +29,7 @@
 #include "ixboxsystem.h"
 #include "inputsystem/iinputsystem.h"
 #include <unordered_map>
+#include <unordered_set>
 #include <vprof.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -1318,8 +1319,10 @@ bool UTIL_HasLoadedAnyMap()
 	return g_pFullFileSystem->FileExists( szFilename, "MOD" );
 }
 
+std::vector<C_BaseAnimating*> g_pScaledEntities;
+std::unordered_set<C_BaseAnimating*> g_pScaledEntitiesSet;
 std::unordered_map<int, std::unordered_map<float, CPhysCollide*>*> g_pScaledCollidables;
-CPhysCollide *UTIL_GetScaledPhysCollide( int modelIndex, float scale ) // Based off UTIL_CreateScaledPhysObject
+CPhysCollide *UTIL_GetScaledPhysCollide( C_BaseAnimating *ent, int modelIndex, float scale ) // Based off UTIL_CreateScaledPhysObject
 {
 	VPROF( "UTIL_GetScaledPhysCollide", VPROF_BUDGETGROUP_PHYSICS );
 
@@ -1334,13 +1337,19 @@ CPhysCollide *UTIL_GetScaledPhysCollide( int modelIndex, float scale ) // Based 
 		auto iCollidable = collidables->find( scale );
 		if ( iCollidable != collidables->end() )
 		{
+			if ( g_pScaledEntitiesSet.find( ent ) == g_pScaledEntitiesSet.end() )
+			{
+				g_pScaledEntities.push_back( ent );
+				g_pScaledEntitiesSet.insert( ent );
+			}
+
 			return iCollidable->second;
 		} else {
 			scaledCollidables = collidables;
 		}
 	} else {
 		scaledCollidables = new std::unordered_map<float, CPhysCollide*>;
- 		g_pScaledCollidables[modelIndex] = scaledCollidables;
+		g_pScaledCollidables[modelIndex] = scaledCollidables;
 	}
 
 	ICollisionQuery *pQuery = physcollision->CreateQueryModel( modelinfo->GetVCollide( modelIndex )->solids[0] );
@@ -1368,9 +1377,9 @@ CPhysCollide *UTIL_GetScaledPhysCollide( int modelIndex, float scale ) // Based 
 			*(pVerts+p+2) *= scale;
 		}
 
-		for (int j = 0; j < nNumVerts; j += 3)
+		for ( int j = 0; j < nNumVerts; j += 3 )
 		{
-			physcollision->PolysoupAddTriangle(pPolySoups, pVerts[j], pVerts[j + 1], pVerts[j + 2], 0);
+			physcollision->PolysoupAddTriangle( pPolySoups, pVerts[j], pVerts[j + 1], pVerts[j + 2], 0 );
 		}
 	}
 
@@ -1385,42 +1394,50 @@ CPhysCollide *UTIL_GetScaledPhysCollide( int modelIndex, float scale ) // Based 
 	}
 
 	(*scaledCollidables)[scale] = physCollide;
+	if ( g_pScaledEntitiesSet.find(ent) == g_pScaledEntitiesSet.end() )
+	{
+		g_pScaledEntities.push_back( ent );
+		g_pScaledEntitiesSet.insert( ent );
+	}
 
-  	return physCollide;
+	return physCollide;
 }
 
-void UTIL_RemoveScaledPhysCollide( C_BaseEntity* deletingEnt, int modelIndex )
+void UTIL_RemoveScaledPhysCollide( C_BaseAnimating *ent, int modelIndex )
 {
+	VPROF( "UTIL_RemoveScaledPhysCollide", VPROF_BUDGETGROUP_PHYSICS );
+
 	auto iModel = g_pScaledCollidables.find( modelIndex );
 	if ( iModel == g_pScaledCollidables.end() )
 		return;
 
-	const CEntInfo *pInfo = g_pEntityList->FirstEntInfo();
-	for ( ;pInfo; pInfo = pInfo->m_pNext )
+	auto it = std::find( g_pScaledEntities.begin(), g_pScaledEntities.end(), ent );
+	if ( it != g_pScaledEntities.end() )
 	{
-		C_BaseEntity *ent = (C_BaseEntity *)pInfo->m_pEntity;
-		if ( !ent )
+		g_pScaledEntities.erase( it );
+		g_pScaledEntitiesSet.erase( ent );
+	}
+
+	for ( C_BaseAnimating *scaledEnt : g_pScaledEntities )
+	{
+		if ( !scaledEnt )
 		{
-			DevWarning( "NULL entity in global entity list!\n" );
+			DevWarning( "NULL entity in g_pScaledEntities list!\n" ); // Can this even happen?
 			continue;
 		}
 
-		C_BaseAnimating *animating = ent->GetBaseAnimating();
-		if ( !animating )
-			continue;
-
 		// Make sure no other C_BaseAnimating has the same model and is scaled. We don't free the CPhysCollide until no one uses this model with scale
-		if ( ent->GetModelIndex() == modelIndex && animating->GetModelScale() != 1.0f && ent != deletingEnt )
+		if ( modelIndex == scaledEnt->GetModelIndex() && scaledEnt->GetModelScale() != 1.0f )
 			return;
 	}
 
 	std::unordered_map<float, CPhysCollide*> scaledCollibales = *iModel->second;
-	for (auto&[_, physObj] : scaledCollibales)
+	for ( auto&[_, physObj] : scaledCollibales )
 	{
 		physcollision->DestroyCollide( physObj );
 	}
 
-	g_pScaledCollidables.erase(iModel);
+	g_pScaledCollidables.erase( iModel );
 
-	DevMsg("UTIL_RemoveScaledPhysCollide: Freed model idx %i\n", modelIndex);
+	DevMsg( "UTIL_RemoveScaledPhysCollide: Freed model idx %i\n", modelIndex );
 }

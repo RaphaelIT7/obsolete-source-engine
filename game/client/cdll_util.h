@@ -182,9 +182,9 @@ bool UTIL_HasLoadedAnyMap();
 
 // SetModelScale being clientside broken fix
 // Returns the given CPhysCollide for the given model index and scale. If not found it will create it.
-CPhysCollide* UTIL_GetScaledPhysCollide( int modelIndex, float scale );
+CPhysCollide* UTIL_GetScaledPhysCollide( C_BaseAnimating *ent, int modelIndex, float scale );
 
 // Frees all CPhysCollide fro the given model index if it's unused.
-void UTIL_RemoveScaledPhysCollide( C_BaseEntity* deletingEnt, int modelIndex );
+void UTIL_RemoveScaledPhysCollide( C_BaseAnimating *ent, int modelIndex );
 
 #endif // !UTIL_H
