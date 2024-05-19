@@ -1361,7 +1361,7 @@ void CNewGameDialog::StartGame( void )
 	{
 		char mapcommand[512];
 		mapcommand[0] = 0;
-		Q_snprintf( mapcommand, sizeof( mapcommand ), "disconnect\ndeathmatch 0\nprogress_enable\nexec %s\n", m_ChapterPanels[m_iSelectedChapter]->GetConfigFile() );
+		Q_snprintf( mapcommand, sizeof( mapcommand ), "disconnect\nprogress_enable\nexec %s\n", m_ChapterPanels[m_iSelectedChapter]->GetConfigFile() );
 
 		// Set commentary
 		ConVarRef commentary( "commentary" );
