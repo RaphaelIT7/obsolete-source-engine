@@ -28,6 +28,8 @@
 #include "view.h"
 #include "ixboxsystem.h"
 #include "inputsystem/iinputsystem.h"
+#include <unordered_map>
+#include <vprof.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -1314,4 +1316,111 @@ bool UTIL_HasLoadedAnyMap()
 		return false;
 
 	return g_pFullFileSystem->FileExists( szFilename, "MOD" );
+}
+
+std::unordered_map<int, std::unordered_map<float, CPhysCollide*>*> g_pScaledCollidables;
+CPhysCollide *UTIL_GetScaledPhysCollide( int modelIndex, float scale ) // Based off UTIL_CreateScaledPhysObject
+{
+	VPROF( "UTIL_GetScaledPhysCollide", VPROF_BUDGETGROUP_PHYSICS );
+
+	if (scale == 1.0f)
+		return NULL;
+
+	std::unordered_map<float, CPhysCollide*>* scaledCollidables = nullptr;
+	auto iModel = g_pScaledCollidables.find( modelIndex );
+	if ( iModel != g_pScaledCollidables.end() )
+	{
+		std::unordered_map<float, CPhysCollide*>* collidables = iModel->second;
+		auto iCollidable = collidables->find( scale );
+		if ( iCollidable != collidables->end() )
+		{
+			return iCollidable->second;
+		} else {
+			scaledCollidables = collidables;
+		}
+	} else {
+		scaledCollidables = new std::unordered_map<float, CPhysCollide*>;
+ 		g_pScaledCollidables[modelIndex] = scaledCollidables;
+	}
+
+	ICollisionQuery *pQuery = physcollision->CreateQueryModel( modelinfo->GetVCollide( modelIndex )->solids[0] );
+	if ( pQuery == NULL )
+	{
+		Warning("Failed to created scaled CPhysCollide for model %i!\n", modelIndex);
+		return NULL;
+	}
+
+	const int nNumConvex = pQuery->ConvexCount();
+	CPhysPolysoup *pPolySoups = physcollision->PolysoupCreate();
+
+	for ( int i = 0; i < nNumConvex; ++i )
+	{
+		int nNumTris = pQuery->TriangleCount( i );
+		int nNumVerts = nNumTris * 3;
+
+		Vector *pVerts = (Vector *) stackalloc( sizeof(Vector) * nNumVerts );
+		for ( int j = 0; j < nNumTris; ++j )
+		{
+			int p = j*3;
+			pQuery->GetTriangleVerts( i, j, pVerts+p );
+			*(pVerts+p) *= scale;
+			*(pVerts+p+1) *= scale;
+			*(pVerts+p+2) *= scale;
+		}
+
+		for (int j = 0; j < nNumVerts; j += 3)
+		{
+			physcollision->PolysoupAddTriangle(pPolySoups, pVerts[j], pVerts[j + 1], pVerts[j + 2], 0);
+		}
+	}
+
+	physcollision->DestroyQueryModel( pQuery );
+
+	CPhysCollide* physCollide = physcollision->ConvertPolysoupToCollide( pPolySoups, true );
+	physcollision->PolysoupDestroy( pPolySoups );
+	if ( physCollide == NULL )
+	{
+		Warning("Failed to created scaled CPhysCollide for model %i %f!\n", modelIndex, scale);
+		return NULL;
+	}
+
+	(*scaledCollidables)[scale] = physCollide;
+
+  	return physCollide;
+}
+
+void UTIL_RemoveScaledPhysCollide( C_BaseEntity* deletingEnt, int modelIndex )
+{
+	auto iModel = g_pScaledCollidables.find( modelIndex );
+	if ( iModel == g_pScaledCollidables.end() )
+		return;
+
+	const CEntInfo *pInfo = g_pEntityList->FirstEntInfo();
+	for ( ;pInfo; pInfo = pInfo->m_pNext )
+	{
+		C_BaseEntity *ent = (C_BaseEntity *)pInfo->m_pEntity;
+		if ( !ent )
+		{
+			DevWarning( "NULL entity in global entity list!\n" );
+			continue;
+		}
+
+		C_BaseAnimating *animating = ent->GetBaseAnimating();
+		if ( !animating )
+			continue;
+
+		// Make sure no other C_BaseAnimating has the same model and is scaled. We don't free the CPhysCollide until no one uses this model with scale
+		if ( ent->GetModelIndex() == modelIndex && animating->GetModelScale() != 1.0f && ent != deletingEnt )
+			return;
+	}
+
+	std::unordered_map<float, CPhysCollide*> scaledCollibales = *iModel->second;
+	for (auto&[_, physObj] : scaledCollibales)
+	{
+		physcollision->DestroyCollide( physObj );
+	}
+
+	g_pScaledCollidables.erase(iModel);
+
+	DevMsg("UTIL_RemoveScaledPhysCollide: Freed model idx %i\n", modelIndex);
 }

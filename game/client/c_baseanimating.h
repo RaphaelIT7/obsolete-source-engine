@@ -640,14 +640,6 @@ private:
 	mutable MDLHandle_t				m_hStudioHdr;
 	CThreadFastMutex				m_StudioHdrInitLock;
 	bool							m_bHasAttachedParticles;
-
-// SetModelScale being clientside broken fix
-protected:
-	void							RebuildScaledCollidable();
-
-private:
-	CPhysCollide*					m_pScaledCollidable;
-	float							m_fLastScale;
 };
 
 enum 
