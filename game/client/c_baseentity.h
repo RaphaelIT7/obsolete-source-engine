@@ -1401,8 +1401,6 @@ public:
 	virtual bool					IsDeflectable() { return false; }
 
 	bool			IsCombatCharacter() { return MyCombatCharacterPointer() == NULL ? false : true; }
-
-	virtual void					OnModelChange( int oldModelIndex, int newModelIndex ) {};
 protected:
 	int								m_nFXComputeFrame;
 

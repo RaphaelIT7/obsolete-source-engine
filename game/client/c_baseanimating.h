@@ -450,7 +450,7 @@ public:
 	virtual bool					IsViewModel() const;
 	virtual void					UpdateOnRemove( void );
 
-	virtual void					OnModelChange( int oldModelIndex, int newModelIndex );
+	virtual void					Activate( void );
 
 protected:
 	// View models scale their attachment positions to account for FOV. To get the unmodified
@@ -642,6 +642,9 @@ private:
 	mutable MDLHandle_t				m_hStudioHdr;
 	CThreadFastMutex				m_StudioHdrInitLock;
 	bool							m_bHasAttachedParticles;
+
+private:
+	CPhysCollide					*m_pScaledCollidable;
 };
 
 enum 

@@ -419,19 +419,6 @@ void RecvProxy_EffectFlags( const CRecvProxyData *pData, void *pStruct, void *pO
 	((C_BaseEntity*)pStruct)->SetEffects( pData->m_Value.m_Int );
 }
 
-void RecvProxy_ModelChanged( const CRecvProxyData *pData, void *pStruct, void *pOut )
-{
-	C_BaseEntity* ent = (C_BaseEntity*)pStruct;
-	int oldModelIndex = *(int16*)pOut;
-
-	RecvProxy_IntToModelIndex16_BackCompatible( pData, pStruct, pOut );
-
-	int newModelIndex = *(int16*)pOut;
-
-	if ( oldModelIndex != newModelIndex )
-		ent->OnModelChange( oldModelIndex, newModelIndex );
-} 
-
 
 BEGIN_RECV_TABLE_NOBASE( C_BaseEntity, DT_AnimTimeMustBeFirst )
 	RecvPropInt( RECVINFO(m_flAnimTime), 0, RecvProxy_AnimTime ),
@@ -459,7 +446,7 @@ BEGIN_RECV_TABLE_NOBASE(C_BaseEntity, DT_BaseEntity)
 #endif
 
 #ifdef DEMO_BACKWARDCOMPATABILITY
-	RecvPropInt( RECVINFO(m_nModelIndex), 0, RecvProxy_ModelChanged ),
+	RecvPropInt( RECVINFO(m_nModelIndex), 0, RecvProxy_IntToModelIndex16_BackCompatible ),
 #else
 	RecvPropInt( RECVINFO(m_nModelIndex) ),
 #endif
@@ -1764,9 +1751,6 @@ void C_BaseEntity::SetNetworkAngles( const QAngle& ang )
 //-----------------------------------------------------------------------------
 void C_BaseEntity::SetModelIndex( int index_ )
 {
-	if ( m_nModelIndex != index_ )
-		OnModelChange( m_nModelIndex, index_ );
-
 	m_nModelIndex = index_;
 	const model_t *pModel = modelinfo->GetModel( m_nModelIndex );
 	SetModelPointer( pModel );

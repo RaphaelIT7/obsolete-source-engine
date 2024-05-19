@@ -790,7 +790,11 @@ C_BaseAnimating::~C_BaseAnimating()
 		m_pAttachedTo = NULL;
 	}
 
-	UTIL_RemoveScaledPhysCollide( this, GetModelIndex() );
+	if ( m_pScaledCollidable )
+	{
+		UTIL_RemoveScaledPhysCollide( m_pScaledCollidable );
+		m_pScaledCollidable = NULL;
+	}
 }
 
 bool C_BaseAnimating::UsesPowerOfTwoFrameBufferTexture( void )
@@ -5158,14 +5162,14 @@ void C_BaseAnimating::Simulate()
 	}
 }
 
+
 bool C_BaseAnimating::TestCollision( const Ray_t &ray, unsigned int fContentsMask, trace_t& tr )
 {
 	if ( GetModelScale() != 1.0f )
 	{
-		CPhysCollide* physCollide = UTIL_GetScaledPhysCollide( this, GetModelIndex(), GetModelScale() );
-		if ( physCollide != NULL )
+		if ( m_pScaledCollidable != NULL )
 		{
-			physcollision->TraceBox( ray, physCollide, GetAbsOrigin(), GetAbsAngles(), &tr );
+			physcollision->TraceBox( ray, m_pScaledCollidable, GetAbsOrigin(), GetAbsAngles(), &tr );
 		
 			return tr.DidHit();
 		}
@@ -6719,12 +6723,18 @@ void C_BaseAnimating::MoveBoneAttachments( C_BaseAnimating* attachTarget )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Called when the model is changed.
+// Purpose: Update Collisions. (Same way it's done serverside. We only update it when Activate is called)
 //-----------------------------------------------------------------------------
-void C_BaseAnimating::OnModelChange( int oldModelIndex, int newModelIndex )
+void C_BaseAnimating::Activate()
 {
-	if ( oldModelIndex == 0 )
-		return;
+	if ( GetModelScale() != 1.0f )
+	{
+		if ( m_pScaledCollidable )
+		{
+			UTIL_RemoveScaledPhysCollide( m_pScaledCollidable );
+			m_pScaledCollidable = NULL;
+		}
 
-	UTIL_RemoveScaledPhysCollide( this, oldModelIndex );
+		m_pScaledCollidable = UTIL_GetScaledPhysCollide( this, GetModelIndex(), GetModelScale() );
+	}
 }
