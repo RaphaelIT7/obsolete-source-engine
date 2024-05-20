@@ -182,7 +182,7 @@ bool UTIL_HasLoadedAnyMap();
 
 // SetModelScale being clientside broken fix
 // Returns the given CPhysCollide for the given model index and scale. If not found it will create it.
-CPhysCollide* UTIL_GetScaledPhysCollide( C_BaseAnimating *ent, int modelIndex, float scale );
+CPhysCollide* UTIL_GetScaledPhysCollide( int modelIndex, float scale );
 
 // Frees the given CPhysCollide if the internal reference count reaches 0.
 // NOTE: Only supports CPhysCollide created by UTIL_GetScaledPhysCollide!

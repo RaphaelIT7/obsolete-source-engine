@@ -6735,6 +6735,6 @@ void C_BaseAnimating::Activate()
 			m_pScaledCollidable = NULL;
 		}
 
-		m_pScaledCollidable = UTIL_GetScaledPhysCollide( this, GetModelIndex(), GetModelScale() );
+		m_pScaledCollidable = UTIL_GetScaledPhysCollide( GetModelIndex(), GetModelScale() );
 	}
 }

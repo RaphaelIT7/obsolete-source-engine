@@ -1327,7 +1327,7 @@ struct CPhysEntry
 
 std::unordered_map<CPhysCollide*, CPhysEntry> g_pScaledReferences;
 std::unordered_map<int, std::unordered_map<float, CPhysCollide*>*> g_pScaledCollidables;
-CPhysCollide *UTIL_GetScaledPhysCollide( C_BaseAnimating *ent, int modelIndex, float scale ) // Based off UTIL_CreateScaledPhysObject
+CPhysCollide *UTIL_GetScaledPhysCollide( int modelIndex, float scale ) // Based off UTIL_CreateScaledPhysObject
 {
 	VPROF( "UTIL_GetScaledPhysCollide", VPROF_BUDGETGROUP_PHYSICS );
 
