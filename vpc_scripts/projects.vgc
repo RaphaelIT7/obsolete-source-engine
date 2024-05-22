@@ -1621,3 +1621,8 @@ $Project "socketlib"
 //{
 //    "thirdparty\zlib-1.2.5\zlib.vpc" [$WINDOWS]
 //}
+
+$Project "gmod-audio"
+{
+	"gmod-audio\gmod-audio.vpc" [$WIN32]
+}
