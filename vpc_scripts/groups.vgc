@@ -202,6 +202,7 @@ $Group "game"
 	"vstdlib"
 	"vtf"
 	"coroutine_osx"
+	"gmod-audio"
 }
 
 $Group "everything"
@@ -460,6 +461,7 @@ $Group "everything"
 
 //	"vs_python2.5"
 //	"vslib_python2.5"
+	"gmod-audio"
 }
 
 $Group "dedicated"
@@ -757,6 +759,7 @@ $Group "sourcelicensee"
 	"vtfscrew"
 	"vvis_dll"
 	"vvis_launcher"
+	"gmod-audio"
 }
 
 // All projects required to build the console version
