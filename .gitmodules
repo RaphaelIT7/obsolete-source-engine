@@ -55,3 +55,7 @@
 [submodule "gmod-audio"]
 	path = gmod-audio
 	url = https://github.com/RaphaelIT7/gmod-audio
+[submodule "bootil"]
+	path = bootil
+	url = https://github.com/RaphaelIT7/bootil.git
+	branch = gmod
