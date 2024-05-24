@@ -1641,3 +1641,13 @@ $Project "resources"
 {
 	"resources\resources.vpc"
 }
+
+$Project "lua-shared-lib" // ToDo: Remove this.
+{
+	"gmod-lua-shared\lua_shared_lib\lua-shared-lib.vpc"
+}
+
+$Project "lua-shared"
+{
+	"gmod-lua-shared\lua-shared.vpc"
+}

@@ -487,6 +487,7 @@ int Q_UTF16ToUChar32( const uchar16 *pUTF16, uchar32 &uValueOut, bool &bErrorOut
 #define Q_WStringToUTF8 Q_UTF16ToUTF8
 #define Q_WStringCharsToUTF8 Q_UTF16CharsToUTF8
 #define Q_WStringToUTF32 Q_UTF16ToUTF32
+#define UTFTHING uchar16
 #else
 #define Q_UTF8ToWString Q_UTF8ToUTF32
 #define Q_UTF8CharsToWString Q_UTF8CharsToUTF32
@@ -494,6 +495,7 @@ int Q_UTF16ToUChar32( const uchar16 *pUTF16, uchar32 &uValueOut, bool &bErrorOut
 #define Q_WStringToUTF8 Q_UTF32ToUTF8
 #define Q_WStringCharsToUTF8 Q_UTF32CharsToUTF8
 #define Q_WStringToUTF32 Q_UTF32ToUTF32
+#define UTFTHING uchar32
 #endif
 
 // These are legacy names which don't make a lot of sense but are used everywhere. Prefer the WString convention wherever possible
@@ -1080,7 +1082,7 @@ private:
 		// also need to leave room for the terminating NUL.
 		uint32 cbMax = 4 * static_cast<uint32>( V_wcslen( m_pwch ) ) + 1;
 		char *pchTemp = new char[ cbMax ];
-		if ( V_UnicodeToUTF8( m_pwch, pchTemp, cbMax ) )
+		if ( V_UnicodeToUTF8( (const UTFTHING*)m_pwch, pchTemp, cbMax ) )
 		{
 			uint32 cchAlloc = static_cast<uint32>( V_strlen( pchTemp ) ) + 1;
 			char *pchHeap = new char[ cchAlloc ];
@@ -1112,7 +1114,7 @@ private:
 
 		uint32 cchMax = static_cast<uint32>( V_strlen( m_pch ) ) + 1;
 		wchar_t *pwchTemp = new wchar_t[ cchMax ];
-		if ( V_UTF8ToUnicode( m_pch, pwchTemp, cchMax * sizeof( wchar_t ) ) )
+		if ( V_UTF8ToUnicode( m_pch, (UTFTHING*)pwchTemp, cchMax * sizeof( wchar_t ) ) )
 		{
 			uint32 cchAlloc = static_cast<uint32>( V_wcslen( pwchTemp ) ) + 1;
 			wchar_t *pwchHeap = new wchar_t[ cchAlloc ];

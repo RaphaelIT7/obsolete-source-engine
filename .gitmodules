@@ -59,3 +59,6 @@
 	path = bootil
 	url = https://github.com/RaphaelIT7/bootil.git
 	branch = gmod
+[submodule "gmod-lua-shared"]
+	path = gmod-lua-shared
+	url = https://github.com/RaphaelIT7/gmod-lua-shared.git
