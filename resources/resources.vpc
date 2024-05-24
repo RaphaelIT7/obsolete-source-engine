@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$SRCDIR\Resources"
+		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\Resources"
 	}
 }
 
@@ -24,5 +24,25 @@ $Project "resources"
 		$File	"CImage.cpp"
 		$File	"CResources.cpp"
 		$File	"CVideoWriter.cpp"
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"CImageManager.h"
+		$File 	"CVideoWriter.h"
+		$File	"FreeImage.h"
+	}
+
+	$Folder	"Public Header Files"
+	{
+		$File	"$SRCDIR\public\GarrysMod\IResources.h"
+	}
+
+	$Folder	"Link Libraries"
+	{
+		$Lib 	tier2
+		$Lib 	tier3
+		$Lib 	bootil
+		$Lib 	FreeImage
 	}
 }
