@@ -60,8 +60,13 @@ public:
 typedef void ( *FnCommandCallbackVoid_t )( void );
 typedef void ( *FnCommandCallback_t )( const CCommand &command );
 
+#ifdef BUILD_GMOD
 #define COMMAND_COMPLETION_MAXITEMS		128
 #define COMMAND_COMPLETION_ITEM_LENGTH	128
+#else
+#define COMMAND_COMPLETION_MAXITEMS		64
+#define COMMAND_COMPLETION_ITEM_LENGTH	64
+#endif
 
 //-----------------------------------------------------------------------------
 // Returns 0 to COMMAND_COMPLETION_MAXITEMS worth of completion strings

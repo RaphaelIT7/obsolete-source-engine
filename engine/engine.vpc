@@ -289,6 +289,7 @@ $Project "engine"
 
 	$Folder	"Source Files"
 	{
+		$File	"$SRCDIR\GarrysMod\CGet.cpp"
 		// dimhotepus: Disable accessibility shortcut keys.
 		$File	"accessibility_shortcut_keys_toggler.cpp"	[$WINDOWS]
 		$File	"baseautocompletefilelist.cpp"
