@@ -1624,5 +1624,10 @@ $Project "socketlib"
 
 $Project "gmod-audio"
 {
-	"gmod-audio\gmod-audio.vpc" [$WIN32]
+	"gmod-audio\gmod-audio.vpc"
+}
+
+$Project "bootil"
+{
+	"bootil\bootil.vpc"
 }
