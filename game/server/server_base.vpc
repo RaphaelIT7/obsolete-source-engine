@@ -54,7 +54,7 @@ $Configuration
 
 	$Compiler
 	{
-		$AdditionalIncludeDirectories	"$BASE;.\;$SRCDIR\game\shared;$SRCDIR\utils\common;$SRCDIR\game\shared\econ;$SRCDIR\game\server\NextBot"
+		$AdditionalIncludeDirectories	"$BASE;.\;$SRCDIR\GarrysMod;$SRCDIR\game\shared;$SRCDIR\utils\common;$SRCDIR\game\shared\econ;$SRCDIR\game\server\NextBot"
 		$PreprocessorDefinitions		"$BASE;GAME_DLL;VECTOR;VERSION_SAFE_STEAM_API_INTERFACES;PROTECTED_THINGS_ENABLE;sprintf=use_Q_snprintf_instead_of_sprintf;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead"
 		$PreprocessorDefinitions		"$BASE;SUPPORTS_INT64" [$WIN64]
 		$PreprocessorDefinitions		"$BASE;SWDS" [$POSIX]
@@ -791,6 +791,7 @@ $Project
 
 	$Folder	"Header Files"
 	{
+		$File	"$SRCDIR\GarrysMod\Externals.h"
 		$File	"$SRCDIR\game\shared\ammodef.h"
 		$File	"$SRCDIR\game\shared\base_playeranimstate.h"
 		$File	"base_transmit_proxy.h"

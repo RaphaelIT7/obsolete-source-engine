@@ -60,6 +60,7 @@ class CSteamID;
 class IReplayFactory;
 class IReplaySystem;
 class IServer;
+class IGet;
 
 typedef struct player_info_s player_info_t;
 
@@ -454,8 +455,13 @@ typedef IVEngineServer IVEngineServer022;
 
 #define INTERFACEVERSION_SERVERGAMEDLL_VERSION_8	"ServerGameDLL008"
 #define INTERFACEVERSION_SERVERGAMEDLL_VERSION_9	"ServerGameDLL009"
+#ifdef BUILD_GMOD
+#define INTERFACEVERSION_SERVERGAMEDLL				"ServerGameDLL009"
+#define INTERFACEVERSION_SERVERGAMEDLL_INT			9
+#else
 #define INTERFACEVERSION_SERVERGAMEDLL				"ServerGameDLL010"
 #define INTERFACEVERSION_SERVERGAMEDLL_INT			10
+#endif
 
 class IServerGCLobby;
 
@@ -467,6 +473,10 @@ abstract_class IServerGameDLL
 public:
 	// Initialize the game (one-time call when the DLL is first loaded )
 	// Return false if there is an error during startup.
+#ifdef BUILD_GMOD
+	virtual void			PreInit(CreateInterfaceFn fn, IGet*) = 0;
+#endif
+
 	virtual bool			DLLInit(	CreateInterfaceFn engineFactory, 
 										CreateInterfaceFn physicsFactory, 
 										CreateInterfaceFn fileSystemFactory, 
@@ -584,6 +594,7 @@ public:
 	// Get gamedata string to send to the master serer updater.
 	virtual const char *GetServerBrowserGameData() = 0;
 
+#ifndef BUILD_GMOD
 	// Called to add output to the status command
 	virtual void 			Status( void (*print) (const char *fmt, ...) ) = 0;
 
@@ -631,6 +642,18 @@ public:
 
 	// Called to see if the game server is okay with a manual changelevel or map command
 	virtual bool			IsManualMapChangeOkay( const char **pszReason ) = 0;
+#else
+	virtual bool GMOD_CheckPassword(
+		unsigned long long steamID64,
+		const char *ipAddress,
+		const char *serverPassword,
+		const char *clientPassword,
+		const char *name,
+		char *rejectionMessage,
+		unsigned int rejectionMessageLen ) = 0;
+	virtual void GMOD_ClientSignOnStateChanged( int userID, int oldState, int newState ) = 0;
+	virtual void GMOD_OnAllSoundsStoppedSV() = 0;
+#endif
 };
 
 typedef IServerGameDLL IServerGameDLL008;
@@ -738,6 +761,15 @@ public:
 
 	// Hook for player spawning
 	virtual void			ClientSpawned( edict_t *pPlayer ) = 0;
+
+#ifdef BUILD_GMOD
+	// Handles file requests and Lua errors from the client
+	virtual void 			GMOD_ReceiveClientMessage( int unknown, edict_t* pPlayer, bf_read* msg, int unknown2 ) = 0;
+
+	virtual void 			GMOD_ClientConnected( int userID ) = 0;
+
+	virtual void 			GMOD_SentClientStringTables( int userID ) = 0;
+#endif
 };
 
 typedef IServerGameClients IServerGameClients003;
