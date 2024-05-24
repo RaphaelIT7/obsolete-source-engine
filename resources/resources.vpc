@@ -1,0 +1,28 @@
+//-----------------------------------------------------------------------------
+//	RESOURCES.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		".."
+$Macro GAMENAME 	"HL2" // ToDo: Change it later to GMOD
+$Macro OUTBINDIR	"$SRCDIR\..\game\$GAMENAME\bin"
+$Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"$SRCDIR\Resources"
+	}
+}
+
+$Project "resources"
+{
+	$Folder	"Source Files"
+	{
+		$File	"CImage.cpp"
+		$File	"CResources.cpp"
+		$File	"CVideoWriter.cpp"
+	}
+}

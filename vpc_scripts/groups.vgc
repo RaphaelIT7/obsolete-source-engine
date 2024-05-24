@@ -120,6 +120,7 @@ $Group "console"
 	"coroutine_osx"
 	"bootil"
 	"menusystem"
+	"resources"
 }
 
 $Group "game"
@@ -208,6 +209,7 @@ $Group "game"
 	"gmod-audio"
 	"bootil"
 	"menusystem"
+	"resources"
 }
 
 $Group "everything"
@@ -469,6 +471,7 @@ $Group "everything"
 	"gmod-audio"
 	"bootil"
 	"menusystem"
+	"resources"
 }
 
 $Group "dedicated"
@@ -597,6 +600,7 @@ $Group "port"
 	"video_services"
 	"bootil"
 	"menusystem"
+	"resources"
 }
 
 // Abbreviated version of the 'everything' group for Source licensees
@@ -772,6 +776,7 @@ $Group "sourcelicensee"
 	"gmod-audio"
 	"bootil"
 	"menusystem"
+	"resources"
 }
 
 // All projects required to build the console version
@@ -816,6 +821,7 @@ $Group "licensee_console"
 	"coroutine_osx"
 	"bootil"
 	"menusystem"
+	"resources"
 }
 
 $Group "dmxtools"
