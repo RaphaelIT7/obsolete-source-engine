@@ -1449,6 +1449,7 @@ void CClientState::CheckUpdatingSteamResources()
 		V_strncpy( szMutableLevelName, m_szLevelBaseName, sizeof( szMutableLevelName ) );
 
 		// if the game .dll doesn't support this call assume everything is prepared
+#ifndef BUILD_GMOD
 		IServerGameDLL::ePrepareLevelResourcesResult eResult = IServerGameDLL::ePrepareLevelResources_Prepared;
 		if ( g_iServerGameDLLVersion >= 10 )
 		{
@@ -1475,6 +1476,11 @@ void CClientState::CheckUpdatingSteamResources()
 			m_bUpdateSteamResources = true;
 			break;
 		}
+#else
+		flPrepareProgress = 100.f;
+		m_bPrepareClientDLL = false;
+		m_bUpdateSteamResources = true;
+#endif
 	}
 
 	if (m_bUpdateSteamResources)
