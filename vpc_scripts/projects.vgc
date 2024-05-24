@@ -1636,3 +1636,8 @@ $Project "menusystem"
 {
 	"menusystem\menusystem.vpc"
 }
+
+$Project "resources"
+{
+	"resources\resources.vpc"
+}
