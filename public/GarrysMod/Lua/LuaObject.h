@@ -1,7 +1,6 @@
 #pragma once
 
 #include "LuaBase.h"
-#include "SourceCompat.h"
 
 #if IS_SERVERSIDE
 

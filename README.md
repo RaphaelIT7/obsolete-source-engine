@@ -7,7 +7,7 @@ There is also the [gmod-improvements](https://github.com/RaphaelIT7/obsolete-sou
 List of dlls that are worked on:
 - `shaderapidx9.dll` (Everything was reverted.)
 - `vstdlist.dll` (Everything was reverted.)
-- `filesystem_stdio.dll`
+- `filesystem_stdio.dll` (Something broke and idk what)
 Progress:  
 - [ ] Update Steamworks
 - [x] Implementing basic Gmod functions  

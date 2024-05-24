@@ -1,4 +1,18 @@
-#include "CLuaInterface.h"
+#include <GarrysMod/Lua/LuaObject.h>
+#include <GarrysMod/Lua/LuaGameCallback.h>
+#include <GarrysMod/Lua/LuaInterface.h>
+
+class CLuaGameCallback : public GarrysMod::Lua::ILuaGameCallback
+{
+public:
+	virtual GarrysMod::Lua::ILuaObject* CLuaGameCallback::CreateLuaObject();
+	virtual void CLuaGameCallback::DestroyLuaObject(GarrysMod::Lua::ILuaObject* pObject);
+	virtual void CLuaGameCallback::ErrorPrint(const char* error, bool print);
+	virtual void CLuaGameCallback::Msg(const char* msg, bool unknown);
+	virtual void CLuaGameCallback::MsgColour(const char* msg, const Color& color);
+	virtual void CLuaGameCallback::LuaError(const CLuaError* error);
+	virtual void CLuaGameCallback::InterfaceCreated(GarrysMod::Lua::ILuaInterface* iface);
+};
 
 //Color server_msg(156, 241, 255, 200);
 //Color server_error(136, 221, 255, 255);
@@ -47,4 +61,4 @@ void CLuaGameCallback::LuaError(const CLuaError* error)
 	// fk it.
 }
 
-void CLuaGameCallback::InterfaceCreated(ILuaInterface* iface) {} // Unused
+void CLuaGameCallback::InterfaceCreated(GarrysMod::Lua::ILuaInterface* iface) {} // Unused

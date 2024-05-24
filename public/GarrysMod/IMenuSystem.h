@@ -15,6 +15,7 @@ struct CLuaError;
 abstract_class IMenuSystem
 {
 public:
+	virtual ~IMenuSystem() {};
 	virtual int Init( CreateInterfaceFn, IGet*, IGarrysMod*, CGlobalVarsBase* ) = 0;
 	virtual void Shutdown() = 0;
 	virtual void SetupNetworkString( INetworkStringTableContainer* ) = 0;

@@ -1737,7 +1737,7 @@ const std::list<IAddonSystem::UGCInfo>& CAddonFileSystem::GetUGCList( ) const
 	return m_pUgcAddons;
 }
 
-void CAddonFileSystem::ScanForSubscriptions(CSteamAPIContext* context, const char* unknown) // NOTE: Gmod uses the Steamworks 1.57. The sourcesdk-minimal is outdated.
+void CAddonFileSystem::ScanForSubscriptions(CSteamAPIContext* context, const char* unknown) // NOTE: Gmod uses the Steamworks 1.57. The sourcesdk-minimal was outdated.
 {
 	Msg("CAddonFileSystem::ScanForSubscriptions\n");
 
@@ -1747,6 +1747,9 @@ void CAddonFileSystem::ScanForSubscriptions(CSteamAPIContext* context, const cha
 	{
 		m_pSteamContext = context;
 	}
+
+	if (true)
+		return;
 
 	if (!m_pSubscribeNotify)
 	{
@@ -2142,8 +2145,8 @@ void CGamemodeSystem::Refresh()
 					const char* text = sub->GetString("text", "");
 					const char* help = sub->GetString("help", "");
 					//const char* type = sub->GetString("type", "");
-					const char* default = sub->GetString("default", "");
-					((GarrysMod::Lua::ILuaConVars*)((CBaseFileSystem*)g_pFullFileSystem)->GetIGet()->LuaConVars())->CreateConVar(name, default, help, FCVAR_ARCHIVE | FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_LUA_SERVER);
+					const char* def = sub->GetString("default", "");
+					//((GarrysMod::Lua::ILuaConVars*)((CBaseFileSystem*)g_pFullFileSystem)->GetIGet()->LuaConVars())->CreateConVar(name, def, help, FCVAR_ARCHIVE | FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_LUA_SERVER);
 				}
 			}
 
@@ -2223,8 +2226,8 @@ const std::list<IGamemodeSystem::Information>& CGamemodeSystem::GetList() const
 bool CGamemodeSystem::IsServerBlacklisted(char const* address, char const* hostname, char const* description, char const* gm, char const* map)
 {
 	Msg("CGamemodeSystem::IsServerBlacklisted\n");
-	// ToDo: Why do u crash :<
-	return false; //((CBaseFileSystem*)g_pFullFileSystem)->GetIGet()->MenuSystem()->IsServerBlacklisted(address, hostname, description, gm, map);
+
+	return ((CBaseFileSystem*)g_pFullFileSystem)->GetIGet()->MenuSystem()->IsServerBlacklisted(address, hostname, description, gm, map);
 }
 
 CGamemodeSystem::CGamemodeSystem()
