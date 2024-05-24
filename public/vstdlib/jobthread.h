@@ -426,8 +426,15 @@ public:
 
 //-----------------------------------------------------------------------------
 
+#ifdef BUILD_GMOD
+JOB_INTERFACE IThreadPool *V_CreateThreadPool();
+JOB_INTERFACE void V_DestroyThreadPool( IThreadPool *pPool );
+#define CreateThreadPool V_CreateThreadPool
+#define DestroyThreadPool V_DestroyThreadPool
+#else
 JOB_INTERFACE IThreadPool *CreateThreadPool();
 JOB_INTERFACE void DestroyThreadPool( IThreadPool *pPool );
+#endif
 
 //-----------------------------------------------------------------------------
 

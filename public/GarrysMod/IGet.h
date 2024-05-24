@@ -27,7 +27,7 @@ class IGMod_Audio;
 class IAnalytics;
 class CSteamID;
 
-abstract_class IGet
+class IGet
 {
 public:
 	virtual void OnLoadFailed( const char* reason ) = 0;
