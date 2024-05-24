@@ -83,6 +83,7 @@
 #include "engine/imatchmaking.h"
 #include "hl2orange.spa.h"
 #include "particle_parse.h"
+#include "Externals.h"
 #ifndef NO_STEAM
 #include "steam/steam_gameserver.h"
 #endif
@@ -166,6 +167,7 @@ IFileSystem		*filesystem = NULL;
 #else
 extern IFileSystem *filesystem;
 #endif
+IGet* get;
 INetworkStringTableContainer *networkstringtable = NULL;
 IStaticPropMgrServer *staticpropmgr = NULL;
 IUniformRandomStream *random = NULL;
@@ -564,6 +566,11 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CServerGameDLL, IServerGameDLL, INTERFACEVERSI
 
 // When bumping the version to this interface, check that our assumption is still valid and expose the older version in the same way
 COMPILE_TIME_ASSERT( INTERFACEVERSION_SERVERGAMEDLL_INT == 10 );
+
+void CServerGameDLL::PreInit( CreateInterfaceFn fn, IGet* gt)
+{
+	get = gt;
+}
 
 bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory, 
 		CreateInterfaceFn physicsFactory, CreateInterfaceFn fileSystemFactory, 
@@ -1923,6 +1930,7 @@ const char *CServerGameDLL::GetServerBrowserGameData()
 	return rchResult;
 }
 
+#ifndef BUILD_GMOD
 //-----------------------------------------------------------------------------
 void CServerGameDLL::Status( void (*print) (const char *fmt, ...) )
 {
@@ -1977,6 +1985,30 @@ bool CServerGameDLL::IsManualMapChangeOkay( const char **pszReason )
 
 	return true;
 }
+#else
+bool CServerGameDLL::GMOD_CheckPassword(
+		unsigned long long steamID64,
+		const char *ipAddress,
+		const char *serverPassword,
+		const char *clientPassword,
+		const char *name,
+		char *rejectionMessage,
+		unsigned int rejectionMessageLen )
+{
+	return true; // ToDo: Add Lua Hook (CheckPassword)
+}
+
+void CServerGameDLL::GMOD_ClientSignOnStateChanged( int userID, int oldState, int newState )
+{
+	// ToDo: Add Lua hook (ClientSignOnStateChanged)
+}
+
+void CServerGameDLL::GMOD_OnAllSoundsStoppedSV( )
+{
+	CSoundEnvelopeController& controller = CSoundEnvelopeController::GetController();
+	controller.SystemReset(); // ToDo: Verify
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Called during a transition, to build a map adjacency list
@@ -3235,6 +3267,30 @@ void CServerGameClients::ClientCommandKeyValues( edict_t *pEntity, KeyValues *pK
 		g_pGameRules->ClientCommandKeyValues( pEntity, pKeyValues );
 	}
 }
+
+#ifdef BUILD_GMOD
+void CServerGameClients::GMOD_ReceiveClientMessage( int unknown, edict_t* pPlayer, bf_read* msg, int unknown2 )
+{
+	// ToDo: Use this for Gmod's datatable
+	// DevMsg( "Blocking invalid GMod packet - Length: %i Type: %i" )
+
+	// call net.Income
+}
+
+void CServerGameClients::GMOD_ClientConnected( int userID )
+{
+	// ToDo:
+	// DataPack()
+	// GModDataPack::OnClientConnected(int)
+}
+
+void CServerGameClients::GMOD_SentClientStringTables( int userID )
+{
+	// ToDo
+	// DataPack()
+	// GModDataPack::SendFileRequestRequest(int)
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 

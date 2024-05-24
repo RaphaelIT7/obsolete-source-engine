@@ -4111,7 +4111,9 @@ bool Host_Changelevel( bool loadfromsavedgame, const char *mapname, const char *
 	// Ask serverDLL to prepare this load
 	if ( g_iServerGameDLLVersion >= 10 )
 	{
+#ifndef BUILD_GMOD
 		serverGameDLL->PrepareLevelResources( szMapName, sizeof( szMapName ), szMapFile, sizeof( szMapFile ) );
+#endif
 	}
 
 	if ( !modelloader->Map_IsValid( szMapFile ) )

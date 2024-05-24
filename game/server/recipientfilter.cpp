@@ -413,3 +413,22 @@ void CPASAttenuationFilter::Filter( const Vector& origin, float attenuation /*= 
 		RemoveRecipient( player );
 	}
 }
+
+bool CRecipientFilter::GMOD_HasRecipient( int slot )
+{
+	return m_Recipients.Find( slot ) != m_Recipients.InvalidIndex();
+}
+
+void CRecipientFilter::GMOD_RemoveRecipientsByPAS( const Vector& origin )
+{
+	if ( gpGlobals->maxClients == 1 )
+	{
+		m_Recipients.RemoveAll();
+	}
+	else
+	{
+		CBitVec< ABSOLUTE_PLAYER_LIMIT > playerbits;
+		engine->Message_DetermineMulticastRecipients( true, origin, playerbits );
+		RemovePlayersFromBitMask( playerbits );
+	}
+}

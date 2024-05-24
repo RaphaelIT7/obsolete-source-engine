@@ -518,6 +518,7 @@ public:
 		char szOriginalName[256] = { 0 };
 		V_strncpy( szOriginalName, pMapName, sizeof( szOriginalName ) );
 
+#ifndef BUILD_GMOD
 		IServerGameDLL::eCanProvideLevelResult eCanGameDLLProvide = IServerGameDLL::eCanProvideLevel_CannotProvide;
 		if ( g_iServerGameDLLVersion >= 10 )
 		{
@@ -536,6 +537,7 @@ public:
 
 		AssertMsg( eCanGameDLLProvide == IServerGameDLL::eCanProvideLevel_CannotProvide,
 		           "Unhandled enum member" );
+#endif
 
 		char szDiskName[MAX_PATH] = { 0 };
 		// Check if we can directly use this as a map
