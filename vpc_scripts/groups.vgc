@@ -119,6 +119,7 @@ $Group "console"
 	"vtf"
 	"coroutine_osx"
 	"bootil"
+	"menusystem"
 }
 
 $Group "game"
@@ -206,6 +207,7 @@ $Group "game"
 	"coroutine_osx"
 	"gmod-audio"
 	"bootil"
+	"menusystem"
 }
 
 $Group "everything"
@@ -466,6 +468,7 @@ $Group "everything"
 //	"vslib_python2.5"
 	"gmod-audio"
 	"bootil"
+	"menusystem"
 }
 
 $Group "dedicated"
@@ -593,6 +596,7 @@ $Group "port"
 	"video_webm"
 	"video_services"
 	"bootil"
+	"menusystem"
 }
 
 // Abbreviated version of the 'everything' group for Source licensees
@@ -767,6 +771,7 @@ $Group "sourcelicensee"
 	"vvis_launcher"
 	"gmod-audio"
 	"bootil"
+	"menusystem"
 }
 
 // All projects required to build the console version
@@ -810,6 +815,7 @@ $Group "licensee_console"
 	"vtf"
 	"coroutine_osx"
 	"bootil"
+	"menusystem"
 }
 
 $Group "dmxtools"

@@ -1,0 +1,69 @@
+//-----------------------------------------------------------------------------
+//	MENU_SYSTEM.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		".."
+$Macro GAMENAME 	"HL2" // ToDo: Change it later to GMOD
+$Macro OUTBINDIR	"$SRCDIR\..\game\$GAMENAME\bin"
+$Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\GarrysMod"
+		$PreprocessorDefinitions			"$BASE;MENUSYSTEM"
+	}
+}
+
+$Project "menusystem"
+{
+	$Folder	"Source Files"
+	{
+		$File	"$SRCDIR\GarrysMod\MenuSystem.cpp"
+
+		$Folder	"Lua"
+		{
+			$File	"$SRCDIR\GarrysMod\Lua\CLuaClass.cpp"
+			$File	"$SRCDIR\GarrysMod\Lua\CLuaGameCallback.cpp"
+			$File	"$SRCDIR\GarrysMod\Lua\LuaEnums.cpp"
+
+			$Folder	"Libraries"
+			{
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\cl_gl_achievements.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\cl_gl_gui.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\cl_gl_input.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\cl_gl_kinect_menu.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\cl_gl_language.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\cl_gl_render.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\cl_gl_surface.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\cl_gl_vgui.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\cl_gl_video.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_base.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_engine.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_file.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_httpget.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_nongame.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_permissions.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_system.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_timer.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_util.cpp"
+
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_menusystem.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_servers.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_steamworks.cpp"
+			}
+
+			$Folder	"Types"
+			{
+				$File	"$SRCDIR\GarrysMod\Lua\custom_types\cl_lua_panel.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_types\lua_angle.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_types\lua_convar.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_types\lua_material.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_types\lua_vector.cpp"
+			}
+		}
+	}
+}
