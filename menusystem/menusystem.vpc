@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\GarrysMod"
+		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\GarrysMod;$SRCDIR\SourceVR"
 		$PreprocessorDefinitions			"$BASE;MENUSYSTEM"
 	}
 }
@@ -23,6 +23,7 @@ $Project "menusystem"
 	$Folder	"Source Files"
 	{
 		$File	"$SRCDIR\GarrysMod\MenuSystem.cpp"
+		$File	"$SRCDIR\GarrysMod\Externals.cpp"
 
 		$Folder	"Lua"
 		{

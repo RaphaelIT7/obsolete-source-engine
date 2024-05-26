@@ -81,6 +81,19 @@ $Project
 		$File	"$SRCDIR\game\shared\replay_gamestats_shared.h"	[$BUILD_REPLAY]
 	}
 
+	$Folder	"GarrysMod Files"
+	{
+		$File	"$SRCDIR\GarrysMod\Lua\CLuaGameCallback.cpp"
+		$File	"$SRCDIR\GarrysMod\Lua\garrysmod.cpp"
+		$File	"$SRCDIR\GarrysMod\Lua\garrysmod.h"
+		$File	"$SRCDIR\GarrysMod\Lua\gmod_lua.cpp"
+		$File	"$SRCDIR\GarrysMod\Lua\gmod_lua.h"
+		$File	"$SRCDIR\GarrysMod\Lua\CLuaClass.cpp"
+		$File	"$SRCDIR\GarrysMod\Lua\CLuaClass.h"
+		$File	"$SRCDIR\GarrysMod\Lua\LuaEnums.cpp"
+		$File	"$SRCDIR\GarrysMod\Externals.cpp"
+	}
+
 	$Folder	"Source Files"
 	{
 		$File	"$SRCDIR\game\shared\achievement_saverestore.cpp"

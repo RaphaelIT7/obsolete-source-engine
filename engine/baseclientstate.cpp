@@ -427,6 +427,7 @@ void CBaseClientState::ConnectionStart(INetChannel *chan)
 	REGISTER_SVC_MSG( GetCvarValue );
 	REGISTER_SVC_MSG( CmdKeyValues );
 	REGISTER_SVC_MSG( SetPauseTimed );
+	REGISTER_SVC_MSG( GMod_ServerToClient );
 }
 
 void CBaseClientState::ConnectionClosing( const char *reason )
@@ -1820,6 +1821,15 @@ bool CBaseClientState::ProcessGetCvarValue( SVC_GetCvarValue *msg )
 	m_NetChannel->SendNetMsg( returnMsg );
 	return true;
 }
+
+#ifdef BUILD_GMOD
+bool CBaseClientState::ProcessGMod_ServerToClient( SVC_GMod_ServerToClient *msg )
+{
+	g_ClientDLL->GMOD_ReceiveServerMessage( (bf_read*)msg, 0 );
+
+	return true;
+}
+#endif
 
 // Returns dem file protocol version, or, if not playing a demo, just returns PROTOCOL_VERSION
 int CBaseClientState::GetDemoProtocolVersion() const

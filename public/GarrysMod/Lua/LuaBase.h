@@ -194,11 +194,8 @@ namespace GarrysMod
             // returns NULL upon failure
             virtual CFunc       GetCFunction( int iStackPos = -1 ) = 0;
 
-#if !defined( GMOD_ALLOW_DEPRECATED ) && !defined( GMOD_ALLOW_LIGHTUSERDATA )
-        protected:
-#endif
-                // Deprecated: You should probably be using the UserType functions instead of this
-            virtual void*       GetUserdata( int iStackPos = -1 ) = 0;
+            // Deprecated: You should probably be using the UserType functions instead of this
+            virtual UserData*   GetUserdata( int iStackPos = -1 ) = 0;
 
         public:
             // Pushes a nil value on to the stack

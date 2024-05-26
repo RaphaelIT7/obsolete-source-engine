@@ -1,10 +1,9 @@
 // Doesn't exist in Gmod.
-#include "GarrysMod/IGarrysMod.h"
-#include "Externals.h"
 #include "cbase.h"
+#include "Externals.h"
 
 IGet* get;
-IGarrysMod* igarrysmod;
+GarrysMod::Lua::ILuaInterface* g_Lua;
 
 #ifdef MENUSYSTEM
 CGlobalVarsBase* gpGlobals;

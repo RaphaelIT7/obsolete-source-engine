@@ -141,7 +141,12 @@ enum
 #define svc_CmdKeyValues	32	// Server submits KeyValues command for the client
 #define svc_SetPauseTimed	33	// Timed pause - to avoid breaking demos
 
+#ifdef BUILD_GMOD
+#define svc_GMod_ServerToClient 34
+#define SVC_LASTMSG			34	// last known server messages
+#else
 #define SVC_LASTMSG			33	// last known server messages
+#endif
 
 //
 // client to server
@@ -158,7 +163,12 @@ enum
 #define clc_CmdKeyValues		16
 #define clc_FileMD5Check		17		// client is sending a file's MD5 to the server to be verified.
 
-#define CLC_LASTMSG			17		//	last known client message
+#ifdef BUILD_GMOD
+#define clc_GMod_ClientToServer 18
+#define CLC_LASTMSG			18	//	last known client message
+#else
+#define CLC_LASTMSG			17	//	last known client message
+#endif
 
 #define RES_FATALIFMISSING	(1<<0)   // Disconnect if we can't get this file.
 #define RES_PRELOAD			(1<<1)  // Load on client rather than just reserving name

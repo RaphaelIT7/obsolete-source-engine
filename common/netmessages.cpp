@@ -2067,3 +2067,44 @@ const char *SVC_GetCvarValue::ToString(void) const
 	return s_text;
 } 
 
+#ifdef BUILD_GMOD
+bool SVC_GMod_ServerToClient::ReadFromBuffer( bf_read &buffer )
+{
+	// ToDo
+	return !buffer.IsOverflowed();
+}
+
+bool SVC_GMod_ServerToClient::WriteToBuffer( bf_write &buffer )
+{
+	// ToDo
+	return !buffer.IsOverflowed();
+}
+
+const char* SVC_GMod_ServerToClient::ToString() const
+{
+	//char s_text[8];
+	//V_snprintf(s_text, sizeof(s_text), "boobies");
+
+	return "boobies";
+}
+
+bool CLC_GMod_ClientToServer::ReadFromBuffer( bf_read &buffer )
+{
+	// ToDo
+	return !buffer.IsOverflowed();
+}
+
+bool CLC_GMod_ClientToServer::WriteToBuffer( bf_write &buffer )
+{
+	// ToDo
+	return !buffer.IsOverflowed();
+}
+
+const char* CLC_GMod_ClientToServer::ToString() const
+{
+	//char s_text[8];
+	//V_snprintf(s_text, sizeof(s_text), "boobies");
+
+	return "boobies";
+}
+#endif

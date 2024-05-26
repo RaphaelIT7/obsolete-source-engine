@@ -56,6 +56,9 @@ public: // IClientMessageHandlers
 	PROCESS_CLC_MESSAGE( FileCRCCheck );
 	PROCESS_CLC_MESSAGE( FileMD5Check ) { return true; }
 	PROCESS_CLC_MESSAGE( SaveReplay );
+#ifdef BUILD_GMOD
+	PROCESS_CLC_MESSAGE( GMod_ClientToServer ) { return true; } // Yes. Gmod completly Ignores this in hltv.
+#endif
 
 public:
 	CClientFrame *GetDeltaFrame( int nTick );

@@ -1622,7 +1622,7 @@ $Project "socketlib"
 //    "thirdparty\zlib-1.2.5\zlib.vpc" [$WINDOWS]
 //}
 
-$Project "gmod-audio"
+$Project "gmod_audio"
 {
 	"gmod-audio\gmod-audio.vpc"
 }
@@ -1642,7 +1642,7 @@ $Project "resources"
 	"resources\resources.vpc"
 }
 
-$Project "lua-shared"
+$Project "lua_shared"
 {
 	"gmod-lua-shared\lua-shared.vpc"
 }
