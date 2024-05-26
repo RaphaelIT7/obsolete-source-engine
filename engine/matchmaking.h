@@ -167,7 +167,9 @@ public:
 	PROCESS_CLC_MESSAGE( FileMD5Check ) { return true; }
 	PROCESS_CLC_MESSAGE( SaveReplay ) { return true; }
 	PROCESS_CLC_MESSAGE( CmdKeyValues ) { return true; }
+#ifdef BUILD_GMOD
 	PROCESS_CLC_MESSAGE( GMod_ClientToServer ) { return true; }
+#endif
 
 
 	PROCESS_MM_MESSAGE( JoinResponse );

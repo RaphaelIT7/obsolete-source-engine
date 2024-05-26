@@ -427,7 +427,9 @@ void CBaseClientState::ConnectionStart(INetChannel *chan)
 	REGISTER_SVC_MSG( GetCvarValue );
 	REGISTER_SVC_MSG( CmdKeyValues );
 	REGISTER_SVC_MSG( SetPauseTimed );
+#ifdef BUILD_GMOD
 	REGISTER_SVC_MSG( GMod_ServerToClient );
+#endif
 }
 
 void CBaseClientState::ConnectionClosing( const char *reason )
