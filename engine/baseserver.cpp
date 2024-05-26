@@ -591,7 +591,9 @@ IClient *CBaseServer::ConnectClient ( netadr_t &adr, int protocol, int challenge
 	if ( netchan && !netchan->IsLoopback() )
 		ConMsg("Client \"%s\" connected (%s).\n", client->GetClientName(), netchan->GetAddress() );
 
+#ifdef BUILD_GMOD
 	serverGameClients->GMOD_ClientConnected( nNextUserID );
+#endif
 
 	return client;
 }
