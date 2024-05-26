@@ -2,6 +2,7 @@
 #include "Externals.h"
 #include "tier3/tier3.h"
 #include "steam/steam_api.h"
+#include "interface.h"
 
 class CMenuSystem : public IMenuSystem
 {
@@ -18,9 +19,7 @@ public:
 	virtual bool IsServerBlacklisted( const char* address, const char* hostname, const char* description, const char* gamemode, const char* map );
 };
 
-IGet* get = nullptr;
 IGarrysMod* igarrysmod = nullptr;
-CGlobalVarsBase* gpGlobals = nullptr;
 CSteamAPIContext g_SteamAPIContext;
 INetworkStringTableContainer* networkstringtable = nullptr;
 int CMenuSystem::Init( CreateInterfaceFn fn, IGet* gt, IGarrysMod* igmod, CGlobalVarsBase* globals )
@@ -107,3 +106,6 @@ bool CMenuSystem::IsServerBlacklisted( const char* address, const char* hostname
 
 	return false;
 }
+
+CMenuSystem g_menusystem;
+EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CMenuSystem, IMenuSystem, INTERFACEVERSION_MENUSYSTEM, g_menusystem);

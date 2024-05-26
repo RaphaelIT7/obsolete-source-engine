@@ -2,7 +2,7 @@
 
 #include "igameevents.h"
 
-abstract_class IGarrysMod : public IGameEventListener2
+class IGarrysMod : public IGameEventListener2
 {
 public:
 	virtual void MD5String( char* out, const char*, const char*, const char* ) = 0;

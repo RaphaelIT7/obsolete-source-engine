@@ -1,5 +1,15 @@
 #include "GarrysMod/IGet.h"
+#include <GarrysMod/Lua/LuaShared.h>
+#include <GarrysMod/Lua/LuaConVars.h>
+#include <GarrysMod/IMenuSystem.h>
+#include <GarrysMod/IntroScreen.h>
+#include <materialsystem/imaterialsystemstub.h>
+#include <GarrysMod/IResources.h>
+#include <GarrysMod/IGMHTML.h>
+#include <GarrysMod/IGmod_Audio.h>
+#include <GarrysMod/IServerAddons.h>
 #include "server.h"
+#include <sys_dll.h>
 
 class CGet : public IGet
 {
@@ -9,8 +19,8 @@ public:
 	virtual bool IsDedicatedServer();
 	virtual int GetClientCount();
 	virtual IFileSystem* FileSystem();
-	virtual ILuaShared* LuaShared();
-	virtual ILuaConVars* LuaConVars();
+	virtual GarrysMod::Lua::ILuaShared* LuaShared();
+	virtual GarrysMod::Lua::ILuaConVars* LuaConVars();
 	virtual IMenuSystem* MenuSystem();
 	virtual IResources* Resources();
 	virtual IIntroScreen* IntroScreen();
@@ -43,8 +53,8 @@ public:
 	virtual void FilterText(const char*, char*, int, ETextFilteringContext, CSteamID);
 private:
 	IFileSystem* m_pfilesystem;
-	ILuaShared* m_pluashared;
-	ILuaConVars* m_pluaconvars;
+	GarrysMod::Lua::ILuaShared* m_pluashared;
+	GarrysMod::Lua::ILuaConVars* m_pluaconvars;
 	IMenuSystem* m_pmenusystem;
 	IResources* m_presources;
 	IIntroScreen* m_pintroscreen;
@@ -57,6 +67,7 @@ private:
 };
 
 CGet cget;
+IGet *get = &cget;
 
 void CGet::OnLoadFailed( const char* reason )
 {
@@ -83,12 +94,12 @@ IFileSystem* CGet::FileSystem()
 	return m_pfilesystem;
 }
 
-ILuaShared* CGet::LuaShared()
+GarrysMod::Lua::ILuaShared* CGet::LuaShared()
 {
 	return m_pluashared;
 }
 
-ILuaConVars* CGet::LuaConVars()
+GarrysMod::Lua::ILuaConVars* CGet::LuaConVars()
 {
 	return m_pluaconvars;
 }
@@ -173,9 +184,56 @@ ISteamNetworking* CGet::SteamNetworking()
 	return nullptr; // ToDo
 }
 
+CreateInterfaceFn GetFactory( const char* dll )
+{
+	CSysModule* mdl = g_pFullFileSystem->LoadModule( dll );
+	if ( !mdl )
+	{
+		mdl = g_pFullFileSystem->LoadModule( dll, "GAMEBIN" );
+		if ( !mdl )
+		{
+			Error( "Failed to find %s!\n", dll ); // if gmod_audio.dll fails here. Check if you added the bass.dll to the game/bin folder!
+			return NULL;
+		}
+	}
+
+	return Sys_GetFactory( mdl );
+}
+
 void CGet::Initialize( IFileSystem* fs )
 {
 	// ToDo
+	// NOTE: Gmod uses CModuleLoader<T>(IFileSystem*, const char*, const char*, bool) for this.
+
+	CreateInterfaceFn lua_sharedfn = GetFactory( "lua_shared" DLL_EXT_STRING );
+	m_pluashared = (GarrysMod::Lua::ILuaShared*)lua_sharedfn( GMOD_LUASHARED_INTERFACE, NULL );
+	m_pluaconvars = (GarrysMod::Lua::ILuaConVars*)lua_sharedfn( GMOD_LUACONVARS_INTERFACE, NULL );
+	m_pluashared->Init( g_AppSystemFactory, false, nullptr, this );
+	//m_pluaconvars->Init(); // ToDo: find out why it crashes :<
+
+	CreateInterfaceFn menusystemfn = GetFactory( "menusystem" DLL_EXT_STRING );
+	//m_pmenusystem = ( IMenuSystem* )menusystemfn( INTERFACEVERSION_MENUSYSTEM, NULL );
+
+	CreateInterfaceFn clientfn = GetFactory( "client" DLL_EXT_STRING );
+	m_pintroscreen = ( IIntroScreen* )clientfn( INTERFACEVERSION_INTROSCREEN, NULL );
+
+	CreateInterfaceFn materialsystemfn = GetFactory( "materialsystem" DLL_EXT_STRING );
+	m_pmaterials = ( IMaterialSystem* )materialsystemfn( MATERIAL_SYSTEM_STUB_INTERFACE_VERSION, NULL );
+
+	//CreateInterfaceFn resourcesfn = GetFactory( "resources" DLL_EXT_STRING );
+	//m_presources = ( IResources* )resourcesfn( INTERFACEVERSION_RESOURCES, NULL );
+
+	// ToDo: Add gmhtml to the compile.
+	//CreateInterfaceFn htmlfn = GetFactory( "gmhtml" DLL_EXT_STRING );
+	//m_phtml = ( IGMHTML* )htmlfn( INTERFACEVERSION_GMHTML, NULL );
+
+	CreateInterfaceFn audiofn = GetFactory( "gmod_audio" DLL_EXT_STRING );
+	m_paudio = ( IGMod_Audio* )audiofn( INTERFACEVERSION_GMODAUDIO, NULL );
+	m_paudio->Init( g_AppSystemFactory );
+
+	// ToDo: Finish IServerAddons and expose them.
+	//CreateInterfaceFn serveraddonsgn = GetFactory( "server" DLL_EXT_STRING );
+	//m_pserveraddons = ( IServerAddons* )serveraddonsgn( INTERFACEVERSION_SERVERADDONS, NULL );
 }
 
 void CGet::ShutDown( )

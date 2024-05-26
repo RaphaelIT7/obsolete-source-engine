@@ -60,6 +60,7 @@ class IFileList;
 class CRenamedRecvTableInfo;
 class CMouthInfo;
 class IConVar;
+class IGet;
 
 //-----------------------------------------------------------------------------
 // Purpose: This data structure is filled in by the engine when the client .dll requests information about
@@ -586,9 +587,15 @@ abstract_class IBaseClientDLL
 {
 public:
 	// Called once when the client DLL is loaded
+#ifdef BUILD_GMOD
+	virtual int				Init( CreateInterfaceFn appSystemFactory, 
+									CreateInterfaceFn physicsFactory,
+									CGlobalVarsBase *pGlobals, IGet* ) = 0;
+#else
 	virtual int				Init( CreateInterfaceFn appSystemFactory, 
 									CreateInterfaceFn physicsFactory,
 									CGlobalVarsBase *pGlobals ) = 0;
+#endif
 
 	virtual void			PostInit() = 0;
 
@@ -789,7 +796,18 @@ public:
 	// Returns true if the disconnect command has been handled by the client
 	virtual bool DisconnectAttempt( void ) = 0;
 
+#ifndef BUILD_GMOD
 	virtual bool IsConnectedUserInfoChangeAllowed( IConVar *pCvar ) = 0;
+#else
+	virtual void GMOD_ReceiveServerMessage( bf_read*, int ) = 0;
+	virtual void GMOD_DoSnapshots() = 0;
+	virtual void GMOD_VoiceVolume( uint, float ) = 0;
+	virtual void GMOD_OnDrawSkybox() = 0;
+	virtual void IN_MouseWheelAnalog( int ) = 0;
+	virtual void GMOD_RequestLuaFiles() = 0;
+	virtual void GMOD_SignOnStateChanged( int userID, int oldState, int newState ) = 0;
+	virtual void GMOD_OnAllSoundsStoppedCL() = 0;
+#endif
 };
 
 #define CLIENT_DLL_INTERFACE_VERSION		"VClient017"

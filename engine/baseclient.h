@@ -185,6 +185,10 @@ public:
 	void			SetPlayerNameLocked( bool bValue ) { m_bPlayerNameLocked = bValue; }
 	bool			IsPlayerNameLocked( void ) { return m_bPlayerNameLocked; }
 
+#ifdef BUILD_GMOD
+	void			SetSignOnState( int ); // Why
+#endif
+
 private:	
 
 	void			OnRequestFullUpdate();

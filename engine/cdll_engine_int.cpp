@@ -90,6 +90,7 @@
 #include "sourcevr/isourcevirtualreality.h"
 #include "cl_check_process.h"
 #include "enginethreads.h"
+#include "Externals.h"
 
 #if defined( REPLAY_ENABLED )
 #include "replay_internal.h"
@@ -1815,7 +1816,11 @@ void ClientDLL_Init( void )
 	{
 		COM_TimestampedLog( "g_ClientDLL->Init" );
 
+#ifdef BUILD_GMOD
+		if ( !g_ClientDLL->Init(g_AppSystemFactory, g_AppSystemFactory, &g_ClientGlobalVariables, get ) )
+#else
 		if ( !g_ClientDLL->Init(g_AppSystemFactory, g_AppSystemFactory, &g_ClientGlobalVariables ) )
+#endif
 		{
 			Sys_Error("Client.dll Init() in library client failed.");
 		}

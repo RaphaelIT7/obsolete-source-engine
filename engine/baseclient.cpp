@@ -277,6 +277,13 @@ void CBaseClient::Clear()
 	Q_memset( m_nCustomFiles, 0, sizeof(m_nCustomFiles) );
 }
 
+#ifdef BUILD_GMOD
+void CBaseClient::SetSignOnState( int state )
+{
+	serverGameDLL->GMOD_ClientSignOnStateChanged( m_UserID, m_nSignonState, state );
+}
+#endif
+
 bool CBaseClient::SetSignonState(int state, int spawncount)
 {
 	MDLCACHE_COARSE_LOCK_(g_pMDLCache);

@@ -2692,7 +2692,7 @@ CON_COMMAND_F( setinfo, "Adds a new user info value", FCVAR_CLIENTCMD_CAN_EXECUT
 
 		if ( pCommand->IsFlagSet( FCVAR_NOT_CONNECTED ) )
 		{
-#ifndef DEDICATED
+#if !defined(DEDICATED) && !defined(BUILD_GMOD)
 			// Connected to server?
 			if ( cl.IsConnected() )
 			{

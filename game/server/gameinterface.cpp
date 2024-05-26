@@ -167,7 +167,6 @@ IFileSystem		*filesystem = NULL;
 #else
 extern IFileSystem *filesystem;
 #endif
-IGet* get;
 INetworkStringTableContainer *networkstringtable = NULL;
 IStaticPropMgrServer *staticpropmgr = NULL;
 IUniformRandomStream *random = NULL;
@@ -688,6 +687,8 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	g_pGameSaveRestoreBlockSet->AddBlockHandler( GetEventQueueSaveRestoreBlockHandler() );
 	g_pGameSaveRestoreBlockSet->AddBlockHandler( GetAchievementSaveRestoreBlockHandler() );
 
+	igarrysmod->InitializeMod( appSystemFactory );
+
 	// The string system must init first + shutdown last
 	IGameSystem::Add( GameStringSystem() );
 
@@ -760,6 +761,7 @@ void CServerGameDLL::DLLShutdown( void )
 {
 
 	// Due to dependencies, these are not autogamesystems
+	igarrysmod->Shutdown();
 	ModelSoundsCacheShutdown();
 
 	g_pGameSaveRestoreBlockSet->RemoveBlockHandler( GetAchievementSaveRestoreBlockHandler() );
@@ -976,6 +978,8 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 		// Single player games tell xbox live what game & chapter the user is playing
 		UpdateRichPresence();
 	}
+
+	igarrysmod->LevelInit( pMapName, pMapEntities, pOldLevel, pLandmarkName, loadGame, background );
 
 	//Tony; parse custom manifest if exists!
 	ParseParticleEffectsMap( pMapName, false );

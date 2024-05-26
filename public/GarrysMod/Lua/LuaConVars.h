@@ -2,8 +2,7 @@
 
 #define GMOD_LUACONVARS_INTERFACE "LUACONVARS001"
 
-class ConVar;
-class CCommand;
+#include "convar.h"
 
 namespace GarrysMod
 {

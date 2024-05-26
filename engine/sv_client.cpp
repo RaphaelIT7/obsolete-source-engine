@@ -338,6 +338,14 @@ bool CGameClient::ProcessSaveReplay( CLC_SaveReplay * )
 }
 #endif
 
+#ifdef BUILD_GMOD
+bool CGameClient::ProcessGMod_ClientToServer( CLC_GMod_ClientToServer *pMsg )
+{
+	serverGameClients->GMOD_ReceiveClientMessage( m_UserID, edict, &pMsg->m_DataIn, 0 ); // ToDo verify first and last argument + m_DataIn
+	return true;
+}
+#endif
+
 void CGameClient::DownloadCustomizations()
 {
 	for ( int i=0; i<MAX_CUSTOM_FILES; i++ )

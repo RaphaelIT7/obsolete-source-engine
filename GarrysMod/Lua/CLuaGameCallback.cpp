@@ -1,6 +1,10 @@
+#include "cbase.h"
 #include <GarrysMod/Lua/LuaObject.h>
 #include <GarrysMod/Lua/LuaGameCallback.h>
 #include <GarrysMod/Lua/LuaInterface.h>
+#include "Lua/CLuaClass.h"
+#include "Externals.h"
+#include "Color.h"
 
 class CLuaGameCallback : public GarrysMod::Lua::ILuaGameCallback
 {
@@ -14,12 +18,12 @@ public:
 	virtual void CLuaGameCallback::InterfaceCreated(GarrysMod::Lua::ILuaInterface* iface);
 };
 
-//Color server_msg(156, 241, 255, 200);
-//Color server_error(136, 221, 255, 255);
-//Color client_msg(255, 241, 122, 200);
-//Color client_error(255, 221, 102, 255);
-//Color menu_msg(100, 220, 100, 200);
-//Color menu_error(120, 220, 100, 255);
+Color server_msg(156, 241, 255, 200);
+Color server_error(136, 221, 255, 255);
+Color client_msg(255, 241, 122, 200);
+Color client_error(255, 221, 102, 255);
+Color menu_msg(100, 220, 100, 200);
+Color menu_error(120, 220, 100, 255);
 
 void UTLVarArgs(char* buffer, const char* format, ...) {
 	va_list args;
@@ -30,7 +34,9 @@ void UTLVarArgs(char* buffer, const char* format, ...) {
 
 GarrysMod::Lua::ILuaObject* CLuaGameCallback::CreateLuaObject()
 {
-	return nullptr;// new CLuaObject();
+	CLuaObject* obj = new CLuaObject();
+	obj->Init(g_Lua); // Gmod doesn't pass it to the CLuaObject. The object gets it inside the Init function.
+	return obj;
 }
 
 void CLuaGameCallback::DestroyLuaObject(GarrysMod::Lua::ILuaObject* pObject)
@@ -42,23 +48,26 @@ void CLuaGameCallback::ErrorPrint(const char* error, bool print)
 {
 	// Write into the lua_errors_server.txt if error logging is enabled.
 
-	//Color ErrorColor = server_error; // ToDo: Change this later and finish this function.
-	//ColorSpewMessage(SPEW_MESSAGE, &ErrorColor, "%s\n", error);
+	Color ErrorColor = server_error; // ToDo: Change this later and finish this function.
+	ColorSpewMessage(SPEW_MESSAGE, &ErrorColor, "%s\n", error);
 }
 
 void CLuaGameCallback::Msg(const char* msg, bool unknown)
 {
-	//MsgColour(msg, server_msg);
+	MsgColour(msg, server_msg);
 }
 
 void CLuaGameCallback::MsgColour(const char* msg, const Color& color)
 {
-	//ColorSpewMessage(SPEW_MESSAGE, &color, "%s\n", msg);
+	ColorSpewMessage(SPEW_MESSAGE, &color, "%s\n", msg);
 }
 
 void CLuaGameCallback::LuaError(const CLuaError* error)
 {
-	// fk it.
+	// ToDo
 }
 
 void CLuaGameCallback::InterfaceCreated(GarrysMod::Lua::ILuaInterface* iface) {} // Unused
+
+CLuaGameCallback gamecallback;
+GarrysMod::Lua::ILuaGameCallback* g_LuaCallback = &gamecallback;

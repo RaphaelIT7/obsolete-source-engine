@@ -93,6 +93,9 @@ public: // IClientMessageHandlers
 	PROCESS_CLC_MESSAGE( SaveReplay );
 #endif
 	PROCESS_CLC_MESSAGE( CmdKeyValues );
+#ifdef BUILD_GMOD
+	PROCESS_CLC_MESSAGE( GMod_ClientToServer );
+#endif
 	
 public:
 

@@ -109,6 +109,9 @@ public: // IServerMessageHandlers
 	PROCESS_SVC_MESSAGE( GetCvarValue );
 	PROCESS_SVC_MESSAGE( CmdKeyValues );
 	PROCESS_SVC_MESSAGE( SetPauseTimed );
+#ifdef BUILD_GMOD
+	PROCESS_SVC_MESSAGE( GMod_ServerToClient );
+#endif
 
 	// Returns dem file protocol version, or, if not playing a demo, just returns PROTOCOL_VERSION
 	virtual int GetDemoProtocolVersion() const;

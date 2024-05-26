@@ -132,6 +132,7 @@
 #include "haptics/ihaptics.h"
 #include "haptics/haptic_utils.h"
 #include "haptics/haptic_msgs.h"
+#include "Externals.h"
 
 #if defined( TF_CLIENT_DLL )
 #include "abuse_report.h"
@@ -600,7 +601,11 @@ class CHLClient : public IBaseClientDLL
 public:
 	CHLClient();
 
+#ifdef BUILD_GMOD
+	virtual int						Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physicsFactory, CGlobalVarsBase *pGlobals, IGet* get );
+#else
 	virtual int						Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physicsFactory, CGlobalVarsBase *pGlobals );
+#endif
 
 	virtual void					PostInit();
 	virtual void					Shutdown( void );
@@ -730,7 +735,18 @@ public:
 public:
 	void PrecacheMaterial( const char *pMaterialName );
 
+#ifndef BUILD_GMOD
 	virtual bool IsConnectedUserInfoChangeAllowed( IConVar *pCvar );
+#else
+	virtual void GMOD_ReceiveServerMessage( bf_read*, int );
+	virtual void GMOD_DoSnapshots();
+	virtual void GMOD_VoiceVolume( uint, float );
+	virtual void GMOD_OnDrawSkybox();
+	virtual void IN_MouseWheelAnalog( int );
+	virtual void GMOD_RequestLuaFiles();
+	virtual void GMOD_SignOnStateChanged( int userID, int oldState, int newState );
+	virtual void GMOD_OnAllSoundsStoppedCL();
+#endif
 
 private:
 	void UncacheAllMaterials( );
@@ -857,10 +873,18 @@ ISourceVirtualReality *g_pSourceVR = NULL;
 // Input  : engineFactory - 
 // Output : int
 //-----------------------------------------------------------------------------
+#ifdef BUILD_GMOD
+int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physicsFactory, CGlobalVarsBase *pGlobals, IGet* gt )
+#else
 int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physicsFactory, CGlobalVarsBase *pGlobals )
+#endif
 {
 	InitCRTMemDebug();
 	MathLib_Init( GAMMA, TEXGAMMA, 0.0f, OVERBRIGHT );
+
+#ifdef BUILD_GMOD
+	get = gt;
+#endif
 
 
 #ifdef SIXENSE
@@ -2619,10 +2643,12 @@ bool CHLClient::DisconnectAttempt( void )
 	return bRet;
 }
 
+#ifndef BUILD_GMOD
 bool CHLClient::IsConnectedUserInfoChangeAllowed( IConVar *pCvar )
 {
 	return GameRules() ? GameRules()->IsConnectedUserInfoChangeAllowed( NULL ) : true;
 }
+#endif
 
 #ifndef NO_STEAM
 
@@ -2642,4 +2668,53 @@ CSteamID GetSteamIDForPlayerIndex( int iPlayerIndex )
 	return CSteamID();
 }
 
+#endif
+
+#ifdef BUILD_GMOD
+void CHLClient::GMOD_ReceiveServerMessage( bf_read*, int )
+{
+	// Call net.Incoming
+}
+
+void CHLClient::GMOD_DoSnapshots()
+{
+	// ToDo
+	// This function is currently not Called!
+}
+
+void CHLClient::GMOD_VoiceVolume( uint, float )
+{
+	// ToDo
+	// This function is currently not Called!
+}
+
+void CHLClient::GMOD_OnDrawSkybox()
+{
+	// ToDo
+	// This function is currently not Called!
+}
+
+void CHLClient::IN_MouseWheelAnalog( int )
+{
+	// ToDo
+	// This function is currently not Called!
+}
+
+void CHLClient::GMOD_RequestLuaFiles()
+{
+	// ToDo
+	// This function is currently not Called!
+}
+
+void CHLClient::GMOD_SignOnStateChanged( int userID, int oldState, int newState )
+{
+	// ToDo
+	// This function is currently not Called!
+}
+
+void CHLClient::GMOD_OnAllSoundsStoppedCL()
+{
+	// ToDo
+	// This function is currently not Called!
+}
 #endif
