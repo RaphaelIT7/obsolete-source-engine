@@ -1672,6 +1672,7 @@ bool UTIL_IsValidEntity( CBaseEntity *pEnt )
 #if defined( PRECACHE_OTHER_ONCE )
 
 #include "utlsymbol.h"
+#include <world.h>
 class CPrecacheOtherList : public CAutoGameSystem
 {
 public:
@@ -3219,5 +3220,11 @@ void CC_CollisionTest( const CCommand &args )
 static ConCommand collision_test("collision_test", CC_CollisionTest, "Tests collision system", FCVAR_CHEAT );
 
 
-
-
+CBaseEntity* GMEntityByIndex( int entIndex )
+{
+	if (entIndex == 0) {
+		return GetWorldEntity();
+	} else {
+		return UTIL_EntityByIndex( entIndex );
+	}
+}

@@ -441,19 +441,19 @@ void Angle_Class()
 		g_Lua->SetField(-2, "_eq");
 		
 		g_Lua->PushCFunction(Angle__add);
-		g_Lua->SetField(-2, "_add");
+		g_Lua->SetField(-2, "__add");
 
 		g_Lua->PushCFunction(Angle__sub);
-		g_Lua->SetField(-2, "_sub");
+		g_Lua->SetField(-2, "__sub");
 
 		g_Lua->PushCFunction(Angle__unm);
-		g_Lua->SetField(-2, "_unm");
+		g_Lua->SetField(-2, "__unm");
 
 		g_Lua->PushCFunction(Angle__mul);
-		g_Lua->SetField(-2, "_mul");
+		g_Lua->SetField(-2, "__mul");
 
 		g_Lua->PushCFunction(Angle__div);
-		g_Lua->SetField(-2, "_div");
+		g_Lua->SetField(-2, "__div");
 
 
 		g_Lua->PushCFunction(Angle_Add);
