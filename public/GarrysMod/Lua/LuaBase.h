@@ -142,10 +142,7 @@ namespace GarrysMod
             // See: lua_next( lua_State*, int );
             virtual int         Next( int iStackPos ) = 0;
 
-#ifndef GMOD_ALLOW_DEPRECATED
-        protected:
-#endif
-                // Deprecated: Use the UserType functions instead of this
+            // Deprecated: Use the UserType functions instead of this
             virtual void*       NewUserdata( unsigned int iSize ) = 0;
 
         public:
@@ -248,10 +245,7 @@ namespace GarrysMod
             // Note: GetTypeName does not work with user-created types
             virtual const char* GetTypeName( int iType ) = 0;
 
-#ifndef GMOD_ALLOW_DEPRECATED
-        protected:
-#endif
-                // Deprecated: Use CreateMetaTable
+            // Deprecated: Use CreateMetaTable
             virtual void        CreateMetaTableType( const char* strName, int iType ) = 0;
 
         public:

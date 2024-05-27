@@ -9,6 +9,7 @@
 #include "CLuaManager.h"
 #include "Externals.h"
 #include "GarrysMod/Lua/LuaObject.h"
+#include "Lua/CLuaClass.h"
 
 void CLuaManager::Startup()
 {
@@ -33,6 +34,9 @@ void CLuaManager::Startup()
 
 	g_Lua->PushBool(true);
 	g_Lua->SetMember(global, "SERVER");
+
+	InitLuaClasses(g_Lua);
+	InitLuaLibraries(g_Lua);
 
 	// ToDo
 }
