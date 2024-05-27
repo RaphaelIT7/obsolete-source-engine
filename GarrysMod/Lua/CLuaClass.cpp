@@ -1101,29 +1101,25 @@ void CLuaObject::SetMemberPhysObject(const char* name, IPhysicsObject* val)
 	CLuaClass
 */
 
-CLuaClass::CLuaClass(const char* name, int type, CLuaClassFunc func)
+CLuaClass::CLuaClass(const char* name, int type, CLuaClassFunc func, const char* baseclass)
 {
 	m_strName = name;
 	m_iType = type;
 	m_pInitFunc = func;
+	m_strBaseClass = baseclass;
 }
 
 void* CLuaClass::Get(int index)
 {
 	if (g_Lua->IsType(index, m_iType))
-		return g_Lua->GetUserdata()->data;
+		return g_Lua->GetUserType<void*>(index, m_iType);
 
 	return nullptr;
 }
 
-#define UserData GarrysMod::Lua::ILuaBase::UserData
 void CLuaClass::Push(void* udata)
 {
-	UserData* ud = (UserData*)g_Lua->NewUserdata(sizeof( UserData ) + sizeof( udata ));
-	
-	ud->data = udata;
-	ud->type = m_iType;
-
+	g_Lua->PushUserType(udata, m_iType);
 	g_Lua->ReferencePush(m_iReference);
 	g_Lua->SetMetaTable(-2);
 }
@@ -1132,18 +1128,6 @@ void CLuaClass::InitClass()
 {
 	m_pInitFunc();
 	m_iReference = g_Lua->ReferenceCreate();
-
-	g_Lua->PushSpecial(GarrysMod::Lua::SPECIAL_REG);
-		g_Lua->ReferencePush(m_iReference);
-
-			g_Lua->PushString(m_strName);
-			g_Lua->SetField(-2, "MetaName");
-
-			g_Lua->PushNumber(m_iType);
-			g_Lua->SetField(-2, "MetaID");
-
-		g_Lua->SetField(-2, m_strName);
-	g_Lua->Pop(1);
 }
 
 void CLuaClass::MetaTableDerive()
@@ -1155,6 +1139,10 @@ void InitLuaClasses(GarrysMod::Lua::ILuaInterface* LUA)
 {
 	angle_class.InitClass();
 	vector_class.InitClass();
+
+#ifndef MENUSYSTEM
+	entity_class.InitClass();
+#endif
 }
 
 /*
@@ -1185,8 +1173,7 @@ void CLuaLibrary::Push() // Idk
 
 void InitLuaLibraries(GarrysMod::Lua::ILuaInterface* LUA)
 {
-	for (CLuaLibrary* lib : libaries)
-	{
-		lib->Push();
-	}
+#ifndef MENUSYSTEM
+	ents_library.Push();
+#endif
 }

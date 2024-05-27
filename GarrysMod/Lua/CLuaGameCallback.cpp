@@ -61,7 +61,7 @@ void CLuaGameCallback::Msg(const char* msg, bool unknown)
 
 void CLuaGameCallback::MsgColour(const char* msg, const Color& color)
 {
-	ColorSpewMessage(SPEW_MESSAGE, &color, "%s\n", msg);
+	ColorSpewMessage(SPEW_MESSAGE, &color, "%s", msg);
 }
 
 void CLuaGameCallback::LuaError(const CLuaError* error)

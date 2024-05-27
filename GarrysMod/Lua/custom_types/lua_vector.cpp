@@ -629,7 +629,7 @@ void Vector_Class()
 		g_Lua->SetField(-2, "OrderVectors");
 	g_Lua->Pop(1);
 
-	g_Lua->CreateTable();
+	g_Lua->CreateMetaTableType("Vector", GarrysMod::Lua::Type::Vector);
 		g_Lua->PushCFunction(Vector__gc); // Gmod uses this format -> Vector____gc, Vector__Forward and so on.
 		g_Lua->SetField(-2, "__gc");
 
@@ -643,22 +643,22 @@ void Vector_Class()
 		g_Lua->SetField(-2, "__tostring");
 
 		g_Lua->PushCFunction(Vector__eq);
-		g_Lua->SetField(-2, "_eq");
+		g_Lua->SetField(-2, "__eq");
 		
 		g_Lua->PushCFunction(Vector__add);
-		g_Lua->SetField(-2, "_add");
+		g_Lua->SetField(-2, "__add");
 
 		g_Lua->PushCFunction(Vector__sub);
-		g_Lua->SetField(-2, "_sub");
+		g_Lua->SetField(-2, "__sub");
 
 		g_Lua->PushCFunction(Vector__unm);
-		g_Lua->SetField(-2, "_unm");
+		g_Lua->SetField(-2, "__unm");
 
 		g_Lua->PushCFunction(Vector__mul);
-		g_Lua->SetField(-2, "_mul");
+		g_Lua->SetField(-2, "__mul");
 
 		g_Lua->PushCFunction(Vector__div);
-		g_Lua->SetField(-2, "_div");
+		g_Lua->SetField(-2, "__div");
 
 
 		g_Lua->PushCFunction(Vector_Length);

@@ -3,6 +3,7 @@
 #include "mathlib/vector.h"
 #include <vector>
 
+class CBaseEntity;
 class CLuaObject : public GarrysMod::Lua::ILuaObject
 {
 public:
@@ -148,18 +149,21 @@ typedef void (*CLuaClassFunc)();
 class CLuaClass // This is somewhat how gmod does it but not exactly.
 {
 public:
-	CLuaClass(const char* name, int type, CLuaClassFunc func); // const char*
+	CLuaClass(const char* name, int type, CLuaClassFunc func, const char* baseclass = NULL); // const char*
 	//void Add(CLuaClassFunc func);
 	void* Get(int index);
 	void Push(void*);
 	void MetaTableDerive();
+
+public:
 	void InitClass();
 
 private:
-	const char* m_strName;
-	unsigned char m_iType;
+	const char* m_strName = NULL;
+	const char* m_strBaseClass = NULL;
+	unsigned char m_iType = NULL;
 	CLuaClassFunc m_pInitFunc;
-	int m_iReference;
+	int m_iReference = -1;
 };
 
 extern void InitLuaClasses(GarrysMod::Lua::ILuaInterface* LUA);
@@ -180,6 +184,11 @@ extern void InitLuaLibraries(GarrysMod::Lua::ILuaInterface* LUA);
 // Lua classes. Fix this later
 extern CLuaClass angle_class;
 extern CLuaClass vector_class;
+extern CLuaClass entity_class;
+
+// Lua Libraries. Fix this later
+extern CLuaLibrary ents_library;
+
 
 // Lua push functions
 
@@ -189,4 +198,7 @@ extern void Push_Angle(const QAngle* ang);
 
 extern Vector* Get_Vector(int index);
 // Pushes the given Vector and deletes it when it's unused!
-extern void Push_Vector(const Vector* ang);
+extern void Push_Vector(const Vector* vec);
+
+extern CBaseEntity* Get_Entity(int index);
+extern void Push_Entity(CBaseEntity* ent);

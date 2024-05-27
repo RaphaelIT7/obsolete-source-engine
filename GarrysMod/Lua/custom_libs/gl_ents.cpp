@@ -1,1 +1,122 @@
 #include "cbase.h"
+#include "Lua/CLuaClass.h"
+#include "GarrysMod/Lua/Interface.h"
+#include "Externals.h"
+
+LUA_FUNCTION_STATIC(ents_Create)
+{
+	// ToDo: Add a check for rendering -> ents.Create cannot be called while rendering
+	const char* classname = LUA->CheckString(1);
+	if (g_PhysWorldObject == NULL) {
+		Warning("Trying to create entities too early! (%s)", classname);
+		Push_Entity(NULL);
+		return 1;
+	}
+
+	CBaseEntity* ent = CreateEntityByName(classname);
+	Push_Entity(ent);
+
+	return 1;
+}
+
+LUA_FUNCTION_STATIC(ents_GetAll)
+{
+	LUA->CreateTable();
+	int idx = 0;
+	const CEntInfo *pInfo = g_pEntityList->FirstEntInfo(); // ToDo: Look into it later again
+	for ( ;pInfo; pInfo = pInfo->m_pNext ) {
+		CBaseEntity *ent2 = (CBaseEntity*)pInfo->m_pEntity;
+		if ( !ent2 ) {
+			DevWarning( "NULL entity in global entity list!\n" );
+			continue;
+		}
+
+		++idx;
+		LUA->PushNumber(idx);
+		Push_Entity(ent2);
+		LUA->SetTable(-3);
+	}
+
+	return 1;
+}
+
+LUA_FUNCTION_STATIC(ents_GetByIndex)
+{
+	int entIndex = LUA->CheckNumber(1);
+	Push_Entity( GMEntityByIndex(entIndex) );
+
+	return 1;
+}
+
+LUA_FUNCTION_STATIC(ents_GetCount)
+{
+	LUA->PushNumber(gEntList.NumberOfEntities());
+
+	return 1;
+}
+
+LUA_FUNCTION_STATIC(ents_GetEdictCount)
+{
+	LUA->PushNumber(gEntList.NumberOfEdicts());
+
+	return 1;
+}
+
+void Ents_Library()
+{
+	g_Lua->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+		g_Lua->CreateTable();
+			g_Lua->PushCFunction(ents_Create);
+			g_Lua->SetField(-2, "Create");
+
+			//g_Lua->PushCFunction(ents_FindAlongRay);
+			//g_Lua->SetField(-2, "FindAlongRay");
+
+			//g_Lua->PushCFunction(ents_FindByClass);
+			//g_Lua->SetField(-2, "FindByClass");
+
+			//g_Lua->PushCFunction(ents_FindByClassAndParent);
+			//g_Lua->SetField(-2, "FindByClassAndParent");
+
+			//g_Lua->PushCFunction(ents_FindByModel);
+			//g_Lua->SetField(-2, "FindByModel");
+
+			//g_Lua->PushCFunction(ents_FindByName);
+			//g_Lua->SetField(-2, "FindByName");
+
+			//g_Lua->PushCFunction(ents_FindInBox);
+			//g_Lua->SetField(-2, "FindInBox");
+
+			//g_Lua->PushCFunction(ents_FindInCone);
+			//g_Lua->SetField(-2, "FindInCone");
+
+			//g_Lua->PushCFunction(ents_FindInPVS);
+			//g_Lua->SetField(-2, "FindInPVS");
+
+			//g_Lua->PushCFunction(ents_FindInSphere);
+			//g_Lua->SetField(-2, "FindInSphere");
+
+			//g_Lua->PushCFunction(ents_FireTargets);
+			//g_Lua->SetField(-2, "FireTargets");
+
+			g_Lua->PushCFunction(ents_GetAll);
+			g_Lua->SetField(-2, "GetAll");
+
+			g_Lua->PushCFunction(ents_GetByIndex);
+			g_Lua->SetField(-2, "GetByIndex");
+
+			g_Lua->PushCFunction(ents_GetCount);
+			g_Lua->SetField(-2, "GetCount");
+
+			g_Lua->PushCFunction(ents_GetEdictCount);
+			g_Lua->SetField(-2, "GetEdictCount");
+
+			//g_Lua->PushCFunction(ents_GetMapCreatedEntity);
+			//g_Lua->SetField(-2, "GetMapCreatedEntity");
+
+		g_Lua->SetField(-2, "ents");
+
+	g_Lua->Pop(1);
+}
+
+CLuaLibrary ents_library("ents", Ents_Library);
