@@ -1,4 +1,7 @@
 #include "GarrysMod/Lua/LuaObject.h"
+#include "GarrysMod/Lua/LuaInterface.h"
+#include "mathlib/vector.h"
+#include <vector>
 
 class CLuaObject : public GarrysMod::Lua::ILuaObject
 {
@@ -137,3 +140,53 @@ protected:
 protected:
 	int m_metatable;
 };
+
+#define CLuaFunc GarrysMod::Lua::CFunc
+class CLuaClass;
+typedef void (*CLuaClassFunc)();
+
+class CLuaClass // This is somewhat how gmod does it but not exactly.
+{
+public:
+	CLuaClass(const char* name, int type, CLuaClassFunc func); // const char*
+	//void Add(CLuaClassFunc func);
+	void* Get(int index);
+	void Push(void*);
+	void MetaTableDerive();
+	void InitClass();
+
+private:
+	const char* m_strName;
+	unsigned char m_iType;
+	CLuaClassFunc m_pInitFunc;
+	int m_iReference;
+};
+
+extern void InitLuaClasses(GarrysMod::Lua::ILuaInterface* LUA);
+
+class CLuaLibrary // Not how Gmod does it but I want it to work for now.
+{
+public:
+	CLuaLibrary(const char* name, CLuaClassFunc func);
+	void Add(CLuaClassFunc func);
+	void Push();
+
+private:
+	const char* m_strName;
+	std::vector<CLuaClassFunc> m_pFuncs;
+};
+extern void InitLuaLibraries(GarrysMod::Lua::ILuaInterface* LUA);
+
+// Lua classes. Fix this later
+extern CLuaClass angle_class;
+extern CLuaClass vector_class;
+
+// Lua push functions
+
+extern QAngle* Get_Angle(int index);
+// Pushes the given QAngle and deletes it when it's unused!
+extern void Push_Angle(const QAngle* ang);
+
+extern Vector* Get_Vector(int index);
+// Pushes the given Vector and deletes it when it's unused!
+extern void Push_Vector(const Vector* ang);

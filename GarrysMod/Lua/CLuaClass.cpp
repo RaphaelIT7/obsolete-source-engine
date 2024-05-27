@@ -1,5 +1,6 @@
 #include "cbase.h"
 #include "CLuaClass.h"
+#include "Externals.h"
 
 void CLuaObject::Init()
 {
@@ -39,9 +40,9 @@ void CLuaObject::SetFromStack(int pos)
 	{
 		UnReference();
 		m_reference = m_pLua->ReferenceCreate();
+	} else {
+		m_pLua->Pop(1);
 	}
-
-	m_pLua->Pop(1);
 }
 
 void CLuaObject::Push()
@@ -1094,4 +1095,105 @@ void CLuaObject::SetMemberMatrix(int name, const VMatrix* val)
 void CLuaObject::SetMemberPhysObject(const char* name, IPhysicsObject* val)
 {
 	Error("Not implemented! (CLuaObject::SetMemberPhysObject)");
+}
+
+/*
+	CLuaClass
+*/
+
+CLuaClass::CLuaClass(const char* name, int type, CLuaClassFunc func)
+{
+	m_strName = name;
+	m_iType = type;
+	m_pInitFunc = func;
+}
+
+void* CLuaClass::Get(int index)
+{
+	if (g_Lua->IsType(index, m_iType))
+		return g_Lua->GetUserdata()->data;
+
+	return nullptr;
+}
+
+#include "GarrysMod/Lua/Interface.h"
+LUA_FUNCTION(Test)
+{
+	LUA->PushString("Test");
+	return 1;
+}
+
+#define UserData GarrysMod::Lua::ILuaBase::UserData
+void CLuaClass::Push(void* udata)
+{
+	UserData* ud = (UserData*)g_Lua->NewUserdata(sizeof( UserData ) + sizeof( udata ));
+	
+	ud->data = udata;
+	ud->type = m_iType;
+
+	g_Lua->ReferencePush(m_iReference);
+	g_Lua->SetMetaTable(-2);
+}
+
+void CLuaClass::InitClass()
+{
+	m_pInitFunc();
+	m_iReference = g_Lua->ReferenceCreate();
+
+	g_Lua->PushSpecial(GarrysMod::Lua::SPECIAL_REG);
+		g_Lua->ReferencePush(m_iReference);
+
+			g_Lua->PushString(m_strName);
+			g_Lua->SetField(-2, "MetaName");
+
+			g_Lua->PushNumber(m_iType);
+			g_Lua->SetField(-2, "MetaID");
+
+		g_Lua->SetField(-2, m_strName);
+	g_Lua->Pop(1);
+}
+
+void CLuaClass::MetaTableDerive()
+{
+	// ToDo: Implement it for later when we have Players and Entities
+}
+
+void InitLuaClasses(GarrysMod::Lua::ILuaInterface* LUA)
+{
+	angle_class.InitClass();
+	vector_class.InitClass();
+}
+
+/*
+	CLuaLibrary
+*/
+
+std::vector<CLuaLibrary*> libaries;
+CLuaLibrary::CLuaLibrary(const char* name, CLuaClassFunc func)
+{
+	m_strName = name;
+	m_pFuncs.push_back(func);
+
+	libaries.push_back(this);
+}
+
+void CLuaLibrary::Add(CLuaClassFunc func)
+{
+	m_pFuncs.push_back(func);
+}
+
+void CLuaLibrary::Push() // Idk
+{
+	for (CLuaClassFunc func : m_pFuncs)
+	{
+		func();
+	}
+}
+
+void InitLuaLibraries(GarrysMod::Lua::ILuaInterface* LUA)
+{
+	for (CLuaLibrary* lib : libaries)
+	{
+		lib->Push();
+	}
 }

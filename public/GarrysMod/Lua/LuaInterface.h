@@ -98,6 +98,9 @@ namespace GarrysMod
 			virtual void AppendStackTrace( char *, unsigned long ) = 0;
 			virtual void *CreateConVar( const char *, const char *, const char *, int ) = 0;
 			virtual void *CreateConCommand( const char *, const char *, int, void ( * )( const CCommand & ), int ( * )( const char *, char ( * )[128] ) ) = 0;
+			virtual const char* CheckStringOpt( int iStackPos, const char* def );
+			virtual double CheckNumberOpt( int iStackPos, double def );
+			virtual void RegisterMetaTable( const char* name, GarrysMod::Lua::ILuaObject* obj );
 		};
 
 		class CLuaInterface : public ILuaInterface
