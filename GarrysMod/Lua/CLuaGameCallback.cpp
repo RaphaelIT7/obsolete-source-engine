@@ -5,6 +5,8 @@
 #include "Lua/CLuaClass.h"
 #include "Externals.h"
 #include "Color.h"
+#include <sstream>
+#include <string>
 
 class CLuaGameCallback : public GarrysMod::Lua::ILuaGameCallback
 {
@@ -64,7 +66,32 @@ void CLuaGameCallback::MsgColour(const char* msg, const Color& color)
 
 void CLuaGameCallback::LuaError(const CLuaError* error)
 {
-	// ToDo
+	std::stringstream str;
+
+	str << "[ERROR] ";
+	str << error->message;
+	str << "\n";
+
+	int i = 0;
+	for (CLuaError::StackEntry entry : error->stack)
+	{
+		++i;
+		for (int j=-1;j<i;++j)
+		{
+			str << " ";
+		}
+
+		str << i;
+		str << ". ";
+		str << entry.function;
+		str << " - ";
+		str << entry.source;
+		str << ":";
+		str << entry.line;
+		str << "\n";
+	}
+
+	MsgColour(str.str().c_str(), server_error);
 }
 
 void CLuaGameCallback::InterfaceCreated(GarrysMod::Lua::ILuaInterface* iface) {} // Unused
