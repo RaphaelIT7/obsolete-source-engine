@@ -90,7 +90,12 @@ void CC_LuaRun( const CCommand &args )
 
 	Msg("> %s...\n", args.ArgS());
  
-	LuaShared()->GetLuaInterface(GarrysMod::Lua::State::SERVER)->RunString("RunString", "", args.ArgS(), true, true);
+	auto interface = LuaShared()->GetLuaInterface(GarrysMod::Lua::State::SERVER);
+	if (!interface) {
+		Warning("Failed to find Server ILuaInterface!");
+	} else {
+		interface->RunString("lua_run", "", args.ArgS(), true, true);
+	}
 }
 ConCommand lua_run( "lua_run", CC_LuaRun, "Run a Lua command", 0);
 

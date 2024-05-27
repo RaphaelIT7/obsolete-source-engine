@@ -614,10 +614,6 @@ Vector* Get_Vector(int index)
 void Push_Vector(const Vector* vec)
 {
 	vector_class.Push((void*)vec);
-	//Vector* udata = g_Lua->NewUserType<Vector>(GarrysMod::Lua::Type::Vector);
-	//udata->x = vec->x;
-	//udata->y = vec->y;
-	//udata->z = vec->z;
 }
 
 void Vector_Class()
