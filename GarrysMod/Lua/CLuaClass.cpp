@@ -1116,13 +1116,6 @@ void* CLuaClass::Get(int index)
 	return nullptr;
 }
 
-#include "GarrysMod/Lua/Interface.h"
-LUA_FUNCTION(Test)
-{
-	LUA->PushString("Test");
-	return 1;
-}
-
 #define UserData GarrysMod::Lua::ILuaBase::UserData
 void CLuaClass::Push(void* udata)
 {
