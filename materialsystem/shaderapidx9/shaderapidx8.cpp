@@ -1019,10 +1019,12 @@ public:
 	void CopyTextureToRenderTargetEx( int nRenderTargetID, ShaderAPITextureHandle_t textureHandle, Rect_t *pSrcRect = NULL, Rect_t *pDstRect = NULL );
 	void CopyRenderTargetToScratchTexture( ShaderAPITextureHandle_t srcHandle, ShaderAPITextureHandle_t dstHandle, Rect_t *pSrcRect = NULL, Rect_t *pDstRect = NULL );
 
+#ifndef BUILD_GMOD
 	virtual void LockRect( void** pOutBits, int* pOutPitch, ShaderAPITextureHandle_t texHandle, int mipmap, int x, int y, int w, int h, bool bWrite, bool bRead );
 	virtual void UnlockRect( ShaderAPITextureHandle_t texHandle, int mipmap );
 
 	virtual void CopyTextureToTexture( ShaderAPITextureHandle_t srcTex, ShaderAPITextureHandle_t dstTex );
+#endif
 
 	// Returns the cull mode (for fill rate computation)
 	D3DCULL GetCullMode() const;
@@ -1792,6 +1794,13 @@ private:
 
 #ifdef ENABLE_NULLREF_DEVICE_SUPPORT
 	bool m_NullDevice;
+#endif
+
+#ifdef BUILD_GMOD
+	virtual void GMOD_ForceFilterMode( bool, int );
+	virtual void GMOD_SamplerBorderClamp(Sampler_t);
+	virtual void OverrideBlend( bool, bool, int, int, int );
+	virtual void OverrideBlendSeparateAlpha( bool, bool, int, int, int );
 #endif
 };
 
@@ -8637,6 +8646,7 @@ void CShaderAPIDx8::CopyRenderTargetToScratchTexture( ShaderAPITextureHandle_t s
 // Allows locking and unlocking of very specific surface types. pOutBits and pOutPitch will not be touched if 
 // the lock fails.
 //-------------------------------------------------------------------------
+#ifndef BUILD_GMOD
 void CShaderAPIDx8::LockRect( void** pOutBits, int* pOutPitch, ShaderAPITextureHandle_t texHandle, int mipmap, int x, int y, int w, int h, bool bWrite, bool bRead )
 {
 	LOCK_SHADERAPI();
@@ -8706,6 +8716,7 @@ void CShaderAPIDx8::UnlockRect( ShaderAPITextureHandle_t texHandle, int mipmap )
 	hr = surf->UnlockRect();
 	Assert( SUCCEEDED( hr ) );
 }
+#endif
 
 static float GetAspectRatio( const Texture_t* pTex )
 {
@@ -8786,6 +8797,7 @@ static int FindCommonMipmapRange( int *pOutSrcFine, int *pOutDstFine, Texture_t 
 	return Min( src.mipmaps, dst.mipmaps );
 }
 
+#ifndef BUILD_GMOD
 void CShaderAPIDx8::CopyTextureToTexture( ShaderAPITextureHandle_t srcTex, ShaderAPITextureHandle_t dstTex )
 {
 	LOCK_SHADERAPI();
@@ -8841,7 +8853,7 @@ void CShaderAPIDx8::CopyTextureToTexture( ShaderAPITextureHandle_t srcTex, Shade
 		pDstSurf->Release();
 	}
 }
-
+#endif
 
 
 void CShaderAPIDx8::CopyRenderTargetToTexture( ShaderAPITextureHandle_t textureHandle )
@@ -13394,3 +13406,24 @@ static void r_blocking_spew_threshold_callback( IConVar *var, const char *pOldVa
 ConVar r_blocking_spew_threshold( "r_blocking_spew_threshold", "-1", 0, "Enable spew of Direct3D Blocks. Specify the minimum blocking time in milliseconds before spewing a warning.", r_blocking_spew_threshold_callback );
 #endif
 
+#ifdef BUILD_GMOD
+void CShaderAPIDx8::GMOD_ForceFilterMode( bool, int )
+{
+	Assert(0);
+}
+
+void CShaderAPIDx8::GMOD_SamplerBorderClamp( Sampler_t sampler )
+{
+	Assert(0);
+}
+
+void CShaderAPIDx8::OverrideBlend( bool, bool, int, int, int )
+{
+	Assert(0);
+}
+
+void CShaderAPIDx8::OverrideBlendSeparateAlpha( bool, bool, int, int, int )
+{
+	Assert(0);
+}
+#endif

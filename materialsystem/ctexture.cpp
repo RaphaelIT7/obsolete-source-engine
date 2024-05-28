@@ -1357,7 +1357,9 @@ void CTexture::CopyToStagingTexture( ITexture* pDstTex )
 	Assert( m_nFlags & TEXTUREFLAGS_RENDERTARGET );
 	Assert( pDstTex->GetFlags() & TEXTUREFLAGS_STAGING_MEMORY );
 
+#ifndef BUILD_GMOD
 	g_pShaderAPI->CopyRenderTargetToScratchTexture( m_pTextureHandles[0], pDstTexActual->m_pTextureHandles[0] );
+#endif
 }
 
 void CTexture::Map( void** pOutBits, int* pOutPitch )
@@ -1373,7 +1375,9 @@ void CTexture::Map( void** pOutBits, int* pOutPitch )
 		return;
 	}
 
+#ifndef BUILD_GMOD
 	g_pShaderAPI->LockRect( pOutBits, pOutPitch, m_pTextureHandles[ 0 ], 0, 0, 0, GetActualWidth(), GetActualHeight(), false, true );
+#endif
 }
 
 void CTexture::Unmap()
@@ -1384,7 +1388,9 @@ void CTexture::Unmap()
 		return;
 	}
 
+#ifndef BUILD_GMOD
 	g_pShaderAPI->UnlockRect( m_pTextureHandles[ 0 ], 0 );
+#endif
 }
 
 bool CTexture::MakeResident( ResidencyType_t newResidence )
@@ -2001,7 +2007,9 @@ void CTexture::MigrateShaderAPITextures()
 		if ( !g_pShaderAPI->IsTexture( pTextureHandles[ i ] ) )
 			continue;
 
+#ifndef BUILD_GMOD
 		g_pShaderAPI->CopyTextureToTexture( pTextureHandles[ i ], m_pTextureHandles[ i ] );
+#endif
 	}
 
 	for ( int i = 0; i < m_nFrameCount; ++i )
@@ -2226,8 +2234,10 @@ void CTexture::SetFilterState()
 void CTexture::SetLodState()
 {
 	// Set the lod clamping value to ensure we don't see anything we're not supposed to.
+#ifndef BUILD_GMOD
 	g_pShaderAPI->TexLodClamp( m_lodClamp );
 	g_pShaderAPI->TexLodBias( m_lodBiasCurrent );
+#endif
 }
 
 //-----------------------------------------------------------------------------

@@ -612,6 +612,11 @@ public:
 	//extended clear buffers function with alpha independent from color
 	virtual void ClearBuffersObeyStencilEx( bool bClearColor, bool bClearAlpha, bool bClearDepth ) = 0;
 
+#ifdef BUILD_GMOD
+	virtual void GMOD_ForceFilterMode( bool, int ) = 0;
+	virtual void OverrideBlend( bool, bool, int, int, int ) = 0;
+	virtual void OverrideBlendSeparateAlpha( bool, bool, int, int, int ) = 0;
+#else
 	// Allows copying a render target to another texture by specifying them both.
 	virtual void CopyRenderTargetToScratchTexture( ShaderAPITextureHandle_t srcRt, ShaderAPITextureHandle_t dstTex, Rect_t *pSrcRect = NULL, Rect_t *pDstRect = NULL ) = 0;
 
@@ -626,7 +631,7 @@ public:
 	virtual void TexLodBias( float bias ) = 0;
 	
 	virtual void CopyTextureToTexture( ShaderAPITextureHandle_t srcTex, ShaderAPITextureHandle_t dstTex ) = 0;
-	
+#endif
 };
 
 

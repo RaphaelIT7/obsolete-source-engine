@@ -882,6 +882,12 @@ private:
 	{
 	}
 
+#ifdef BUILD_GMOD
+	virtual void GMOD_ForceFilterMode( bool, int );
+	virtual void GMOD_SamplerBorderClamp(Sampler_t);
+	virtual void OverrideBlend( bool, bool, int, int, int );
+	virtual void OverrideBlendSeparateAlpha( bool, bool, int, int, int );
+#else
 	void CopyRenderTargetToScratchTexture(ShaderAPITextureHandle_t srcRt,
 		ShaderAPITextureHandle_t dstTex, Rect_t* pSrcRect = NULL, Rect_t* pDstRect = NULL) override
 	{
@@ -915,6 +921,7 @@ private:
 	{
 		Assert(0);
 	}
+#endif
 
 	int GetPackedDeformationInformation( int nMaskOfUnderstoodDeformations,
 										 float *pConstantValuesOut,
