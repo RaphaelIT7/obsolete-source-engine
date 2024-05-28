@@ -1460,3 +1460,25 @@ void CShaderAPIDx10::SetBumpEnvMatrix( TextureStage_t textureStage, float m00, f
 void CShaderAPIDx10::SyncToken( const char *pToken )
 {
 }
+
+#ifdef BUILD_GMOD
+void CShaderAPIDx10::GMOD_ForceFilterMode( bool, int )
+{
+	Assert(0);
+}
+
+void CShaderAPIDx10::GMOD_SamplerBorderClamp( Sampler_t sampler )
+{
+	Assert(0);
+}
+
+void CShaderAPIDx10::OverrideBlend( bool, bool, int, int, int )
+{
+	Assert(0);
+}
+
+void CShaderAPIDx10::OverrideBlendSeparateAlpha( bool, bool, int, int, int )
+{
+	Assert(0);
+}
+#endif
