@@ -13407,23 +13407,70 @@ ConVar r_blocking_spew_threshold( "r_blocking_spew_threshold", "-1", 0, "Enable 
 #endif
 
 #ifdef BUILD_GMOD
-void CShaderAPIDx8::GMOD_ForceFilterMode( bool, int )
+void CShaderAPIDx8::GMOD_ForceFilterMode( bool forceFilter, int filterType )
 {
-	Assert(0);
+	if ( forceFilter )
+	{
+		D3DTEXTUREFILTERTYPE minFilter = D3DTEXF_NONE;
+		D3DTEXTUREFILTERTYPE magFilter = D3DTEXF_NONE;
+		D3DTEXTUREFILTERTYPE mipFilter = D3DTEXF_NONE;
+		switch ( filterType )
+		{
+			case 0:
+				minFilter = D3DTEXF_NONE;
+				magFilter = D3DTEXF_NONE;
+				mipFilter = D3DTEXF_NONE;
+				break;
+			case 1:
+				minFilter = D3DTEXF_POINT;
+				magFilter = D3DTEXF_POINT;
+				mipFilter = D3DTEXF_POINT;
+				break;
+			case 2:
+				minFilter = D3DTEXF_LINEAR;
+				magFilter = D3DTEXF_LINEAR;
+				mipFilter = D3DTEXF_LINEAR;
+				break;
+			case 3:
+				minFilter = D3DTEXF_ANISOTROPIC;
+				magFilter = D3DTEXF_ANISOTROPIC;
+				mipFilter = D3DTEXF_ANISOTROPIC;
+				break;
+			default:
+				minFilter = D3DTEXF_NONE;
+				magFilter = D3DTEXF_NONE;
+				mipFilter = D3DTEXF_NONE;
+				break;
+		}
+
+		Dx9Device()->SetSamplerState( 0, D3DSAMP_MINFILTER, minFilter );
+		Dx9Device()->SetSamplerState( 0, D3DSAMP_MAGFILTER, magFilter );
+		Dx9Device()->SetSamplerState( 0, D3DSAMP_MIPFILTER, mipFilter );
+	}
 }
 
 void CShaderAPIDx8::GMOD_SamplerBorderClamp( Sampler_t sampler )
 {
-	Assert(0);
+	Dx9Device()->SetSamplerState( sampler, D3DSAMP_ADDRESSU, D3DTADDRESS_BORDER );
+	Dx9Device()->SetSamplerState( sampler, D3DSAMP_ADDRESSV, D3DTADDRESS_BORDER );
+	Dx9Device()->SetSamplerState( sampler, D3DSAMP_ADDRESSW, D3DTADDRESS_BORDER );
 }
 
-void CShaderAPIDx8::OverrideBlend( bool, bool, int, int, int )
+void CShaderAPIDx8::OverrideBlend( bool bOverrideEnable, bool bUseSeparateAlpha, int iSrcBlend, int iDestBlend, int iBlendFunc ) // Guessing the names
 {
-	Assert(0);
+	LOCK_SHADERAPI();
+	if ( !g_pShaderDeviceDx8->IsDeactivated() )
+	{
+		m_TransitionTable.OverrideBlend( bOverrideEnable, bUseSeparateAlpha, (D3DBLEND)iSrcBlend, (D3DBLEND)iDestBlend, (D3DBLENDOP)iBlendFunc );
+	}
 }
 
-void CShaderAPIDx8::OverrideBlendSeparateAlpha( bool, bool, int, int, int )
+void CShaderAPIDx8::OverrideBlendSeparateAlpha( bool bOverrideEnable, bool bUseSeparateAlpha, int iSrcBlend, int iDestBlend, int iBlendFunc ) // Guessing the names
 {
-	Assert(0);
+	LOCK_SHADERAPI();
+	if ( !g_pShaderDeviceDx8->IsDeactivated() )
+	{
+		m_TransitionTable.OverrideBlendSeparateAlpha( bOverrideEnable, bUseSeparateAlpha, (D3DBLEND)iSrcBlend, (D3DBLEND)iDestBlend, (D3DBLENDOP)iBlendFunc );
+	}
 }
 #endif
