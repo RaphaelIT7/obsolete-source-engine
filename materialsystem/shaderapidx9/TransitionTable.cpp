@@ -1912,3 +1912,48 @@ void CTransitionTable::PerformShadowStateOverrides( )
 		}
 	}
 }
+
+#ifdef BUILD_GMOD
+void CTransitionTable::OverrideBlend( bool bOverrideEnable, bool bUseSeparateAlpha, D3DBLEND iSrcBlend, D3DBLEND iDestBlend, D3DBLENDOP iBlendOp )
+{
+	if ( bOverrideEnable != m_CurrentState.m_bOverrideBlendEnable )
+	{
+		ShaderAPI()->FlushBufferedPrimitives();
+		m_CurrentState.m_bOverrideBlendEnable = bOverrideEnable;
+		m_CurrentState.m_bOverriddenBlendWriteValue = bUseSeparateAlpha;
+
+		SetRenderState( D3DRS_ALPHABLENDENABLE, bUseSeparateAlpha ? TRUE : FALSE );
+		if ( bOverrideEnable )
+		{
+			SetRenderState( D3DRS_SRCBLEND, iSrcBlend );
+			SetRenderState( D3DRS_DESTBLEND, iDestBlend );
+			SetRenderState( D3DRS_BLENDOP, iBlendOp );
+		}
+
+		if ( bUseSeparateAlpha )
+		{
+			SetRenderState( D3DRS_SRCBLENDALPHA, iSrcBlend );
+			SetRenderState( D3DRS_DESTBLENDALPHA, iDestBlend );
+			SetRenderState( D3DRS_BLENDOPALPHA, iBlendOp );
+		}
+	}
+}
+
+void CTransitionTable::OverrideBlendSeparateAlpha( bool bOverrideEnable, bool bUseSeparateAlpha, D3DBLEND iSrcBlend, D3DBLEND iDestBlend, D3DBLENDOP iBlendOp )
+{
+	if ( bOverrideEnable != m_CurrentState.m_bOverrideBlendSeperateAlphaEnable )
+	{
+		ShaderAPI()->FlushBufferedPrimitives();
+		m_CurrentState.m_bOverrideBlendSeperateAlphaEnable = bOverrideEnable;
+		m_CurrentState.m_bOverriddenBlendSeperateAlphaWriteValue = bUseSeparateAlpha;
+
+		SetRenderState( D3DRS_ALPHABLENDENABLE, bUseSeparateAlpha ? TRUE : FALSE );
+		if ( bUseSeparateAlpha )
+		{
+			SetRenderState( D3DRS_SRCBLEND, iSrcBlend );
+			SetRenderState( D3DRS_DESTBLEND, iDestBlend );
+			SetRenderState( D3DRS_BLENDOP, iBlendOp );
+		}
+	}
+}
+#endif

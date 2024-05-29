@@ -138,6 +138,12 @@ public:
 		bool				m_bOverrideColorWriteEnable;
 		bool				m_bOverriddenColorWriteValue;
 		DWORD				m_ColorWriteEnable;
+#ifdef BUILD_GMOD
+		bool				m_bOverrideBlendEnable;
+		bool				m_bOverriddenBlendWriteValue;
+		bool				m_bOverrideBlendSeperateAlphaEnable;
+		bool				m_bOverriddenBlendSeperateAlphaWriteValue;
+#endif
 
 		bool				m_bLinearColorSpaceFrameBufferEnable;
 
@@ -202,6 +208,11 @@ public:
 #ifdef DEBUG_BOARD_STATE
 	ShadowState_t& BoardState() { return m_BoardState; }
 	ShadowShaderState_t& BoardShaderState() { return m_BoardShaderState; }
+#endif
+
+#ifdef BUILD_GMOD
+	void OverrideBlend( bool bOverrideEnable, bool bUseSeparateAlpha, D3DBLEND iSrcBlend, D3DBLEND iDestBlend, D3DBLENDOP iBlendOp );
+	void OverrideBlendSeparateAlpha( bool bOverrideEnable, bool bUseSeparateAlpha, D3DBLEND iSrcBlend, D3DBLEND iDestBlend, D3DBLENDOP iBlendOp );
 #endif
 
 	// The following are meant to be used by the transition table only
