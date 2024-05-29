@@ -4262,7 +4262,9 @@ void CShaderAPIDx8::ReleaseShaderObjects()
 	}
 #endif
 
+#ifndef BUILD_GMOD
 	Assert( TextureCount() == 0 );
+#endif
 }
 
 void CShaderAPIDx8::RestoreShaderObjects()
