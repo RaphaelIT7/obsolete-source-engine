@@ -204,7 +204,9 @@ public:
 
 	virtual bool SupportsBorderColor( void ) const = 0;
 	virtual bool SupportsFetch4( void ) const = 0;
+#ifndef BUILD_GMOD
 	virtual bool CanStretchRectFromTextures( void ) const = 0;
+#endif
 
 	inline bool ShouldAlwaysUseShaderModel2bShaders() const { return IsOpenGL(); }
 	inline bool PlatformRequiresNonNullPixelShaders() const { return IsOpenGL(); } //-V524

@@ -776,10 +776,12 @@ bool CHardwareConfig::SupportsFetch4() const
 	return m_Caps.m_bSupportsFetch4;
 }
 
+#ifndef BUILD_GMOD
 bool CHardwareConfig::CanStretchRectFromTextures() const
 {
 	return m_Caps.m_bCanStretchRectFromTextures;
 }
+#endif
 
 bool CHardwareConfig::SupportsVertexAndPixelShaders() const
 {

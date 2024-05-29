@@ -242,7 +242,7 @@ enum PolygonOffsetMode_t
 //-----------------------------------------------------------------------------
 // the shader API interface (methods called from shaders)
 //-----------------------------------------------------------------------------
-abstract_class IShaderShadow
+abstract_class IShaderShadow // NOTE: This should work with Gmod.
 {
 public:
 	// Sets the default *shadow* state

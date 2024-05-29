@@ -1115,7 +1115,9 @@ void CMatRenderContext::DoStartupShaderPreloading( void )
 
 void CMatRenderContext::TextureManagerUpdate()
 {
+#ifndef BUILD_GMOD
 	TextureManager()->Update();
+#endif
 }
 
 
@@ -2783,9 +2785,11 @@ void CMatRenderContext::BindStandardTexture( Sampler_t sampler, StandardTextureI
 			g_pShaderAPI->BindTexture( sampler, GetMaxDepthTextureHandle() );
 		return;
 
+#ifndef BUILD_GMOD
 	case TEXTURE_DEBUG_LUXELS:
 		TextureManager()->DebugLuxels2D()->Bind( sampler );
 		return;
+#endif
 
 	default:
 		Assert(0);
@@ -2872,9 +2876,11 @@ void CMatRenderContext::GetStandardTextureDimensions( int *pWidth, int *pHeight,
 		pTexture = g_pMorphMgr->MorphWeights();
 		break;
 
+#ifndef BUILD_GMOD
 	case TEXTURE_DEBUG_LUXELS:
 		pTexture = TextureManager()->DebugLuxels2D();
 		break;
+#endif
 	}
 
 	if ( pTexture )
@@ -3017,7 +3023,9 @@ void CMatRenderContext::AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, co
 		OnAsyncCreateTextureFromRenderTarget( pSrcRt, &pDstName, pRecipient );
 	}
 
+#ifndef BUILD_GMOD
 	TextureManager()->AsyncCreateTextureFromRenderTarget( pSrcRt, pDstName, dstFmt, bGenMips, nAdditionalCreationFlags, pRecipient, pExtraArgs );
+#endif
 }
 
 void CMatRenderContext::AsyncMap( ITextureInternal* pTexToMap, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs )
@@ -3030,7 +3038,9 @@ void CMatRenderContext::AsyncMap( ITextureInternal* pTexToMap, IAsyncTextureOper
 	void* pMemory = NULL;
 	int nPitch = NULL;
 
+#ifndef BUILD_GMOD
 	pTexToMap->Map( &pMemory, &nPitch );
+#endif
 
 	pRecipient->OnAsyncMapComplete( pTexToMap, pExtraArgs, pMemory, nPitch );
 
@@ -3046,7 +3056,9 @@ void CMatRenderContext::AsyncUnmap( ITextureInternal* pTexToUnmap )
 		OnAsyncUnmap( pTexToUnmap );
 	}
 
+#ifndef BUILD_GMOD
 	pTexToUnmap->Unmap();
+#endif
 	SafeRelease( &pTexToUnmap ); // Matches AddRef from OnAsyncUnmap
 }
 
@@ -3057,7 +3069,9 @@ void CMatRenderContext::AsyncCopyRenderTargetToStagingTexture( ITexture* pDst, I
 		OnAsyncCopyRenderTargetToStagingTexture( pDst, pSrc, pRecipient );
 	}
 
+#ifndef BUILD_GMOD
 	pSrc->CopyToStagingTexture( pDst );
+#endif
 	pRecipient->OnAsyncReadbackBegin( pDst, pSrc, pExtraArgs );
 
 	SafeRelease( &pDst );

@@ -803,6 +803,9 @@ public:
 	virtual bool			WasReloadedFromWhitelist() {return false;}
 
 	virtual bool			IsPrecached() const {return true;}
+#ifdef BUILD_GMOD
+	virtual bool			GMOD_Persist() {return true;}
+#endif
 };
 
 CDummyMaterial g_DummyMaterial;

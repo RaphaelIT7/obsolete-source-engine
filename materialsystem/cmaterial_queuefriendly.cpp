@@ -391,7 +391,12 @@ void CMaterial_QueueFriendly::UpdateToRealTime( void )
 	m_nReferenceCount = m_pRealTimeVersion->GetReferenceCount();
 }
 
-
+#ifdef BUILD_GMOD
+bool CMaterial_QueueFriendly::GMOD_Persist( )
+{
+	return true; // ToDo:
+}
+#endif
 
 
 

@@ -391,6 +391,11 @@ void DestroyD3DTexture( IDirect3DBaseTexture* pD3DTex )
 #endif
 
 #if !defined( _X360 )
+#ifdef BUILD_GMOD
+		if ( !materials )
+			return;
+#endif
+
 		CMatRenderContextPtr pRenderContext( materials );
 		ICallQueue *pCallQueue;
 		if ( ( pCallQueue = pRenderContext->GetCallQueue() ) != NULL )
@@ -1183,7 +1188,11 @@ void LoadTextureFromVTF( TextureLoadInfo_t &info, IVTFTexture* pVTF, int iVTFFra
 	// (For example, we chop off the bottom of the mipmap pyramid at 32x32--that is reflected in iMipCount, so 
 	// honor that here).
 	int finest = 0, coarsest = 0;
+#ifdef BUILD_GMOD
+	coarsest = iMipCount - 1; // Gmod doesn't have GetMipmapRange.
+#else
 	pVTF->GetMipmapRange( &finest, &coarsest );
+#endif
 	finest = Min( finest, iMipCount - 1 );
 	coarsest = Min( coarsest, iMipCount - 1 );
 	Assert( finest <= coarsest && coarsest < iMipCount );

@@ -93,6 +93,9 @@ public:
 	virtual void			FindRepresentativeTexture( void );
 	virtual bool			WasReloadedFromWhitelist() { return m_pRealTimeVersion->WasReloadedFromWhitelist(); }
 	virtual bool			IsPrecached( ) const { return m_pRealTimeVersion->IsPrecached(); }
+#ifdef BUILD_GMOD
+	virtual bool			GMOD_Persist();
+#endif
 
 
 #define QUEUEFRIENDLY_USED_INTERNALLY_ASSERT AssertMsg( 0, "CMaterial_QueueFriendly used internally within materialsystem. Update the calling code to use a realtime CMaterial." )

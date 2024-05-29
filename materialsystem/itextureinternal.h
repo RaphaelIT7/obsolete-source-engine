@@ -57,7 +57,11 @@ public:
 	virtual bool SetRenderTarget( int nRenderTargetID ) = 0;
 
 	// Releases the texture's hw memory
+#ifdef BUILD_GMOD
+	virtual void Release() = 0; // Different Name
+#else
 	virtual void ReleaseMemory() = 0;
+#endif
 
 	// Called before Download() on restore. Gives render targets a change to change whether or
 	// not they force themselves to have a separate depth buffer due to AA.
@@ -141,6 +145,7 @@ public:
 	// Reload any files the texture is responsible for.
 	virtual void ReloadFilesInList( IFileList *pFilesToReload ) = 0;
 
+#ifndef BUILD_GMOD
 	virtual bool AsyncReadTextureFromFile( IVTFTexture* pVTFTexture, unsigned int nAdditionalCreationFlags ) = 0;
 	virtual void AsyncCancelReadTexture() = 0;
 
@@ -153,6 +158,7 @@ public:
 	virtual ResidencyType_t GetTargetResidence() const = 0;
 	virtual bool MakeResident( ResidencyType_t newResidence ) = 0;
 	virtual void UpdateLodBias() = 0;
+#endif
 };
 
 inline bool IsTextureInternalEnvCubemap( const ITextureInternal *pTexture )
