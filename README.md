@@ -5,7 +5,6 @@ There is also the [gmod-improvements](https://github.com/RaphaelIT7/obsolete-sou
 [![GitHub Repo Size in Bytes](https://img.shields.io/github/repo-size/Source-Authors/Obsoletium.svg)](https://github.com/Source-Authors/Obsoletium)
 
 List of dlls that are worked on:
-- `shaderapidx9.dll` (Everything was reverted.)
 - `vstdlist.dll` (Everything was reverted.)
 - `filesystem_stdio.dll` (Something broke and idk what)
 Progress:  
@@ -24,6 +23,7 @@ List of currently working dlls:
 - `datacache.dll`
 - `icudt.dll` (IDK what it even does xd)
 - `icudt42.dll` (IDK what it even does xd)
+- `shaderapidx9.dll` (Needs more testing but seems to work.)
 - `unicode.dll`
 - `vvis_dll.dll` (~40% faster than Gmod's version. Compile it in Release for the Performance benefit)
 - `vvis.exe`

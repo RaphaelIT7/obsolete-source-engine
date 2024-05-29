@@ -330,11 +330,14 @@ CRopeManager::~CRopeManager()
 	{
 		if ( m_aRenderCache[iRenderCache].m_pSolidMaterial )
 		{
+			// ToDo: fix a crash here
+#ifndef BUILD_GMOD
 			m_aRenderCache[iRenderCache].m_pSolidMaterial->DecrementReferenceCount();
+#endif
 		}
 		if ( m_aRenderCache[iRenderCache].m_pBackMaterial )
 		{
-			m_aRenderCache[iRenderCache].m_pBackMaterial->DecrementReferenceCount();
+			//m_aRenderCache[iRenderCache].m_pBackMaterial->DecrementReferenceCount();
 		}
 	}
 

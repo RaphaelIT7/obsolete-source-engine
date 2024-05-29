@@ -1784,7 +1784,9 @@ ShaderAPITextureHandle_t CShaderSystem::GetShaderAPITextureBindHandle( ITexture 
 		// CTexture::Bind for whatever reason. So let's request the mipmaps here. If you run into this, in a situation
 		// where we shouldn't be doing the request, we could relocate this code to the appropriate callsites instead. 
 		ITextureInternal* pTex = assert_cast< ITextureInternal* >( pTexture );
+#ifndef BUILD_GMOD
 		TextureManager()->RequestAllMipmaps( pTex );		
+#endif
 
 		return pTex->GetTextureHandle( nFrame, nTextureChannel );
 	}

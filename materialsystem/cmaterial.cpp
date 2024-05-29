@@ -114,6 +114,10 @@ public:
 
 	virtual bool IsPrecached( ) const;
 
+#ifdef BUILD_GMOD
+	virtual bool GMOD_Persist( );
+#endif
+
 public:
 	// stuff that is visible only from within the material system
 
@@ -714,6 +718,13 @@ bool CMaterial::IsPrecached( ) const
 {
 	return (m_Flags & MATERIAL_IS_PRECACHED) != 0;
 }
+
+#ifdef BUILD_GMOD
+bool CMaterial::GMOD_Persist( )
+{
+	return true; // Probably returns a value from an internal var.
+}
+#endif
 
 
 //-----------------------------------------------------------------------------

@@ -187,7 +187,9 @@ public:
 	virtual VertexCompressionType_t SupportsCompressedVertices() const;
 	virtual bool SupportsBorderColor() const;
 	virtual bool SupportsFetch4() const;
+#ifndef BUILD_GMOD
 	virtual bool CanStretchRectFromTextures() const;
+#endif
 	virtual bool SupportsVertexAndPixelShaders() const;
 	virtual bool SupportsPixelShaders_1_4() const;
 	virtual bool SupportsPixelShaders_2_0() const;

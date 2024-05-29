@@ -268,7 +268,11 @@ public:
 	void InitProceduralTexture( const char *pTextureName, const char *pTextureGroupName, int w, int h, int d, ImageFormat fmt, int nFlags, ITextureRegenerator* generator = NULL );
 
 	// Releases the texture's hw memory
+#ifdef BUILD_GMOD
+	void Release();
+#else
 	void ReleaseMemory();
+#endif
 
 	virtual void OnRestore();
 
@@ -331,6 +335,7 @@ public:
 	virtual bool SaveToFile( const char *fileName );
 	
 	// Load the texture from a file.
+#ifndef BUILD_GMOD
 	bool AsyncReadTextureFromFile( IVTFTexture* pVTFTexture, unsigned int nAdditionalCreationFlags );
 	void AsyncCancelReadTexture( );
 
@@ -341,6 +346,7 @@ public:
 	virtual ResidencyType_t GetTargetResidence() const { return m_residenceTarget; }
 	virtual bool MakeResident( ResidencyType_t newResidence );
 	virtual void UpdateLodBias();
+#endif
 
 protected:
 	bool IsDepthTextureFormat( ImageFormat fmt );
@@ -423,9 +429,19 @@ protected:
 
 	void ApplyRenderTargetSizeMode( int &width, int &height, ImageFormat fmt );
 
+#ifndef BUILD_GMOD
 	virtual void CopyToStagingTexture( ITexture* pDstTex );
 
 	virtual void SetErrorTexture( bool _isErrorTexture );
+#else
+	inline void SetErrorTexture( bool bIsErrorTexture )
+	{
+		if ( bIsErrorTexture )
+			m_nInternalFlags |= TEXTUREFLAGSINTERNAL_ERROR;
+		else
+			m_nInternalFlags &= ( ~TEXTUREFLAGSINTERNAL_ERROR );
+	}
+#endif
 
 	// Texture streaming
 	void MakeNonResident();
@@ -636,7 +652,11 @@ public:
 	virtual int GetActualDepth() const { return 1; }
 
 	// Releases the texture's hw memory
+#ifdef BUILD_GMOD
+	void Release() {}
+#else
 	void ReleaseMemory() {}
+#endif
 
 	virtual void OnRestore() {}
 
@@ -697,8 +717,9 @@ public:
 	// Save texture to a file.
 	virtual bool SaveToFile( const char *fileName ) { return false; }
 
-	virtual bool AsyncReadTextureFromFile( IVTFTexture* pVTFTexture, unsigned int nAdditionalCreationFlags ) { AssertMsg( false, "Should never get here." ); return false; }
-	virtual void AsyncCancelReadTexture() { AssertMsg( false, "Should never get here." ); }
+#ifndef BUILD_GMOD
+	virtual bool AsyncReadTextureFromFile( IVTFTexture* pVTFTexture, unsigned int nAdditionalCreationFlags ) { Assert( !"Should never get here." ); return false; }
+	virtual void AsyncCancelReadTexture() { Assert( !"Should never get here." ); }
 
 	virtual void CopyToStagingTexture( ITexture* pDstTex ) { AssertMsg( false, "Should never get here." ); };
 
@@ -712,6 +733,7 @@ public:
 	virtual void UpdateLodBias() {}
 
 	virtual void SetErrorTexture( bool isErrorTexture ) { }
+#endif
 
 protected:
 #ifdef _DEBUG
@@ -915,7 +937,11 @@ void ITextureInternal::ChangeRenderTarget(
 	unsigned int textureFlags, 
 	unsigned int renderTargetFlags )
 {
+#ifdef BUILD_GMOD
+	pTex->Release();
+#else
 	pTex->ReleaseMemory();
+#endif
 	dynamic_cast< CTexture * >(pTex)->InitRenderTarget( pTex->GetName(), w, h, sizeMode, fmt, type, textureFlags, renderTargetFlags );
 }
 
@@ -1119,7 +1145,11 @@ void CTexture::Shutdown()
 	NotifyUnloadedFile();
 }
 
+#ifdef BUILD_GMOD
+void CTexture::Release()
+#else
 void CTexture::ReleaseMemory()
+#endif
 {
 	FreeShaderAPITextures();
 	NotifyUnloadedFile();
@@ -1148,7 +1178,9 @@ void CTexture::ReleaseScratchVTFTexture( IVTFTexture* tex )
 	if ( m_pStreamingVTF )
 	{
 		Assert( tex == m_pStreamingVTF );
+#ifndef BUILD_GMOD
 		TextureManager()->ReleaseAsyncScratchVTF( m_pStreamingVTF );
+#endif
 		m_pStreamingVTF = NULL;
 		return;
 	}
@@ -1335,6 +1367,7 @@ void CTexture::ApplyRenderTargetSizeMode( int &width, int &height, ImageFormat f
 	}
 }
 
+#ifndef BUILD_GMOD
 void CTexture::CopyToStagingTexture( ITexture* pDstTex )
 {
 	Assert( pDstTex );
@@ -1456,6 +1489,7 @@ void CTexture::UpdateLodBias()
 	m_lastLodBiasAdjustFrame = g_FrameNum;
 	SetFilteringAndClampingMode( true );
 }
+#endif
 
 void CTexture::MakeNonResident()
 {
@@ -1492,13 +1526,16 @@ void CTexture::MakePartiallyResident()
 	// Clear the fine bit.
 	m_nFlags &= ~TEXTUREFLAGS_STREAMABLE_FINE;
 
+#ifndef BUILD_GMOD
 	if ( HardwareConfig()->CanStretchRectFromTextures() )
+#endif
 	{
 		m_lodClamp = 0;
 		m_lodBiasInitial = m_lodBiasCurrent = 0;
 		m_lastLodBiasAdjustFrame = g_FrameNum;
 		DownloadTexture( NULL, true );
 	}
+#ifndef BUILD_GMOD
 	else
 	{
 		// Oops. We were overzealous above--restore the residency to what it was.
@@ -1514,6 +1551,7 @@ void CTexture::MakePartiallyResident()
 		SafeAssign( &m_pStreamingJob, new CTextureStreamingJob( this ) );
 		MaterialSystem()->AsyncFindTexture( GetName(), GetTextureGroupName(), m_pStreamingJob, (void*) RESIDENT_PARTIAL, false, TEXTUREFLAGS_STREAMABLE_COARSE );
 	}
+#endif
 }
 
 bool CTexture::MakeFullyResident()
@@ -1526,7 +1564,9 @@ bool CTexture::MakeFullyResident()
 	if ( oldCurrentResidence == RESIDENT_FULL )
 	{
 		// This isn't a requirement, but right now it would be a mistake 
+#ifndef BUILD_GMOD
 		Assert( !HardwareConfig()->CanStretchRectFromTextures() );
+#endif
 		Assert( oldTargetResidence == RESIDENT_PARTIAL );
 		
 		m_residenceCurrent = m_residenceTarget = RESIDENT_FULL;
@@ -1602,6 +1642,7 @@ void CTexture::OnStreamingJobComplete( ResidencyType_t newResidenceCurrent )
 	CancelStreamingJob();
 }
 
+#ifndef BUILD_GMOD
 void CTexture::SetErrorTexture( bool bIsErrorTexture )
 {
 	if ( bIsErrorTexture )
@@ -1609,6 +1650,7 @@ void CTexture::SetErrorTexture( bool bIsErrorTexture )
 	else
 		m_nInternalFlags &= ( ~TEXTUREFLAGSINTERNAL_ERROR );
 }
+#endif
 
 
 
@@ -1745,7 +1787,9 @@ void CTexture::OnRestore()
 	{
 		if ( m_nFlags & TEXTUREFLAGS_STREAMABLE_FINE )
 		{
+#ifndef BUILD_GMOD
 			MakeResident( RESIDENT_NONE );
+#endif
 		}
 	}
 }
@@ -2395,6 +2439,7 @@ bool CTexture::SaveToFile( const char *fileName )
 	return bRet;
 }
 
+#ifndef BUILD_GMOD
 bool CTexture::AsyncReadTextureFromFile( IVTFTexture* pVTFTexture, unsigned int nAdditionalCreationFlags )
 {
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s", __FUNCTION__ );
@@ -2451,6 +2496,7 @@ void CTexture::AsyncCancelReadTexture( )
 		m_pStreamingVTF = NULL;
 	}
 }
+#endif
 
 void CTexture::Bind( Sampler_t sampler )
 {
@@ -2464,7 +2510,9 @@ void CTexture::Bind( Sampler_t sampler1, int nFrame, Sampler_t sampler2 /* = -1 
 {
 	if ( g_pShaderDevice->IsUsingGraphics() )
 	{
+#ifndef BUILD_GMOD
 		TextureManager()->RequestAllMipmaps( this );
+#endif
 
 		if ( nFrame < 0 || nFrame >= m_nFrameCount )
 		{
@@ -2566,7 +2614,9 @@ void CTexture::DecrementReferenceCount( void )
 	{
 		Assert( m_nRefCount == 0 );
 		// Just inform the texture manager, it will decide to free us at a later date.
+#ifndef BUILD_GMOD
 		TextureManager()->MarkUnreferencedTextureForCleanup( this );
+#endif
 	}
 }
 
@@ -3638,7 +3688,11 @@ void CTexture::ReconstructTexture( bool bCopyFromCurrent )
 {
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s", __FUNCTION__ );
 
+#ifdef BUILD_GMOD
+	Assert( !bCopyFromCurrent );
+#else
 	Assert( !bCopyFromCurrent || HardwareConfig()->CanStretchRectFromTextures() );
+#endif
 
 	int oldWidth = m_dimsAllocated.m_nWidth;
 	int oldHeight = m_dimsAllocated.m_nHeight;
@@ -3689,7 +3743,11 @@ void CTexture::ReconstructTexture( bool bCopyFromCurrent )
 	{
 		tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s - Allocation", __FUNCTION__ );
 
+#ifdef BUILD_GMOD
+		const bool cbCanStretchRectTextures = true;
+#else
 		const bool cbCanStretchRectTextures = HardwareConfig()->CanStretchRectFromTextures();
+#endif
 		const bool cbShouldMigrateTextures = ( ( m_nFlags & TEXTUREFLAGS_STREAMABLE_FINE ) != 0 ) && m_nFrameCount == oldFrameCount;
 
 		// If we're just streaming in more data--or demoting ourselves, do a migration instead. 
@@ -3997,7 +4055,9 @@ void CTexture::DeleteIfUnreferenced()
 
 	// Can't actually clean up from render thread--just safely mark this texture as
 	// one we should check for cleanup next EndFrame when it's safe.
+#ifndef BUILD_GMOD
 	TextureManager()->MarkUnreferencedTextureForCleanup( this );	
+#endif
 }
 
 //Swap everything about a texture except the name. Created to support Portal mod's need for swapping out water render targets in recursive stencil views
@@ -4110,10 +4170,12 @@ int GetThreadId()
 		retVal = 0;
 	else if ( MaterialSystem()->GetRenderThreadId() == ThreadGetCurrentId() )
 		retVal = 1;
+#ifndef BUILD_GMOD
 	else if ( TextureManager()->ThreadInAsyncLoadThread() )
 		retVal = 2;
 	else if ( TextureManager()->ThreadInAsyncReadThread() )
 		retVal = 3;
+#endif
 	else
 	{
 		STAGING_ONLY_EXEC( AssertAlways( !"Unexpected thread in GetThreadId, need to debug this--crash is next. Tell McJohn." ) );
@@ -4204,7 +4266,9 @@ bool SLoadTextureBitsFromFile( IVTFTexture **ppOutVtfTexture, FileHandle_t hFile
 	// whole file, so if they are doing the final read (the fine levels) then reread everything by stripping
 	// off the flags we are trying to pass in.
 	unsigned int nForceFlags = nFullFlags & TEXTUREFLAGS_STREAMABLE;
+#ifndef BUILD_GMOD
 	if ( !HardwareConfig()->CanStretchRectFromTextures() && ( nForceFlags & TEXTUREFLAGS_STREAMABLE_FINE ) )
+#endif
 		nForceFlags = 0;
 
 	// NOTE: Skipping mip levels here will cause the size to be changed

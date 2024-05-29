@@ -2124,6 +2124,7 @@ KeyValues* ResolveTemplate( const char* pRootName, KeyValues* pValues, uint32 nT
 
 	if ( ( nTexCompositeCreateFlags & TEX_COMPOSITE_CREATE_FLAGS_VERIFY_TEMPLATE_ONLY ) == 0 )
 	{
+#ifndef BUILD_GMOD
 		CTextureCompositorTemplate* pTmpl = TextureManager()->FindTextureCompositorTemplate( pTemplateName );
 		if ( !pTmpl )
 		{
@@ -2145,6 +2146,7 @@ KeyValues* ResolveTemplate( const char* pRootName, KeyValues* pValues, uint32 nT
 			pNewKV->SetName( pRootName );
 			( *pInOutAllocdNew ) = true;
 		}
+#endif
 	}
 	else
 	{
@@ -2686,6 +2688,7 @@ bool CTextureCompositorTemplate::ResolveDependencies() const
 	if ( m_ImplementsName.IsEmpty() )
 		return true;
 
+#ifndef BUILD_GMOD
 	CTextureCompositorTemplate* pImplementsTmpl = TextureManager()->FindTextureCompositorTemplate( m_ImplementsName );
 
 	// If we couldn't find our child, then we are not okay.
@@ -2694,6 +2697,7 @@ bool CTextureCompositorTemplate::ResolveDependencies() const
 		Warning( "ERROR[paintkit_template %s]: Couldn't find template '%s' which we claim to implement.\n", (const char*) m_Name, (const char*)m_ImplementsName );
 		return false;
 	}
+#endif
 
 	return true;
 }
@@ -2774,7 +2778,9 @@ CTextureCompositorTemplate* Advance( CTextureCompositorTemplate* pTmpl, int nSte
 	{
 		if ( pTmpl->ImplementsTemplate() )
 		{
+#ifndef BUILD_GMOD
 			pTmpl = TextureManager()->FindTextureCompositorTemplate( pTmpl->GetImplementsName() );
+#endif
 		}
 		else
 			return NULL;

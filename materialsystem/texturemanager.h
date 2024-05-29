@@ -83,9 +83,14 @@ public:
 	virtual void RestoreRenderTargets( void ) = 0;
 	virtual void RestoreNonRenderTargetTextures( void ) = 0;
 
+#ifdef BUILD_GMOD
+	virtual bool GMOD_TextureExists( const char* ) = 0;
+	virtual void GMOD_RestoreTexture( void ) = 0;
+#else
 	// Suspend or resume texture streaming requests
 	virtual void SuspendTextureStreaming( void ) = 0;
 	virtual void ResumeTextureStreaming( void ) = 0;
+#endif
 
 	// delete any texture that has a refcount <= 0
 	virtual void RemoveUnusedTextures( void ) = 0;
@@ -102,7 +107,9 @@ public:
 	virtual ITextureInternal *ShadowNoise2D() = 0;
 	virtual ITextureInternal *IdentityLightWarp() = 0;
 	virtual ITextureInternal *FullFrameDepthTexture() = 0;
+#ifndef BUILD_GMOD
 	virtual ITextureInternal *DebugLuxels2D() = 0;
+#endif
 
 	// Generates an error texture pattern
 	virtual void GenerateErrorTexture( ITexture *pTexture, IVTFTexture *pVTFTexture ) = 0;
@@ -114,8 +121,10 @@ public:
 
 	virtual bool IsTextureLoaded( const char *pTextureName ) = 0;
 
+#ifndef BUILD_GMOD
 	// Mark a texture as now-unreferenced, so it can be checked for removal at a later (and thread-safe) time.
 	virtual void MarkUnreferencedTextureForCleanup( ITextureInternal *pTexture ) = 0;
+#endif
 
 	virtual void RemoveTexture( ITextureInternal *pTexture ) = 0;
 
@@ -134,6 +143,9 @@ public:
 	// See CL_HandlePureServerWhitelist for a description of the pure server stuff.
 	virtual void ReloadFilesInList( IFileList *pFilesToReload ) = 0;
 
+#ifdef BUILD_GMOD
+	virtual void GMOD_UpdatePostAsync() = 0;
+#else
 	// Called once per frame by material system "somewhere."
 	virtual void Update( ) = 0;
 
@@ -163,6 +175,7 @@ public:
 	virtual bool VerifyTextureCompositorTemplates() = 0;
 
 	virtual CTextureCompositorTemplate* FindTextureCompositorTemplate( const char* pName ) = 0;
+#endif
 
 };
 

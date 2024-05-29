@@ -88,6 +88,10 @@ public:
 	void				ArtificialAddRef();
 	void				ArtificialRelease();
 
+#ifdef BUILD_GMOD
+	virtual bool			GMOD_Persist() {return true;}
+#endif
+
 	//=============================
 	// Chained to the material page.
 	//=============================	

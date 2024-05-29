@@ -1160,9 +1160,21 @@ bool CMaterialSystem::SetMode( void* hwnd, const MaterialSystem_Config_t &config
 		TextureManager()->RestoreNonRenderTargetTextures();
 		if ( MaterialSystem()->CanUseEditorMaterials() )
 		{
-			// We are in Hammer.  Allocate these here since we aren't going to allocate
-			// lightmaps.
-			MathLib_Init( GAMMA, TEXGAMMA, 0.0f, OVERBRIGHT );
+			TextureManager()->RestoreRenderTargets();
+			TextureManager()->RestoreNonRenderTargetTextures();
+			if ( MaterialSystem()->CanUseEditorMaterials() )
+			{
+				// We are in Hammer.  Allocate these here since we aren't going to allocate
+				// lightmaps.
+				// HACK!
+				// NOTE! : Overbright is 1.0 so that Hammer will work properly with the white bumped and unbumped lightmaps.
+				MathLib_Init( 2.2f, 2.2f, 0.0f, OVERBRIGHT );
+			}
+
+			AllocateStandardTextures();
+#ifndef BUILD_GMOD
+			TextureManager()->WarmTextureCache();
+#endif
 		}
 
 		AllocateStandardTextures();
@@ -2813,7 +2825,9 @@ void CMaterialSystem::RecomputeAllStateSnapshots()
 //-----------------------------------------------------------------------------
 void CMaterialSystem::SuspendTextureStreaming()
 {
+#ifndef BUILD_GMOD
 	TextureManager()->SuspendTextureStreaming();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2821,7 +2835,9 @@ void CMaterialSystem::SuspendTextureStreaming()
 //-----------------------------------------------------------------------------
 void CMaterialSystem::ResumeTextureStreaming()
 {
+#ifndef BUILD_GMOD
 	TextureManager()->ResumeTextureStreaming();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -3429,7 +3445,9 @@ void CMaterialSystem::EndFrame( void )
 
 	GetRenderContextInternal()->EndFrame();
 	   
+#ifndef BUILD_GMOD
 	TextureManager()->Update();
+#endif
 
 	while ( !m_scheduledComposites.IsEmpty() )
 	{
@@ -4451,7 +4469,9 @@ void CMaterialSystem::AsyncFindTexture( const char* pFilename, const char *pText
 	// Bump the ref count on the recipient before handing it off. This ensures the receiver won't go away before we have completed our work. 
 	pRecipient->AddRef();
 
+#ifndef BUILD_GMOD
 	TextureManager()->AsyncFindOrLoadTexture( pFilename, pTextureGroupName, pRecipient, pExtraArgs, bComplain, nAdditionalCreationFlags );
+#endif
 }
 
 // creates a texture suitable for use with materials from a raw stream of bits.
@@ -4468,12 +4488,18 @@ ITexture *CMaterialSystem::CreateNamedTextureFromBitsEx( const char* pName, cons
 bool CMaterialSystem::AddTextureCompositorTemplate( const char* pName, KeyValues* pTmplDesc, int /* nTexCompositeTemplateFlags */ )
 {
 	// Flags are currently unused, but added for futureproofing.
+#ifndef BUILD_GMOD
 	return TextureManager()->AddTextureCompositorTemplate( pName, pTmplDesc );
+#endif
+	return false;
 }
 
 bool CMaterialSystem::VerifyTextureCompositorTemplates()
 {
+#ifndef BUILD_GMOD
 	return TextureManager()->VerifyTextureCompositorTemplates();
+#endif
+	return false;
 }
 
 
@@ -5147,7 +5173,9 @@ void CMaterialSystem::OnRenderingAsyncComplete()
 	// while the async job is not running.
 	bool bThreadHadOwnership = m_bThreadHasOwnership;
 
+#ifndef BUILD_GMOD
 	TextureManager()->UpdatePostAsync();
+#endif
 
 	if ( bThreadHadOwnership && !m_bThreadHasOwnership )
 		ThreadAcquire( true );

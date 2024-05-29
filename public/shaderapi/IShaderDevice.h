@@ -184,7 +184,7 @@ public:
 // Methods related to control of the device
 //-----------------------------------------------------------------------------
 #define SHADER_DEVICE_INTERFACE_VERSION			"ShaderDevice001"
-abstract_class IShaderDevice
+abstract_class IShaderDevice // NOTE: This should work with Gmod.
 {
 public:
 	// Releases/reloads resources when other apps want some memory

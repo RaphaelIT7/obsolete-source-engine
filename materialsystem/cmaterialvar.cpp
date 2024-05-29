@@ -954,7 +954,9 @@ void CMaterialVar::SetTextureValue( ITexture *texture )
 	if ( ThreadInMainThread() && !IsTextureInternalEnvCubemap( static_cast<ITextureInternal*>( texture ) ) )
 	{
 		ITextureInternal* pTexInternal = assert_cast<ITextureInternal *>( texture );
+#ifndef BUILD_GMOD
 		TextureManager()->RequestAllMipmaps( pTexInternal );
+#endif
 	}
 
 	ASSERT_NOT_DUMMY_VAR();
