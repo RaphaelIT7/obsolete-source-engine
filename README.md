@@ -6,6 +6,7 @@ There is also the [gmod-improvements](https://github.com/RaphaelIT7/obsolete-sou
 
 List of dlls that are worked on:
 - `vstdlist.dll` (Everything was reverted.)
+- `studiorender.dll` (Only works with `studio_queue_mode`, BUG: pCallQueue->QueueCall causes a crash! `QUEUE_STUDIORENDER_CALL`)
 - `filesystem_stdio.dll` (Something broke and idk what)
 Progress:  
 - [ ] Update Steamworks
