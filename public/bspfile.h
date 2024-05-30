@@ -970,14 +970,18 @@ enum emittype_t
 
 // Flags for dworldlight_t::flags
 constexpr int DWL_FLAGS_INAMBIENTCUBE{0x0001};	// This says that the light was put into the per-leaf ambient cubes.;
-
-
+#ifdef BUILD_GMOD
+constexpr int DWL_FLAGS_CASTENTITYSHADOWS{0x0002};	// This says that the light will cast shadows from entities
+#endif
 struct dworldlight_t
 {
 	DECLARE_BYTESWAP_DATADESC();
 	Vector		origin;
 	Vector		intensity;
 	Vector		normal;			// for surfaces and spotlights
+#ifdef BUILD_GMOD
+	//Vector		shadow_cast_offset; // Verify this.
+#endif
 	int			cluster;
 	emittype_t	type;
     int			style;

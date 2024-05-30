@@ -1691,3 +1691,31 @@ void CMatQueuedRenderContext::ReadPixelsAndStretch( Rect_t *pSrcRect, Rect_t *pD
 	BeginRender();
 }
 
+#ifdef BUILD_GMOD
+void CMatQueuedRenderContext::GMOD_ForceFilterMode( bool forceFilter, int filterType )
+{
+	g_pShaderAPI->GMOD_ForceFilterMode( forceFilter, filterType );
+}
+
+void CMatQueuedRenderContext::GMOD_FlushQueue()
+{
+	// ToDo
+	// Flush stuff
+}
+
+void CMatQueuedRenderContext::OverrideBlend( bool bOverrideEnable, bool bUseSeparateAlpha, int iSrcBlend, int iDestBlend, int iBlendFunc )
+{
+	g_pShaderAPI->OverrideBlend( bOverrideEnable, bUseSeparateAlpha, iSrcBlend, iDestBlend, iBlendFunc );
+}
+
+void CMatQueuedRenderContext::OverrideBlendSeparateAlpha( bool bOverrideEnable, bool bUseSeparateAlpha, int iSrcBlend, int iDestBlend, int iBlendFunc )
+{
+	g_pShaderAPI->OverrideBlendSeparateAlpha( bOverrideEnable, bUseSeparateAlpha, iSrcBlend, iDestBlend, iBlendFunc );
+}
+
+bool CMatQueuedRenderContext::GMOD_IsLowOnMemory()
+{
+	// ToDo
+	return false;
+}
+#endif

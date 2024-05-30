@@ -1071,6 +1071,7 @@ public:
 		}
 	}
 
+#ifndef BUILD_GMOD
 	virtual void				SuspendTextureStreaming( )
 	{
 		if ( m_pRealMaterialSystem )
@@ -1082,6 +1083,7 @@ public:
 		if ( m_pRealMaterialSystem )
 			m_pRealMaterialSystem->ResumeTextureStreaming();
 	}
+#endif
 
 	// uncache all materials. .  good for forcing reload of materials.
 	virtual void				UncacheAllMaterials( )
@@ -2170,13 +2172,21 @@ public:
 
 	virtual IMatRenderContext *CreateRenderContext( MaterialContextType_t type )
 	{
+#ifdef BUILD_GMOD
+		return (IMatRenderContext *)this;
+#else
 		return RetAddRef( (IMatRenderContext *)this );
+#endif
 	}
 
 	virtual IMatRenderContext *SetRenderContext( IMatRenderContext *pContext )
 	{
+#ifdef BUILD_GMOD
+		return (IMatRenderContext *)this;
+#else
 		SafeRelease( pContext );
 		return RetAddRef( (IMatRenderContext *)this );
+#endif
 	}
 	virtual IVertexBuffer *		GetDynamicVertexBuffer( /*VertexFormat_t vertexFormat, */bool buffered = true )
 	{
@@ -2294,6 +2304,35 @@ public:
 		GetBackBufferDimensions( nWidth, nHeight );
 	}
 
+#ifdef BUILD_GMOD
+	virtual void				GMOD_FlushQueue( void )
+	{
+	}
+
+	virtual bool				GMOD_TextureExists( const char* pTextureName )
+	{
+		return true;
+	}
+
+	virtual bool				GMOD_IsMaterialMissing( const char* pMaterialName )
+	{
+		return false;
+	}
+
+	virtual IMaterial*			GMOD_GetErrorMaterial( void )
+	{
+		return NULL;
+	}
+
+	virtual void				GMOD_MarkMissing( const char* pMaterialName )
+	{
+	}
+
+	virtual void				GMOD_ClearMissing( bool unknown )
+	{
+	}
+#endif
+
 	virtual ITexture*			CreateTextureFromBits(int w, int h, int mips, ImageFormat fmt, int srcBufferSize, byte* srcBits)
 	{
 		return NULL;	
@@ -2339,6 +2378,25 @@ public:
 	{
 		return true;
 	}
+
+#ifdef BUILD_GMOD
+	virtual void GMOD_ForceFilterMode( bool, int )
+	{
+	}
+
+	virtual void OverrideBlend( bool, bool, int, int, int )
+	{
+	}
+
+	virtual void OverrideBlendSeparateAlpha( bool, bool, int, int, int )
+	{
+	}
+
+	virtual bool GMOD_IsLowOnMemory()
+	{
+		return false;
+	}
+#endif
 };
 
 

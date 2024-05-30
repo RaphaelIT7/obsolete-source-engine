@@ -590,6 +590,16 @@ public:
 private:
 	void									OnRenderingAsyncComplete();
 
+#ifdef BUILD_GMOD
+public: // GMOD
+	virtual void				GMOD_FlushQueue( void );
+	virtual bool				GMOD_TextureExists( const char* pTextureName );
+	virtual bool				GMOD_IsMaterialMissing( const char* pMaterialName );
+	virtual IMaterial*			GMOD_GetErrorMaterial( void );
+	virtual void				GMOD_MarkMissing( const char* pMaterialName );
+	virtual void				GMOD_ClearMissing( bool unknown );
+#endif
+
 	// -----------------------------------------------------------
 private:
 	CON_COMMAND_MEMBER_F( CMaterialSystem, "mat_showmaterials", DebugPrintUsedMaterials, "Show materials.", 0 );

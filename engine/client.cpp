@@ -1800,7 +1800,9 @@ void CClientState::FinishSignonState_New()
 
 	// We're going to force-touch a lot of textures and resources below, we don't want the streaming system to try and
 	// pull these in as if they were being used for normal rendering.
+#ifndef BUILD_GMOD
 	materials->SuspendTextureStreaming();
+#endif
 
 	// Only do this if our server is shut down and we're acting as a client. Otherwise the server handles this when it
 	// starts the load.
@@ -1858,7 +1860,9 @@ void CClientState::FinishSignonState_New()
 	R_LevelInit();
 
 	// Balanced against SuspendTextureStreaming above
+#ifndef BUILD_GMOD
 	materials->ResumeTextureStreaming();
+#endif
 
 	EngineVGui()->UpdateProgressBar(PROGRESS_SENDCLIENTINFO);
 	if ( !m_NetChannel )

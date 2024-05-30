@@ -1342,8 +1342,10 @@ private:
 		#endif
 #endif
 
+#ifndef BUILD_GMOD
 		CMatRenderContextPtr pRenderContext( materials );
 		pRenderContext->AsyncCreateTextureFromRenderTarget( GetFirstChild()->GetResult().m_pRenderTarget, buffer, fmt, bGenMipmaps, nCreateFlags, this, NULL );
+#endif
 
 		SetResolveStatus( ECRS_PendingComposites );
 		// Don't clean up here just yet, we'll get cleaned up when the composite is totally complete.

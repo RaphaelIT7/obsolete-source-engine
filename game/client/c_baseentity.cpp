@@ -3630,6 +3630,7 @@ void C_BaseEntity::AddStudioDecal( const Ray_t& ray, int hitbox, int decalIndex,
 	}
 }
 
+#ifndef BUILD_GMOD
 //-----------------------------------------------------------------------------
 void C_BaseEntity::AddColoredStudioDecal( const Ray_t& ray, int hitbox, int decalIndex, 
 	bool doTrace, trace_t& tr, Color cColor, int maxLODToDecal )
@@ -3671,11 +3672,12 @@ void C_BaseEntity::AddColoredStudioDecal( const Ray_t& ray, int hitbox, int deca
 		modelrender->AddColoredDecal( m_ModelInstance, ray, up, decalIndex, GetStudioBody(), cColor, false, maxLODToDecal );
 	}
 }
-
+#endif
 
 //-----------------------------------------------------------------------------
 // This method works when we've got a brush model
 //-----------------------------------------------------------------------------
+// Raphael: This function doesn't exist in Gmod. Remove it later.
 void C_BaseEntity::AddBrushModelDecal( const Ray_t& ray, const Vector& decalCenter, 
 									  int decalIndex, bool doTrace, trace_t& tr )
 {
@@ -3689,7 +3691,6 @@ void C_BaseEntity::AddBrushModelDecal( const Ray_t& ray, const Vector& decalCent
 	effects->DecalShoot( decalIndex, index, 
 		model, GetAbsOrigin(), GetAbsAngles(), decalCenter, 0, 0 );
 }
-
 
 //-----------------------------------------------------------------------------
 // A method to apply a decal to an entity
@@ -3722,6 +3723,9 @@ void C_BaseEntity::AddDecal( const Vector& rayStart, const Vector& rayEnd,
 	}
 }
 
+//#ifndef BUILD_GMOD
+// ToDo: Remove this function Later. And look into IVEfx -> `effects->DecalColorShoot`
+// NOTE: Colored decals doesn't seem to exist in GMod -> No function for it.
 //-----------------------------------------------------------------------------
 void C_BaseEntity::AddColoredDecal( const Vector& rayStart, const Vector& rayEnd,
 	const Vector& decalCenter, int hitbox, int decalIndex, bool doTrace, trace_t& tr, Color cColor, int maxLODToDecal )
@@ -3755,7 +3759,7 @@ void C_BaseEntity::AddColoredDecal( const Vector& rayStart, const Vector& rayEnd
 	switch ( modelType )
 	{
 	case mod_studio:
-		AddColoredStudioDecal( ray, hitbox, decalIndex, doTrace, tr, cColor, maxLODToDecal );
+		//AddColoredStudioDecal( ray, hitbox, decalIndex, doTrace, tr, cColor, maxLODToDecal );
 		break;
 
 	case mod_brush:
@@ -3771,6 +3775,7 @@ void C_BaseEntity::AddColoredDecal( const Vector& rayStart, const Vector& rayEnd
 		break;
 	}
 }
+//#endif
 
 //-----------------------------------------------------------------------------
 // A method to remove all decals from an entity

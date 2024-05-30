@@ -36,7 +36,6 @@
 #include "tier0/vprof.h"
 #include "r_decal.h"
 #include "vstdlib/random.h"
-#include "datacache/idatacache.h"
 #include "materialsystem/materialsystem_config.h"
 #include "materialsystem/itexture.h"
 #include "IHammer.h"
@@ -837,10 +836,13 @@ public:
 	// radius of the decal to create.
 	virtual void AddDecal( ModelInstanceHandle_t handle, Ray_t const& ray, 
 		const Vector& decalUp, int decalIndex, int body, bool noPokethru = false, int maxLODToDecal = ADDDECAL_TO_ALL_LODS );
+
+#ifndef BUILD_GMOD
 	virtual void AddColoredDecal( ModelInstanceHandle_t handle, Ray_t const& ray, 
 		const Vector& decalUp, int decalIndex, int body, Color cColor, bool noPokethru = false, int maxLODToDecal = ADDDECAL_TO_ALL_LODS );
 	
 	virtual void GetMaterialOverride( IMaterial** ppOutForcedMaterial, OverrideType_t* pOutOverrideType );
+#endif
 
 	// Removes all the decals on a model instance
 	virtual void RemoveAllDecals( ModelInstanceHandle_t handle );
@@ -877,7 +879,13 @@ public:
 	bool Init();
 	void Shutdown();
 
+#ifdef BUILD_GMOD
+	virtual void GMODAddDecal( ModelInstanceHandle_t handle, Vector const& decalPos, Vector const& decalUp, IMaterial* mat, int body, float unknown1, float unknown2 );
+	virtual bool GetBrightestShadowingLightSource( const Vector& vecCenter, Vector& lightPos, Vector& lightBrightness, bool bAllowNonTaggedLights );
+	virtual bool GetItemName( DataCacheClientID_t clientId, const void *pItem, char *pDest, unsigned nMaxLen );
+#else
 	bool GetItemName( DataCacheClientID_t clientId, const void *pItem, char *pDest, unsigned nMaxLen );
+#endif
 
 	struct staticPropAsyncContext_t
 	{
@@ -4639,6 +4647,7 @@ void CModelRender::AddDecal( ModelInstanceHandle_t handle, Ray_t const& ray,
 	AddDecalInternal( handle, ray, decalUp, decalIndex, body, false, cColorTemp, noPokeThru, maxLODToDecal );
 }
 
+#ifndef BUILD_GMOD
 //-----------------------------------------------------------------------------
 void CModelRender::AddColoredDecal( ModelInstanceHandle_t handle, Ray_t const& ray,
 	const Vector& decalUp, int decalIndex, int body, Color cColor, bool noPokeThru, int maxLODToDecal )
@@ -4651,6 +4660,7 @@ void CModelRender::GetMaterialOverride( IMaterial** ppOutForcedMaterial, Overrid
 {
 	g_pStudioRender->GetMaterialOverride( ppOutForcedMaterial, pOutOverrideType );
 }
+#endif
 
 //-----------------------------------------------------------------------------
 void CModelRender::AddDecalInternal( ModelInstanceHandle_t handle, Ray_t const& ray, 
@@ -5035,3 +5045,84 @@ static void CreateLightmapsFromData(CColorMeshData* _colorMeshData)
 
 	_colorMeshData->m_bColorTextureCreated = true;
 }
+
+#ifdef BUILD_GMOD
+void CModelRender::GMODAddDecal( ModelInstanceHandle_t handle, Vector const& decalPos, Vector const& decalUp, IMaterial* mat, int body, float unknown1, float unknown2 )
+{
+	Assert(0); // ToDo
+}
+
+bool CModelRender::GetBrightestShadowingLightSource( const Vector &vecCenter, Vector& lightPos, Vector& lightBrightness, bool bAllowNonTaggedLights )
+{
+#ifndef DEDICATED
+	LightcacheGetDynamic_Stats stats;
+	LightingState_t state;
+
+	// FIXME: Workaround for local lightsource shadows bouncing on the 360. For some reason passing in a slightly different vecCenter causes the
+	// lightcache lookup to return different leaves from CM_PointLeafnum(). In turn, one of these leaves has an empty vis set so that no lights
+	// are found touching that leaf, leading to an empty lightcache entry. This causes a local light source shadow to pick the global shadow direction.
+	Vector vc( vecCenter );
+	vc.x = floor( 100.0f * vc.x + 0.5f ) / 100.0f;
+	vc.y = floor( 100.0f * vc.y + 0.5f ) / 100.0f;
+	vc.z = floor( 100.0f * vc.z + 0.5f ) / 100.0f;
+
+	LightcacheGetDynamic( vc, state, stats, NULL, LIGHTCACHEFLAGS_STATIC );	// static light only for now
+	Assert( state.numlights >= 0 && state.numlights <= MAXLOCALLIGHTS );
+
+	float fMaxBrightness = 0.0f;
+	float fLightFalloff = 0.0f;
+	int nLightIdx = -1;
+
+	static Vector colorToGray( 0.3f, 0.59f, 0.11f );
+
+	for ( int i = 0; i < state.numlights; ++i )
+	{
+		if ( ( state.locallight[i]->flags & DWL_FLAGS_CASTENTITYSHADOWS ) || bAllowNonTaggedLights )
+		{
+			//Vector lightOrigin = state.locallight[i]->origin + state.locallight[i]->shadow_cast_offset;
+			Vector lightOrigin = state.locallight[i]->origin;
+			if ( lightOrigin.z < vecCenter.z )
+			{
+				// don't cast shadows from below 'cause it looks stupid with an orthographic projection
+				continue;
+			}
+
+			float fBrightness = DotProduct( state.locallight[i]->intensity, colorToGray );
+			if ( fBrightness <= fMaxBrightness )
+			{
+				continue;
+			}
+
+			// Apply lightstyle?
+			//float scale = LightStyleValue( pState->locallight[i]->style );
+
+			// use the unmodified light origin to compute light brightness
+			Vector delta( state.locallight[i]->origin - vecCenter );
+			float fFalloff = Engine_WorldLightDistanceFalloff( state.locallight[i], delta, false );
+			if ( fBrightness*fFalloff <= fMaxBrightness )
+			{
+				continue;
+			}
+
+			delta.NormalizeInPlace();
+			fFalloff *= Engine_WorldLightAngle( state.locallight[i], state.locallight[i]->normal, delta, delta );
+			if ( fBrightness*fFalloff > fMaxBrightness )
+			{
+				nLightIdx = i;
+				fMaxBrightness = fBrightness * fFalloff;
+				fLightFalloff = fFalloff;
+			}
+		}
+	}
+
+	if ( nLightIdx > -1 )
+	{
+		//lightPos = state.locallight[nLightIdx]->origin + state.locallight[nLightIdx]->shadow_cast_offset;
+		lightPos = state.locallight[nLightIdx]->origin;
+		lightBrightness = fLightFalloff * state.locallight[nLightIdx]->intensity;
+		return true;
+	}
+#endif // DEDICATED
+	return false;
+}
+#endif

@@ -358,8 +358,10 @@ public:
 	virtual void TraceRayAgainstStaticProp( const Ray_t& ray, int staticPropIndex, trace_t& tr );
 	virtual void AddDecalToStaticProp( Vector const& rayStart, Vector const& rayEnd,
 		int staticPropIndex, int decalIndex, bool doTrace, trace_t& tr );
+#ifndef BUILD_GMOD
 	virtual void AddColorDecalToStaticProp( Vector const& rayStart, Vector const& rayEnd,
 		int staticPropIndex, int decalIndex, bool doTrace, trace_t& tr, bool bUseColor, Color cColor );
+#endif
 	virtual void AddShadowToStaticProp( unsigned short shadowHandle, IClientRenderable* pRenderable );
 	virtual void RemoveAllShadowsFromStaticProp( IClientRenderable* pRenderable );
 	virtual void GetStaticPropMaterialColorAndLighting( trace_t* pTrace,
@@ -2225,10 +2227,58 @@ void CStaticPropMgr::TraceRayAgainstStaticProp( const Ray_t& ray, int staticProp
 void CStaticPropMgr::AddDecalToStaticProp( Vector const& rayStart, Vector const& rayEnd,
 										  int staticPropIndex, int decalIndex, bool doTrace, trace_t& tr )
 {
+#ifdef BUILD_GMOD
+	#ifndef SWDS
+	// Invalid static prop? Blow it off! 
+	if (staticPropIndex >= m_StaticProps.Size())
+	{
+		memset( &tr, 0, sizeof(trace_t) );
+		tr.fraction = 1.0f;
+		return;
+	}
+
+	Ray_t ray;
+	ray.Init( rayStart, rayEnd );
+	if (doTrace)
+	{
+		// Trace the ray against the prop
+		TraceRayAgainstStaticProp( ray, staticPropIndex, tr );
+		if (tr.fraction == 1.0f)
+			return;
+	}
+
+	if ( !r_drawmodeldecals.GetInt() )
+		return;
+
+	// Get the prop
+	CStaticProp& prop = m_StaticProps[staticPropIndex];
+
+	// Found the point, now lets apply the decals
+	Assert( prop.GetModelInstance() != MODEL_INSTANCE_INVALID );
+
+	// Choose a new ray along which to project the decal based on
+	// surface normal. This prevents decal skewing
+	bool noPokethru = false;
+	if (doTrace && (prop.GetSolid() == SOLID_VPHYSICS) && !tr.startsolid && !tr.allsolid)
+	{
+		Vector temp;
+		VectorSubtract( tr.endpos, tr.plane.normal, temp );
+		ray.Init( tr.endpos, temp );
+		noPokethru = true;
+	}
+
+	// FIXME: Pass in decal up?
+	// FIXME: What to do about the body parameter?
+	Vector up(0, 0, 1);
+	modelrender->AddDecal( prop.GetModelInstance(), ray, up, decalIndex, 0, noPokethru );
+#endif
+#else
 	Color tempColor( 255, 255, 255 );
 	AddColorDecalToStaticProp( rayStart, rayEnd, staticPropIndex, decalIndex, doTrace, tr, false, tempColor );
+#endif
 }
 
+#ifndef BUILD_GMOD
 //-----------------------------------------------------------------------------
 void CStaticPropMgr::AddColorDecalToStaticProp( Vector const& rayStart, Vector const& rayEnd,
 	int staticPropIndex, int decalIndex, bool doTrace, trace_t& tr, bool bUseColor, Color cColor )
@@ -2286,6 +2336,8 @@ void CStaticPropMgr::AddColorDecalToStaticProp( Vector const& rayStart, Vector c
 	
 #endif
 }
+#endif
+
 //-----------------------------------------------------------------------------
 // Adds/removes shadows from static props
 //-----------------------------------------------------------------------------

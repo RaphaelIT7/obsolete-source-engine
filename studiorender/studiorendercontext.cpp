@@ -1950,6 +1950,7 @@ void CStudioRenderContext::ForcedMaterialOverride( IMaterial *newMaterial, Overr
 	m_RC.m_nForcedMaterialType = nOverrideType;
 }
 
+#ifndef BUILD_GMOD
 //-----------------------------------------------------------------------------
 // Return the material overrides
 //-----------------------------------------------------------------------------
@@ -1959,6 +1960,7 @@ void CStudioRenderContext::GetMaterialOverride( IMaterial** ppOutForcedMaterial,
 	*ppOutForcedMaterial = m_RC.m_pForcedMaterial;
 	*pOutOverrideType = m_RC.m_nForcedMaterialType;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Sets the view state
@@ -2451,4 +2453,38 @@ IMaterial* GetModelSpecificDecalMaterial( IMaterial* pDecalMaterial )
 	return pDecalMaterial;
 }
 
+#ifdef BUILD_GMOD
+void CStudioRenderContext::GMOD_ModelMaterialOverride( IMaterial* mat )
+{
+	VPROF("CStudioRenderContext::GMOD_ModelMaterialOverride"); // Group GMOD
 
+	// Using g_GMOD_ModelMaterial
+	Assert(0);
+}
+
+void CStudioRenderContext::GMOD_ForcedMaterialOverrideByIndex( int index, IMaterial* mat, char unknown )
+{
+	VPROF("CStudioRenderContext::GMOD_ForcedMaterialOverrideByIndex"); // Group GMOD
+
+	Assert(0);
+}
+
+void CStudioRenderContext::GMOD_ResetMaterialOverridesByIndex( )
+{
+	VPROF("CStudioRenderContext::GMOD_ResetMaterialOverridesByIndex"); // Group GMOD
+
+	Assert(0);
+}
+
+int CStudioRenderContext::GMOD_MeshOverrideCount( int unknown )
+{
+	Assert(0);
+	return 0;
+}
+
+void CStudioRenderContext::GMOD_MeshOverride( int unknown, IMesh* mesh, IMaterial* mat, VMatrix matrix )
+{
+	// Magic
+	Assert(0);
+}
+#endif
