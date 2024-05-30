@@ -70,7 +70,11 @@ typedef uint64 VertexFormat_t;
 // V081 - 10/25/2016 - Added new Suspend/Resume texture streaming interfaces. Might also have added more calls here due
 //                     to the streaming work that didn't get bumped, but we're not guarding versions on the TF branch
 //                     very judiciously since we need to audit them when merging to SDK branch either way.
+#ifdef BUILD_GMOD
+#define MATERIAL_SYSTEM_INTERFACE_VERSION "VMaterialSystem080"
+#else
 #define MATERIAL_SYSTEM_INTERFACE_VERSION "VMaterialSystem081"
+#endif
 
 #ifdef POSIX
 #define ABSOLUTE_MINIMUM_DXLEVEL 90
@@ -641,7 +645,7 @@ public:
 	virtual bool				OverrideConfig( const MaterialSystem_Config_t &config, bool bForceUpdate ) = 0;
 
 	// Get the current config for this video card (as last set by UpdateConfig)
-	virtual const MaterialSystem_Config_t &GetCurrentConfigForVideoCard() const = 0;
+	virtual const MaterialSystem_Config_t &GetCurrentConfigForVideoCard() const = 0; // Raphael: MaterialSystem_Config_t could potentially be invalid. check it later.
 
 	// Gets *recommended* configuration information associated with the display card, 
 	// given a particular dx level to run under. 
@@ -816,10 +820,12 @@ public:
 	// Material and texture management
 	//---------------------------------------------------------
 
+#ifndef BUILD_GMOD
 	// Stop attempting to stream in textures in response to usage.  Useful for phases such as loading or other explicit
 	// operations that shouldn't take usage of textures as a signal to stream them in at full rez.
 	virtual void				SuspendTextureStreaming( ) = 0;
 	virtual void				ResumeTextureStreaming( ) = 0;
+#endif
 
 	// uncache all materials. .  good for forcing reload of materials.
 	virtual void				UncacheAllMaterials( ) = 0;
@@ -1025,11 +1031,13 @@ public:
 
 	virtual bool				SupportsFetch4( void ) = 0;
 
+#ifndef BUILD_GMOD
 	// Create a custom render context. Cannot be used to create MATERIAL_HARDWARE_CONTEXT
 	virtual IMatRenderContext *CreateRenderContext( MaterialContextType_t type ) = 0;
 
 	// Set a specified render context to be the global context for the thread. Returns the prior context.
 	virtual IMatRenderContext *SetRenderContext( IMatRenderContext * ) = 0;
+#endif
 
 	virtual bool				SupportsCSAAMode( int nNumSamples, int nQualityLevel ) = 0;
 
@@ -1067,15 +1075,29 @@ public:
 	virtual void				DoStartupShaderPreloading( void ) = 0;
 #endif	
 
+#ifndef BUILD_GMOD
 	// Sets the override sizes for all render target size tests. These replace the frame buffer size.
 	// Set them when you are rendering primarily to something larger than the frame buffer (as in VR mode).
 	virtual void				SetRenderTargetFrameBufferSizeOverrides( int nWidth, int nHeight ) = 0;
 
 	// Returns the (possibly overridden) framebuffer size for render target sizing.
 	virtual void				GetRenderTargetFrameBufferDimensions( int & nWidth, int & nHeight ) = 0;
+#endif
 
 	// returns the display device name that matches the adapter index we were started with
 	virtual char *GetDisplayDeviceName() const = 0;
+
+#ifdef BUILD_GMOD
+	virtual void				GMOD_FlushQueue( void ) = 0;
+	virtual bool				GMOD_TextureExists( const char* pTextureName ) = 0;
+	virtual bool				GMOD_IsMaterialMissing( const char* pMaterialName ) = 0;
+	virtual IMaterial*			GMOD_GetErrorMaterial( void ) = 0;
+	virtual void				GMOD_MarkMissing( const char* pMaterialName ) = 0;
+	virtual void				GMOD_ClearMissing( bool unknown ) = 0;
+
+	virtual void				SetRenderTargetFrameBufferSizeOverrides( int nWidth, int nHeight ) = 0; // Remove these later. Let me compile for now.
+	virtual void				GetRenderTargetFrameBufferDimensions( int & nWidth, int & nHeight ) = 0;
+#endif // Raphael: (ToDo) Remove all functions(Except CreateTextureFromBits & CreateNamedTextureFromBitsEx) below when trying to make the Materialsystem compatible.
 
 	// creates a texture suitable for use with materials from a raw stream of bits.
 	// The bits will be retained by the material system and can be freed upon return.
@@ -1111,7 +1133,11 @@ public:
 //-----------------------------------------------------------------------------
 // 
 //-----------------------------------------------------------------------------
+#ifdef BUILD_GMOD
+abstract_class IMatRenderContext
+#else
 abstract_class IMatRenderContext : public IRefCounted
+#endif
 {
 public:
 	virtual void				BeginRender() = 0;
@@ -1462,8 +1488,8 @@ public:
 	virtual void DrawBatch(int firstIndex, int numIndices ) = 0;
 	virtual void EndBatch() = 0;
 
-	// Raw access to the call queue, which can be nullptr if not in a queued mode
-	virtual ICallQueue *GetCallQueue() = 0;
+	// Raw access to the call queue, which can be NULL if not in a queued mode
+	virtual ICallQueue *GetCallQueue() = 0; // Raphael: (ToDo) Verify ICallQueue later. If I remember correctly it was different.
 
 	// Returns the world-space camera position
 	virtual void GetWorldSpaceCameraPosition( Vector *pCameraPos ) = 0;
@@ -1567,10 +1593,17 @@ public:
 
 	virtual void ClearBuffersObeyStencilEx( bool bClearColor, bool bClearAlpha, bool bClearDepth ) = 0;
 
+#ifdef BUILD_GMOD
+	virtual void GMOD_ForceFilterMode( bool, int ) = 0;
+	virtual void GMOD_FlushQueue() = 0;
+	virtual void OverrideBlend( bool, bool, int, int, int ) = 0;
+	virtual void OverrideBlendSeparateAlpha( bool, bool, int, int, int ) = 0;
+#else
 	// Create a texture from the specified src render target, then call pRecipient->OnAsyncCreateComplete from the main thread.
 	// The texture will be created using the destination format, and will optionally have mipmaps generated.
 	// In case of error, the provided callback function will be called with the error texture.
 	virtual void AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, const char* pDstName, ImageFormat dstFmt, bool bGenMips, int nAdditionalCreationFlags, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) = 0;
+#endif
 };
 
 template< class E > inline E* IMatRenderContext::LockRenderDataTyped( int nCount, const E* pSrcData )
@@ -1759,9 +1792,15 @@ inline const E& CMatRenderData<E>::operator[]( int i ) const
 
 //-----------------------------------------------------------------------------
 
+#ifdef BUILD_GMOD
+class CMatRenderContextPtr : public CBaseAutoPtr<IMatRenderContext>
+{
+	typedef CBaseAutoPtr<IMatRenderContext> BaseClass;
+#else
 class CMatRenderContextPtr : public CRefPtr<IMatRenderContext>
 {
 	typedef CRefPtr<IMatRenderContext> BaseClass;
+#endif
 public:
 	CMatRenderContextPtr() = default;
 	CMatRenderContextPtr( IMatRenderContext *pInit )			: BaseClass( pInit )						{ if ( BaseClass::m_pObject ) BaseClass::m_pObject->BeginRender(); }
@@ -1770,8 +1809,13 @@ public:
 
 	IMatRenderContext *operator=( IMatRenderContext *p )		{ if ( p ) p->BeginRender(); return BaseClass::operator=( p ); }
 
+#ifdef BUILD_GMOD
+	void SafeRelease()											{ if ( BaseClass::m_pObject ) BaseClass::m_pObject->EndRender(); }
+	void AssignAddRef( IMatRenderContext *pFrom )				{ if ( BaseClass::m_pObject ) BaseClass::m_pObject->EndRender(); BaseClass::m_pObject->BeginRender(); }
+#else
 	void SafeRelease()											{ if ( BaseClass::m_pObject ) BaseClass::m_pObject->EndRender(); BaseClass::SafeRelease(); }
 	void AssignAddRef( IMatRenderContext *pFrom )				{ if ( BaseClass::m_pObject ) BaseClass::m_pObject->EndRender(); BaseClass::AssignAddRef( pFrom ); BaseClass::m_pObject->BeginRender(); }
+#endif
 
 	void GetFrom( IMaterialSystem *pFrom )						{ AssignAddRef( pFrom->GetRenderContext() ); }
 

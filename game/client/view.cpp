@@ -1196,7 +1196,9 @@ void CViewRender::Render( vrect_t *rect )
 		    CMatRenderContextPtr pRenderContext( materials );
 		    pRenderContext->ClearColor3ub( rand()%256, rand()%256, rand()%256 );
 		    pRenderContext->ClearBuffers( true, false, false );
-		    pRenderContext->Release();
+#ifndef BUILD_GMOD
+		    pRenderContext->SafeRelease();
+#endif
 	    }
 	    else if ( gl_clear.GetBool() )
 	    {

@@ -704,6 +704,7 @@ public:
 		AssertMsg( 0, "CMatNullRenderContext only provides base features, not a stub (right now)" );
 	}
 
+#ifndef BUILD_GMOD
 	void AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, const char* pDstName, ImageFormat dstFmt, bool bGenMips, int nAdditionalCreationFlags, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) OVERRIDE
 	{
 		AssertMsg( 0, "CMatNullRenderContext only provides base features, not a stub (right now)" );
@@ -723,6 +724,7 @@ public:
 	{
 
 	}
+#endif
 
 	void SetShadowDepthBiasFactors( float fSlopeScaleDepthBias, float fDepthBias )
 	{
@@ -835,7 +837,17 @@ public:
 	void									DoStartupShaderPreloading( void ) {};
 #endif
 
+#ifndef BUILD_GMOD
 	void									TextureManagerUpdate( void ) { }
+#endif
+
+#ifdef BUILD_GMOD
+	virtual void GMOD_ForceFilterMode( bool, int ) { };
+	virtual void GMOD_FlushQueue() { };
+	virtual void OverrideBlend( bool, bool, int, int, int ) { };
+	virtual void OverrideBlendSeparateAlpha( bool, bool, int, int, int ) { };
+	virtual bool GMOD_IsLowOnMemory() { return false; }
+#endif
 
 	int m_WidthBackBuffer, m_HeightBackBuffer;
 };

@@ -922,7 +922,11 @@ IMatRenderContext *CMaterialSystem::GetRenderContext()
 		pResult = &m_HardwareRenderContext;
 		m_pRenderContext.Set( &m_HardwareRenderContext );
 	}
+#ifdef BUILD_GMOD
+	return pResult;
+#else
 	return RetAddRef( pResult ); 
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -964,7 +968,9 @@ IMatRenderContext *CMaterialSystem::SetRenderContext( IMatRenderContext *pNewCon
 	IMatRenderContext *pOldContext = m_pRenderContext.Get();
 	if ( pNewContext ) //-V1051
 	{
+#ifndef BUILD_GMOD
 		pNewContext->AddRef();
+#endif
 		m_pRenderContext.Set( assert_cast<IMatRenderContextInternal *>(pNewContext) );
 	}
 	else
@@ -5272,3 +5278,39 @@ static int ReadListFromFile(CUtlVector<char*>* outReplacementMaterials, const ch
 
 	return outReplacementMaterials->Count();
 }
+
+#ifdef BUILD_GMOD
+void CMaterialSystem::GMOD_FlushQueue()
+{
+	//DevWarning("Render queue too large, flushing! (This is super slow you shouldn't render so much stuff.)");
+	Assert(0);
+}
+
+bool CMaterialSystem::GMOD_TextureExists( const char* pTextureName )
+{
+	Assert(0);
+	return false;
+}
+
+bool CMaterialSystem::GMOD_IsMaterialMissing( const char* pMaterialName )
+{
+	Assert(0);
+	return false;
+}
+
+IMaterial* CMaterialSystem::GMOD_GetErrorMaterial()
+{
+	Assert(0);
+	return nullptr;
+}
+
+void CMaterialSystem::GMOD_MarkMissing( const char* pMaterialName )
+{
+	Assert(0);
+}
+
+void CMaterialSystem::GMOD_ClearMissing( bool unknown )
+{
+	Assert(0);
+}
+#endif

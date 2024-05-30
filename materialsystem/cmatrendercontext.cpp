@@ -1113,12 +1113,12 @@ void CMatRenderContext::DoStartupShaderPreloading( void )
 }
 #endif
 
+#ifndef BUILD_GMOD
 void CMatRenderContext::TextureManagerUpdate()
 {
-#ifndef BUILD_GMOD
 	TextureManager()->Update();
-#endif
 }
+#endif
 
 
 inline IMaterialInternal *CMatRenderContext::GetMaterialInternal( MaterialHandle_t h ) const
@@ -3016,6 +3016,7 @@ bool CMatRenderContext::OnDrawMesh( IMesh *pMesh, CPrimList *pLists, int nLists 
 	return true;
 }
 
+#ifndef BUILD_GMOD
 void CMatRenderContext::AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, const char* pDstName, ImageFormat dstFmt, bool bGenMips, int nAdditionalCreationFlags, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs )
 {
 	if ( g_pMaterialSystem->GetThreadMode() == MATERIAL_SINGLE_THREADED ) 
@@ -3023,9 +3024,7 @@ void CMatRenderContext::AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, co
 		OnAsyncCreateTextureFromRenderTarget( pSrcRt, &pDstName, pRecipient );
 	}
 
-#ifndef BUILD_GMOD
 	TextureManager()->AsyncCreateTextureFromRenderTarget( pSrcRt, pDstName, dstFmt, bGenMips, nAdditionalCreationFlags, pRecipient, pExtraArgs );
-#endif
 }
 
 void CMatRenderContext::AsyncMap( ITextureInternal* pTexToMap, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs )
@@ -3038,9 +3037,7 @@ void CMatRenderContext::AsyncMap( ITextureInternal* pTexToMap, IAsyncTextureOper
 	void* pMemory = NULL;
 	int nPitch = NULL;
 
-#ifndef BUILD_GMOD
 	pTexToMap->Map( &pMemory, &nPitch );
-#endif
 
 	pRecipient->OnAsyncMapComplete( pTexToMap, pExtraArgs, pMemory, nPitch );
 
@@ -3056,9 +3053,7 @@ void CMatRenderContext::AsyncUnmap( ITextureInternal* pTexToUnmap )
 		OnAsyncUnmap( pTexToUnmap );
 	}
 
-#ifndef BUILD_GMOD
 	pTexToUnmap->Unmap();
-#endif
 	SafeRelease( &pTexToUnmap ); // Matches AddRef from OnAsyncUnmap
 }
 
@@ -3069,15 +3064,14 @@ void CMatRenderContext::AsyncCopyRenderTargetToStagingTexture( ITexture* pDst, I
 		OnAsyncCopyRenderTargetToStagingTexture( pDst, pSrc, pRecipient );
 	}
 
-#ifndef BUILD_GMOD
 	pSrc->CopyToStagingTexture( pDst );
-#endif
 	pRecipient->OnAsyncReadbackBegin( pDst, pSrc, pExtraArgs );
 
 	SafeRelease( &pDst );
 	SafeRelease( &pSrc );
 	SafeRelease( &pRecipient );
 }
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -3160,3 +3154,24 @@ float	CMatRenderContext::Knob( char *knobname, float *setvalue )
 	#endif
 }
 
+#ifdef BUILD_GMOD
+void CMatRenderContext::GMOD_ForceFilterMode( bool forceFilter, int filterType )
+{
+	g_pShaderAPI->GMOD_ForceFilterMode( forceFilter, filterType );
+}
+
+void CMatRenderContext::GMOD_FlushQueue()
+{
+	// Nothing?
+}
+
+void CMatRenderContext::OverrideBlend( bool bOverrideEnable, bool bUseSeparateAlpha, int iSrcBlend, int iDestBlend, int iBlendFunc )
+{
+	g_pShaderAPI->OverrideBlend( bOverrideEnable, bUseSeparateAlpha, iSrcBlend, iDestBlend, iBlendFunc );
+}
+
+void CMatRenderContext::OverrideBlendSeparateAlpha( bool bOverrideEnable, bool bUseSeparateAlpha, int iSrcBlend, int iDestBlend, int iBlendFunc )
+{
+	g_pShaderAPI->OverrideBlendSeparateAlpha( bOverrideEnable, bUseSeparateAlpha, iSrcBlend, iDestBlend, iBlendFunc );
+}
+#endif

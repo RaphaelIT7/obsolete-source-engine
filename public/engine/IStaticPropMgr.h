@@ -79,8 +79,10 @@ public:
 	//===================================================================
 
 	virtual void DrawStaticProps( IClientRenderable **pProps, int count, bool bShadowDepth, bool drawVCollideWireframe ) = 0;
+#ifndef BUILD_GMOD
 	virtual void AddColorDecalToStaticProp( Vector const& rayStart, Vector const& rayEnd,
 		int staticPropIndex, int decalIndex, bool doTrace, trace_t& tr, bool bUseColor, Color cColor ) = 0;
+#endif
 };
 
 class IStaticPropMgrServer : public IStaticPropMgr

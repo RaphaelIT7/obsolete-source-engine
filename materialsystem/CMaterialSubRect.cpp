@@ -89,7 +89,7 @@ public:
 	void				ArtificialRelease();
 
 #ifdef BUILD_GMOD
-	virtual bool			GMOD_Persist() {return true;}
+	virtual bool			GMOD_Persist() { return true; }
 #endif
 
 	//=============================

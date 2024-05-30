@@ -536,12 +536,13 @@ public:
 	DELEGATE_TO_OBJECT_0V(					BeginFrame, g_pShaderAPI );
 	DELEGATE_TO_OBJECT_0V(					EndFrame, g_pShaderAPI );
 
+#ifndef BUILD_GMOD
 	virtual void							AsyncCreateTextureFromRenderTarget( ITexture* pSrcRt, const char* pDstName, ImageFormat dstFmt, bool bGenMips, int nAdditionalCreationFlags, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs );
 
 	virtual void							AsyncMap( ITextureInternal* pTexToMap, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) OVERRIDE;
 	virtual void							AsyncUnmap( ITextureInternal* pTexToUnmap ) OVERRIDE;
 	virtual void							AsyncCopyRenderTargetToStagingTexture( ITexture* pDst, ITexture* pSrc, IAsyncTextureOperationReceiver* pRecipient, void* pExtraArgs ) OVERRIDE;
-
+#endif
 
 
 	void							BeginMorphAccumulation() override;
@@ -586,7 +587,14 @@ public:
 	void									DoStartupShaderPreloading( void );
 #endif
 
+#ifndef BUILD_GMOD
 	virtual void							TextureManagerUpdate();
+#else
+	virtual void GMOD_ForceFilterMode( bool, int );
+	virtual void GMOD_FlushQueue();
+	virtual void OverrideBlend( bool, bool, int, int, int );
+	virtual void OverrideBlendSeparateAlpha( bool, bool, int, int, int );
+#endif
 
 	//---------------------------------------------------------
 protected:

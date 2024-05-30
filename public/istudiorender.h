@@ -377,7 +377,15 @@ public:
 	// draw an array of models with the same state
 	virtual void DrawModelArray( const DrawModelInfo_t &drawInfo, int arrayCount, model_array_instance_t *pInstanceData, int instanceStride, int flags = STUDIORENDER_DRAW_ENTIRE_MODEL ) = 0;
 
+#ifdef BUILD_GMOD
+	virtual void GMOD_ModelMaterialOverride( IMaterial* mat ) = 0;
+	virtual void GMOD_ForcedMaterialOverrideByIndex( int index, IMaterial* mat, char unknown ) = 0;
+	virtual void GMOD_ResetMaterialOverridesByIndex() = 0;
+	virtual int GMOD_MeshOverrideCount( int unknown ) = 0;
+	virtual void GMOD_MeshOverride( int unknown, IMesh* mesh, IMaterial* mat, VMatrix matrix ) = 0;
+#else
 	virtual void GetMaterialOverride( IMaterial** ppOutForcedMaterial, OverrideType_t* pOutOverrideType ) = 0;
+#endif
 };
 
 extern IStudioRender *g_pStudioRender;

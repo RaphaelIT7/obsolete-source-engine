@@ -105,6 +105,10 @@ public:
 
 	virtual IMaterial *		GetOwningMaterial() { return m_pMaterial; }
 
+#ifdef BUILD_GMOD
+	virtual void			GMOD_SetupNonQueuedVar();
+#endif
+
 private:
 	// Cleans up material var data
 	CMaterialVar *AllocThreadVar();
@@ -1633,3 +1637,10 @@ void CMaterialVar::SetValueAutodetectType( const char *val )
 
 	SetStringValue( val );
 }
+
+#ifdef BUILD_GMOD
+void CMaterialVar::GMOD_SetupNonQueuedVar()
+{
+	// ToDo
+}
+#endif

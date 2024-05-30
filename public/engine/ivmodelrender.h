@@ -16,6 +16,7 @@
 #include "interface.h"
 #include "mathlib/mathlib.h"
 #include "istudiorender.h"
+#include "datacache/idatacache.h"
 
 //-----------------------------------------------------------------------------
 // forward declarations
@@ -141,6 +142,10 @@ public:
 	virtual void AddDecal( ModelInstanceHandle_t handle, Ray_t const& ray, 
 		Vector const& decalUp, int decalIndex, int body, bool noPokeThru = false, int maxLODToDecal = ADDDECAL_TO_ALL_LODS ) = 0;
 
+#ifdef BUILD_GMOD
+	virtual void GMODAddDecal( ModelInstanceHandle_t handle, Vector const& decalPos, Vector const& decalUp, IMaterial* mat, int body, float unknown1, float unknown2 ) = 0;
+#endif
+
 	// Removes all the decals on a model instance
 	virtual void RemoveAllDecals( ModelInstanceHandle_t handle ) = 0;
 
@@ -177,10 +182,15 @@ public:
 
 	virtual void SetupColorMeshes( int nTotalVerts ) = 0;
 
+#ifdef BUILD_GMOD
+	virtual bool GetBrightestShadowingLightSource( const Vector& vecCenter, Vector& lightPos, Vector& lightBrightness, bool bAllowNonTaggedLights ) = 0;
+	virtual bool GetItemName( DataCacheClientID_t clientId, const void *pItem, char *pDest, unsigned nMaxLen ) = 0;
+#else
 	virtual void AddColoredDecal( ModelInstanceHandle_t handle, Ray_t const& ray, 
 		Vector const& decalUp, int decalIndex, int body, Color cColor, bool noPokeThru = false, int maxLODToDecal = ADDDECAL_TO_ALL_LODS ) = 0;
 
 	virtual void GetMaterialOverride( IMaterial** ppOutForcedMaterial, OverrideType_t* pOutOverrideType ) = 0;
+#endif
 };
 
 

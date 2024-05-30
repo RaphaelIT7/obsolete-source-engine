@@ -158,7 +158,16 @@ public:
 	virtual void UnlockBoneMatrices();
 	virtual void LockFlexWeights( int nWeightCount, float **ppFlexWeights, float **ppFlexDelayedWeights = NULL );
 	virtual void UnlockFlexWeights();
+
+#ifdef BUILD_GMOD
+	virtual void GMOD_ModelMaterialOverride( IMaterial* mat );
+	virtual void GMOD_ForcedMaterialOverrideByIndex( int index, IMaterial* mat, char unknown );
+	virtual void GMOD_ResetMaterialOverridesByIndex();
+	virtual int GMOD_MeshOverrideCount( int unknown );
+	virtual void GMOD_MeshOverride( int unknown, IMesh* mesh, IMaterial* mat, VMatrix matrix );
+#else
 	virtual void GetMaterialOverride( IMaterial** ppOutForcedMaterial, OverrideType_t* pOutOverrideType );
+#endif
 
 	// Other public methods
 public:
