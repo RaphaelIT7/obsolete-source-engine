@@ -62,9 +62,9 @@ int64 GetFrequency()
 	LARGE_INTEGER waitTime, startCount, curCount;
 	CCycleCount start, end;
 
-	// Take 1/128 of a second for the measurement.
+	// Take 1/32 of a second for the measurement.
 	QueryPerformanceFrequency( &waitTime );
-	int scale = 7;
+	int scale = 5;
 	waitTime.QuadPart >>= scale;
 
 	QueryPerformanceCounter( &startCount );
@@ -117,8 +117,7 @@ int64 s_frequencies[ nMaxCPUs ];
 // Measurement thread, designed to be one per core.
 DWORD WINAPI MeasureThread( LPVOID vThreadNum )
 {
-	// dimhotepus: Add thread name to aid debugging.
-	ThreadSetDebugName( "CPUBurnMonitor" );
+	ThreadSetDebugName( "CPUMonitoringMeasureThread" );
 
 	ptrdiff_t threadNum = reinterpret_cast<ptrdiff_t>(vThreadNum);
 

@@ -8,14 +8,16 @@
 #ifndef TIER0_TSLIST_H_
 #define TIER0_TSLIST_H_
 
-#include <atomic>
-#include <type_traits>
+#if defined( USE_NATIVE_SLIST )
+#include "winlite.h"
+#endif
 
 #include "tier0/dbg.h"
 #include "tier0/threadtools.h"
 #include "tier0/memalloc.h"
 #include "tier0/memdbgoff.h"
 
+//-----------------------------------------------------------------------------
 
 #if defined( PLATFORM_64BITS )
 
@@ -138,32 +140,128 @@ class TSLIST_HEAD_ALIGN CTSListBase : public CAlignedNewDelete<TSLIST_HEAD_ALIGN
   TSLNodeBase_t *Detach() {
     TSLHead_t next = {}, orig = head_.load(std::memory_order::memory_order_relaxed);
 
-    do {
-      next.value.Next = nullptr;
-      next.value.Depth = 0;
-    } while (!head_.compare_exchange_weak(
-        orig, next, std::memory_order::memory_order_acq_rel,
-        std::memory_order::memory_order_relaxed));
+#ifdef USE_NATIVE_SLIST
+		return (TSLNodeBase_t *)InterlockedPushEntrySList( &m_Head, pNode );
+#else
+		TSLHead_t oldHead;
+		TSLHead_t newHead;
 
     return orig.value.Next;
   }
 
-  [[nodiscard]] [[deprecated("Unprotected access is unsafe and should not be used")]]
-  std::atomic<TSLHead_t> *AccessUnprotected() {
-    return &head_;
-  }
+#ifdef PLATFORM_64BITS
+		newHead.value.Padding = 0;
+#endif
+		for (;;)
+		{
+			oldHead.value64x128 = m_Head.value64x128;
+			pNode->Next = oldHead.value.Next;
+			newHead.value.Next = pNode;
+			
+			newHead.value32.DepthAndSequence = oldHead.value32.DepthAndSequence + 0x10001;
+			
+			
+			if ( ThreadInterlockedAssignIf64x128( &m_Head.value64x128, newHead.value64x128, oldHead.value64x128 ) )
+			{
+				break;
+			}
+			ThreadPause();
+		}
 
   [[nodiscard]] int Count() const {
     TSLHead_t orig = head_.load(std::memory_order::memory_order_relaxed);
     return orig.value.Depth;
   }
 
- private:
-  std::atomic<TSLHead_t> head_;
-};
+	TSLNodeBase_t *Pop()
+	{
+#ifdef USE_NATIVE_SLIST
+		TSLNodeBase_t *pNode = (TSLNodeBase_t *)InterlockedPopEntrySList( &m_Head );
+		return pNode;
+#else
+		TSLHead_t oldHead;
+		TSLHead_t newHead;
 
-// Lock free simple stack.
-template <typename T, typename = std::enable_if_t<std::is_base_of_v<TSLNodeBase_t, T>>>
+#ifdef PLATFORM_64BITS
+		newHead.value.Padding = 0;
+#endif
+		for (;;)
+		{
+			oldHead.value64x128 = m_Head.value64x128;
+			if ( !oldHead.value.Next )
+				return NULL;
+
+			newHead.value.Next = oldHead.value.Next->Next;
+			newHead.value32.DepthAndSequence = oldHead.value32.DepthAndSequence	- 1;
+
+
+			if ( ThreadInterlockedAssignIf64x128( &m_Head.value64x128, newHead.value64x128, oldHead.value64x128 ) )
+			{
+				#if defined( PLATFORM_PS3 ) || defined( PLATFORM_X360 )
+					__lwsync(); // read-acquire barrier
+				#endif
+				break;
+			}
+			ThreadPause();
+		}
+
+		return (TSLNodeBase_t *)oldHead.value.Next;
+#endif
+	}
+
+	TSLNodeBase_t *Detach()
+	{
+#ifdef USE_NATIVE_SLIST
+		TSLNodeBase_t *pBase = (TSLNodeBase_t *)InterlockedFlushSList( &m_Head );
+		return pBase;
+#else
+		TSLHead_t oldHead;
+		TSLHead_t newHead;
+
+#ifdef PLATFORM_64BITS
+		newHead.value.Padding = 0;
+#endif
+		do
+		{
+			ThreadPause();
+
+			oldHead.value64x128 = m_Head.value64x128;
+			if ( !oldHead.value.Next )
+				return NULL;
+
+			newHead.value.Next = NULL;
+			// <sergiy> the reason for AND'ing it instead of poking a short into memory 
+			//          is probably to avoid store forward issues, but I'm not sure because
+			//          I didn't construct this code. In any case, leaving it as is on big-endian
+			newHead.value32.DepthAndSequence = oldHead.value32.DepthAndSequence & 0xffff0000;
+
+		} while( !ThreadInterlockedAssignIf64x128( &m_Head.value64x128, newHead.value64x128, oldHead.value64x128 ) );
+
+		return (TSLNodeBase_t *)oldHead.value.Next;
+#endif
+	}
+
+	TSLHead_t *AccessUnprotected()
+	{
+		return &m_Head;
+	}
+
+	int Count() const
+	{
+#ifdef USE_NATIVE_SLIST
+		return QueryDepthSList( const_cast<TSLHead_t*>( &m_Head ) );
+#else
+		return m_Head.value.Depth;
+#endif
+	}
+
+private:
+	TSLHead_t m_Head;
+} TSLIST_HEAD_ALIGN_POST;
+
+//-------------------------------------
+
+template <typename T>
 class TSLIST_HEAD_ALIGN CTSSimpleList : public CTSListBase
 {
 public:
@@ -248,7 +346,31 @@ public:
 		Node_t( const T &init ) : elem( init ) {}
 
 		T elem;
-	};
+
+	    // override new/delete so we can guarantee 8-byte aligned allocs
+	    static void * operator new( size_t size )
+	    {
+      		Node_t *pNode = (Node_t *)MemAlloc_AllocAligned( size, TSLIST_NODE_ALIGNMENT, __FILE__, __LINE__ );
+			return pNode;
+	    }
+
+		// override new/delete so we can guarantee 8-byte aligned allocs
+		static void * operator new( size_t size, int, const char *pFileName, int nLine )
+		{
+			Node_t *pNode = (Node_t *)MemAlloc_AllocAligned( size, TSLIST_NODE_ALIGNMENT, pFileName, nLine );
+			return pNode;
+		}
+
+	    static void operator delete( void *p)
+	    {
+			MemAlloc_FreeAligned( p );
+	    }
+		static void operator delete( void *p, int, const char *, int )
+		{
+			MemAlloc_FreeAligned( p );
+		}
+
+	} TSLIST_NODE_ALIGN_POST;
 
 	~CTSList()
 	{
@@ -414,6 +536,65 @@ class TSLIST_NODE_ALIGN CTSQueue : public CAlignedNewDelete<TSLIST_NODE_ALIGNMEN
 public:
 	struct TSLIST_NODE_ALIGN Node_t : public CAlignedNewDelete<TSLIST_NODE_ALIGNMENT>
 	{
+		CTSQueue *pNode = (CTSQueue *)MemAlloc_AllocAligned( size, TSLIST_NODE_ALIGNMENT, __FILE__, __LINE__ );
+		return pNode;
+	}
+
+	// override new/delete so we can guarantee 8-byte aligned allocs
+	static void * operator new( size_t size, int, const char *pFileName, int nLine )
+	{
+		CTSQueue *pNode = (CTSQueue *)MemAlloc_AllocAligned( size, TSLIST_NODE_ALIGNMENT, pFileName, nLine );
+		return pNode;
+	}
+
+	static void operator delete( void *p)
+	{
+		MemAlloc_FreeAligned( p );
+	}
+
+	static void operator delete( void *p, int nBlockUse, const char *pFileName, int nLine )
+	{
+		MemAlloc_FreeAligned( p );
+	}
+
+private:
+	// These ain't gonna work
+	static void * operator new[] ( size_t size )
+	{
+		return NULL;
+	}
+
+	static void operator delete [] ( void *p)
+	{
+	}
+
+public:
+
+	struct TSLIST_NODE_ALIGN Node_t
+	{
+		// override new/delete so we can guarantee 8-byte aligned allocs
+		static void * operator new( size_t size )
+		{
+			Node_t *pNode = (Node_t *)MemAlloc_AllocAligned( size, TSLIST_NODE_ALIGNMENT, __FILE__, __LINE__ );
+			return pNode;
+		}
+
+		static void * operator new( size_t size, int nBlockUse, const char *pFileName, int nLine )
+		{
+			Node_t *pNode = (Node_t *)MemAlloc_AllocAligned( size, TSLIST_NODE_ALIGNMENT, pFileName, nLine );
+			return pNode;
+		}
+
+		static void operator delete( void *p)
+		{
+			MemAlloc_FreeAligned( p );
+		}
+
+		static void operator delete( void *p, int nBlockUse, const char *pFileName, int nLine )
+		{
+			MemAlloc_FreeAligned( p );
+		}
+
 		Node_t() = default;
 		Node_t( const T &init ) : pNext{nullptr}, elem{init} {}
 
@@ -618,9 +799,9 @@ public:
 	{
 		// dimhtepus: x64 support.
 #ifdef PLATFORM_64BITS
-		Node_t * TSQUEUE_BAD_NODE_LINK = static_cast<Node_t *>(reinterpret_cast<void *>(static_cast<size_t>(0xdeadbeefdeadbeef)));
+		Node_t * TSQUEUE_BAD_NODE_LINK = (Node_t *)(void*)0xdeadbeefdeadbeef;
 #else
-		Node_t * TSQUEUE_BAD_NODE_LINK = static_cast<Node_t *>(reinterpret_cast<void *>(static_cast<size_t>(0xdeadbeef)));
+		Node_t * TSQUEUE_BAD_NODE_LINK = (Node_t *)(void*)0xdeadbeef;
 #endif
 		NodeLink_t * volatile		pHead = &m_Head;
 		NodeLink_t * volatile		pTail = &m_Tail;
@@ -745,8 +926,5 @@ private:
 	std::atomic_int m_Count;
 	
 	CTSListBase m_FreeNodes;
-
-	Node_t m_end;
-};
 
 #endif  // TIER0_TSLIST_H_

@@ -719,8 +719,36 @@ inline std::enable_if_t<std::is_scalar_v<T> && sizeof(T) == 8 && alignof(T) == a
 //-------------------------------------
 // dimhotepus: Use C instead of ASM as it fallback to intrinsic.
 
-#define WordSwap  WordSwapC
-#define DWordSwap DWordSwapC
+#if defined( _MSC_VER ) && !defined( PLATFORM_WINDOWS_PC64 )
+
+	template <typename T>
+	inline T WordSwap( T w )
+	{
+	   __asm
+	   {
+		  mov ax, w
+		  xchg al, ah
+	   }
+	}
+
+	template <typename T>
+	inline T DWordSwap( T dw )
+	{
+	   __asm
+	   {
+		  mov eax, dw
+		  bswap eax
+	   }
+	}
+
+#else
+
+	#define WordSwap  WordSwapC
+	#define DWordSwap DWordSwapC
+
+#endif
+
+// No ASM implementation for this yet
 #define QWordSwap QWordSwapC
 
 //-------------------------------------
@@ -807,7 +835,7 @@ inline void SwapFloat( float *pOut, const float *pIn )		{ SafeSwapFloat( pOut, p
 
 #endif
 
-FORCEINLINE unsigned int LoadLittleDWord( const unsigned int *base, size_t dwordIndex )
+FORCEINLINE unsigned long LoadLittleDWord( const unsigned long *base, size_t dwordIndex )
 	{
 		return LittleDWord( base[dwordIndex] );
 	}

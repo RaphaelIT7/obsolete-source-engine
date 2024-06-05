@@ -196,11 +196,12 @@ static CAssertDisable* IgnoreAssertsNearby( int nRange )
 #if defined( _WIN32 )
 se::windows::ui::CDpiWindowBehavior g_dpi_window_behavior;
 
-static INT_PTR CALLBACK AssertDialogProc(
-  HWND hDlg,                      // handle to dialog box
-  UINT uMsg,                      // message
-  WPARAM wParam,                  // first message parameter
-  LPARAM lParam                   // second message parameter
+#if ( defined( _WIN32 ) && !defined( _X360 ) )
+INT_PTR CALLBACK AssertDialogProc(
+  HWND hDlg,  // handle to dialog box
+  UINT uMsg,     // message
+  WPARAM wParam, // first message parameter
+  [[maybe_unused]] LPARAM lParam  // second message parameter
 )
 {
 	switch( uMsg )

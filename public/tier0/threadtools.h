@@ -779,9 +779,9 @@ private:
 	// dimhotepus: This one is for old vphysics dll to work. 
 	PLATFORM_CLASS void Lock( const uint32 threadId, unsigned nSpinSleepTime ) volatile
 	{
-		const_cast<CThreadFastMutex *>(this)->Lock( (ThreadId_t)threadId, nSpinSleepTime);
+		const_cast<CThreadFastMutex *>(this)->Lock(threadId, nSpinSleepTime);
 	}
-	PLATFORM_CLASS void Lock( const ThreadId_t threadId, unsigned nSpinSleepTime );
+	PLATFORM_CLASS void Lock( const uint32 threadId, unsigned nSpinSleepTime );
 
 public:
 	bool TryLock()
@@ -1695,7 +1695,7 @@ inline bool CThreadMutex::AssertOwnedByCurrentThread() const
 #ifdef THREAD_MUTEX_TRACING_ENABLED
 	if (ThreadGetCurrentId() == m_currentOwnerID)
 		return true;
-	AssertMsg3( 0, "Expected thread %lu as owner of lock %p, but %lu owns", ThreadGetCurrentId(), (const CRITICAL_SECTION *)&m_CriticalSection, m_currentOwnerID );
+	AssertMsg3( 0, "Expected thread %u as owner of lock %p, but %u owns", ThreadGetCurrentId(), (const CRITICAL_SECTION *)&m_CriticalSection, m_currentOwnerID );
 	return false;
 #else
 	return true;
