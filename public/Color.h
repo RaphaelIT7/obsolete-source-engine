@@ -5,7 +5,6 @@
 
 #include <utility>
 #include "tier0/dbg.h"
-#include "minmax.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Basic handler for an rgb set of colors
