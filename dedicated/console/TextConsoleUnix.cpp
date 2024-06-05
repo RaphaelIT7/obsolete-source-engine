@@ -18,7 +18,7 @@
 
 static pthread_mutex_t g_lock;
 static pthread_t g_threadid = (pthread_t)-1;
-CUtlLinkedList<CUtlString> g_Commands;
+CUtlLinkedList< CUtlString > g_Commands;
 static std::atomic_bool g_ProcessingCommands = false;
 
 #if defined(LINUX)

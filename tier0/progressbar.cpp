@@ -1,6 +1,6 @@
 // Copyright Valve Corporation, All rights reserved.
 
-#include "stdafx.h"
+#include "pch_tier0.h"
 #include "tier0/progressbar.h"
 
 #include "vstdlib/pch_vstdlib.h"
