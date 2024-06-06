@@ -524,7 +524,7 @@ static void DumpSorted( CVProfile::StreamOut_t outputStream, const tchar *pszHea
 	outputStream( _T("%s\n"), pszHeading);
     outputStream( _T("  Scope                                                      Calls Calls/Frame  Time+Child    Pct        Time    Pct   Avg/Frame    Avg/Call Avg-NoChild        Peak\n"));
     outputStream( _T("  ---------------------------------------------------- ----------- ----------- ----------- ------ ----------- ------ ----------- ----------- ----------- -----------\n"));
-    for ( i = 0; i < sortedSums.size() && i < (unsigned)maxLen; i++ )
+    for ( i = 0; i < sortedSums.size() && i < (unsigned)maxLen; ++i )
     {
 		double avg = ( sortedSums[i].calls ) ? sortedSums[i].time / (double)sortedSums[i].calls : 0.0;
 		double avgLessChildren = ( sortedSums[i].calls ) ? sortedSums[i].timeLessChildren / (double)sortedSums[i].calls : 0.0;
