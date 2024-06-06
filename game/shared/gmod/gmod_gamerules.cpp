@@ -273,10 +273,6 @@ float CHL2MPRules::FlWeaponRespawnTime( CBaseCombatWeapon *pWeapon )
 
 bool CHL2MPRules::IsIntermission( void )
 {
-#ifndef CLIENT_DLL
-	return m_flIntermissionEndTime > gpGlobals->curtime;
-#endif
-
 	return false;
 }
 
@@ -377,27 +373,7 @@ void CHL2MPRules::Think( void )
 }
 
 void CHL2MPRules::GoToIntermission( void )
-{
-#ifndef CLIENT_DLL
-	if ( g_fGameOver )
-		return;
-
-	g_fGameOver = true;
-
-	m_flIntermissionEndTime = gpGlobals->curtime + mp_chattime.GetInt();
-
-	for ( int i = 0; i < MAX_PLAYERS; i++ )
-	{
-		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-
-		if ( !pPlayer )
-			continue;
-
-		pPlayer->ShowViewPortPanel( PANEL_SCOREBOARD );
-		pPlayer->AddFlag( FL_FROZEN );
-	}
-#endif
-	
+{	
 }
 
 bool CHL2MPRules::CheckGameOver()

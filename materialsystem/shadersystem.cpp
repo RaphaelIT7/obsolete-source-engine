@@ -385,7 +385,8 @@ void CShaderSystem::LoadModShaderDLLs( int dxSupportLevel )
 	if ( !Q_stricmp( pGameDir, "hl2" ) || !Q_stricmp( pGameDir, "cstrike" ) || !Q_stricmp( pGameDir, "cstrike_beta" ) ||
 		!Q_stricmp( pGameDir, "hl2mp" ) || !Q_stricmp( pGameDir, "lostcoast" ) || !Q_stricmp( pGameDir, "episodic" ) ||
 		!Q_stricmp( pGameDir, "portal" ) || !Q_stricmp( pGameDir, "ep2" ) || !Q_stricmp( pGameDir, "dod" ) ||
-		!Q_stricmp( pGameDir, "tf" ) || !Q_stricmp( pGameDir, "tf_beta" ) || !Q_stricmp( pGameDir, "hl1" ) )
+		!Q_stricmp( pGameDir, "tf" ) || !Q_stricmp( pGameDir, "tf_beta" ) || !Q_stricmp( pGameDir, "hl1" ) ||
+		!Q_stricmp( pGameDir, "garrysmod" ) )
 	{
 		return;
 	}

@@ -65,6 +65,8 @@ public:
 	// Fetch public IP.  Might return 0 if we don't know
 	SteamIPAddress_t GetPublicIP() { 
 		SteamIPAddress_t fallback;
+		fallback.m_eType = k_ESteamIPTypeIPv4;
+		fallback.m_unIPv4 = 0;
 		return SteamGameServer() ? SteamGameServer()->GetPublicIP() : fallback;
 	}
 	
