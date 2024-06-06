@@ -245,6 +245,14 @@ void CSteam3Server::Activate( EServerType serverType )
 	}
 
 	SteamAPI_SetTryCatchCallbacks( false ); // We don't use exceptions, so tell steam not to use try/catch in callback handlers
+#ifdef BUILD_GMOD
+	if ( CommandLine()->FindParm("-hushsteam") || !SteamGameServer_Init(
+			m_unIP,
+			usGamePort,
+			m_usPort+1,	// Steam lives on -steamport + 1, master server updater lives on -steamport.
+			m_eServerMode,
+			GetSteamInfIDVersionInfo().szVersionString ) )
+#else
 	if ( CommandLine()->FindParm("-hushsteam") || !SteamGameServer_InitSafe(
 			m_unIP,
 			m_usPort+1,	// Steam lives on -steamport + 1, master server updater lives on -steamport.
@@ -252,6 +260,7 @@ void CSteam3Server::Activate( EServerType serverType )
 			usMasterServerUpdaterPort,
 			m_eServerMode,
 			GetSteamInfIDVersionInfo().szVersionString ) )
+#endif
 	{
 steam_no_good:
 #if !defined( NO_STEAM )
@@ -434,8 +443,8 @@ void CSteam3Server::OnLogonSuccess( SteamServersConnected_t *pLogonSuccess )
 		MsgAndLog( "Connection to Steam servers successful.\n" );
 		if ( SteamGameServer() )
 		{
-			uint32 ip = SteamGameServer()->GetPublicIP();
-			MsgAndLog( "   Public IP is %d.%d.%d.%d.\n", (ip >> 24) & 255, (ip >> 16) & 255, (ip >> 8) & 255, ip & 255 );
+			SteamIPAddress_t ip = SteamGameServer()->GetPublicIP();
+			MsgAndLog( "   Public IP is %d.%d.%d.%d.\n", (ip.m_unIPv4 >> 24) & 255, (ip.m_unIPv4 >> 16) & 255, (ip.m_unIPv4 >> 8) & 255, ip.m_unIPv4 & 255 );
 		}
 	}
 
