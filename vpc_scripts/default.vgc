@@ -21,6 +21,7 @@ $Games
 	"PORTAL"
 	"SDK"
 	"TF"
+	"GMOD"
 }
 
 $Include "vpc_scripts\projects.vgc"

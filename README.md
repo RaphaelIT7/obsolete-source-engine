@@ -60,6 +60,11 @@ List of currently working dlls:
 * Build.
 * `game` folder contains the ready game.
 
+## NOTES
+Hammer could work but it wasn't tested.
+
+
+# Source engine
 
 If you found a bug, please file it at https://github.com/Source-Authors/obsolete-source-engine/issues.
 
