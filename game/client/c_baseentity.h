@@ -1653,7 +1653,7 @@ private:
 
 #if !defined( NO_ENTITY_PREDICTION )
 	// Player who is driving my simulation
-	CHandle< CBasePlayer >			m_hPlayerSimulationOwner;
+	CHandle< C_BasePlayer >			m_hPlayerSimulationOwner;
 #endif
 
 	// The owner!
@@ -1935,12 +1935,12 @@ inline const Vector& C_BaseEntity::WorldAlignSize( ) const
 	return CollisionProp()->OBBSize();
 }
 
-inline float CBaseEntity::BoundingRadius() const
+inline float C_BaseEntity::BoundingRadius() const
 {
 	return CollisionProp()->BoundingRadius();
 }
 
-inline bool CBaseEntity::IsPointSized() const
+inline bool C_BaseEntity::IsPointSized() const
 {
 	return CollisionProp()->BoundingRadius() == 0.0f;
 }
@@ -2017,7 +2017,7 @@ inline float C_BaseEntity::GetElasticity( void )	const
 	return m_flElasticity; 
 }
 
-inline const color32 CBaseEntity::GetRenderColor() const
+inline const color32 C_BaseEntity::GetRenderColor() const
 {
 	return m_clrRender.Get();
 }
@@ -2054,7 +2054,7 @@ inline void C_BaseEntity::SetRenderColorA( byte a )
 	SetRenderColor( GetRenderColor().r, GetRenderColor().g, GetRenderColor().b, a );
 }
 
-inline RenderMode_t CBaseEntity::GetRenderMode() const
+inline RenderMode_t C_BaseEntity::GetRenderMode() const
 {
 	return (RenderMode_t)m_nRenderMode;
 }
@@ -2077,44 +2077,44 @@ inline void C_BaseEntity::RemoveEFlags( int nEFlagMask )
 	m_iEFlags &= ~nEFlagMask;
 }
 
-inline bool CBaseEntity::IsEFlagSet( int nEFlagMask ) const
+inline bool C_BaseEntity::IsEFlagSet( int nEFlagMask ) const
 {
 	return (m_iEFlags & nEFlagMask) != 0;
 }
 
-inline unsigned char CBaseEntity::GetParentAttachment() const
+inline unsigned char C_BaseEntity::GetParentAttachment() const
 {
 	return m_iParentAttachment;
 }
 
-inline ClientRenderHandle_t CBaseEntity::GetRenderHandle() const 
+inline ClientRenderHandle_t C_BaseEntity::GetRenderHandle() const 
 { 
 	return m_hRender; 
 }
 
-inline ClientRenderHandle_t& CBaseEntity::RenderHandle()
+inline ClientRenderHandle_t& C_BaseEntity::RenderHandle()
 {
 	return m_hRender;
 }
 
 #ifdef SIXENSE
 
-inline const Vector& CBaseEntity::GetEyeOffset() const 
+inline const Vector& C_BaseEntity::GetEyeOffset() const 
 { 
 	return m_vecEyeOffset; 
 }
 
-inline void CBaseEntity::SetEyeOffset( const Vector& v ) 
+inline void C_BaseEntity::SetEyeOffset( const Vector& v ) 
 { 
 	m_vecEyeOffset = v; 
 }
 
-inline const QAngle & CBaseEntity::GetEyeAngleOffset() const 
+inline const QAngle & C_BaseEntity::GetEyeAngleOffset() const 
 { 
 	return m_EyeAngleOffset; 
 }
 
-inline void CBaseEntity::SetEyeAngleOffset( const QAngle & qa ) 
+inline void C_BaseEntity::SetEyeAngleOffset( const QAngle & qa ) 
 { 
 	m_EyeAngleOffset = qa; 
 }

@@ -69,6 +69,7 @@ void Lua::OnLoaded()
 	// GarrysMod::Ammo::Refresh();
 }
 
+#ifndef CLIENT_DLL
 void lua_filestats_command( const CCommand &args )
 {
 	UTIL_IsCommandIssuedByServerAdmin();
@@ -112,3 +113,4 @@ void CC_LuaRun_cl( const CCommand &args )
 	MessageEnd();
 }
 ConCommand lua_run_cl( "lua_run_cl", CC_LuaRun_cl, "", 0);
+#endif

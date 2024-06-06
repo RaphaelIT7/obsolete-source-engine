@@ -43,21 +43,33 @@ LUA_FUNCTION_STATIC(ents_GetAll)
 LUA_FUNCTION_STATIC(ents_GetByIndex)
 {
 	int entIndex = LUA->CheckNumber(1);
+#ifdef CLIENT_DLL
+	Push_Entity( cl_entitylist->GetBaseEntity(entIndex) );
+#else
 	Push_Entity( GMEntityByIndex(entIndex) );
+#endif
 
 	return 1;
 }
 
 LUA_FUNCTION_STATIC(ents_GetCount)
 {
+#ifdef CLIENT_DLL
+	LUA->PushNumber(cl_entitylist->NumberOfEntities());
+#else
 	LUA->PushNumber(gEntList.NumberOfEntities());
+#endif
 
 	return 1;
 }
 
 LUA_FUNCTION_STATIC(ents_GetEdictCount)
 {
+#ifdef CLIENT_DLL // ToDo: Verify
+	LUA->PushNumber(0);
+#else
 	LUA->PushNumber(gEntList.NumberOfEdicts());
+#endif
 
 	return 1;
 }
