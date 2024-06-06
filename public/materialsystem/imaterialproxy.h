@@ -22,7 +22,7 @@ public:
 	virtual bool Init( IMaterial* pMaterial, KeyValues *pKeyValues ) = 0;
 	virtual void OnBind( void * ) = 0;
 	virtual void Release() = 0;
-	virtual IMaterial *	GetMaterial() = 0;
+	virtual IMaterial *GetMaterial() = 0;
 	virtual bool GMOD_CanBeQueued() { return false; };
 
 protected:

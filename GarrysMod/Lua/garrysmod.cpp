@@ -13,6 +13,8 @@
 #include "garrysmod.h"
 #include "Externals.h"
 #include "Lua/gmod_lua.h"
+#include "GModMaterialProxyFactory.h"
+#include "CLuaClass.h"
 
 GarrysMod::Lua::ILuaShared* LuaShared()
 {
@@ -54,6 +56,11 @@ void CleanupExploits()
 	// Not needed.
 }
 
+void CleanupWipeFolder( const char* folder )
+{
+	// ToDo
+}
+
 void CGarrysMod::InitializeMod( CreateInterfaceFn fn )
 {
 	// Bootil::Startup()
@@ -63,16 +70,21 @@ void CGarrysMod::InitializeMod( CreateInterfaceFn fn )
 	CleanupExploits();
 
 	// ToDo
-}
 
-void CleanupWipeFolder( const char* folder )
-{
-	// ToDo
+#ifdef CLIENT_DLL
+	GarrysMod::MaterialProxyFactory::Init();
+#endif
+
+	CleanupWipeFolder( "downloads/server/" );
 }
 
 void CGarrysMod::Shutdown()
 {
 	CleanupWipeFolder( "downloads/server/" );
+
+#ifdef CLIENT_DLL
+	GarrysMod::MaterialProxyFactory::Shutdown();
+#endif
 
 	// ToDo
 	// Funnies with map.pack

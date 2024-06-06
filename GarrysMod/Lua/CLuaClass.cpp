@@ -342,9 +342,11 @@ void* CLuaObject::GetMemberUserData(float name, void* b)
 	return val;
 }
 
-GarrysMod::Lua::ILuaObject* CLuaObject::GetMember(const char* name, ILuaObject* b)
+GarrysMod::Lua::ILuaObject* CLuaObject::GetMember(const char* name, ILuaObject* obj)
 {
-	ILuaObject* val = b;
+	if ( !obj )
+		return NULL;
+
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
@@ -355,14 +357,13 @@ GarrysMod::Lua::ILuaObject* CLuaObject::GetMember(const char* name, ILuaObject* 
 				CLuaObject* obj = new CLuaObject;
 				obj->Init(m_pLua);
 				obj->SetFromStack(-1);
-				val = obj;
 			}
 			m_pLua->Pop(1);
 		}
 		m_pLua->Pop(1);
 	}
 
-	return val;
+	return obj;
 }
 
 GarrysMod::Lua::ILuaObject* CLuaObject::GetMember(ILuaObject* name, ILuaObject* b)
