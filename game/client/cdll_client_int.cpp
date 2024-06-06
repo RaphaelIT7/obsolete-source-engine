@@ -957,6 +957,10 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 		return false;
 #endif
 
+#ifdef BUILD_GMOD
+	igarrysmod->InitializeMod( appSystemFactory );
+#endif
+
 #if defined( REPLAY_ENABLED )
 	if ( IsPC() && (g_pEngineReplay = (IEngineReplay *)appSystemFactory( ENGINE_REPLAY_INTERFACE_VERSION, NULL )) == NULL )
 		return false;
@@ -1114,6 +1118,16 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 	HookHapticMessages(); // Always hook the messages
 #endif
 
+#ifdef BUILD_GMOD
+	igarrysmod->PostInitialize();
+
+	Msg("Initializing Serverside..");
+
+	// ToDo: Add some checks for these:
+	// Couldn't find Garry's Mod Engine(.dll)
+	// Could not Initialize garrysmod!
+#endif
+
 	return true;
 }
 
@@ -1200,6 +1214,9 @@ void CHLClient::Shutdown( void )
 #endif
 
 	C_BaseAnimating::ShutdownBoneSetupThreadPool();
+#ifdef BUILD_GMOD
+	igarrysmod->Shutdown();
+#endif
 	ClientWorldFactoryShutdown();
 
 	g_pGameSaveRestoreBlockSet->RemoveBlockHandler( GetViewEffectsRestoreBlockHandler() );
@@ -1632,6 +1649,10 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 		pItemSchema->BInitFromDelayedBuffer();
 	}
 #endif // USES_ECON_ITEMS
+
+#ifdef BUILD_GMOD
+	igarrysmod->LevelInit( pMapName, NULL, NULL, NULL, false, false );
+#endif
 
 	ResetWindspeed();
 

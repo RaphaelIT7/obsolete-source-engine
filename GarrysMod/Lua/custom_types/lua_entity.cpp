@@ -91,7 +91,9 @@ LUA_FUNCTION_STATIC(Entity_GetPos)
 	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
+#ifndef CLIENT_DLL
 	ent->CalcAbsolutePosition();
+#endif
 	Push_Vector(new Vector(ent->GetAbsOrigin()));
 
 	return 1;
@@ -187,7 +189,11 @@ LUA_FUNCTION_STATIC(Entity_GetParent)
 	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
+#ifndef CLIENT_DLL
 	Push_Entity(ent->GetParent());
+#else
+	LUA->PushNil(); // ToDo: FIXME
+#endif
 
 	return 1;
 }
@@ -316,7 +322,9 @@ LUA_FUNCTION_STATIC(Entity_GetVelocity)
 	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
+#ifndef CLIENT_DLL
 	ent->CalcAbsolutePosition();
+#endif
 	Push_Vector(new Vector(ent->GetAbsVelocity()));
 
 	return 1;
@@ -364,7 +372,9 @@ LUA_FUNCTION_STATIC(Entity_SetModel)
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	const char* mdl = LUA->CheckString(2);
+#ifndef CLIENT_DLL // ToDo: Fix it later.
 	UTIL_SetModel(ent, mdl);
+#endif
 
 	return 0;
 }
@@ -375,7 +385,9 @@ LUA_FUNCTION_STATIC(Entity_SetModelName)
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	const char* mdl = LUA->CheckString(2);
+#ifndef CLIENT_DLL // ToDo: Fix it later.
 	ent->SetModelName(AllocPooledString(mdl));
+#endif
 
 	return 0;
 }
@@ -385,7 +397,11 @@ LUA_FUNCTION_STATIC(Entity_GetModel)
 	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
+#ifndef CLIENT_DLL // ToDo: Fix it later.
 	LUA->PushString(ent->GetModelName().ToCStr());
+#else
+	LUA->PushNil();
+#endif
 
 	return 1;
 }
@@ -517,7 +533,9 @@ LUA_FUNCTION_STATIC(Entity_MakePhysicsObjectAShadow)
 	bool allowPhysicsMovement = LUA->IsType(2, GarrysMod::Lua::Type::Bool) ? LUA->GetBool(2) : true;
 	bool allowPhysicsRotation = LUA->IsType(3, GarrysMod::Lua::Type::Bool) ? LUA->GetBool(3) : true;
 
+#ifndef CLIENT_DLL
 	ent->CalcAbsolutePosition();
+#endif
 	IPhysicsObject* obj = ent->VPhysicsGetObject();
 	if (obj)
 	{
@@ -753,7 +771,9 @@ LUA_FUNCTION_STATIC(Entity_WorldToLocal)
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Vector* vec = Get_Vector(2);
 
+#ifndef CLIENT_DLL
 	ent->CalcAbsolutePosition();
+#endif
 	Vector pos = ent->GetAbsOrigin();
 
 	Vector* local_vec = new Vector();
@@ -774,7 +794,9 @@ LUA_FUNCTION_STATIC(Entity_LocalToWorld)
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Vector* vec = Get_Vector(2);
 
+#ifndef CLIENT_DLL
 	ent->CalcAbsolutePosition();
+#endif
 	Vector pos = ent->GetAbsOrigin();
 
 	Vector* world_vec = new Vector();
@@ -812,8 +834,13 @@ LUA_FUNCTION_STATIC(Global_Entity)
 	int index = LUA->CheckNumber(1);
 	CBaseEntity* ent = NULL;
 
+#ifdef CLIENT_DLL
+	if (index > 0 && index < MAX_EDICTS)
+		ent = cl_entitylist->GetBaseEntity(index);
+#else
 	if (index > 0 && index < MAX_EDICTS)
 		ent = gEntList.GetBaseEntity(gEntList.GetNetworkableHandle(index));
+#endif
 
 	Push_Entity(ent);
 
@@ -827,7 +854,11 @@ CBaseEntity* Get_Entity(int index)
 	if (!udata)
 		return NULL;
 
+#ifdef CLIENT_DLL
+	return cl_entitylist->GetBaseEntityFromHandle(*(CBaseHandle*)udata);
+#else
 	return gEntList.GetBaseEntity(*(CBaseHandle*)udata);
+#endif
 }
 
 void Push_Entity(CBaseEntity* ent)

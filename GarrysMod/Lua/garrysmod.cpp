@@ -27,6 +27,18 @@ CGarrysMod::CGarrysMod()
 	//SteamAPI_RegisterCallback(); Register p2p stuff
 }
 
+#ifdef CLIENT_DLL
+void CGarrysMod::OnGameRichPresenceJoinRequested( GameRichPresenceJoinRequested_t* )
+{
+	// ToDo
+}
+
+void CGarrysMod::OnGameOverlayActivated( GameOverlayActivated_t* )
+{
+	// ToDo
+}
+#endif
+
 void CGarrysMod::OnP2PSessionRequest( P2PSessionRequest_t* request )
 {
 	// ToDo
@@ -66,16 +78,53 @@ void CGarrysMod::Shutdown()
 	// Funnies with map.pack
 }
 
+#ifdef CLIENT_DLL
+void CGarrysMod::FullScreenVGUI( bool unknown )
+{
+	// ToDo
+}
+
+void CGarrysMod::VGUIDrawMode( bool unknown, IMatRenderContext* context )
+{
+	// ToDo
+}
+
+void CGarrysMod::PaintVGUIOverlay( IMatRenderContext* context )
+{
+	// ToDo
+}
+
+void CGarrysMod::RenderView( const CViewSetup& viewSetup, int x, int y )
+{
+	// ToDo
+}
+#endif
+
 void CGarrysMod::LevelInit( const char *pMapName, char const *pMapEntities, char const *pOldLevel, char const *pLandmarkName, bool loadGame, bool background )
 {
 	Lua::Create();
 	Lua::OnLoaded();
 }
 
+#ifdef CLIENT_DLL
+void CGarrysMod::LevelShutdown()
+{
+	// ToDo
+	// ResetNetLibrary();
+
+	// Some other stuff
+
+	// CleanupLuaBoundMaterials();
+	// CleanupLuaCreatedMaterials();
+	// CleanupLuaCreatedRenderTargets();
+	// CleanupShaderParams();
+}
+#else
 const char* CGarrysMod::GetGameDescription() // Called from CGMODRules::GetGameDescription()
 {
 	return "the funnies"; // ToDo
 }
+#endif
 
 void CGarrysMod::PostInitialize() // Called from CServerGameDLL::DLLInit
 {
@@ -88,6 +137,13 @@ void CGarrysMod::EntityRemoved( CBaseEntity* ent ) // Called from CBaseEntity::U
 	// Make da lua call
 }
 
+#ifdef CLIENT_DLL
+void CGarrysMod::OnNewUserCmd()
+{
+	// ToDo
+}
+#endif
+
 void CGarrysMod::Think() // Called from CLuaGameSystem::FrameUpdatePreEntityThink
 {
 	// ToDo
@@ -97,6 +153,18 @@ void CGarrysMod::MenuThink()
 {
 	// ToDo
 }
+
+#ifdef CLIENT_DLL
+void CGarrysMod::ClearVertexLighting( IMatRenderContext* context, float unknown )
+{
+	// ToDo
+}
+
+void CGarrysMod::EndClearVertexLighting( IMatRenderContext* context )
+{
+	// ToDo
+}
+#endif
 
 // NOTE: Since we fixed the bug in the Physics engine that broke it entirely if CollisionRulesChanged was never called properly, we don't need any safety
 bool CGarrysMod::ShouldCollide( CBaseEntity* ent1, CBaseEntity* ent2 ) // Called from PassServerEntityFilter(IHandleEntity const*,IHandleEntity const*) and CCollisionEvent::ShouldCollide(IPhysicsObject *,IPhysicsObject *,void *,void *)
@@ -116,7 +184,11 @@ void CGarrysMod::PlaySound( const char* sound )
 
 const char* CGarrysMod::GetMapName()
 {
+#ifdef CLIENT_DLL
+	return engine->GetLevelName();
+#else
 	return gpGlobals->mapname.ToCStr();
+#endif
 }
 
 void CGarrysMod::RunConsoleCommand( const char* cmd )

@@ -1,7 +1,7 @@
 // This probably doesn't exist in Gmod but, oh well, these values does exist.
 
 #include <GarrysMod/IGet.h>
-#ifndef GAME_DLL
+#if !defined(GAME_DLL) && !defined(CLIENT_DLL)
 #include <GarrysMod/IGarrysMod.h>
 #else
 #include <../GarrysMod/Lua/garrysmod.h>
@@ -10,7 +10,7 @@
 #include <globalvars_base.h>
 
 extern IGet* get;
-#ifndef GAME_DLL
+#if !defined(GAME_DLL) && !defined(CLIENT_DLL)
 extern IGarrysMod* igarrysmod;
 #else
 extern CGarrysMod* igarrysmod;
