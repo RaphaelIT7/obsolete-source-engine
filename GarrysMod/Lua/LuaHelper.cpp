@@ -4,6 +4,9 @@
 
 bool LuaHelper::PushFunction( GarrysMod::Lua::ILuaInterface* LUA, const char* library, const char* function )
 {
+	if ( !LUA )
+		return false;
+
 	CLuaObject obj;
 	obj.Init( LUA );
 	obj.SetFromGlobal( library );

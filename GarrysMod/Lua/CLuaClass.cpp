@@ -1,6 +1,7 @@
 #include "cbase.h"
 #include "CLuaClass.h"
 #include "Externals.h"
+#include "GarrysMod/Lua/LuaInterface.h"
 
 void CLuaObject::Init()
 {
@@ -10,6 +11,9 @@ void CLuaObject::Init()
 void CLuaObject::Init(GarrysMod::Lua::ILuaBase* Lm_pLua)
 {
 	m_pLua = Lm_pLua;
+
+	if (!m_pLua)
+		m_pLua = g_Lua;
 }
 
 void CLuaObject::UnReference()

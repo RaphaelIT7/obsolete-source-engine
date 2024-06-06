@@ -114,8 +114,10 @@ void CGarrysMod::RenderView( const CViewSetup& viewSetup, int x, int y )
 
 void CGarrysMod::LevelInit( const char *pMapName, char const *pMapEntities, char const *pOldLevel, char const *pLandmarkName, bool loadGame, bool background )
 {
+#ifndef CLIENT_DLL
 	Lua::Create();
 	Lua::OnLoaded();
+#endif
 }
 
 #ifdef CLIENT_DLL
