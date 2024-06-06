@@ -29,6 +29,7 @@ static const SourceAppInfo_t s_SteamAppInfo[] =
 	{	"Portal",						"portal",		400,	k_App_PORTAL } ,
 	{	"Half-Life 2: Episode Two",		"ep2",			420,	k_App_HL2_EP2 } ,
 	{	"Team Fortress 2",				"tf",			440,	k_App_TF2 } ,
+	{	"Garry's Mod",					"garrrysmod",  4000,	k_App_GMOD } ,
 };
 
 
