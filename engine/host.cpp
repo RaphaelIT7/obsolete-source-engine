@@ -1152,7 +1152,11 @@ void Host_WriteConfiguration( const char *filename, bool bAllVars )
 
 		if ( pRemoteStorage )
 		{
+#ifdef BUILD_GMOD
+			uint64 availableBytes, totalBytes = 0;
+#else
 			int32 availableBytes, totalBytes = 0;
+#endif
 			if ( pRemoteStorage->GetQuota( &totalBytes, &availableBytes ) )
 			{
 				if ( totalBytes > 0 )

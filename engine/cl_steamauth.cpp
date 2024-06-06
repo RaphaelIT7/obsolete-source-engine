@@ -147,7 +147,7 @@ void CSteam3Client::GetAuthSessionTicket( void *pTicket, int cbMaxTicket, uint32
 
 		// Ask Steam for a ticket
 		m_nTicketSize = 0;
-		m_hAuthTicket = SteamUser()->GetAuthSessionTicket( m_arbTicketData+sizeof(uint64), sizeof(m_arbTicketData)-sizeof(uint64), &m_nTicketSize );
+		m_hAuthTicket = SteamUser()->GetAuthSessionTicket( m_arbTicketData+sizeof(uint64), sizeof(m_arbTicketData)-sizeof(uint64), &m_nTicketSize, nullptr );
 		if ( m_hAuthTicket == k_HAuthTicketInvalid || m_nTicketSize <= 0 )
 		{
 			// Failed!
