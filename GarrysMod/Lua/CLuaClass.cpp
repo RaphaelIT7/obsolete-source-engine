@@ -729,9 +729,12 @@ bool CLuaObject::RemoveMe()
 	return false;
 }
 
-void CLuaObject::SetFromGlobal(const char*)
+void CLuaObject::SetFromGlobal( const char* name )
 {
-	Error("Look into it later. (Im_pLuaObject::SetFromGlobal)");
+	m_pLua->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+		m_pLua->GetField(-1, name);
+		SetFromStack(-1);
+	m_pLua->Pop(2);
 }
 
 int CLuaObject::GetStringLen(unsigned int* idk)
