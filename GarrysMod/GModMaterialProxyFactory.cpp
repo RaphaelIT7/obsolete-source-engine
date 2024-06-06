@@ -42,6 +42,9 @@ IMaterialProxy* GarrysMod::MaterialProxyFactory::CreateProxy( const char *pName 
 	if ( proxy )
 		return proxy;
 
+	if ( V_stricmp("SkyPaint", pName) == 0 ) // TempFix for SkyPaint.
+		return new GarrysMod::MaterialProxy( pName );
+
 	if (!ThreadInMainThread())
 		return NULL;
 

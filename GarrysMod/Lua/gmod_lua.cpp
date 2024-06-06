@@ -63,7 +63,11 @@ void Lua::Create()
 {
 	Kill();
 
+#ifdef CLIENT_DLL
+	LuaShared()->CreateLuaInterface(GarrysMod::Lua::State::CLIENT, true);
+#else
 	LuaShared()->CreateLuaInterface(GarrysMod::Lua::State::SERVER, true);
+#endif
 
 	// new CLuaSWEPManager();
 	// new CLuaSENTManager();
