@@ -6,8 +6,8 @@
 // NOTE: This is based off HL2MP and we still use HL2MP until we can safely change it to GMOD without breaking stuff.
 
 $Macro SRCDIR		"..\.."
-$Macro GAMENAME 	"hl2mp" [!$SOURCESDK]
-$Macro GAMENAME 	"mod_hl2mp" [$SOURCESDK]
+$Macro GAMENAME 	"garrysmod" [!$SOURCESDK]
+$Macro GAMENAME 	"mod_garrysmod" [$SOURCESDK]
 
 $Include "$SRCDIR\game\client\client_base.vpc"
 

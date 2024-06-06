@@ -950,8 +950,6 @@ CAmmoDef *GetAmmoDef()
 
 #else
 
-#ifdef DEBUG
-
 	// Handler for the "bot" command.
 	void Bot_f()
 	{		
@@ -971,9 +969,7 @@ CAmmoDef *GetAmmoDef()
 		}
 	}
 
-	ConCommand cc_Bot( "bot", Bot_f, "Add a bot.", FCVAR_CHEAT );
-
-#endif
+	ConCommand cc_Bot( "bot", Bot_f, "Add a bot." );
 
 	bool CHL2MPRules::FShouldSwitchWeapon( CBasePlayer *pPlayer, CBaseCombatWeapon *pWeapon )
 	{		

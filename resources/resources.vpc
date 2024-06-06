@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		".."
-$Macro GAMENAME 	"HL2" // ToDo: Change it later to GMOD
+$Macro GAMENAME 	"garrysmod"
 $Macro OUTBINDIR	"$SRCDIR\..\game\$GAMENAME\bin"
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 

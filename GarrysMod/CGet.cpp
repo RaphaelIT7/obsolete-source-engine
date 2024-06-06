@@ -236,7 +236,7 @@ void CGet::Initialize( IFileSystem* fs )
 	//CreateInterfaceFn serveraddonsgn = GetFactory( "server" DLL_EXT_STRING );
 	//m_pserveraddons = ( IServerAddons* )serveraddonsgn( INTERFACEVERSION_SERVERADDONS, NULL );
 
-	g_pFullFileSystem->GMOD_SetupDefaultPaths( GetBaseDirectory(), COM_GetModDirectory() ); // This is probably called from inside GMOD_SetupDefaultPaths
+	g_pFullFileSystem->GMOD_SetupDefaultPaths( GetBaseDirectory(), "garrysmod" /*COM_GetModDirectory()*/ ); // This is probably called from inside GMOD_SetupDefaultPaths
 }
 
 void CGet::ShutDown( )
