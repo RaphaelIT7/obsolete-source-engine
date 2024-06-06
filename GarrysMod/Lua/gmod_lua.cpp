@@ -11,13 +11,21 @@
 #include "GarrysMod/Lua/LuaObject.h"
 #include "Lua/CLuaClass.h"
 
-void CLuaManager::Startup()
+void CLuaManager::Startup() // ToDo: use definitions late for Client / Server stuff
 {
 	// new CLuaNetworkedVars()
 
+#ifdef CLIENT_DLL
+	g_Lua = LuaShared()->GetLuaInterface(GarrysMod::Lua::State::CLIENT);
+#else
 	g_Lua = LuaShared()->GetLuaInterface(GarrysMod::Lua::State::SERVER);
+#endif
 	g_Lua->Init(g_LuaCallback, false);
+#ifdef CLIENT_DLL
+	g_Lua->SetPathID("lsc");
+#else
 	g_Lua->SetPathID("lsv");
+#endif
 
 	GarrysMod::Lua::ILuaObject* global = g_Lua->Global();
 	g_Lua->PushNumber(get->Version());
@@ -29,14 +37,24 @@ void CLuaManager::Startup()
 	g_Lua->PushString("unknown");
 	g_Lua->SetMember(global, "BRANCH");
 
+#ifdef CLIENT_DLL
+	g_Lua->PushBool(true);
+	g_Lua->SetMember(global, "CLIENT");
+
+	g_Lua->PushBool(false);
+	g_Lua->SetMember(global, "SERVER");
+#else
 	g_Lua->PushBool(false);
 	g_Lua->SetMember(global, "CLIENT");
 
 	g_Lua->PushBool(true);
 	g_Lua->SetMember(global, "SERVER");
+#endif
 
 	InitLuaClasses(g_Lua);
 	InitLuaLibraries(g_Lua);
+
+	g_Lua->FindAndRunScript("includes/init.lua", true, true, "", true);
 
 	// ToDo
 }

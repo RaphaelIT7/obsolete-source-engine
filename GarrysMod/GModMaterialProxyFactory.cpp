@@ -1,6 +1,9 @@
 #include "cbase.h"
 #include "GModMaterialProxyFactory.h"
 #include <materialsystem/imaterialsystem.h>
+#include "GModMaterialProxy.h"
+#include "Lua/LuaHelper.h"
+#include "Externals.h"
 
 GarrysMod::MaterialProxyFactory* GarrysMod::MaterialProxyFactory::m_pSingleton = nullptr;
 IMaterialProxyFactory* GarrysMod::MaterialProxyFactory::m_pBaseFactory = nullptr;
@@ -39,10 +42,22 @@ IMaterialProxy* GarrysMod::MaterialProxyFactory::CreateProxy( const char *pName 
 	if ( proxy )
 		return proxy;
 
+	if (!ThreadInMainThread())
+		return NULL;
 
+	if (LuaHelper::PushFunction( g_Lua, "matproxy", "ShouldOverrideProxy" ))
+	{
+		if (g_Lua->CallInternalGetBool(0))
+		{
+			GarrysMod::MaterialProxy* proxy = new GarrysMod::MaterialProxy( pName );
+			return proxy;
+		}
+	}
+
+	return NULL;
 }
 
 void GarrysMod::MaterialProxyFactory::DeleteProxy( IMaterialProxy *pProxy )
 {
-	
+	m_pBaseFactory->DeleteProxy( pProxy );
 }

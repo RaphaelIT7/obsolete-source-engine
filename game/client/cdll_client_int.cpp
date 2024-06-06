@@ -173,6 +173,10 @@ extern vgui::IInputInternal *g_InputInternal;
 #include "sixense/in_sixense.h"
 #endif
 
+#ifdef BUILD_GMOD
+#include "Lua/gmod_lua.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -1788,6 +1792,13 @@ void CHLClient::LevelShutdown( void )
 	// Shutdown the ragdoll recorder
 	CReplayRagdollRecorder::Instance().Shutdown();
 	CReplayRagdollCache::Instance().Shutdown();
+#endif
+
+#ifdef BUILD_GMOD
+	// DataPack()->Reset()
+	// GarrysMod::StringTable::Reset();
+	Lua::Kill();
+	igarrysmod->LevelShutdown();
 #endif
 }
 
