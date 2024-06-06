@@ -911,6 +911,7 @@ my(%configurationNames) = (	"Base"		=>	"base",
 				"LostCoast"	=>	"lostcoast",
 				"Portal"	=>	"portal",
 				"Dedicated"	=>	"dedicated",
+				"GMOD"		=>	"gmod",
 	    	      );
 my(@configurations) = keys %configurationNames;
 

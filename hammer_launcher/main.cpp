@@ -22,17 +22,9 @@
 #include "tier0/platform.h"
 #include "vgui/ivgui.h"
 #include "vgui/ISurface.h"
-#include "vstdlib/cvar.h"
-
-#include "engine_launcher_api.h"
-#include "ihammer.h"
-#include "filesystem.h"
-#include "istudiorender.h"
-#include "filesystem_init.h"
-#include "vphysics_interface.h"
-
-// dimhotepus: Drop Perforce support
-// #include "p4lib/ip4.h"
+#include "inputsystem/iinputsystem.h"
+#include "tier0/icommandline.h"
+//#include "p4lib/ip4.h"
 
 // Global systems
 
@@ -149,10 +141,17 @@ bool HammerAppSystemGroup::Create() {
   }
 #endif
 
-  // Add in the cvar factory
-  const AppModule_t cvar_module{LoadModule(VStdLib_GetICVarFactory())};
-  IAppSystem *app_system = AddSystem(cvar_module, CVAR_INTERFACE_VERSION);
-  if (!app_system) return false;
+	// Add Perforce separately since it's possible it isn't there. (SDK)
+	/*if ( !CommandLine()->CheckParm( "-nop4" ) )
+	{
+		AppModule_t p4Module = LoadModule( "p4lib.dll" );
+		AddSystem( p4Module, P4_INTERFACE_VERSION );
+	}*/
+	// Connect to interfaces loaded in AddSystems that we need locally
+	g_pMaterialSystem = (IMaterialSystem*)FindSystem( MATERIAL_SYSTEM_INTERFACE_VERSION );
+	g_pHammer = (IHammer*)FindSystem( INTERFACEVERSION_HAMMER );
+	g_pDataCache = (IDataCache*)FindSystem( DATACACHE_INTERFACE_VERSION );
+	g_pInputSystem = (IInputSystem*)FindSystem( INPUTSYSTEM_INTERFACE_VERSION );
 
   bool is_steam{false};
   char file_system_path[MAX_PATH];

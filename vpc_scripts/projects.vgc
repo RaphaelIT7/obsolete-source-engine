@@ -111,6 +111,7 @@ $Project "client"
 	"game\client\client_hl2mp.vpc"		[($WINDOWS||$POSIX) && $HL2MP]
 	"game\client\client_hl1.vpc"		[($WINDOWS||$POSIX) && $HL1]
 	"game\client\client_hl1mp.vpc"		[($WINDOWS||$POSIX) && $HL1MP]
+	"game\client\client_gmod.vpc"		[($WIN32||$POSIX) && $GMOD]
 }
 
 $Project "client_sdk"
@@ -401,6 +402,7 @@ $Project "server"
 	"game\server\server_hl2mp.vpc"		[($WINDOWS||$POSIX) && $HL2MP]
 	"game\server\server_hl1.vpc"		[($WINDOWS||$POSIX) && $HL1]
 	"game\server\server_hl1mp.vpc"		[($WINDOWS||$POSIX) && $HL1MP]
+	"game\server\server_gmod.vpc"		[($WIN32||$POSIX) && $GMOD]
 }
 
 $Project "simdtest"
@@ -1624,25 +1626,25 @@ $Project "socketlib"
 
 $Project "gmod_audio"
 {
-	"gmod-audio\gmod-audio.vpc"
+	"gmod-audio\gmod-audio.vpc" [($WIN32||$POSIX) && $GMOD]
 }
 
 $Project "bootil"
 {
-	"bootil\bootil.vpc"
+	"bootil\bootil.vpc" [($WIN32||$POSIX) && $GMOD]
 }
 
 $Project "menusystem"
 {
-	"menusystem\menusystem.vpc"
+	"menusystem\menusystem.vpc" [($WIN32||$POSIX) && $GMOD]
 }
 
 $Project "resources"
 {
-	"resources\resources.vpc"
+	"resources\resources.vpc" [($WIN32||$POSIX) && $GMOD]
 }
 
 $Project "lua_shared"
 {
-	"gmod-lua-shared\lua-shared.vpc"
+	"gmod-lua-shared\lua-shared.vpc" [($WIN32||$POSIX) && $GMOD]
 }

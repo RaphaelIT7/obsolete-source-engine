@@ -10,6 +10,7 @@
 #include <GarrysMod/IServerAddons.h>
 #include "server.h"
 #include <sys_dll.h>
+#include "host.h"
 
 class CGet : public IGet
 {
@@ -234,6 +235,8 @@ void CGet::Initialize( IFileSystem* fs )
 	// ToDo: Finish IServerAddons and expose them.
 	//CreateInterfaceFn serveraddonsgn = GetFactory( "server" DLL_EXT_STRING );
 	//m_pserveraddons = ( IServerAddons* )serveraddonsgn( INTERFACEVERSION_SERVERADDONS, NULL );
+
+	g_pFullFileSystem->GMOD_SetupDefaultPaths( GetBaseDirectory(), COM_GetModDirectory() ); // This is probably called from inside GMOD_SetupDefaultPaths
 }
 
 void CGet::ShutDown( )

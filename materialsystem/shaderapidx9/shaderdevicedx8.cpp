@@ -2168,7 +2168,7 @@ IDirect3DDevice9* CShaderDeviceDx8::InvokeCreateDevice( void* hWnd, unsigned nAd
 #endif
 
 	HRESULT hr = D3D()->CreateDevice( nAdapter, devType,
-		(VD3DHWND)hWnd, deviceCreationFlags, &m_PresentParameters, &pD3DDevice );
+		(VD3DHWND)hWnd, deviceCreationFlags, &m_PresentParameters, &pD3DDevice ); // ToDo: Look into why Nvidia Remix hangs here. Would be nice to get it working. 
 
 	if ( !FAILED( hr ) && pD3DDevice )
 		return pD3DDevice;
