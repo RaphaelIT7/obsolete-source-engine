@@ -1265,6 +1265,8 @@ $Project
 			$File	"$SRCDIR\GarrysMod\Lua\garrysmod.h"
 			$File	"$SRCDIR\GarrysMod\Lua\garrysmod.cpp"
 			$File	"$SRCDIR\GarrysMod\Lua\gmod_lua_system.cpp"
+			$File	"$SRCDIR\GarrysMod\Lua\CLuaGamemode.h"
+			$File	"$SRCDIR\GarrysMod\Lua\CLuaGamemode.cpp"
 
 			$Folder	"Libraries"
 			{

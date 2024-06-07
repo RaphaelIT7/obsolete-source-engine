@@ -2531,6 +2531,19 @@ void CMeshDX8::SetColorMesh( IMesh *pColorMesh, int nVertexOffsetInBytes )
 	m_nColorMeshVertOffsetInBytes = nVertexOffsetInBytes;
 	Assert( m_pColorMesh || ( nVertexOffsetInBytes == 0 ) );
 
+	// Raphael: Crash fix since m_pColorMesh always seems to be invalid when nVertexOffsetInBytes is below 0.
+	// If we don't fix this here it's gonna cause a crash later on since m_pColorMesh will be junk and not NULL.
+	// This issue seems to be caused by static props, which originally was an error and then the model was loaded by game.MountGMA
+	// If this happens, we need to reload the model or run r_flushlod to fix this issue. Or else we'll have this error every frame.
+	if ( nVertexOffsetInBytes < 0 ) 
+	{
+		AssertMsg( 0, "We were about to crash!" );
+		Warning("The model of a static prop needs to be reloaded. Please run r_flushlod!");
+		m_pColorMesh = NULL;
+		m_nColorMeshVertOffsetInBytes = 0;
+		return;
+	}
+
 #ifdef _DEBUG
 	if ( pColorMesh )
 	{

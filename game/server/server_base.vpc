@@ -83,6 +83,7 @@ $Project
 
 	$Folder	"GarrysMod Files"
 	{
+		$File 	"$SRCDIR\GarrysMod\Externals.h"
 		$File	"$SRCDIR\GarrysMod\Externals.cpp"
 
 		$Folder	"Lua"
@@ -95,6 +96,10 @@ $Project
 			$File	"$SRCDIR\GarrysMod\Lua\CLuaClass.cpp"
 			$File	"$SRCDIR\GarrysMod\Lua\CLuaClass.h"
 			$File	"$SRCDIR\GarrysMod\Lua\LuaEnums.cpp"
+			$File	"$SRCDIR\GarrysMod\Lua\CLuaGamemode.h"
+			$File	"$SRCDIR\GarrysMod\Lua\CLuaGamemode.cpp"
+			$File	"$SRCDIR\GarrysMod\Lua\LuaHelper.h"
+			$File	"$SRCDIR\GarrysMod\Lua\LuaHelper.cpp"
 
 			$Folder	"custom_libs"
 			{

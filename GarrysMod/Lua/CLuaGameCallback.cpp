@@ -20,12 +20,16 @@ public:
 	virtual void CLuaGameCallback::InterfaceCreated(GarrysMod::Lua::ILuaInterface* iface);
 };
 
-Color server_msg(156, 241, 255, 200);
-Color server_error(136, 221, 255, 255);
-Color client_msg(255, 241, 122, 200);
-Color client_error(255, 221, 102, 255);
-Color menu_msg(100, 220, 100, 200);
-Color menu_error(120, 220, 100, 255);
+#ifdef CLIENT_DLL
+Color col_msg(255, 241, 122, 200);
+Color col_error(255, 221, 102, 255);
+#elif defined(MENUSYSTEM)
+Color col_msg(100, 220, 100, 200);
+Color col_error(120, 220, 100, 255);
+#else
+Color col_msg(156, 241, 255, 200);
+Color col_error(136, 221, 255, 255);
+#endif
 
 void UTLVarArgs(char* buffer, const char* format, ...) {
 	va_list args;
@@ -50,13 +54,13 @@ void CLuaGameCallback::ErrorPrint(const char* error, bool print)
 {
 	// Write into the lua_errors_server.txt if error logging is enabled.
 
-	Color ErrorColor = server_error; // ToDo: Change this later and finish this function.
+	Color ErrorColor = col_error; // ToDo: Change this later and finish this function.
 	ColorSpewMessage(SPEW_MESSAGE, &ErrorColor, "%s\n", error);
 }
 
 void CLuaGameCallback::Msg(const char* msg, bool unknown)
 {
-	MsgColour(msg, server_msg);
+	MsgColour(msg, col_msg);
 }
 
 void CLuaGameCallback::MsgColour(const char* msg, const Color& color)
@@ -91,7 +95,7 @@ void CLuaGameCallback::LuaError(const CLuaError* error)
 		str << "\n";
 	}
 
-	MsgColour(str.str().c_str(), server_error);
+	MsgColour(str.str().c_str(), col_error);
 }
 
 void CLuaGameCallback::InterfaceCreated(GarrysMod::Lua::ILuaInterface* iface) {} // Unused
