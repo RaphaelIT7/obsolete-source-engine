@@ -18,6 +18,7 @@
 #include "hl2mp_gamerules.h"
 #include "teamplay_gamerules.h"
 #include "gamevars_shared.h"
+#include "Lua/CLuaClass.h"
 
 #ifndef CLIENT_DLL
 #include "gmod_player.h"
@@ -56,7 +57,30 @@ public:
 	CGMODRules();
 	virtual ~CGMODRules();
 
-	// ToDo
+	virtual void LevelInitPreEntity();
+	virtual bool ShouldCollide( int, int );
+	virtual const unsigned char* GetEncryptionKey();
+	virtual void Precache();
+	virtual void Think();
+	virtual void OnSkillLevelChanged( int );
+	virtual bool IsTeamplay();
+	virtual const char* GetGameDescription();
+	virtual void ClientDisconnected( edict_t *pClient );
+	virtual float FlPlayerFallDamage( CBasePlayer *pPlayer );
+	virtual bool FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker );
+	virtual bool ShouldAutoAim( CBasePlayer *pPlayer, edict_t *target );
+	virtual bool FlPlayerFallDeathDoesScreenFade( CBasePlayer *pl );
+	virtual bool ClientCommand( CBaseEntity *pEdict, const CCommand &args );
+	virtual void ClientSettingsChanged( CBasePlayer *pPlayer );
+	virtual void DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &info );
+	virtual bool CanHavePlayerItem( CBasePlayer *pPlayer, CBaseCombatWeapon *pItem );
+	virtual bool CanHaveItem( CBasePlayer *pPlayer, CItem *pItem );
+	virtual int ItemShouldRespawn( CItem *pItem );
+	virtual void InitDefaultAIRelationships();
+	virtual const char* AIClassText( int classType );
+	virtual void CreateStandardEntities();
+	virtual bool ShouldBurningPropsEmitLight();
+	virtual void CleanUpMap( CLuaClass& obj );
 };
 
 inline CGMODRules* GMODRules()

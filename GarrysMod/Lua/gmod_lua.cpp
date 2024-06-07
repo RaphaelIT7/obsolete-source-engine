@@ -15,17 +15,9 @@ void CLuaManager::Startup() // ToDo: use definitions late for Client / Server st
 {
 	// new CLuaNetworkedVars()
 
-#ifdef CLIENT_DLL
-	g_Lua = LuaShared()->GetLuaInterface(GarrysMod::Lua::State::CLIENT);
-#else
-	g_Lua = LuaShared()->GetLuaInterface(GarrysMod::Lua::State::SERVER);
-#endif
+	g_Lua = LuaShared()->GetLuaInterface(LUA_STATE);
 	g_Lua->Init(g_LuaCallback, false);
-#ifdef CLIENT_DLL
-	g_Lua->SetPathID("lsc");
-#else
-	g_Lua->SetPathID("lsv");
-#endif
+	g_Lua->SetPathID(LUA_PATH);
 
 	GarrysMod::Lua::ILuaObject* global = g_Lua->Global();
 	g_Lua->PushNumber(get->Version());
@@ -37,19 +29,11 @@ void CLuaManager::Startup() // ToDo: use definitions late for Client / Server st
 	g_Lua->PushString("unknown");
 	g_Lua->SetMember(global, "BRANCH");
 
-#ifdef CLIENT_DLL
-	g_Lua->PushBool(true);
+	g_Lua->PushBool(LUA_CLIENT);
 	g_Lua->SetMember(global, "CLIENT");
 
-	g_Lua->PushBool(false);
+	g_Lua->PushBool(LUA_SERVER);
 	g_Lua->SetMember(global, "SERVER");
-#else
-	g_Lua->PushBool(false);
-	g_Lua->SetMember(global, "CLIENT");
-
-	g_Lua->PushBool(true);
-	g_Lua->SetMember(global, "SERVER");
-#endif
 
 	InitLuaClasses(g_Lua);
 	InitLuaLibraries(g_Lua);
@@ -63,16 +47,12 @@ void Lua::Create()
 {
 	Kill();
 
-#ifdef CLIENT_DLL
-	LuaShared()->CreateLuaInterface(GarrysMod::Lua::State::CLIENT, true);
-#else
-	LuaShared()->CreateLuaInterface(GarrysMod::Lua::State::SERVER, true);
-#endif
+	LuaShared()->CreateLuaInterface(LUA_STATE, true);
 
 	// new CLuaSWEPManager();
 	// new CLuaSENTManager();
 	// new CLuaEffectManager();
-	// new CLuaGamemode();
+	gGM = new CLuaGamemode();
 	CLuaManager::Startup();
 	// CLuaGamemode::LoadCurrentlyActiveGamemode();
 	// DataPack()->BuildSearchPaths();
@@ -82,7 +62,7 @@ void Lua::Kill()
 {
 	// ShutdownLuaClasses( g_Lua );
 	// Error( "!g_LuaNetworkedVars" )
-	// delete gGM;
+	delete gGM;
 	// GarrysMod::Lua::Libraries::Timer::Shutdown();
 }
 

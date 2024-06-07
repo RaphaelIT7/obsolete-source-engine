@@ -230,7 +230,7 @@ enum CastVote
 #if defined( CSTRIKE_DLL )
 	#define MAX_PLAYERS				65  // Absolute max players supported
 #elif defined( BUILD_GMOD )
-	#define MAX_PLAYERS				128  // Absolute max players supported
+	#define MAX_PLAYERS				ABSOLUTE_PLAYER_LIMIT  // Absolute max players supported. 128 in GMod.
 #else
 	#define MAX_PLAYERS				33  // Absolute max players supported
 #endif

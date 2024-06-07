@@ -4,6 +4,7 @@
 
 IGet* get;
 GarrysMod::Lua::ILuaInterface* g_Lua;
+CLuaGamemode* gGM;
 
 #ifdef MENUSYSTEM
 CGlobalVarsBase* gpGlobals;
