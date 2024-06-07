@@ -14,8 +14,8 @@
 */
 
 #include "cbase.h"
-#include "hl2mp_player.h"
-#include "hl2mp_gamerules.h"
+#include "gmod_player.h"
+#include "gmod_gamerules.h"
 #include "gamerules.h"
 #include "teamplay_gamerules.h"
 #include "entitylist.h"

@@ -16,7 +16,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\game\shared\hl2,.\hl2,.\hl2mp,$SRCDIR\game\shared\hl2mp"
+		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\game\shared\hl2,.\hl2,.\hl2mp,$SRCDIR\game\shared\hl2mp;.\gmod;$SRCDIR\game\shared\gmod"
 		$PreprocessorDefinitions		"$BASE;HL2MP;HL2_DLL"
 	}
 }
@@ -243,6 +243,57 @@ $Project "Server (GMOD)"
 			}
 		}
 
+		$Folder	"HL2MP"
+		{
+			//$File	"hl2mp\hl2mp_bot_temp.cpp"
+			//$File	"hl2mp\hl2mp_bot_temp.h"
+			//$File	"hl2mp\hl2mp_client.cpp"
+			//$File	"hl2mp\hl2mp_cvars.cpp"
+			//$File	"hl2mp\hl2mp_gameinterface.cpp"
+			//$File	"hl2mp\hl2mp_gameinterface.h"
+			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_gamerules.cpp"
+			//$File	"$SRCDIR\game\shared\hl2mp\hl2mp_gamerules.h"
+			$File	"hl2mp\hl2mp_player.cpp"
+			//$File	"hl2mp\hl2mp_player.h"
+			$File	"$SRCDIR\game\shared\hl2mp\hl2mp_player_shared.cpp"
+			//$File	"$SRCDIR\game\shared\hl2mp\hl2mp_player_shared.h"
+			//$File	"$SRCDIR\game\shared\hl2mp\hl2mp_weapon_parse.cpp"
+			//$File	"$SRCDIR\game\shared\hl2mp\hl2mp_weapon_parse.h"
+			//
+			//$Folder	"Weapons"
+			//{
+			//	$File	"hl2mp\grenade_satchel.cpp"
+			//	$File	"hl2mp\grenade_satchel.h"
+			//	$File	"hl2mp\grenade_tripmine.cpp"
+			//	$File	"hl2mp\grenade_tripmine.h"
+			//	$File	"hl2mp\te_hl2mp_shotgun_shot.cpp"
+			//	$File	"hl2mp\te_hl2mp_shotgun_shot.h"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_357.cpp"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_ar2.cpp"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_ar2.h"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_crossbow.cpp"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_crowbar.cpp"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_frag.cpp"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_hl2mpbase.cpp"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_hl2mpbase.h"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_hl2mpbase_machinegun.cpp"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_hl2mpbase_machinegun.h"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_hl2mpbasebasebludgeon.cpp"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_hl2mpbasehlmpcombatweapon.cpp"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_hl2mpbasehlmpcombatweapon.h"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_physcannon.cpp"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_physcannon.h"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_pistol.cpp"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_rpg.cpp"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_rpg.h"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_shotgun.cpp"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_slam.cpp"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_slam.h"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_smg1.cpp"
+			//	$File	"$SRCDIR\game\shared\hl2mp\weapon_stunstick.cpp"
+			//}
+		}
+
 		$Folder	"GarrysMod"
 		{
 			$File	"gmod\gmod_bot_temp.cpp"
@@ -256,7 +307,6 @@ $Project "Server (GMOD)"
 			$File	"gmod\gmod_player.cpp"
 			$File	"gmod\gmod_player.h"
 			$File	"$SRCDIR\game\shared\gmod\gmod_player_shared.cpp"
-			$File	"$SRCDIR\game\shared\gmod\gmod_player_shared.h"
 			$File	"$SRCDIR\game\shared\gmod\gmod_weapon_parse.cpp"
 			$File	"$SRCDIR\game\shared\gmod\gmod_weapon_parse.h"
 			

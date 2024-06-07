@@ -12,6 +12,7 @@
 #define HL2MP_PUSHAWAY_THINK_INTERVAL		(1.0f / 20.0f)
 #include "studio.h"
 
+class CHL2MP_Player;
 
 enum
 {

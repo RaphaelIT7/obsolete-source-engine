@@ -9,10 +9,10 @@
 #include "npcevent.h"
 
 #ifdef CLIENT_DLL
-	#include "c_hl2mp_player.h"
+	#include "c_gmod_player.h"
 	#include "c_te_effect_dispatch.h"
 #else
-	#include "hl2mp_player.h"
+	#include "gmod_player.h"
 	#include "te_effect_dispatch.h"
 	#include "prop_combine_ball.h"
 #endif

@@ -9,7 +9,7 @@
 #include "in_buttons.h"
 #include "takedamageinfo.h"
 #include "ammodef.h"
-#include "hl2mp_gamerules.h"
+#include "gmod_gamerules.h"
 
 
 #ifdef CLIENT_DLL
@@ -23,17 +23,17 @@ extern IVModelInfo* modelinfo;
 
 	#include "vgui/ISurface.h"
 	#include "vgui_controls/Controls.h"
-	#include "c_hl2mp_player.h"
+	#include "c_gmod_player.h"
 	#include "hud_crosshair.h"
 
 #else
 
-	#include "hl2mp_player.h"
+	#include "gmod_player.h"
 	#include "vphysics/constraints.h"
 
 #endif
 
-#include "weapon_hl2mpbase.h"
+#include "weapon_gmodbase.h"
 
 
 // ----------------------------------------------------------------------------- //
