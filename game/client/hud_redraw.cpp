@@ -74,7 +74,7 @@ void CHud::Think(void)
 		else if ( !pPanel )
 		{
 			// All HUD elements should now derive from vgui!!!
-			Assert( 0 );
+			AssertMsg( 0, "All HUD elements should now derive from vgui!!!" );
 		}
 
 		if ( visible )

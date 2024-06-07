@@ -40,10 +40,10 @@ public:
 	DECLARE_NETWORKCLASS();
 };
 
-class CGMODRules : public CTeamplayRules
+class CGMODRules : public CHL2MPRules
 {
 public:
-	DECLARE_CLASS( CGMODRules, CTeamplayRules );
+	DECLARE_CLASS( CGMODRules, CHL2MPRules );
 
 #ifdef CLIENT_DLL
 

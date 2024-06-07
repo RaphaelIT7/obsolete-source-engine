@@ -210,6 +210,8 @@ $Project "Client (GMOD)"
 				$File	"gmod\ui\gmodtextwindow.cpp"
 				$File	"gmod\ui\gmodtextwindow.h"
 				$File	"gmod\hud_deathnotice.cpp"
+				$File 	"gmod\ui\gmod_hud.cpp"
+				$File 	"gmod\ui\gmod_hud.h"
 			}
 		}
 	}
