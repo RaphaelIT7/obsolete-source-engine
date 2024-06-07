@@ -15,7 +15,7 @@
 #endif
 
 #include "basegrenade_shared.h"
-#include "hl2mp/weapon_slam.h"
+#include "gmod/weapon_slam.h"
 
 class CSoundPatch;
 class CSprite;

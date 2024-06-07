@@ -10,12 +10,12 @@
 #include "in_buttons.h"
 
 #ifdef CLIENT_DLL
-	#include "c_hl2mp_player.h"
+	#include "c_gmod_player.h"
 #else
-	#include "hl2mp_player.h"
+	#include "gmod_player.h"
 #endif
 
-#include "weapon_hl2mpbasehlmpcombatweapon.h"
+#include "weapon_gmodbasehlmpcombatweapon.h"
 
 #ifdef CLIENT_DLL
 #define CWeapon357 C_Weapon357

@@ -6,7 +6,7 @@
 
 #include "cbase.h"
 #include <KeyValues.h>
-#include "hl2mp_weapon_parse.h"
+#include "gmod_weapon_parse.h"
 #include "ammodef.h"
 
 FileWeaponInfo_t* CreateWeaponInfo()

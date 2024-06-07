@@ -14,12 +14,12 @@
 
 #include "cbase.h"
 #include "player.h"
-#include "hl2mp_player.h"
+#include "gmod_player.h"
 #include "in_buttons.h"
 #include "movehelper_server.h"
 
 void ClientPutInServer( edict_t *pEdict, const char *playername );
-void Bot_Think( CHL2MP_Player *pBot );
+void Bot_Think( CGMOD_Player *pBot );
 
 ConVar bot_forcefireweapon( "bot_forcefireweapon", "", 0, "Force bots with the specified weapon to fire." );
 ConVar bot_forceattack2( "bot_forceattack2", "0", 0, "When firing, use attack2." );
@@ -93,8 +93,8 @@ CBasePlayer *BotPutInServer( bool bFrozen, int iTeam )
 	pPlayer->ClearFlags();
 	pPlayer->AddFlag( FL_CLIENT | FL_FAKECLIENT );
 
-	if ( bFrozen )
-		pPlayer->AddEFlags( EFL_BOT_FROZEN );
+	//if ( bFrozen )
+	//	pPlayer->AddEFlags( EFL_BOT_FROZEN );
 
 	BotNumber++;
 
@@ -111,7 +111,7 @@ void Bot_RunAll( void )
 {
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
-		CHL2MP_Player *pPlayer = ToHL2MPPlayer( UTIL_PlayerByIndex( i ) );
+		CGMOD_Player *pPlayer = ToGMODPlayer( UTIL_PlayerByIndex( i ) );
 
 		if ( pPlayer && (pPlayer->GetFlags() & FL_FAKECLIENT) )
 		{
@@ -154,7 +154,7 @@ bool RunMimicCommand( CUserCmd& cmd )
 //			msec - 
 // Output : 	virtual void
 //-----------------------------------------------------------------------------
-static void RunPlayerMove( CHL2MP_Player *fakeclient, const QAngle& viewangles, float forwardmove, float sidemove, float upmove, unsigned short buttons, byte impulse, float frametime )
+static void RunPlayerMove( CGMOD_Player *fakeclient, const QAngle& viewangles, float forwardmove, float sidemove, float upmove, unsigned short buttons, byte impulse, float frametime )
 {
 	if ( !fakeclient )
 		return;
@@ -204,7 +204,7 @@ static void RunPlayerMove( CHL2MP_Player *fakeclient, const QAngle& viewangles, 
 //-----------------------------------------------------------------------------
 // Purpose: Run this Bot's AI for one frame.
 //-----------------------------------------------------------------------------
-void Bot_Think( CHL2MP_Player *pBot )
+void Bot_Think( CGMOD_Player *pBot )
 {
 	// Make sure we stay being a bot
 	pBot->AddFlag( FL_FAKECLIENT );

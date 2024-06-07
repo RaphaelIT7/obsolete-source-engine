@@ -15,7 +15,7 @@
 #define	WEAPONAR2_H
 
 #include "basegrenade_shared.h"
-#include "weapon_hl2mpbase_machinegun.h"
+#include "weapon_gmodbase_machinegun.h"
 
 #ifdef CLIENT_DLL
 #define CWeaponAR2 C_WeaponAR2
