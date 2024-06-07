@@ -179,7 +179,7 @@ bool CGMODRules::ShouldCollide( int idx1, int idx2 )
 
 const unsigned char* CGMODRules::GetEncryptionKey()
 {
-	return "x9Ke0BY7";
+	return (const unsigned char*)"x9Ke0BY7";
 }
 
 void CGMODRules::Precache()
@@ -189,7 +189,9 @@ void CGMODRules::Precache()
 
 void CGMODRules::Think()
 {
+#ifndef CLIENT_DLL
 	CGameRules::Think();
+#endif
 
 	// ToDo
 }
@@ -206,16 +208,22 @@ bool CGMODRules::IsTeamplay()
 
 const char* CGMODRules::GetGameDescription()
 {
+#ifdef CLIENT_DLL
+	return "Garry's Mod";
+#else
 	return igarrysmod->GetGameDescription();
+#endif
 }
 
 void CGMODRules::ClientDisconnected( edict_t* edict )
 {
+#ifndef CLIENT_DLL
 	// Call Gamemode hook (Probably PlayerDisconnect)
 
 	// Call FireTargets
 
 	// Call CBasePlayer::DestroyViewModels
+#endif
 }
 
 float CGMODRules::FlPlayerFallDamage( CBasePlayer *pPlayer )
@@ -247,7 +255,9 @@ bool CGMODRules::ClientCommand( CBaseEntity *pEdict, const CCommand &args )
 
 void CGMODRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 {
+#ifndef CLIENT_DLL
 	CGameRules::ClientSettingsChanged( pPlayer );
+#endif
 }
 
 void CGMODRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &info )
@@ -290,9 +300,11 @@ const char* CGMODRules::AIClassText( int classType )
 
 void CGMODRules::CreateStandardEntities()
 {
+#ifndef CLIENT_DLL
 	CGameRules::CreateStandardEntities();
 
 	CBaseEntity::Create( "gmod_gamerules", vec3_origin, vec3_angle );
+#endif
 }
 
 bool CGMODRules::ShouldBurningPropsEmitLight()
