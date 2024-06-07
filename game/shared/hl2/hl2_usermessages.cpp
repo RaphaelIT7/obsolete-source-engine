@@ -12,27 +12,12 @@
 // NVNT include to register in haptic user messages
 #include "haptics/haptic_msgs.h"
 
+#ifdef BUILD_GMOD
+#include "Lua/gmod_lua_system.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
-
-#ifdef BUILD_GMOD
-void RegisterLuaUserMessages()
-{
-	usermessages->Register( "LuaUserMessage", -1 );
-}
-
-void RegisterGModMessages()
-{
-	RegisterLuaUserMessages();
-
-	usermessages->Register( "LuaCmd", -1 );
-	usermessages->Register( "SWEPCmd", -1 );
-	usermessages->Register( "AmmoPickup", -1 );
-	usermessages->Register( "WeaponPickup", -1 );
-	usermessages->Register( "BreakModel", -1 );
-	usermessages->Register( "CheapBreakModel", -1 );
-}
-#endif
 
 void RegisterUserMessages( void )
 {
