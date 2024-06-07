@@ -127,6 +127,11 @@
 #include "mumble.h"
 #include "vgui_controls/BuildGroup.h"
 
+#ifdef BUILD_GMOD
+#include "gmod_networkvars.h"
+#include "gmod_stringtable.h"
+#endif
+
 // NVNT includes
 #include "hud_macros.h"
 #include "haptics/ihaptics.h"
@@ -1796,7 +1801,7 @@ void CHLClient::LevelShutdown( void )
 
 #ifdef BUILD_GMOD
 	// DataPack()->Reset()
-	// GarrysMod::StringTable::Reset();
+	GarrysMod::StringTable::Reset();
 	Lua::Kill();
 	igarrysmod->LevelShutdown();
 #endif
@@ -1963,6 +1968,23 @@ void CHLClient::InstallStringTableCallback( const char *tableName )
 	{
 		g_pStringTableServerMapCycleMvM = networkstringtable->FindTable( tableName );
 	}
+#endif
+
+#ifdef BUILD_GMOD
+	else if ( !Q_strcasecmp( tableName, "networkstring" ) )
+	{
+		NetworkString::Install();
+	}
+	else if ( !Q_strcasecmp( tableName, "networkvars" ) )
+	{
+		NetworkVarNames::Install();
+	}
+	else if ( !Q_strcasecmp( tableName, "client_lua_files" ) )
+	{
+		// DataPack()->Initialize();
+	}
+
+	GarrysMod::StringTable::Install( tableName );
 #endif
 
 	InstallStringTableCallback_GameRules();

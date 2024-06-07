@@ -91,6 +91,11 @@
 #include "serverbenchmark_base.h"
 #include "querycache.h"
 
+#ifdef BUILD_GMOD
+#include "gmod_networkvars.h"
+#include "gmod_stringtable.h"
+#endif
+
 
 #ifdef TF_DLL
 #include "gc_clientsystem.h"
@@ -1481,6 +1486,14 @@ void CServerGameDLL::CreateNetworkStringTables( void )
 
 	// Set up save/load utilities for string tables
 	g_VguiScreenStringOps.Init( g_pStringTableVguiScreen );
+
+#ifdef BUILD_GMOD
+	GarrysMod::StringTable::Create();
+	NetworkString::Create();
+	NetworkVarNames::Create();
+
+	// DataPack()->Initialize();
+#endif
 }
 
 CSaveRestoreData *CServerGameDLL::SaveInit( int size )

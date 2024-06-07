@@ -1251,6 +1251,10 @@ $Project
 		$File 	"$SRCDIR\GarrysMod\GModMaterialProxy.cpp"
 		$File 	"$SRCDIR\GarrysMod\GModMaterialProxyFactory.h"
 		$File 	"$SRCDIR\GarrysMod\GModMaterialProxyFactory.cpp"
+		$File 	"$SRCDIR\GarrysMod\gmod_stringtable.h"
+		$File 	"$SRCDIR\GarrysMod\gmod_stringtable.cpp"
+		$File 	"$SRCDIR\GarrysMod\gmod_networkvars.h"
+		$File 	"$SRCDIR\GarrysMod\gmod_networkvars.cpp"
 
 		$Folder	"Lua"
 		{
@@ -1268,6 +1272,8 @@ $Project
 			$File	"$SRCDIR\GarrysMod\Lua\gmod_lua_system.cpp"
 			$File	"$SRCDIR\GarrysMod\Lua\CLuaGamemode.h"
 			$File	"$SRCDIR\GarrysMod\Lua\CLuaGamemode.cpp"
+			$File	"$SRCDIR\GarrysMod\Lua\LuaNetworkedVars.h"
+			$File	"$SRCDIR\GarrysMod\Lua\LuaNetworkedVars.cpp"
 
 			$Folder	"Libraries"
 			{
