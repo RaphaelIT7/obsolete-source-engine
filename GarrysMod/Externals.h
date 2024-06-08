@@ -9,6 +9,9 @@
 #endif
 #include <GarrysMod/Lua/LuaInterface.h>
 #include <GarrysMod/Lua/LuaGameCallback.h>
+#if defined(GAME_DLL) || defined(CLIENT_DLL)
+#include "Lua/LuaNetworkedVars.h"
+#endif
 #include <globalvars_base.h>
 
 #ifdef CLIENT_DLL
@@ -37,6 +40,10 @@ extern CGarrysMod* igarrysmod;
 extern GarrysMod::Lua::ILuaGameCallback* g_LuaCallback;
 extern GarrysMod::Lua::ILuaInterface* g_Lua;
 extern CLuaGamemode* gGM;
+
+#if defined(GAME_DLL) || defined(CLIENT_DLL)
+extern CLuaNetworkedVars* g_LuaNetworkedVars;
+#endif
 
 #ifdef MENUSYSTEM
 extern CGlobalVarsBase* gpGlobals;

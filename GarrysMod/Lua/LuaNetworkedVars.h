@@ -1,17 +1,21 @@
 #include "GarrysMod/Lua/LuaObject.h"
+#include "CLuaClass.h"
 
-#ifndef CLIENT_DLL
+#ifdef GAME_DLL
 #include "recipientfilter.h"
 #endif
 
 struct LuaNetworkedEntity_t
 {
-	// ToDo
+	CLuaObject m_pLuaObject;
+	float m_flLastUpdate = 0;
+	int m_iNetworkStringID = -1;
 };
 
 struct LuaNetworkedVar_t
 {
-	// ToDo
+	EHANDLE m_pHandle;
+	CUtlRBTree<CUtlMap<char const*, LuaNetworkedVar_t, unsigned short>::Node_t, unsigned short, CUtlMap<char const*, LuaNetworkedVar_t, unsigned short>::CKeyLess, CUtlMemory<UtlRBTreeNode_t<CUtlMap<char const*, LuaNetworkedVar_t, unsigned short>::Node_t, unsigned short>, unsigned short>> m_pVars;
 };
 
 class CLuaNetworkedVars
@@ -23,7 +27,7 @@ public:
 #ifndef CLIENT_DLL
 	void Cycle();
 	void UpdateEntityVars( LuaNetworkedEntity_t& unknown1, CRecipientFilter& unknown2, bool unknown3 );
-	void UpdateEntityVar(LuaNetworkedEntity_t& unknown1, LuaNetworkedVar_t& unknown2, float unknown3, CRecipientFilter&, bool unknown4 );
+	void UpdateEntityVar( LuaNetworkedEntity_t& unknown1, LuaNetworkedVar_t& unknown2, float unknown3, CRecipientFilter&, bool unknown4 );
 	void ClearEntity( EHANDLE& handle );
 #endif
 	LuaNetworkedVar_t& FindEntityVar( EHANDLE& handle, const char* var, bool unknown );
@@ -33,9 +37,9 @@ public:
 #ifndef CLIENT_DLL
 	void PlayerInsert( CBasePlayer* ply );
 #endif
-	void BuildNetworkVarTables(); // Probably returns an ILuaObject
-	void BuildEntityNetworkVarTable( CBaseEntity* ent );
+	CLuaObject* BuildNetworkVarTables(); // Probably returns an ILuaObject
+	CLuaObject* BuildEntityNetworkVarTable( CBaseEntity* ent );
 
 private:
-	CUtlRBTree<CUtlMap<char const*, LuaNetworkedVar_t, unsigned short>::Node_t, unsigned short, CUtlMap<char const*, LuaNetworkedVar_t, unsigned short>::CKeyLess, CUtlMemory<UtlRBTreeNode_t<CUtlMap<char const*, LuaNetworkedVar_t, unsigned short>::Node_t, unsigned short>, unsigned short>> NetVars;
+	LuaNetworkedEntity_t m_pEnts[MAX_EDICTS];
 };
