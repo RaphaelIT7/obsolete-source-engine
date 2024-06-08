@@ -1,3 +1,6 @@
+#ifndef LUA_CLASS_H
+#define LUA_CLASS_H
+
 #include "GarrysMod/Lua/LuaObject.h"
 #include "GarrysMod/Lua/LuaInterface.h"
 #include "mathlib/vector.h"
@@ -143,7 +146,6 @@ protected:
 };
 
 #define CLuaFunc GarrysMod::Lua::CFunc
-class CLuaClass;
 typedef void (*CLuaClassFunc)();
 
 class CLuaClass // This is somewhat how gmod does it but not exactly.
@@ -202,3 +204,5 @@ extern void Push_Vector(const Vector* vec);
 
 extern CBaseEntity* Get_Entity(int index);
 extern void Push_Entity(CBaseEntity* ent);
+
+#endif

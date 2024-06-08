@@ -1,7 +1,5 @@
 #include "cbase.h"
-#include "CLuaClass.h"
 #include "Externals.h"
-#include "GarrysMod/Lua/LuaInterface.h"
 
 void CLuaObject::Init()
 {

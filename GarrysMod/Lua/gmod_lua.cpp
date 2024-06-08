@@ -13,7 +13,7 @@
 
 void CLuaManager::Startup() // ToDo: use definitions late for Client / Server stuff
 {
-	// new CLuaNetworkedVars()
+	g_LuaNetworkedVars = new CLuaNetworkedVars();
 
 	g_Lua = LuaShared()->GetLuaInterface(LUA_STATE);
 	g_Lua->Init(g_LuaCallback, false);

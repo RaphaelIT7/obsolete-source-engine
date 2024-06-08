@@ -19,6 +19,7 @@
 #include "grenade_satchel.h"
 #include "eventqueue.h"
 #include "gamestats.h"
+#include "Externals.h"
 #include "vprof.h"
 
 #include "engine/IEngineSound.h"
@@ -220,7 +221,7 @@ void CGMOD_Player::InitialSpawn()
 
 	// Call gamemode hook. (GM:PlayerInitialSpawn)
 
-	// Soon: g_LuaNetworkedVars->PlayerInsert( this );
+	g_LuaNetworkedVars->PlayerInsert( this );
 }
 
 void CGMOD_Player::PreThink()
