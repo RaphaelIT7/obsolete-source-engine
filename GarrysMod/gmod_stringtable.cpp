@@ -5,7 +5,7 @@ INetworkStringTable* GarrysMod::StringTable::g_StringTable_GameInfo;
 
 void GarrysMod::StringTable::Reset()
 {
-	// ToDo
+	g_StringTable_GameInfo = NULL;
 }
 
 #ifdef CLIENT_DLL
