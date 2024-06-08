@@ -29,6 +29,8 @@ public:
 
 	C_GMOD_Player();
 	~C_GMOD_Player( void );
+
+	// ToDo
 };
 
 inline C_GMOD_Player *ToGMODPlayer( CBaseEntity *pEntity )
