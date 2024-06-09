@@ -834,13 +834,8 @@ LUA_FUNCTION_STATIC(Global_Entity)
 	int index = LUA->CheckNumber(1);
 	CBaseEntity* ent = NULL;
 
-#ifdef CLIENT_DLL
 	if (index > 0 && index < MAX_EDICTS)
-		ent = cl_entitylist->GetBaseEntity(index);
-#else
-	if (index > 0 && index < MAX_EDICTS)
-		ent = gEntList.GetBaseEntity(gEntList.GetNetworkableHandle(index));
-#endif
+		ent = EHANDLE( index ).Get();
 
 	Push_Entity(ent);
 
@@ -854,16 +849,12 @@ CBaseEntity* Get_Entity(int index)
 	if (!udata)
 		return NULL;
 
-#ifdef CLIENT_DLL
-	return cl_entitylist->GetBaseEntityFromHandle(*(CBaseHandle*)udata);
-#else
-	return gEntList.GetBaseEntity(*(CBaseHandle*)udata);
-#endif
+	return ((EHANDLE*)udata)->Get();
 }
 
 void Push_Entity(CBaseEntity* ent)
 {
-	entity_class.Push(ent ? (void*)&ent->GetRefEHandle() : NULL);
+	entity_class.Push(ent ? (void*)&EHANDLE(ent->GetRefEHandle()) : NULL);
 }
 
 void Entity_Class()

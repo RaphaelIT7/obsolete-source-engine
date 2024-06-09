@@ -1,4 +1,5 @@
 #include "cbase.h"
+#include "Lua/CLuaClass.h"
 #include "Externals.h"
 
 void CLuaObject::Init()

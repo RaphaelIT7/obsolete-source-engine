@@ -5,16 +5,17 @@
 #include "recipientfilter.h"
 #endif
 
-struct LuaNetworkedEntity_t
+struct LuaNetworkedVar_t // This is Gmod's current version
 {
-	CLuaObject m_pLuaObject;
-	float m_flLastUpdate = 0;
+	CLuaObject m_pLuaValue; // Holds the last set Value
+	CLuaObject m_pLuaProxy; // Holds the set NWProxy
+	float m_flLastUpdate = -1.0f;
 	int m_iNetworkStringID = -1;
 };
 
-struct LuaNetworkedVar_t
+struct LuaNetworkedEntity_t // ToDo: Get Gmod's current version
 {
-	EHANDLE m_pHandle;
+	EHANDLE m_pHandle; // This seems to be wrong. But why :/
 	CUtlRBTree<CUtlMap<char const*, LuaNetworkedVar_t, unsigned short>::Node_t, unsigned short, CUtlMap<char const*, LuaNetworkedVar_t, unsigned short>::CKeyLess, CUtlMemory<UtlRBTreeNode_t<CUtlMap<char const*, LuaNetworkedVar_t, unsigned short>::Node_t, unsigned short>, unsigned short>> m_pVars;
 };
 
@@ -42,4 +43,5 @@ public:
 
 private:
 	LuaNetworkedEntity_t m_pEnts[MAX_EDICTS];
+	static float fNextTime;
 };
