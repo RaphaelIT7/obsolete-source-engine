@@ -63,11 +63,11 @@ void RecieveNetworkedVarMsg( bf_read &msg )
 			}
 			break;
 		default:
-			Msg("Error: Trying to network unacceptable type (%s)", g_Lua->GetActualTypeName( iType ) );
+			Msg("Error: Trying to network (receive) unacceptable type (%s)", g_Lua->GetActualTypeName( iType ) );
 			return;
 	}
 
-	CLuaObject obj; // CLuaObject(int, int)
+	CLuaObject obj; // CLuaObject( -1, -1 );
 	obj.SetFromStack( -1 );
 	g_LuaNetworkedVars->SetNetworkedVar( pEHandle, strVarName, &obj );
 }
@@ -110,7 +110,7 @@ void CLuaNetworkedVars::UpdateEntityVar( LuaNetworkedEntity_t& ent, LuaNetworked
 		UserMessageBegin( filter, "NetworkedVar" );
 			MessageWriteEHandle( ent.m_pHandle.Get() );
 			MessageWriteChar( var.m_pLuaValue.GetType() );
-			MessageWriteString( NetworkString::Convert( var.m_iNetworkStringID ) );
+			MessageWriteString( NetworkString::Convert( var.m_iNetworkStringID ) ); // NOTE: Why don't we network the ID xd
 
 			switch( var.m_pLuaValue.GetType() )
 			{
