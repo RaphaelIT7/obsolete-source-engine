@@ -94,11 +94,14 @@ void CLuaNetworkedVars::Cycle()
 
 void CLuaNetworkedVars::UpdateEntityVars( LuaNetworkedEntity_t& ent, CRecipientFilter& filter, bool unknown3 )
 {
-	
+	// ToDo
+	// Do we call UpdateEntityVar on every NWVar?
 }
 
 void CLuaNetworkedVars::UpdateEntityVar( LuaNetworkedEntity_t& ent, LuaNetworkedVar_t& var, float unknown3, CRecipientFilter& filter, bool unknown4 )
 {
+	// ToDo: There are also some other things done here.
+
 	if ( !var.m_pLuaValue.isNil() )
 	{
 		// BUG: The if statement above will be the cause of this issue https://github.com/Facepunch/garrysmod-issues/issues/3397
@@ -154,7 +157,8 @@ void CLuaNetworkedVars::ClearEntity( EHANDLE& handle )
 
 LuaNetworkedVar_t& CLuaNetworkedVars::FindEntityVar( EHANDLE& handle, const char* var, bool unknown )
 {
-
+	LuaNetworkedVar_t luavar;
+	return luavar;
 }
 
 void CLuaNetworkedVars::PushNetworkedVar( EHANDLE& handle, const char* var )
@@ -181,10 +185,10 @@ void CLuaNetworkedVars::PlayerInsert( CBasePlayer* ent )
 
 CLuaObject* CLuaNetworkedVars::BuildNetworkVarTables()
 {
-
+	return NULL;
 }
 
 CLuaObject* CLuaNetworkedVars::BuildEntityNetworkVarTable( CBaseEntity* ent )
 {
-
+	return NULL;
 }
