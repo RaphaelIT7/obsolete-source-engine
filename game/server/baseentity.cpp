@@ -63,6 +63,10 @@
 #include "tier1/utlstring.h"
 #include "utlhashtable.h"
 
+#ifdef BUILD_GMOD
+#include "gmod_networkvars.h"
+#endif
+
 #if defined( TF_DLL )
 #include "tf_gamerules.h"
 #endif
@@ -620,6 +624,13 @@ CBaseEntity *CBaseEntity::GetFollowedEntity()
 void CBaseEntity::SetClassname( const char *className )
 {
 	m_iClassname = AllocPooledString( className );
+
+#ifdef BUILD_GMOD
+	NetworkString::Add( className );
+
+	// Note: Gmod seems to have additional logic here.
+	// Another Note: GMod has SetMaterialOverride and SetSubMaterialOverride which also add a NetworkString.
+#endif
 }
 
 void CBaseEntity::SetModelIndex( int index )

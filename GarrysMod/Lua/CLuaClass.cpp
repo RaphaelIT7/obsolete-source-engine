@@ -1150,6 +1150,10 @@ void InitLuaClasses(GarrysMod::Lua::ILuaInterface* LUA)
 #ifndef MENUSYSTEM
 	entity_class.InitClass();
 #endif
+
+#ifdef GAME_DLL
+	recipientfilter_class.InitClass();
+#endif
 }
 
 /*
@@ -1182,5 +1186,9 @@ void InitLuaLibraries(GarrysMod::Lua::ILuaInterface* LUA)
 {
 #ifndef MENUSYSTEM
 	ents_library.Push();
+#endif
+
+#ifdef GAME_DLL
+	umsg_library.Push();
 #endif
 }

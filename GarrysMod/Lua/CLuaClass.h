@@ -183,13 +183,15 @@ private:
 };
 extern void InitLuaLibraries(GarrysMod::Lua::ILuaInterface* LUA);
 
-// Lua classes. Fix this later
+// Lua classes. Fix this later. ToDo: Rename classes to LC_Vector, LC_Angle and so on.
 extern CLuaClass angle_class;
 extern CLuaClass vector_class;
 extern CLuaClass entity_class;
+extern CLuaClass recipientfilter_class;
 
 // Lua Libraries. Fix this later
 extern CLuaLibrary ents_library;
+extern CLuaLibrary umsg_library;
 
 
 // Lua push functions
@@ -204,5 +206,9 @@ extern void Push_Vector(const Vector* vec);
 
 extern CBaseEntity* Get_Entity(int index);
 extern void Push_Entity(CBaseEntity* ent);
+
+extern CRecipientFilter* Get_CRecipientFilter(int index);
+// Pushes the given Vector and deletes it when it's unused!
+extern void Push_CRecipientFilter(CRecipientFilter* filter);
 
 #endif

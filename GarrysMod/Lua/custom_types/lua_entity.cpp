@@ -1238,4 +1238,4 @@ void Entity_Class()
 		//g_Lua->SetField(-2, "GetBodygroupByName");
 }
 
-CLuaClass entity_class("Entity", GarrysMod::Lua::Type::Entity, Entity_Class);
+CLuaClass entity_class( "Entity", GarrysMod::Lua::Type::Entity, Entity_Class );

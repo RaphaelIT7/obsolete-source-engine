@@ -89,6 +89,8 @@ $Project
 		$File 	"$SRCDIR\GarrysMod\gmod_stringtable.cpp"
 		$File 	"$SRCDIR\GarrysMod\gmod_networkvars.h"
 		$File 	"$SRCDIR\GarrysMod\gmod_networkvars.cpp"
+		$File 	"$SRCDIR\GarrysMod\UserMessageManager.h"
+		$File	"$SRCDIR\GarrysMod\UserMessageManager.cpp"
 
 		$Folder	"Lua"
 		{
@@ -150,6 +152,7 @@ $Project
 				$File	"$SRCDIR\GarrysMod\Lua\custom_types\lua_physicscollide.cpp"
 				$File	"$SRCDIR\GarrysMod\Lua\custom_types\lua_physicsobject.cpp"
 				$File	"$SRCDIR\GarrysMod\Lua\custom_types\lua_player.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_types\lua_recipientfilter.cpp"
 				$File	"$SRCDIR\GarrysMod\Lua\custom_types\lua_saverestore.cpp"
 				$File	"$SRCDIR\GarrysMod\Lua\custom_types\lua_sound.cpp"
 				$File	"$SRCDIR\GarrysMod\Lua\custom_types\lua_surfaceinfo.cpp"
