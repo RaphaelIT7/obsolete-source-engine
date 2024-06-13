@@ -1,3 +1,5 @@
+#ifndef LUANETWORKEDVAR_H
+#define LUANETWORKEDVAR_H
 #include "GarrysMod/Lua/LuaObject.h"
 #include "CLuaClass.h"
 
@@ -45,3 +47,4 @@ private:
 	LuaNetworkedEntity_t m_pEnts[MAX_EDICTS];
 	static float fNextTime;
 };
+#endif

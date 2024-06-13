@@ -211,4 +211,10 @@ extern CRecipientFilter* Get_CRecipientFilter(int index);
 // Pushes the given Vector and deletes it when it's unused!
 extern void Push_CRecipientFilter(CRecipientFilter* filter);
 
+// File library
+namespace GarrysMod::Lua::Libraries::File
+{
+	extern void AsyncCycle();
+}
+
 #endif

@@ -1,3 +1,5 @@
+#ifndef CLUAGAMEMODE_H
+#define CLUAGAMEMODE_H
 #include <string>
 
 class CLuaGamemode
@@ -331,3 +333,4 @@ public:
 #define LUA_HOOK_Angle 309
 #define LUA_HOOK_String 310
 #define LUA_HOOK_Entity 311
+#endif

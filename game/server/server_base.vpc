@@ -54,7 +54,7 @@ $Configuration
 
 	$Compiler
 	{
-		$AdditionalIncludeDirectories	"$BASE;.\;$SRCDIR\GarrysMod;$SRCDIR\game\shared;$SRCDIR\utils\common;$SRCDIR\game\shared\econ;$SRCDIR\game\server\NextBot"
+		$AdditionalIncludeDirectories	"$BASE;.\;$SRCDIR\GarrysMod;$SRCDIR\game\shared;$SRCDIR\utils\common;$SRCDIR\game\shared\econ;$SRCDIR\game\server\NextBot;$SRCDIR\bootil\include"
 		$PreprocessorDefinitions		"$BASE;GAME_DLL;VECTOR;VERSION_SAFE_STEAM_API_INTERFACES;PROTECTED_THINGS_ENABLE;sprintf=use_Q_snprintf_instead_of_sprintf;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead"
 		$PreprocessorDefinitions		"$BASE;SUPPORTS_INT64" [$WIN64]
 		$PreprocessorDefinitions		"$BASE;SWDS" [$POSIX]
@@ -91,6 +91,8 @@ $Project
 		$File 	"$SRCDIR\GarrysMod\gmod_networkvars.cpp"
 		$File 	"$SRCDIR\GarrysMod\UserMessageManager.h"
 		$File	"$SRCDIR\GarrysMod\UserMessageManager.cpp"
+		$File 	"$SRCDIR\GarrysMod\sv_autorefresh.h"
+		$File	"$SRCDIR\GarrysMod\sv_autorefresh.cpp"
 
 		$Folder	"Lua"
 		{
@@ -1100,6 +1102,7 @@ $Project
 		$Lib	particles
 		$Lib	tier2
 		$Lib	tier3
+		$Lib 	bootil
 		$ImpLibexternal steam_api  [!$NO_STEAM]
 	}
 }
