@@ -4,21 +4,11 @@
 
 #include <string>
 #include <vector>
+#include "Bootil/Bootil.h"
 
 class LuaClientDatatableHook;
 class IGet;
 class CSteamAPIContext;
-
-namespace Bootil
-{
-	struct AutoBuffer
-	{
-		void *m_pData;
-		unsigned int m_iSize;
-		unsigned int m_iPos;
-		unsigned int m_iWritten;
-	};
-}
 
 namespace GarrysMod
 {
@@ -43,7 +33,7 @@ namespace GarrysMod
 			};
 		}
 
-		struct File
+		struct LuaFile
 		{
 			int time;
 			std::string name;
@@ -64,8 +54,8 @@ namespace GarrysMod
 			virtual ILuaInterface *CreateLuaInterface( unsigned char, bool ) = 0;
 			virtual void CloseLuaInterface( ILuaInterface * ) = 0;
 			virtual ILuaInterface *GetLuaInterface( unsigned char ) = 0;
-			virtual File *LoadFile( const std::string &path, const std::string &pathId, bool fromDatatable, bool fromFile ) = 0;
-			virtual File *GetCache( const std::string & );
+			virtual LuaFile *LoadFile( const std::string &path, const std::string &pathId, bool fromDatatable, bool fromFile ) = 0;
+			virtual LuaFile *GetCache( const std::string & );
 			virtual void MountLua( const char * ) = 0;
 			virtual void MountLuaAdd( const char *, const char * ) = 0;
 			virtual void UnMountLua( const char * ) = 0;

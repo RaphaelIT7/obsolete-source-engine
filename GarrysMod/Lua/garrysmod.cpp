@@ -15,6 +15,7 @@
 #include "Lua/gmod_lua.h"
 #include "GModMaterialProxyFactory.h"
 #include "CLuaClass.h"
+#include "sv_autorefresh.h"
 
 GarrysMod::Lua::ILuaShared* LuaShared()
 {
@@ -74,6 +75,8 @@ void CGarrysMod::InitializeMod( CreateInterfaceFn fn )
 #ifdef CLIENT_DLL
 	GarrysMod::MaterialProxyFactory::Init();
 #endif
+
+	GarrysMod::AutoRefresh::Init();
 
 	CleanupWipeFolder( "downloads/server/" );
 }
@@ -160,7 +163,12 @@ void CGarrysMod::OnNewUserCmd()
 
 void CGarrysMod::Think() // Called from CLuaGameSystem::FrameUpdatePreEntityThink
 {
-	// ToDo
+	// CheckForFilesystemChanges();
+	g_LuaNetworkedVars->Cycle();
+	// GarrysMod::Lua::Libraries::Timer::Cycle();
+	GarrysMod::Lua::Libraries::File::AsyncCycle();
+	// GarrysMod::Lua::Libraries::HTTP::Cycle();
+	GarrysMod::AutoRefresh::Cycle();
 }
 
 void CGarrysMod::MenuThink()
