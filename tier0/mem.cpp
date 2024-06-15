@@ -34,7 +34,9 @@ void MemAllocOOMError( size_t nSize )
 	{
 		s_oomerror_called = true;
 
+#ifndef BUILD_GMOD
 		MinidumpUserStreamInfoAppend( "MemAllocOOMError: %u bytes\n", (uint)nSize );
+#endif
 
 		//$ TODO: Need a good error message here.
 		// A basic advice to try lowering texture settings is just most-likely to help users who are exhausting address

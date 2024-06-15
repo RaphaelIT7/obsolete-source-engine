@@ -16,6 +16,7 @@ struct CPUFrequencyResults
 	float m_lowestPercentage;
 };
 
+#ifndef BUILD_GMOD
 // Call this to get results.
 // When CPU monitoring is 'disabled' it may still be running at a low frequency,
 // for OGS purposes or for proactively warning users of problems. If fGetDisabledResults
@@ -26,6 +27,7 @@ PLATFORM_INTERFACE CPUFrequencyResults GetCPUFrequencyResults( bool fGetDisabled
 // are recommended. An interval of zero will disable CPU monitoring. Short delays (below
 // about 300 ms) will be rounded up.
 PLATFORM_INTERFACE void SetCPUMonitoringInterval( unsigned nDelayMilliseconds );
+#endif
 
 // Warn with increasing strident colors when CPU percentages go below these levels.
 // They are const int instead of float because const float in C++ is stupid.
