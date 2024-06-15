@@ -236,9 +236,7 @@ DWORD WINAPI HeartbeatThread( LPVOID )
 	HINT(0);
 }
 
-}  // namespace
-
-
+#ifndef BUILD_GMOD
 PLATFORM_INTERFACE CPUFrequencyResults GetCPUFrequencyResults( bool fGetDisabledResults )
 {
 	AUTO_LOCK( s_lock );
@@ -307,8 +305,6 @@ PLATFORM_INTERFACE void SetCPUMonitoringInterval( unsigned nDelayMilliseconds )
 	s_fEnabled = nDelayMilliseconds != 0;
 }
 
-#else
-
 PLATFORM_INTERFACE CPUFrequencyResults GetCPUFrequencyResults(bool)
 {
 	// Return zero initialized results which means no data available.
@@ -320,5 +316,5 @@ PLATFORM_INTERFACE void SetCPUMonitoringInterval( unsigned nDelayMilliseconds )
 {
 	NOTE_UNUSED( nDelayMilliseconds );
 }
-
+#endif
 #endif

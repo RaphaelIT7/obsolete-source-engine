@@ -45,6 +45,7 @@ $Configuration
 		// Add VPK support
 		$PreprocessorDefinitions	"$BASE;SUPPORT_PACKED_STORE" [$WINDOWS]
 		$EnableC++Exceptions		"Yes (/EHsc)"
+		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\bootil\include"
 	}
 	$Linker
 	{

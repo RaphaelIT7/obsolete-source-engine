@@ -600,6 +600,7 @@ PLATFORM_INTERFACE void CatchAndWriteMiniDump( FnWMain pfn, int argc, tchar *arg
 
 #endif 
 
+#ifndef BUILD_GMOD
 // User minidump stream info comment strings.
 //
 // Single header string of 512 bytes set via MinidumpUserStreamInfoSetHeader.
@@ -663,5 +664,4 @@ const char *MinidumpUserStreamInfoGet( int Index )
 
 	return g_UserStreamInfo[ Index ];
 }
-
-
+#endif

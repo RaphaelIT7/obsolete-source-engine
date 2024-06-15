@@ -83,6 +83,7 @@ PLATFORM_INTERFACE void EnableCrashingOnCrashes();
 // There currently is a single header string, and an array of 64 comment strings.
 //	MinidumpUserStreamInfoSetHeader() will set the single header string.
 //	MinidumpUserStreamInfoAppend() will round robin through and array and set the comment strings, overwriting old.
+#ifndef BUILD_GMOD
 PLATFORM_INTERFACE void MinidumpUserStreamInfoSetHeader( const char *pFormat, ... );
 PLATFORM_INTERFACE void MinidumpUserStreamInfoAppend( const char *pFormat, ... );
 
@@ -92,6 +93,7 @@ PLATFORM_INTERFACE void MinidumpUserStreamInfoAppend( const char *pFormat, ... )
 //  Returns NULL when you've reached the end of the comment string array
 //  Empty strings ("\0") can be returned if comment hasn't been set
 PLATFORM_INTERFACE const char *MinidumpUserStreamInfoGet( int Index );
+#endif
 
 #endif  // TIER0_MINIDUMP_H_
 

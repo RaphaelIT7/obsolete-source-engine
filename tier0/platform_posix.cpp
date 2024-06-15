@@ -692,6 +692,7 @@ static void WatchDogHandler( int s )
 }
 
 // watchdog timer support
+#ifndef BUILD_GMOD
 PLATFORM_INTERFACE void Plat_BeginWatchdogTimer( int nSecs )
 {
 	if ( !s_bInittedWD )
@@ -726,6 +727,7 @@ PLATFORM_INTERFACE void Plat_SetWatchdogHandlerFunction( Plat_WatchDogHandlerFun
 {
 	s_pWatchDogHandlerFunction = function;
 }
+#endif
 
 #ifndef NO_HOOK_MALLOC
 

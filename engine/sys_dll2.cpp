@@ -431,6 +431,7 @@ public:
 
 			// Add user comment strings. 4096 is just a large sanity number we should
 			//  never ever reach (currently our minidump supports 32 of these.)
+#ifndef BUILD_GMOD
 			for( int i = 0; i < 4096; i++ )
 			{
 				const char *pUserStreamInfo = MinidumpUserStreamInfoGet( i );
@@ -440,6 +441,7 @@ public:
 				if ( pUserStreamInfo[ 0 ] )
 					CommentPrintf( "%s", pUserStreamInfo );
 			}
+#endif
 
 			bool bExtendedSpew = sys_minidumpexpandedspew.GetBool();
 			if ( bExtendedSpew )
@@ -873,8 +875,9 @@ static eSteamInfoInit Sys_TryInitSteamInfo( [[maybe_unused]] void *pvAPI, SteamI
 	}
 #endif // NO_STEAM
 
+#ifndef BUILD_GMOD
 	MinidumpUserStreamInfoSetHeader( "%sLaunching \"%s\"\n", ( bDedicated ? "DedicatedServerAPI " : "" ), CommandLine()->GetCmdLine() );
-
+#endif
 
 	return initState;
 }
