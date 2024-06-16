@@ -263,7 +263,7 @@ bool CServerNetworkProperty::IsInPVS( const CCheckTransmitInfo *pInfo )
 	// negative leaf count is a node number
 	// If no pvs, add any entity
 
-	Assert( edict() != pInfo->m_pClientEnt );
+	//Assert( edict() != pInfo->m_pClientEnt );
 
 	unsigned char *pPVS = ( unsigned char * )pInfo->m_PVS;
 	

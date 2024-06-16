@@ -38,7 +38,7 @@ ConVar sv_motd_unload_on_dismissal( "sv_motd_unload_on_dismissal", "0", 0, "If e
 extern CBaseEntity*	FindPickerEntityClass( CBasePlayer *pPlayer, char *classname );
 extern bool			g_fGameOver;
 
-void FinishClientPutInServer( CHL2MP_Player *pPlayer )
+void FinishClientPutInServer( CGMOD_Player *pPlayer )
 {
 	pPlayer->InitialSpawn();
 	pPlayer->Spawn();
@@ -87,7 +87,7 @@ called each time a player is spawned into the game
 void ClientPutInServer( edict_t *pEdict, const char *playername )
 {
 	// Allocate a CBaseTFPlayer for pev, and call spawn
-	CHL2MP_Player *pPlayer = CHL2MP_Player::CreatePlayer( "player", pEdict );
+	CGMOD_Player *pPlayer = CGMOD_Player::CreatePlayer( "player", pEdict );
 	pPlayer->SetPlayerName( playername );
 }
 
@@ -97,7 +97,7 @@ void ClientActive( edict_t *pEdict, bool bLoadGame )
 	// Can't load games in CS!
 	Assert( !bLoadGame );
 
-	CHL2MP_Player *pPlayer = ToHL2MPPlayer( CBaseEntity::Instance( pEdict ) );
+	CGMOD_Player *pPlayer = ToGMODPlayer( CBaseEntity::Instance( pEdict ) );
 	FinishClientPutInServer( pPlayer );
 }
 
@@ -114,7 +114,7 @@ const char *GetGameDescription()
 	if ( g_pGameRules ) // this function may be called before the world has spawned, and the game rules initialized
 		return g_pGameRules->GetGameDescription();
 	else
-		return "Half-Life 2 Deathmatch";
+		return "Garry's Mod";
 }
 
 //-----------------------------------------------------------------------------
@@ -160,7 +160,7 @@ void ClientGamePrecache( void )
 // called by ClientKill and DeadThink
 void respawn( CBaseEntity *pEdict, bool fCopyCorpse )
 {
-	CHL2MP_Player *pPlayer = ToHL2MPPlayer( pEdict );
+	CGMOD_Player *pPlayer = ToGMODPlayer( pEdict );
 
 	if ( pPlayer )
 	{
@@ -196,6 +196,6 @@ void GameStartFrame( void )
 void InstallGameRules()
 {
 	// vanilla deathmatch
-	CreateGameRulesObject( "CHL2MPRules" );
+	CreateGameRulesObject( "CGMODRules" );
 }
 
