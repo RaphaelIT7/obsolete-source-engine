@@ -297,6 +297,7 @@ void CFPSPanel::Paint()
 				g_pMatSystemSurface->DrawColoredText( m_hFont, x, 2, ucColor[0], ucColor[1], ucColor[2], 255, "%3i fps on %s", nFps, engine->GetLevelName() );
 			}
 
+#ifndef BUILD_GMOD
 			const CPUFrequencyResults frequency = GetCPUFrequencyResults();
 			double currentTime = Plat_FloatTime();
 			const double displayTime = 5.0; // Display frequency results for this long.
@@ -307,6 +308,7 @@ void CFPSPanel::Paint()
 				GetCPUColor( frequency.m_percentage, ucColor );
 				g_pMatSystemSurface->DrawColoredText( m_hFont, x, lineHeight + 2, ucColor[0], ucColor[1], ucColor[2], 255, "CPU frequency percent: %3.1f%%   Min percent: %3.1f%%", frequency.m_percentage, frequency.m_lowestPercentage );
 			}
+#endif
 		}
 	}
 	m_lastRealTime = gpGlobals->realtime;

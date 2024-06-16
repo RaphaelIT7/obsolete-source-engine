@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\GarrysMod;$SRCDIR\SourceVR"
+		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\GarrysMod;$SRCDIR\SourceVR;$SRCDIR\bootil\include"
 		$PreprocessorDefinitions			"$BASE;MENUSYSTEM"
 	}
 }
