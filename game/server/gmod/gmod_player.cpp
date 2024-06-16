@@ -86,6 +86,7 @@ void CGMOD_Player::Spawn()
 	// ToDo
 
 	CHL2MP_Player::Spawn();
+	SetModel("models/humans/group03/male_01.mdl");
 
 	// ToDo
 

@@ -814,7 +814,7 @@ LUA_FUNCTION_STATIC(Entity_Spawn)
 	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
-	ent->Remove();
+	ent->Spawn();
 
 	return 0;
 }
@@ -834,8 +834,13 @@ LUA_FUNCTION_STATIC(Global_Entity)
 	int index = LUA->CheckNumber(1);
 	CBaseEntity* ent = NULL;
 
+#ifdef CLIENT_DLL
 	if (index > 0 && index < MAX_EDICTS)
-		ent = EHANDLE( index ).Get();
+		ent = cl_entitylist->GetBaseEntity(index);
+#else
+	if (index > 0 && index < MAX_EDICTS)
+		ent = gEntList.GetBaseEntity(gEntList.GetNetworkableHandle(index));
+#endif
 
 	Push_Entity(ent);
 
@@ -849,12 +854,16 @@ CBaseEntity* Get_Entity(int index)
 	if (!udata)
 		return NULL;
 
-	return ((EHANDLE*)udata)->Get();
+#ifdef CLIENT_DLL
+	return cl_entitylist->GetBaseEntityFromHandle(*(CBaseHandle*)udata);
+#else
+	return gEntList.GetBaseEntity(*(CBaseHandle*)udata);
+#endif
 }
 
 void Push_Entity(CBaseEntity* ent)
 {
-	entity_class.Push(ent ? (void*)&EHANDLE(ent->GetRefEHandle()) : NULL);
+	entity_class.Push(ent ? (void*)&ent->GetRefEHandle() : NULL);
 }
 
 void Entity_Class()
