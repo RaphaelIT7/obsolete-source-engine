@@ -17,6 +17,10 @@
 #include "world.h"
 #include "ai_moveprobe.h"
 
+#ifdef BUILD_GMOD
+#include "ai_networkmanager.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -168,6 +172,13 @@ CAI_Network::~CAI_Network()
 	}
 	delete[] m_pAInode;
 	m_pAInode = NULL;
+
+#ifdef BUILD_GMOD
+	FOR_EACH_VEC( m_pRemoveCallbacks, i )
+	{
+		m_pRemoveCallbacks[i]->OnNetworkRemove();
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -640,5 +651,31 @@ IterationRetval_t CAI_Network::EnumElement( IHandleEntity *pHandleEntity )
 #endif
 	return ITERATION_CONTINUE;
 }
+
+#ifdef BUILD_GMOD
+void CAI_Network::AddOnRemoveCallback( CAI_NetworkCallback *pCallback )
+{
+	m_pRemoveCallbacks.AddToTail( pCallback );
+}
+
+void CAI_Network::RemoveOnRemoveCallback( CAI_NetworkCallback *pCallback )
+{
+	m_pRemoveCallbacks.FindAndRemove( pCallback );
+}
+
+ConVar ai_networkfallback("ai_networkfallback", "1", 0, "If the AI Network is deleted for some reason, it will try to fallback to the global's AI network.");
+CAI_Network *CAI_NetworkCallback::GetFallbackNetwork()
+{
+	if ( ai_networkfallback.GetBool() && g_pAINetworkManager )
+	{
+		DevMsg( "CAI_Navigator: Falling back to g_pAINetworkManager->GetNetwork()!\n" );
+		CAI_Network* pNetwork = g_pAINetworkManager->GetNetwork();
+		pNetwork->AddOnRemoveCallback( this ); // We already register ourself since we expect the returned network to be set as the new network.
+		return pNetwork;
+	}
+
+	return NULL;
+}
+#endif
 
 //=============================================================================

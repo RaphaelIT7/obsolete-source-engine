@@ -6,6 +6,9 @@
 #define AI_TACTICALSERVICES_H
 
 #include "ai_component.h"
+#ifdef BUILD_GMOD
+#include "ai_network.h"
+#endif
 
 #if defined( _WIN32 )
 #pragma once
@@ -25,7 +28,12 @@ enum FlankType_t
 
 //-----------------------------------------------------------------------------
 
+#ifdef BUILD_GMOD
+class CAI_TacticalServices : public CAI_Component,
+							 public CAI_NetworkCallback
+#else
 class CAI_TacticalServices : public CAI_Component
+#endif
 {
 public:
 	CAI_TacticalServices( CAI_BaseNPC *pOuter )
@@ -34,6 +42,10 @@ public:
 	{
 		m_bAllowFindLateralLos = true;
 	}
+
+#ifdef BUILD_GMOD
+	~CAI_TacticalServices();
+#endif
 	
 	void Init( CAI_Network *pNetwork );
 
@@ -48,6 +60,11 @@ public:
 	bool			FindLateralCover( const Vector &vNearPos, const Vector &vecThreat, float flMinDist, float distToCheck, int numChecksPerDir, Vector *pResult );
 
 	void			AllowFindLateralLos( bool bAllow ) { m_bAllowFindLateralLos = bAllow; }
+
+#ifdef BUILD_GMOD
+	virtual void	OnNetworkRemove();
+	bool			HasValidNetwork() { if ( !m_pNetwork ) { m_pNetwork = GetFallbackNetwork(); } return m_pNetwork != NULL; }
+#endif
 
 private:
 	// Checks lateral cover

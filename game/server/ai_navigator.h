@@ -18,6 +18,10 @@
 #include "ai_navtype.h"
 #include "ai_motor.h"
 
+#ifdef BUILD_GMOD
+#include "ai_network.h"
+#endif
+
 class CAI_BaseNPC;
 class CAI_Motor;
 class CAI_Route;
@@ -270,7 +274,12 @@ struct AI_ProgressFlyPathParams_t
 //-----------------------------------------------------------------------------
 
 class CAI_Navigator : public CAI_Component,
+#ifdef BUILD_GMOD
+					  public CAI_DefMovementSink,
+					  public CAI_NetworkCallback
+#else
 					  public CAI_DefMovementSink
+#endif
 {
 	typedef CAI_Component BaseClass;
 public:
@@ -448,6 +457,11 @@ public:
 	// --------------------------------
 
 	CBaseEntity *		GetBlockingEntity()	{ return m_hLastBlockingEnt; }
+
+#ifdef BUILD_GMOD
+	virtual void		OnNetworkRemove();
+	bool				HasValidNetwork() { if ( !m_pAINetwork ) { m_pAINetwork = GetFallbackNetwork(); } return m_pAINetwork != NULL; }
+#endif
 	
 protected:
 	// --------------------------------

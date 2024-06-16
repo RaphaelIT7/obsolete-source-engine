@@ -11,6 +11,10 @@
 #include "ai_component.h"
 #include "ai_navtype.h"
 
+#ifdef BUILD_GMOD
+#include "ai_network.h"
+#endif
+
 #if defined( _WIN32 )
 #pragma once
 #endif
@@ -45,7 +49,12 @@ enum RouteBuildFlags_e
 //
 //-----------------------------------------------------------------------------
 
+#ifdef BUILD_GMOD
+class CAI_Pathfinder : public CAI_Component,
+					   public CAI_NetworkCallback
+#else
 class CAI_Pathfinder : public CAI_Component
+#endif
 {
 public:
 	CAI_Pathfinder( CAI_BaseNPC *pOuter )
@@ -54,6 +63,10 @@ public:
 		m_pNetwork( NULL )
 	{
 	}
+
+#ifdef BUILD_GMOD
+	~CAI_Pathfinder();
+#endif
 
 	void Init( CAI_Network *pNetwork );
 	
@@ -100,6 +113,11 @@ public:
 	// --------------------------------
 	
 	void DrawDebugGeometryOverlays( int m_debugOverlays );
+
+#ifdef BUILD_GMOD
+	virtual void	OnNetworkRemove();
+	bool			HasValidNetwork() { if ( !m_pNetwork ) { m_pNetwork = GetFallbackNetwork(); } return m_pNetwork != NULL; }
+#endif
 
 protected:
 	virtual bool	CanUseLocalNavigation() { return true; }

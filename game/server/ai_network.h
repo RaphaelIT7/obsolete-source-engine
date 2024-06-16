@@ -78,6 +78,10 @@ public:
 	CNodeList( AI_NearNode_t *pMemory, int count ) : CUtlPriorityQueue<AI_NearNode_t>( pMemory, count, IsLowerPriority ) {}
 };
 
+#ifdef BUILD_GMOD
+class CAI_NetworkCallback;
+#endif
+
 //-----------------------------------------------------------------------------
 // CAI_Network
 //
@@ -127,6 +131,11 @@ public:
 	}
 	
 	CAI_Node**		AccessNodes() const	{ return m_pAInode; }
+
+#ifdef BUILD_GMOD
+	void			AddOnRemoveCallback(CAI_NetworkCallback* callback);
+	void			RemoveOnRemoveCallback(CAI_NetworkCallback* callback);
+#endif
 	
 private:
 	friend class CAI_NetworkManager;
@@ -167,11 +176,24 @@ private:
 	NearNodeCache_T		m_NearestCache[NEARNODE_CACHE_SIZE];	// Cache of nearest nodes
 	int					m_iNearestCacheNext;					// Oldest record in the cache
 
+#ifdef BUILD_GMOD
+	CUtlVector<CAI_NetworkCallback*> m_pRemoveCallbacks;
+#endif
+
 #ifdef AI_NODE_TREE
 	ISpatialPartition * m_pNodeTree;
 	CUtlVector<int>		m_GatheredNodes;
 #endif
 };
+
+#ifdef BUILD_GMOD
+class CAI_NetworkCallback
+{
+public:
+	virtual void		OnNetworkRemove() {};
+	virtual CAI_Network *GetFallbackNetwork();
+};
+#endif
 
 //-----------------------------------------------------------------------------
 // CAI_NetworkEditTools

@@ -78,8 +78,29 @@ Navigation_t MoveBitsToNavType( int fBits )
 void CAI_Pathfinder::Init( CAI_Network *pNetwork )
 {
 	Assert( pNetwork );
+#ifdef BUILD_GMOD
+	if ( m_pNetwork )
+		m_pNetwork->RemoveOnRemoveCallback( (CAI_NetworkCallback*)this );
+
 	m_pNetwork = pNetwork;
+	m_pNetwork->AddOnRemoveCallback( (CAI_NetworkCallback*)this );
+#else
+	m_pNetwork = pNetwork;
+#endif
 }
+
+#ifdef BUILD_GMOD
+CAI_Pathfinder::~CAI_Pathfinder()
+{
+	if ( m_pNetwork )
+		m_pNetwork->RemoveOnRemoveCallback( (CAI_NetworkCallback*)this );
+}
+
+void CAI_Pathfinder::OnNetworkRemove()
+{
+	m_pNetwork = NULL;
+}
+#endif
 	
 //-----------------------------------------------------------------------------
 //
@@ -171,6 +192,9 @@ Navigation_t CAI_Pathfinder::ComputeWaypointType( CAI_Node **ppNodes, int parent
 //-----------------------------------------------------------------------------
 AI_Waypoint_t* CAI_Pathfinder::MakeRouteFromParents( int *parentArray, int endID ) 
 {
+	if ( !HasValidNetwork() )
+		return NULL;
+
 	AI_Waypoint_t *pOldWaypoint = NULL;
 	AI_Waypoint_t *pNewWaypoint = NULL;
 	int	currentID = endID;
@@ -243,6 +267,9 @@ bool CAI_Pathfinder::IsLinkStillStale(int moveType, CAI_Link *nodeLink)
 	{
 		m_flLastStaleLinkCheckTime = gpGlobals->curtime;
 	}
+
+	if ( !HasValidNetwork() )
+		return false;
 	
 	// Test movement, if suceeds, clear the stale bit
 	if (CheckStaleRoute(GetNetwork()->GetNode(nodeLink->m_iSrcID)->GetPosition(GetHullType()),
@@ -262,6 +289,9 @@ bool CAI_Pathfinder::IsLinkStillStale(int moveType, CAI_Link *nodeLink)
 //-----------------------------------------------------------------------------
 int	CAI_Pathfinder::NearestNodeToNPC()
 {
+	if ( !HasValidNetwork() )
+		return NO_NODE;
+
 	return GetNetwork()->NearestNodeToPoint( GetOuter(), GetAbsOrigin() );
 }
 
@@ -269,6 +299,9 @@ int	CAI_Pathfinder::NearestNodeToNPC()
 //-----------------------------------------------------------------------------
 int CAI_Pathfinder::NearestNodeToPoint( const Vector &vecOrigin )
 {
+	if ( !HasValidNetwork() )
+		return NO_NODE;
+
 	return GetNetwork()->NearestNodeToPoint( GetOuter(), vecOrigin );
 }
 
@@ -279,6 +312,9 @@ int CAI_Pathfinder::NearestNodeToPoint( const Vector &vecOrigin )
 AI_Waypoint_t *CAI_Pathfinder::FindBestPath(int startID, int endID) 
 {
 	AI_PROFILE_SCOPE( CAI_Pathfinder_FindBestPath );
+
+	if ( !HasValidNetwork() )
+		return NULL;
 	
 	if ( !GetNetwork()->NumNodes() )
 		return NULL;
@@ -382,6 +418,9 @@ AI_Waypoint_t* CAI_Pathfinder::FindShortRandomPath(int startID, float minPathLen
 	int				numNeighbors		= 1;	// The start node
 	int				numStaleNeighbors	= 0;
 	int				neighborID			= NO_NODE;
+
+	if ( !HasValidNetwork() )
+		return NULL;
 
 	int nNodes = GetNetwork()->NumNodes();
 	CAI_Node **pAInode = GetNetwork()->AccessNodes();
@@ -632,6 +671,9 @@ bool CAI_Pathfinder::IsLinkUsable(CAI_Link *pLink, int startID)
 
 	CAI_Node *pStartNode,*pEndNode;
 
+	if ( !HasValidNetwork() )
+		return false;
+
 	pStartNode = GetNetwork()->GetNode(startID);
 	pEndNode = GetNetwork()->GetNode(endID);
 
@@ -726,6 +768,9 @@ static int NPCBuildFlags( CAI_BaseNPC *pNPC, const Vector &vecOrigin )
 //-----------------------------------------------------------------------------
 AI_Waypoint_t* CAI_Pathfinder::CreateNodeWaypoint( Hull_t hullType, int nodeID, int nodeFlags )
 {
+	if ( !HasValidNetwork() )
+		return NULL;
+
 	CAI_Node *pNode = GetNetwork()->GetNode(nodeID);
 
 	Navigation_t navType;
@@ -756,6 +801,9 @@ AI_Waypoint_t* CAI_Pathfinder::RouteToNode(const Vector &vecOrigin, int buildFla
 {
 	AI_PROFILE_SCOPE( CAI_Pathfinder_RouteToNode );
 	
+	if ( !HasValidNetwork() )
+		return NULL;
+
 	buildFlags |= NPCBuildFlags( GetOuter(), vecOrigin );
 	buildFlags &= ~bits_BUILD_GET_CLOSE;
 
@@ -786,6 +834,9 @@ AI_Waypoint_t* CAI_Pathfinder::RouteFromNode(const Vector &vecOrigin, int buildF
 {
 	AI_PROFILE_SCOPE( CAI_Pathfinder_RouteFromNode );
 	
+	if ( !HasValidNetwork() )
+		return NULL;
+
 	buildFlags |= NPCBuildFlags( GetOuter(), vecOrigin );
 	buildFlags |= bits_BUILD_GET_CLOSE;
 
@@ -822,6 +873,9 @@ AI_Waypoint_t *CAI_Pathfinder::BuildSimpleRoute( Navigation_t navType, const Vec
 	const Vector &vEnd, const CBaseEntity *pTarget, int endFlags, int nodeID, 
 	int nodeTargetType, float flYaw )
 {
+	if ( !HasValidNetwork() )
+		return NULL;
+
 	Assert( navType == NAV_JUMP || navType == NAV_CLIMB ); // this is what this here function is for
 	// Only allowed to jump to ground nodes
 	if ((nodeID == NO_NODE)	|| (GetNetwork()->GetNode(nodeID)->GetType() == nodeTargetType) )
@@ -1319,6 +1373,9 @@ AI_Waypoint_t *CAI_Pathfinder::BuildLocalRoute(const Vector &vStart, const Vecto
 {
 	AI_PROFILE_SCOPE( CAI_Pathfinder_BuildLocalRoute );
 
+	if ( !HasValidNetwork() )
+		return NULL;
+
 	// Get waypoint yaw
 	float flYaw;
 	if (nodeID != NO_NODE)
@@ -1439,6 +1496,12 @@ AI_Waypoint_t *CAI_Pathfinder::BuildRoute( const Vector &vStart, const Vector &v
 
 void CAI_Pathfinder::UnlockRouteNodes( AI_Waypoint_t *pPath )
 {
+	if ( !HasValidNetwork() )
+	{
+		//pPath = NULL;
+		return;
+	}
+
 	CAI_Node *pNode;
 	while ( pPath )
 	{
@@ -1747,6 +1810,9 @@ AI_Waypoint_t *CAI_Pathfinder::BuildNearestNodeRoute( const Vector &vGoal, bool 
 {
 	AI_PROFILE_SCOPE( CAI_Pathfinder_BuildNearestNodeRoute );
 
+	if ( !HasValidNetwork() )
+		return NULL;
+
 	CPathfindNearestNodeFilter filter( this, vGoal, bToNode, buildFlags, goalTolerance );
 	*pNearestNode  = GetNetwork()->NearestNodeToPoint( GetOuter(), vGoal, true, &filter );
 
@@ -1766,7 +1832,7 @@ AI_Waypoint_t *CAI_Pathfinder::BuildNodeRoute(const Vector &vStart, const Vector
 	// ----------------------------------------------------------------------
 	//  Make sure network has nodes
 	// ----------------------------------------------------------------------
-	if (GetNetwork()->NumNodes() == 0)
+	if ( !HasValidNetwork() || GetNetwork()->NumNodes() == 0 )
 		return NULL;
 
 	// ----------------------------------------------------------------------
@@ -1803,7 +1869,7 @@ AI_Waypoint_t *CAI_Pathfinder::BuildNodeRoute(const Vector &vStart, const Vector
 	}
 
 	// If nodes are not connected by network graph, no route is possible
-	if (!GetNetwork()->IsConnected(srcID, destID))
+	if ( !HasValidNetwork() || !GetNetwork()->IsConnected(srcID, destID))
 		return NULL;
 
 	AI_Waypoint_t *path = FindBestPath(srcID, destID);

@@ -65,10 +65,31 @@ END_DATADESC();
 void CAI_TacticalServices::Init( CAI_Network *pNetwork )
 {
 	Assert( pNetwork );
+#ifdef BUILD_GMOD
+	if ( m_pNetwork )
+		m_pNetwork->RemoveOnRemoveCallback( (CAI_NetworkCallback*)this );
+
 	m_pNetwork = pNetwork;
+	m_pNetwork->AddOnRemoveCallback( (CAI_NetworkCallback*)this );
+#else
+	m_pNetwork = pNetwork;
+#endif
 	m_pPathfinder = GetOuter()->GetPathfinder();
 	Assert( m_pPathfinder );
 }
+
+#ifdef BUILD_GMOD
+CAI_TacticalServices::~CAI_TacticalServices()
+{
+	if ( m_pNetwork )
+		m_pNetwork->RemoveOnRemoveCallback( (CAI_NetworkCallback*)this );
+}
+
+void CAI_TacticalServices::OnNetworkRemove()
+{
+	m_pNetwork = NULL;
+}
+#endif
 	
 //-------------------------------------
 
@@ -286,6 +307,9 @@ int CAI_TacticalServices::FindBackAwayNode(const Vector &vecThreat )
 		// return false;
 	}
 
+	if ( !HasValidNetwork() )
+		return NO_NODE;
+
 	// A vector pointing to the threat.
 	Vector vecToThreat;
 	vecToThreat = vecThreat - GetLocalOrigin();
@@ -368,6 +392,9 @@ int CAI_TacticalServices::FindCoverNode(const Vector &vNearPos, const Vector &vT
 	{
 		flMinDist = 0.5 * flMaxDist;
 	}
+
+	if ( !HasValidNetwork() )
+		return NO_NODE;
 
 	// ------------------------------------------------------------------------------------
 	// We're going to search for a cover node by expanding to our current node's neighbors
@@ -516,6 +543,9 @@ int CAI_TacticalServices::FindLosNode(const Vector &vThreatPos, const Vector &vT
 		DevWarning( 2, "FindCover() - %s has no nearest node! (Check near %f %f %f)\n", GetEntClassname(), pos.x, pos.y, pos.z);
 		return NO_NODE;
 	}
+
+	if ( !HasValidNetwork() )
+		return NO_NODE;
 
 	// ------------------------------------------------------------------------------------
 	// We're going to search for a shoot node by expanding to our current node's neighbors
@@ -788,6 +818,9 @@ bool CAI_TacticalServices::FindLateralLos( const Vector &vecThreat, Vector *pRes
 
 Vector CAI_TacticalServices::GetNodePos( int node )
 {
+	if ( !HasValidNetwork() )
+		return vec3_invalid;
+
 	return GetNetwork()->GetNode((int)node)->GetPosition(GetHullType());
 }
 

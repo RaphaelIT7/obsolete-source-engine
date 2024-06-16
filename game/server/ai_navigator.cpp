@@ -31,6 +31,9 @@
 #include "BasePropDoor.h"
 #include "props.h"
 #include "physics_npc_solver.h"
+#ifdef BUILD_GMOD
+#include "ai_networkmanager.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -221,14 +224,34 @@ void CAI_Navigator::Init( CAI_Network *pNetwork )
 	m_pMotor = GetOuter()->GetMotor();
 	m_pMoveProbe = GetOuter()->GetMoveProbe();
 	m_pLocalNavigator = GetOuter()->GetLocalNavigator();
-	m_pAINetwork = pNetwork;
 
+#ifdef BUILD_GMOD
+	if ( m_pAINetwork )
+		m_pAINetwork->RemoveOnRemoveCallback( (CAI_NetworkCallback*)this );
+
+	m_pAINetwork = pNetwork;
+	m_pAINetwork->AddOnRemoveCallback( (CAI_NetworkCallback*)this );
+#else
+	m_pAINetwork = pNetwork;
+#endif
 }
+
+#ifdef BUILD_GMOD
+void CAI_Navigator::OnNetworkRemove()
+{
+	m_pAINetwork = NULL;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 
 CAI_Navigator::~CAI_Navigator()
 {
+#ifdef BUILD_GMOD
+	if (m_pAINetwork != NULL)
+		m_pAINetwork->RemoveOnRemoveCallback((CAI_NetworkCallback*)this);
+#endif
+
 	delete m_pPath;
 	m_pClippedWaypoints->RemoveAll();
 	delete m_pClippedWaypoints;
@@ -559,6 +582,9 @@ bool CAI_Navigator::SetRadialGoal( const Vector &destination, const Vector &cent
 
 bool CAI_Navigator::SetRandomGoal( const Vector &from, float minPathLength, const Vector &dir )
 {
+	if ( !HasValidNetwork() )
+		return false;
+
 	DbgNavMsg( GetOuter(), "Set random goal\n" );
 	OnNewGoal();
 	if ( GetNetwork()->NumNodes() <= 0 )
@@ -1231,6 +1257,9 @@ AI_PathNode_t CAI_Navigator::GetNearestNode()
 
 Vector CAI_Navigator::GetNodePos( AI_PathNode_t node )
 {
+	if ( !HasValidNetwork() )
+		return vec3_invalid;
+
 	return GetNetwork()->GetNode((int)node)->GetPosition(GetHullType());
 }
 
@@ -3235,7 +3264,7 @@ float CAI_Navigator::MovementCost( int moveType, Vector &vecStart, Vector &vecEn
 bool CAI_Navigator::CanFitAtNode(int nodeNum, unsigned int collisionMask ) 
 {
 	// Make sure I have a network
-	if (!GetNetwork())
+	if (!HasValidNetwork())
 	{
 		DevMsg("CanFitAtNode() called with no network!\n");
 		return false;
@@ -3431,6 +3460,9 @@ bool CAI_Navigator::FindPath( bool fSignalTaskStatus, bool bDontIgnoreBadLinks )
 //-----------------------------------------------------------------------------
 bool CAI_Navigator::MarkCurWaypointFailedLink( void )
 {
+	if ( !HasValidNetwork() )
+		return false;
+
 	if ( TestingSteering() )
 		return false;
 
@@ -3612,7 +3644,7 @@ CBaseEntity *CAI_Navigator::GetNextPathcorner( CBaseEntity *pPathCorner )
 		if ( !pNextPathCorner && ( pHint = dynamic_cast<CAI_Hint *>( pPathCorner ) ) != NULL )
 		{
 			int targetNode = pHint->GetTargetNode();
-			if ( targetNode != NO_NODE )
+			if ( targetNode != NO_NODE && HasValidNetwork() )
 			{
 				CAI_Node *pTestNode = GetNetwork()->GetNode(targetNode);
 				pNextPathCorner = pTestNode->GetHint();
@@ -3854,7 +3886,7 @@ void CAI_Navigator::ClearPath( void )
 
 		while ( pWaypoint )
 		{
-			if ( pWaypoint->iNodeID != NO_NODE )
+			if ( pWaypoint->iNodeID != NO_NODE && HasValidNetwork() )
 			{
 				CAI_Node *pNode = GetNetwork()->GetNode(pWaypoint->iNodeID);
 				
