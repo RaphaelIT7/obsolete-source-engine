@@ -3,6 +3,7 @@
 #include "GarrysMod/Lua/Interface.h"
 #include "Externals.h"
 #include "Bootil/Bootil.h"
+#include "filesystem.h"
 
 void ReplaceAllCharacters(std::string& unknown1, std::string unknown2, std::string unknown3)
 {

@@ -76,7 +76,7 @@ void CGarrysMod::InitializeMod( CreateInterfaceFn fn )
 	GarrysMod::MaterialProxyFactory::Init();
 #endif
 
-	GarrysMod::AutoRefresh::Init();
+	//GarrysMod::AutoRefresh::Init();
 
 	CleanupWipeFolder( "downloads/server/" );
 }
@@ -164,11 +164,13 @@ void CGarrysMod::OnNewUserCmd()
 void CGarrysMod::Think() // Called from CLuaGameSystem::FrameUpdatePreEntityThink
 {
 	// CheckForFilesystemChanges();
+#ifdef GAME_DLL
 	g_LuaNetworkedVars->Cycle();
+#endif
 	// GarrysMod::Lua::Libraries::Timer::Cycle();
 	GarrysMod::Lua::Libraries::File::AsyncCycle();
 	// GarrysMod::Lua::Libraries::HTTP::Cycle();
-	GarrysMod::AutoRefresh::Cycle();
+	//GarrysMod::AutoRefresh::Cycle();
 }
 
 void CGarrysMod::MenuThink()

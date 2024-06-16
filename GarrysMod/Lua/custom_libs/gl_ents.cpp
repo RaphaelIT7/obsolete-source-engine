@@ -40,6 +40,60 @@ LUA_FUNCTION_STATIC(ents_GetAll)
 	return 1;
 }
 
+LUA_FUNCTION_STATIC(ents_FindByClass)
+{
+	const char* pClass = LUA->CheckString(1);
+	LUA->CreateTable();
+	int idx = 0;
+	const CEntInfo *pInfo = g_pEntityList->FirstEntInfo();
+	for ( ;pInfo; pInfo = pInfo->m_pNext ) {
+		CBaseEntity *ent = (CBaseEntity*)pInfo->m_pEntity;
+		if ( !ent ) {
+			DevWarning( "NULL entity in global entity list!\n" );
+			continue;
+		}
+
+#ifdef GAME_DLL
+		if ( Q_strcmp(ent->GetClassname(), pClass) != 0 )
+			continue;
+#endif
+
+		++idx;
+		LUA->PushNumber(idx);
+		Push_Entity(ent);
+		LUA->SetTable(-3);
+	}
+
+	return 1;
+}
+
+LUA_FUNCTION_STATIC(ents_FindByName)
+{
+	const char* pName = LUA->CheckString(1);
+	LUA->CreateTable();
+	int idx = 0;
+	const CEntInfo *pInfo = g_pEntityList->FirstEntInfo();
+	for ( ;pInfo; pInfo = pInfo->m_pNext ) {
+		CBaseEntity *ent = (CBaseEntity*)pInfo->m_pEntity;
+		if ( !ent ) {
+			DevWarning( "NULL entity in global entity list!\n" );
+			continue;
+		}
+
+#ifdef GAME_DLL
+		if ( Q_strcmp(ent->GetEntityName().ToCStr(), pName) != 0 )
+			continue;
+#endif
+
+		++idx;
+		LUA->PushNumber(idx);
+		Push_Entity(ent);
+		LUA->SetTable(-3);
+	}
+
+	return 1;
+}
+
 LUA_FUNCTION_STATIC(ents_GetByIndex)
 {
 	int entIndex = LUA->CheckNumber(1);
@@ -84,8 +138,8 @@ void Ents_Library()
 			//g_Lua->PushCFunction(ents_FindAlongRay);
 			//g_Lua->SetField(-2, "FindAlongRay");
 
-			//g_Lua->PushCFunction(ents_FindByClass);
-			//g_Lua->SetField(-2, "FindByClass");
+			g_Lua->PushCFunction(ents_FindByClass);
+			g_Lua->SetField(-2, "FindByClass");
 
 			//g_Lua->PushCFunction(ents_FindByClassAndParent);
 			//g_Lua->SetField(-2, "FindByClassAndParent");
@@ -93,8 +147,8 @@ void Ents_Library()
 			//g_Lua->PushCFunction(ents_FindByModel);
 			//g_Lua->SetField(-2, "FindByModel");
 
-			//g_Lua->PushCFunction(ents_FindByName);
-			//g_Lua->SetField(-2, "FindByName");
+			g_Lua->PushCFunction(ents_FindByName);
+			g_Lua->SetField(-2, "FindByName");
 
 			//g_Lua->PushCFunction(ents_FindInBox);
 			//g_Lua->SetField(-2, "FindInBox");

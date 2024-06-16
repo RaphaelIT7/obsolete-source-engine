@@ -204,12 +204,16 @@ extern Vector* Get_Vector(int index);
 // Pushes the given Vector and deletes it when it's unused!
 extern void Push_Vector(const Vector* vec);
 
+#ifndef MENUSYSTEM
 extern CBaseEntity* Get_Entity(int index);
 extern void Push_Entity(CBaseEntity* ent);
 
+#ifdef GAME_DLL
 extern CRecipientFilter* Get_CRecipientFilter(int index);
 // Pushes the given Vector and deletes it when it's unused!
 extern void Push_CRecipientFilter(CRecipientFilter* filter);
+#endif
+#endif
 
 // File library
 namespace GarrysMod::Lua::Libraries::File
