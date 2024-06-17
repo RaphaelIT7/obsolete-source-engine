@@ -987,7 +987,6 @@ public:
 		{
 			m_lIndex.exchange( lBegin );
 			m_lLimit = lBegin + nItems;
-
 			intp i = g_pThreadPool->NumIdleThreads();
 
 			if ( nMaxParallel < i)
@@ -1094,7 +1093,7 @@ public:
 	}
 
 protected:
-	void Run( intp nMaxParallel = PTRDIFF_MAX, intp threadOverride = -1 )
+	void Run( intp nMaxParallel = INT_MAX, intp threadOverride = -1 )
 	{
 		intp i = g_pThreadPool->NumIdleThreads();
 
@@ -1107,14 +1106,14 @@ protected:
 		{
 			if ( threadOverride == -1 || i == threadOverride - 1 )
 			{
-				m_nActive.fetch_add( 1, std::memory_order::memory_order_relaxed );
+				++m_nActive;
 				ThreadExecute( this, &ThisParallelProcessorBase_t::DoExecute )->Release();
 			}
 		}
 
 		if ( threadOverride == -1 || threadOverride == 0 )
 		{
-			m_nActive.fetch_add( 1, std::memory_order::memory_order_relaxed );
+			++m_nActive;
 			DoExecute();
 		}
 
