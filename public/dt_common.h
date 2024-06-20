@@ -75,16 +75,34 @@
 #define SPROP_COORD_MP_LOWPRECISION 	(1<<14) // Like SPROP_COORD, but special handling for multiplayer games where the fractional component only gets a 3 bits instead of 5
 #define SPROP_COORD_MP_INTEGRAL			(1<<15) // SPROP_COORD_MP, but coordinates are rounded to integral boundaries
 
+#ifdef BUILD_GMOD
+#define SPROP_CELL_COORD				(1<<16) // Like SPROP_COORD, but special encoding for cell coordinates that can't be negative, bit count indicate maximum value
+#define SPROP_CELL_COORD_LOWPRECISION 	(1<<17) // Like SPROP_CELL_COORD, but special handling where the fractional component only gets a 3 bits instead of 5
+#define SPROP_CELL_COORD_INTEGRAL		(1<<18) // SPROP_CELL_COORD, but coordinates are rounded to integral boundaries
+#endif
+
 #define SPROP_VARINT					SPROP_NORMAL	// reuse existing flag so we don't break demo. note you want to include SPROP_UNSIGNED if needed, its more efficient
 
+#ifdef BUILD_GMOD
 #define SPROP_NUMFLAGBITS_NETWORKED		16
+#else
+#define SPROP_NUMFLAGBITS_NETWORKED		19
+#endif
 
 // This is server side only, it's used to mark properties whose SendProxy_* functions encode against gpGlobals->tickcount (the only ones that currently do this are
 //  m_flAnimTime and m_flSimulationTime.  MODs shouldn't need to mess with this probably
+#ifdef BUILD_GMOD
+#define SPROP_ENCODED_AGAINST_TICKCOUNT	(1<<19)
+#else
 #define SPROP_ENCODED_AGAINST_TICKCOUNT	(1<<16)
+#endif
 
 // See SPROP_NUMFLAGBITS_NETWORKED for the ones which are networked
-#define SPROP_NUMFLAGBITS				17
+#ifdef BUILD_GMOD
+#define SPROP_NUMFLAGBITS				20
+#else
+#define SPROP_NUMFLAGBITS				20
+#endif
 
 // Used by the SendProp and RecvProp functions to disable debug checks on type sizes.
 #define SIZEOF_IGNORE		-1
@@ -114,6 +132,10 @@ typedef enum
 	DPT_DataTable,
 #if 0 // We can't ship this since it changes the size of DTVariant to be 20 bytes instead of 16 and that breaks MODs!!!
 	DPT_Quaternion,
+#endif
+
+#ifdef BUILD_GMOD
+	//DPT_GMODDataTable,
 #endif
 
 #ifdef SUPPORTS_INT64

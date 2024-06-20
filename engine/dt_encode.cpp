@@ -19,6 +19,99 @@ extern bool ShouldWatchThisProp( const SendTable *pTable, int objectID, const ch
 // The engine implements this.
 extern const char* GetObjectClassName( int objectID );
 
+#ifdef BUILD_GMOD
+static inline bool EncodeSpecialFloat( const SendProp *pProp, float fVal, bf_write *pOut )
+{
+	int flags = pProp->GetFlags();
+	if ( flags & SPROP_COORD )
+	{
+		pOut->WriteBitCoord( fVal );
+		return true;
+	}
+	else if ( flags & SPROP_COORD_MP )
+	{
+		pOut->WriteBitCoordMP( fVal, kCW_None );
+		return true;
+	}
+	else if ( flags & SPROP_COORD_MP_LOWPRECISION )
+	{
+		pOut->WriteBitCoordMP( fVal, kCW_LowPrecision );
+		return true;
+	}
+	else if ( flags & SPROP_COORD_MP_INTEGRAL )
+	{
+		pOut->WriteBitCoordMP( fVal, kCW_Integral );
+		return true;
+	}
+	else if ( flags & SPROP_NOSCALE )
+	{
+		pOut->WriteBitFloat( fVal );
+		return true;
+	}
+	else if ( flags & SPROP_NORMAL )
+	{
+		pOut->WriteBitNormal( fVal );
+		return true;
+	}
+	else if ( flags & SPROP_CELL_COORD )
+	{
+		pOut->WriteBitCellCoord( fVal, pProp->m_nBits, kCW_None );
+		return true;
+	}
+	else if ( flags & SPROP_CELL_COORD_LOWPRECISION )
+	{
+		pOut->WriteBitCellCoord( fVal, pProp->m_nBits, kCW_LowPrecision );
+		return true;
+	}
+	else if ( flags & SPROP_CELL_COORD_INTEGRAL )
+	{
+		pOut->WriteBitCellCoord( fVal, pProp->m_nBits, kCW_Integral );
+		return true;
+	}
+
+	return false;
+}
+
+void EncodeFloat( const SendProp *pProp, float fVal, bf_write *pOut, int objectID )
+{
+	// Check for special flags like SPROP_COORD, SPROP_NOSCALE, and SPROP_NORMAL.
+	if( EncodeSpecialFloat( pProp, fVal, pOut ) )
+	{
+		return;
+	}
+
+	unsigned long ulVal;
+	if( fVal < pProp->m_fLowValue )
+	{
+		// clamp < 0
+		ulVal = 0;
+		
+		if(!(pProp->GetFlags() & SPROP_ROUNDUP))
+		{
+			DataTable_Warning("(class %s): Out-of-range value (%f) in SendPropFloat '%s', clamping.\n",
+				GetObjectClassName( objectID ), fVal, pProp->m_pVarName );
+		}
+	}
+	else if( fVal > pProp->m_fHighValue )
+	{
+		// clamp > 1
+		ulVal = ((1 << pProp->m_nBits) - 1);
+
+		if(!(pProp->GetFlags() & SPROP_ROUNDDOWN))
+		{
+			DataTable_Warning("%s: Out-of-range value (%f) in SendPropFloat '%s', clamping.\n",
+				GetObjectClassName( objectID ), fVal, pProp->m_pVarName );
+		}
+	}
+	else
+	{
+		float fRangeVal = (fVal - pProp->m_fLowValue) * pProp->m_fHighLowMul;
+		ulVal = RoundFloatToUnsignedLong( fRangeVal );
+	}
+	
+	pOut->WriteUBitLong(ulVal, pProp->m_nBits);
+}
+#else
 void EncodeFloat( const SendProp *pProp, float fVal, bf_write *pOut, int objectID )
 {
 	// Check for special flags like SPROP_COORD, SPROP_NOSCALE, and SPROP_NORMAL.
@@ -86,8 +179,80 @@ void EncodeFloat( const SendProp *pProp, float fVal, bf_write *pOut, int objectI
 		pOut->WriteUBitLong(ulVal, nBits);
 	}
 }
+#endif
+
+#ifdef BUILD_GMOD
+static inline bool DecodeSpecialFloat( SendProp const *pProp, bf_read *pIn, float &fVal )
+{
+	int flags = pProp->GetFlags();
+
+	if ( flags & SPROP_COORD )
+	{
+		fVal = pIn->ReadBitCoord();
+		return true;
+	}
+	else if ( flags & SPROP_COORD_MP )
+	{
+		fVal = pIn->ReadBitCoordMP( kCW_None );
+		return true;
+	}
+	else if ( flags & SPROP_COORD_MP_LOWPRECISION )
+	{
+		fVal = pIn->ReadBitCoordMP( kCW_LowPrecision );
+		return true;
+	}
+	else if ( flags & SPROP_COORD_MP_INTEGRAL )
+	{
+		fVal = pIn->ReadBitCoordMP( kCW_Integral );
+		return true;
+	}
+	else if ( flags & SPROP_NOSCALE )
+	{
+		fVal = pIn->ReadBitFloat();
+		return true;
+	}
+	else if ( flags & SPROP_NORMAL )
+	{
+		fVal = pIn->ReadBitNormal();
+		return true;
+	}
+	else if ( flags & SPROP_CELL_COORD )
+	{
+		fVal = pIn->ReadBitCellCoord( pProp->m_nBits, kCW_None );
+		return true;
+	}
+	else if ( flags & SPROP_CELL_COORD_LOWPRECISION )
+	{
+		fVal = pIn->ReadBitCellCoord( pProp->m_nBits, kCW_LowPrecision );
+		return true;
+	}
+	else if ( flags & SPROP_CELL_COORD_INTEGRAL )
+	{
+		fVal = pIn->ReadBitCellCoord( pProp->m_nBits, kCW_Integral );
+		return true;
+	}
+
+	return false;
+}
 
 
+static float DecodeFloat(SendProp const *pProp, bf_read *pIn)
+{
+	float fVal = 0;
+	unsigned long dwInterp;
+
+	// Check for special flags..
+	if( DecodeSpecialFloat( pProp, pIn, fVal ) )
+	{
+		return fVal;
+	}
+
+	dwInterp = pIn->ReadUBitLong(pProp->m_nBits);
+	fVal = (float)dwInterp / ((1 << pProp->m_nBits) - 1);
+	fVal = pProp->m_fLowValue + (pProp->m_fHighValue - pProp->m_fLowValue) * fVal;
+	return fVal;
+}
+#else
 static float DecodeFloat(SendProp const *pProp, bf_read *pIn)
 {
 	int flags = pProp->GetFlags();
@@ -115,6 +280,7 @@ static float DecodeFloat(SendProp const *pProp, bf_read *pIn)
 		return fVal;
 	}
 }
+#endif
 
 static inline void DecodeVector(SendProp const *pProp, bf_read *pIn, float *v)
 {
@@ -397,7 +563,51 @@ void Float_Decode( DecodeInfo *pInfo )
 		pInfo->m_pRecvProp->GetProxyFn()( pInfo, pInfo->m_pStruct, pInfo->m_pData );
 }
 
-
+#ifdef BUILD_GMOD
+int	Float_CompareDeltas( const SendProp *pProp, bf_read *p1, bf_read *p2 )
+{
+	if ( pProp->GetFlags() & SPROP_COORD )
+	{
+		return p1->ReadBitCoord() != p2->ReadBitCoord();
+	}
+	else if ( pProp->GetFlags() & SPROP_COORD_MP )
+	{
+		return p1->ReadBitCoordMP( kCW_None ) != p2->ReadBitCoordMP( kCW_None );
+	}
+	else if ( pProp->GetFlags() & SPROP_COORD_MP_LOWPRECISION )
+	{
+		return p1->ReadBitCoordMP( kCW_LowPrecision ) != p2->ReadBitCoordMP( kCW_LowPrecision );
+	}
+	else if ( pProp->GetFlags() & SPROP_COORD_MP_INTEGRAL )
+	{
+		return p1->ReadBitCoordMP( kCW_Integral ) != p2->ReadBitCoordMP( kCW_Integral );
+	}
+	else if ( pProp->GetFlags() & SPROP_NOSCALE )
+	{
+		return p1->ReadUBitLong( 32 ) != p2->ReadUBitLong( 32 );
+	}
+	else if ( pProp->GetFlags() & SPROP_NORMAL )
+	{
+		return p1->ReadUBitLong( NORMAL_FRACTIONAL_BITS+1 ) != p2->ReadUBitLong( NORMAL_FRACTIONAL_BITS+1 );
+	}
+	else if ( pProp->GetFlags() & SPROP_CELL_COORD )
+	{
+		return p1->ReadBitCellCoord( pProp->m_nBits, kCW_None ) != p2->ReadBitCellCoord( pProp->m_nBits, kCW_None );
+	}
+	else if ( pProp->GetFlags() & SPROP_CELL_COORD_LOWPRECISION )
+	{
+		return p1->ReadBitCellCoord( pProp->m_nBits, kCW_LowPrecision ) != p2->ReadBitCellCoord( pProp->m_nBits, kCW_LowPrecision );
+	}
+	else if ( pProp->GetFlags() & SPROP_CELL_COORD_INTEGRAL )
+	{
+		return p1->ReadBitCellCoord( pProp->m_nBits, kCW_Integral ) != p2->ReadBitCellCoord( pProp->m_nBits, kCW_Integral );
+	}
+	else
+	{
+		return p1->ReadUBitLong( pProp->m_nBits ) != p2->ReadUBitLong( pProp->m_nBits );
+	}
+}
+#else
 int	Float_CompareDeltas( const SendProp *pProp, bf_read *p1, bf_read *p2 )
 {
 	int flags = pProp->GetFlags();
@@ -422,6 +632,7 @@ int	Float_CompareDeltas( const SendProp *pProp, bf_read *p1, bf_read *p2 )
 		return p1->ReadUBitLong( bits ) != p2->ReadUBitLong( bits );
 	}
 }
+#endif
 
 const char* Float_GetTypeNameString()
 {
@@ -475,15 +686,27 @@ void Float_SkipProp( const SendProp *pProp, bf_read *pIn )
 	}
 	else if ( pProp->GetFlags() & SPROP_COORD_MP )
 	{
+#ifdef BUILD_GMOD
+		pIn->ReadBitCoordMP( kCW_None );
+#else
 		pIn->ReadBitCoordMP( false, false );
+#endif
 	}
 	else if ( pProp->GetFlags() & SPROP_COORD_MP_LOWPRECISION )
 	{
+#ifdef BUILD_GMOD
+		pIn->ReadBitCoordMP( kCW_LowPrecision );
+#else
 		pIn->ReadBitCoordMP( false, true );
+#endif
 	}
 	else if ( pProp->GetFlags() & SPROP_COORD_MP_INTEGRAL )
 	{
+#ifdef BUILD_GMOD
+		pIn->ReadBitCoordMP( kCW_Integral );
+#else
 		pIn->ReadBitCoordMP( true, false );
+#endif
 	}
 	else if(pProp->GetFlags() & SPROP_NOSCALE)
 	{
@@ -493,6 +716,20 @@ void Float_SkipProp( const SendProp *pProp, bf_read *pIn )
 	{
 		pIn->SeekRelative( NORMAL_FRACTIONAL_BITS + 1 );
 	}
+#ifdef BUILD_GMOD // Raphael: Don't forget our new flags.
+	else if ( pProp->GetFlags() & SPROP_CELL_COORD )
+	{
+		pIn->ReadBitCellCoord( pProp->m_nBits, kCW_None );
+	}
+	else if ( pProp->GetFlags() & SPROP_CELL_COORD_LOWPRECISION )
+	{
+		pIn->ReadBitCellCoord( pProp->m_nBits, kCW_LowPrecision );
+	}
+	else if ( pProp->GetFlags() & SPROP_CELL_COORD_INTEGRAL )
+	{
+		pIn->ReadBitCellCoord( pProp->m_nBits, kCW_Integral );
+	}
+#endif
 	else
 	{
 		pIn->SeekRelative( pProp->m_nBits );

@@ -79,6 +79,16 @@ inline int BitByte( int bits )
 }
 
 //-----------------------------------------------------------------------------
+#ifdef BUILD_GMOD
+enum EBitCoordType
+{
+	kCW_None,
+	kCW_LowPrecision,
+	kCW_Integral
+};
+#endif
+
+//-----------------------------------------------------------------------------
 // namespaced helpers
 //-----------------------------------------------------------------------------
 namespace bitbuf
@@ -210,7 +220,12 @@ public:
 	
 	void			WriteBitAngle( float fAngle, int numbits );
 	void			WriteBitCoord (const float f);
+#ifdef BUILD_GMOD
+	void			WriteBitCoordMP( const float f, EBitCoordType coordType );
+	void 			WriteBitCellCoord( const float f, int bits, EBitCoordType coordType );
+#else
 	void			WriteBitCoordMP( const float f, bool bIntegral, bool bLowPrecision );
+#endif
 	void			WriteBitFloat(float val);
 	void			WriteBitVec3Coord( const Vector& fa );
 	void			WriteBitNormal( float f );
@@ -585,7 +600,12 @@ public:
 	unsigned int	ReadBitLong(int numbits, bool bSigned);
 
 	float			ReadBitCoord();
+#ifdef BUILD_GMOD
+	float			ReadBitCoordMP( EBitCoordType coordType );
+	float 			ReadBitCellCoord( int bits, EBitCoordType coordType );
+#else
 	float			ReadBitCoordMP( bool bIntegral, bool bLowPrecision );
+#endif
 	float			ReadBitFloat();
 	float			ReadBitNormal();
 	void			ReadBitVec3Coord( Vector& fa );
@@ -593,8 +613,10 @@ public:
 	void			ReadBitAngles( QAngle& fa );
 
 	// Faster for comparisons but do not fully decode float values
+#ifndef BUILD_GMOD // Raphael: Don't use them.
 	unsigned int	ReadBitCoordBits();
 	unsigned int	ReadBitCoordMPBits( bool bIntegral, bool bLowPrecision );
+#endif
 
 // Byte functions (these still read data in bit-by-bit).
 public:

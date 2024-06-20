@@ -563,11 +563,20 @@ void bf_write::WriteBitAngle( float fAngle, int numbits )
 	WriteUBitLong((unsigned int)d, numbits);
 }
 
+#ifdef BUILD_GMOD
+void bf_write::WriteBitCoordMP( const float f, EBitCoordType coordType )
+#else
 void bf_write::WriteBitCoordMP( const float f, bool bIntegral, bool bLowPrecision )
+#endif
 {
 #if defined( BB_PROFILING )
 	VPROF( "bf_write::WriteBitCoordMP" );
 #endif
+#ifdef BUILD_GMOD
+	bool bIntegral = ( coordType == kCW_Integral );
+	bool bLowPrecision = ( coordType == kCW_LowPrecision );  
+#endif
+
 	int		signbit = (f <= -( bLowPrecision ? COORD_RESOLUTION_LOWPRECISION : COORD_RESOLUTION ));
 	int		intval = (int)abs(f);
 	int		fractval = bLowPrecision ? 
@@ -615,6 +624,35 @@ void bf_write::WriteBitCoordMP( const float f, bool bIntegral, bool bLowPrecisio
 
 	WriteUBitLong( bits, numbits );
 }
+
+#ifdef BUILD_GMOD
+void bf_write::WriteBitCellCoord( const float f, int bits, EBitCoordType coordType )
+{
+#if defined( BB_PROFILING )
+	VPROF( "bf_write::WriteBitCellCoord" );
+#endif
+	Assert( f >= 0.0f ); // cell coords can't be negative
+	Assert( f < ( 1 << bits ) );
+
+	bool bIntegral = ( coordType == kCW_Integral );
+	bool bLowPrecision = ( coordType == kCW_LowPrecision );  
+
+	int		intval = (int)abs(f);
+	int		fractval = bLowPrecision ? 
+		( abs((int)(f*COORD_DENOMINATOR_LOWPRECISION)) & (COORD_DENOMINATOR_LOWPRECISION-1) ) :
+		( abs((int)(f*COORD_DENOMINATOR)) & (COORD_DENOMINATOR-1) );
+
+	if ( bIntegral )
+	{
+		WriteUBitLong( (unsigned int)intval, bits );
+	}
+	else
+	{
+		WriteUBitLong( (unsigned int)intval, bits );
+		WriteUBitLong( (unsigned int)fractval, bLowPrecision ? COORD_FRACTIONAL_BITS_MP_LOWPRECISION : COORD_FRACTIONAL_BITS );
+	}
+}
+#endif
 
 void bf_write::WriteBitCoord (const float f)
 {
@@ -1123,7 +1161,11 @@ float bf_read::ReadBitCoord (void)
 	return value;
 }
 
+#ifdef BUILD_GMOD
+float bf_read::ReadBitCoordMP( EBitCoordType coordType )
+#else
 float bf_read::ReadBitCoordMP( bool bIntegral, bool bLowPrecision )
+#endif
 {
 #if defined( BB_PROFILING )
 	VPROF( "bf_read::ReadBitCoordMP" );
@@ -1133,6 +1175,11 @@ float bf_read::ReadBitCoordMP( bool bIntegral, bool bLowPrecision )
 	// int bits are always encoded as (value - 1) since zero is handled by the integer bit
 
 	// With integer-only encoding, the presence of the third bit depends on the second
+#ifdef BUILD_GMOD
+	bool bIntegral = ( coordType == kCW_Integral );
+	bool bLowPrecision = ( coordType == kCW_LowPrecision );  
+#endif
+
 	int flags = ReadUBitLong(3 - bIntegral);
 	enum { INBOUNDS=1, INTVAL=2, SIGN=4 };
 
@@ -1209,6 +1256,38 @@ float bf_read::ReadBitCoordMP( bool bIntegral, bool bLowPrecision )
 	return (int)bits * multiply;
 }
 
+#ifdef BUILD_GMOD // NOTE: in csgo bf_read is named old_bf_read.
+float bf_read::ReadBitCellCoord( int bits, EBitCoordType coordType )
+{
+#if defined( BB_PROFILING )
+	VPROF( "bf_read::ReadBitCoordMP" );
+#endif
+	bool bIntegral = ( coordType == kCW_Integral );
+	bool bLowPrecision = ( coordType == kCW_LowPrecision );  
+
+	int		intval=0,fractval=0;
+	float	value = 0.0;
+
+	if ( bIntegral )
+	{
+		value = ReadUBitLong( bits );
+	}
+	else
+	{
+		intval = ReadUBitLong( bits );
+
+		// If there's a fraction, read it in
+		fractval = ReadUBitLong( bLowPrecision ? COORD_FRACTIONAL_BITS_MP_LOWPRECISION : COORD_FRACTIONAL_BITS );
+
+		// Calculate the correct floating point value
+		value = intval + ((float)fractval * ( bLowPrecision ? COORD_RESOLUTION_LOWPRECISION : COORD_RESOLUTION ) );
+	}
+
+	return value;
+}
+#endif
+
+#ifndef BUILD_GMOD
 unsigned int bf_read::ReadBitCoordBits (void)
 {
 #if defined( BB_PROFILING )
@@ -1267,6 +1346,7 @@ unsigned int bf_read::ReadBitCoordMPBits( bool bIntegral, bool bLowPrecision )
 
 	return flags + ReadUBitLong(numbits)*4;
 }
+#endif
 
 void bf_read::ReadBitVec3Coord( Vector& fa )
 {
