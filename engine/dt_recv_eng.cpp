@@ -343,6 +343,9 @@ SendTable *RecvTable_ReadInfos( bf_read *pBuf, int nDemoProtocol )
 		}
 
 		pProp->SetFlags( pBuf->ReadUBitLong( nFlagsBits ) );
+#ifdef BUILD_GMOD
+		pProp->SetPriority( pBuf->ReadUBitLong( PROPINFOBITS_PRIORITY ) );
+#endif
 
 		if ( pProp->m_Type == DPT_DataTable )
 		{

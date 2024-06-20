@@ -651,6 +651,9 @@ bool SendTable_WriteInfos( SendTable *pTable, bf_write *pBuf )
 		// we now have some flags that aren't networked so strip them off
 		unsigned int networkFlags = pProp->GetFlags() & ((1<<PROPINFOBITS_FLAGS)-1);
 		pBuf->WriteUBitLong( networkFlags, PROPINFOBITS_FLAGS );
+#ifdef BUILD_GMOD
+		pBuf->WriteUBitLong( pProp->GetPriority(), PROPINFOBITS_PRIORITY );
+#endif
 
 		if( pProp->m_Type == DPT_DataTable )
 		{

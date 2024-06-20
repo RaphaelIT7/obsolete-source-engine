@@ -1019,6 +1019,7 @@ $Project
 		$File	"$SRCDIR\public\scratchpad3d.h"
 		$File	"scratchpad_gamedll_helpers.h"
 		$File	"$SRCDIR\public\ScratchPadUtils.h"
+		$File	"sendprop_priorities.h"
 		$File	"sendproxy.h"
 		$File	"$SRCDIR\public\shake.h"
 		$File	"$SRCDIR\game\shared\shared_classnames.h"

@@ -183,6 +183,11 @@ class CSendTablePrecalc;
 #define DATATABLE_PROXY_INDEX_NOPROXY	255
 #define DATATABLE_PROXY_INDEX_INVALID	254
 
+#ifdef BUILD_GMOD
+#define SENDPROP_DEFAULT_PRIORITY ((byte)128)
+#define SENDPROP_CHANGES_OFTEN_PRIORITY ((byte)64)
+#endif
+
 class SendProp
 {
 public:
@@ -244,6 +249,11 @@ public:
 	const void*			GetExtraData() const;
 	void				SetExtraData( const void *pData );
 
+#ifdef BUILD_GMOD
+	byte 				GetPriority() const;
+	void				SetPriority( byte priority );
+#endif
+
 public:
 
 	RecvProp		*m_pMatchingRecvProp;	// This is temporary and only used while precalculating
@@ -265,6 +275,10 @@ public:
 
 	const char		*m_pVarName;
 	float			m_fHighLowMul;
+
+#ifdef BUILD_GMOD
+	byte			m_priority;
+#endif
 	
 private:
 
@@ -429,6 +443,18 @@ inline void SendProp::SetExtraData( const void *pData )
 {
 	m_pExtraData = pData;
 }
+
+#ifdef BUILD_GMOD
+inline byte SendProp::GetPriority() const
+{
+	return m_priority;
+}
+
+inline void	SendProp::SetPriority( byte priority )
+{
+	m_priority = priority;
+}
+#endif
 
 
 // -------------------------------------------------------------------------------------------------------------- //
@@ -648,6 +674,9 @@ SendProp SendPropFloat(
 	float fLowValue=0.0f,			// For floating point, low and high values.
 	float fHighValue=HIGH_DEFAULT,	// High value. If HIGH_DEFAULT, it's (1<<nBits).
 	SendVarProxyFn varProxy=SendProxy_FloatToFloat
+#ifdef BUILD_GMOD
+	, byte priority = SENDPROP_DEFAULT_PRIORITY
+#endif
 	);
 
 SendProp SendPropVector(
@@ -659,6 +688,9 @@ SendProp SendPropVector(
 	float fLowValue=0.0f,			// For floating point, low and high values.
 	float fHighValue=HIGH_DEFAULT,	// High value. If HIGH_DEFAULT, it's (1<<nBits).
 	SendVarProxyFn varProxy=SendProxy_VectorToVector
+#ifdef BUILD_GMOD
+	, byte priority = SENDPROP_DEFAULT_PRIORITY
+#endif
 	);
 
 SendProp SendPropVectorXY(
@@ -670,6 +702,9 @@ SendProp SendPropVectorXY(
 	float fLowValue=0.0f,			// For floating point, low and high values.
 	float fHighValue=HIGH_DEFAULT,	// High value. If HIGH_DEFAULT, it's (1<<nBits).
 	SendVarProxyFn varProxy=SendProxy_VectorXYToVectorXY
+#ifdef BUILD_GMOD
+	, byte priority = SENDPROP_DEFAULT_PRIORITY
+#endif
 	);
 
 #if 0 // We can't ship this since it changes the size of DTVariant to be 20 bytes instead of 16 and that breaks MODs!!!
@@ -682,6 +717,9 @@ SendProp SendPropQuaternion(
 	float fLowValue=0.0f,			// For floating point, low and high values.
 	float fHighValue=HIGH_DEFAULT,	// High value. If HIGH_DEFAULT, it's (1<<nBits).
 	SendVarProxyFn varProxy=SendProxy_QuaternionToQuaternion
+#ifdef BUILD_GMOD
+	, byte priority = SENDPROP_DEFAULT_PRIORITY
+#endif
 	);
 #endif
 
@@ -692,6 +730,9 @@ SendProp SendPropAngle(
 	int nBits=32,
 	int flags=0,
 	SendVarProxyFn varProxy=SendProxy_AngleToFloat
+#ifdef BUILD_GMOD
+	, byte priority = SENDPROP_DEFAULT_PRIORITY
+#endif
 	);
 
 SendProp SendPropQAngles(
@@ -701,6 +742,9 @@ SendProp SendPropQAngles(
 	int nBits=32,
 	int flags=0,
 	SendVarProxyFn varProxy=SendProxy_QAngles
+#ifdef BUILD_GMOD
+	, byte priority = SENDPROP_DEFAULT_PRIORITY
+#endif
 	);
 
 SendProp SendPropInt(
@@ -710,6 +754,9 @@ SendProp SendPropInt(
 	int nBits=-1,					// Set to -1 to automatically pick (max) number of bits based on size of element.
 	int flags=0,
 	SendVarProxyFn varProxy=0
+#ifdef BUILD_GMOD
+	, byte priority = SENDPROP_DEFAULT_PRIORITY
+#endif
 	);
 
 inline SendProp SendPropModelIndex( const char *pVarName, int offset, int sizeofVar=SIZEOF_IGNORE )
@@ -722,7 +769,11 @@ SendProp SendPropString(
 	int offset,
 	int bufferLen,
 	int flags=0,
-	SendVarProxyFn varProxy=SendProxy_StringToString);
+	SendVarProxyFn varProxy=SendProxy_StringToString
+#ifdef BUILD_GMOD
+	, byte priority = SENDPROP_DEFAULT_PRIORITY
+#endif
+	);
 
 // The data table encoder looks at DVariant::m_pData.
 SendProp SendPropDataTable(
@@ -730,6 +781,9 @@ SendProp SendPropDataTable(
 	int offset,
 	SendTable *pTable, 
 	SendTableProxyFn varProxy=SendProxy_DataTableToDataTable
+#ifdef BUILD_GMOD
+	, byte priority = SENDPROP_DEFAULT_PRIORITY
+#endif
 	);
 
 SendProp SendPropArray3(
@@ -739,6 +793,9 @@ SendProp SendPropArray3(
 	int elements,
 	SendProp pArrayProp,
 	SendTableProxyFn varProxy=SendProxy_DataTableToDataTable
+#ifdef BUILD_GMOD
+	, byte priority = SENDPROP_DEFAULT_PRIORITY
+#endif
 	);
 
 
@@ -751,6 +808,9 @@ SendProp InternalSendPropArray(
 	const int elementStride,
 	const char *pName,
 	ArrayLengthSendProxyFn proxy
+#ifdef BUILD_GMOD
+	, byte priority = SENDPROP_DEFAULT_PRIORITY
+#endif
 	);
 
 

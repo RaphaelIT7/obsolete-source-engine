@@ -38,6 +38,9 @@ class CDTISendTable;
 #define PROPINFOBITS_NUMBITS			7
 #define PROPINFOBITS_RIGHTSHIFT			6
 #define PROPINFOBITS_NUMELEMENTS		10	// For arrays.
+#ifdef BUILD_GMOD
+#define PROPINFOBITS_PRIORITY			8
+#endif
 
 
 

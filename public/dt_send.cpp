@@ -371,6 +371,9 @@ SendProp SendPropFloat(
 	float fLowValue,		// For floating point, low and high values.
 	float fHighValue,		// High value. If HIGH_DEFAULT, it's (1<<nBits).
 	SendVarProxyFn varProxy
+#ifdef BUILD_GMOD
+	, byte priority
+#endif
 	)
 {
 	SendProp ret;
@@ -406,6 +409,9 @@ SendProp SendPropFloat(
 	ret.m_fHighValue = fHighValue;
 	ret.m_fHighLowMul = AssignRangeMultiplier( ret.m_nBits, ret.m_fHighValue - ret.m_fLowValue );
 	ret.SetProxyFn( varProxy );
+#ifdef BUILD_GMOD
+	ret.SetPriority( priority );
+#endif
 	if( ret.GetFlags() & (SPROP_COORD | SPROP_NOSCALE | SPROP_NORMAL | SPROP_COORD_MP | SPROP_COORD_MP_LOWPRECISION | SPROP_COORD_MP_INTEGRAL ) )
 		ret.m_nBits = 0;
 
@@ -421,6 +427,9 @@ SendProp SendPropVector(
 	float fLowValue,			// For floating point, low and high values.
 	float fHighValue,			// High value. If HIGH_DEFAULT, it's (1<<nBits).
 	SendVarProxyFn varProxy
+#ifdef BUILD_GMOD
+	, byte priority
+#endif
 	)
 {
 	SendProp ret;
@@ -442,6 +451,9 @@ SendProp SendPropVector(
 	ret.m_fHighValue = fHighValue;
 	ret.m_fHighLowMul = AssignRangeMultiplier( ret.m_nBits, ret.m_fHighValue - ret.m_fLowValue );
 	ret.SetProxyFn( varProxy );
+#ifdef BUILD_GMOD
+	ret.SetPriority( priority );
+#endif
 	if( ret.GetFlags() & (SPROP_COORD | SPROP_NOSCALE | SPROP_NORMAL | SPROP_COORD_MP | SPROP_COORD_MP_LOWPRECISION | SPROP_COORD_MP_INTEGRAL) )
 		ret.m_nBits = 0;
 
@@ -457,6 +469,9 @@ SendProp SendPropVectorXY(
 	float fLowValue,			// For floating point, low and high values.
 	float fHighValue,			// High value. If HIGH_DEFAULT, it's (1<<nBits).
 	SendVarProxyFn varProxy
+#ifdef BUILD_GMOD
+	, byte priority
+#endif
 	)
 {
 	SendProp ret;
@@ -478,6 +493,9 @@ SendProp SendPropVectorXY(
 	ret.m_fHighValue = fHighValue;
 	ret.m_fHighLowMul = AssignRangeMultiplier( ret.m_nBits, ret.m_fHighValue - ret.m_fLowValue );
 	ret.SetProxyFn( varProxy );
+#ifdef BUILD_GMOD
+	ret.SetPriority( priority );
+#endif
 	if( ret.GetFlags() & (SPROP_COORD | SPROP_NOSCALE | SPROP_NORMAL | SPROP_COORD_MP | SPROP_COORD_MP_LOWPRECISION | SPROP_COORD_MP_INTEGRAL) )
 		ret.m_nBits = 0;
 
@@ -494,6 +512,9 @@ SendProp SendPropQuaternion(
 	float fLowValue,			// For floating point, low and high values.
 	float fHighValue,			// High value. If HIGH_DEFAULT, it's (1<<nBits).
 	SendVarProxyFn varProxy
+#ifdef BUILD_GMOD
+	, byte priority
+#endif
 	)
 {
 	SendProp ret;
@@ -515,6 +536,9 @@ SendProp SendPropQuaternion(
 	ret.m_fHighValue = fHighValue;
 	ret.m_fHighLowMul = AssignRangeMultiplier( ret.m_nBits, ret.m_fHighValue - ret.m_fLowValue );
 	ret.SetProxyFn( varProxy );
+#ifdef BUILD_GMOD
+	ret.SetPriority( priority );
+#endif
 	if( ret.GetFlags() & (SPROP_COORD | SPROP_NOSCALE | SPROP_NORMAL | SPROP_COORD_MP | SPROP_COORD_MP_LOWPRECISION | SPROP_COORD_MP_INTEGRAL) )
 		ret.m_nBits = 0;
 
@@ -529,6 +553,9 @@ SendProp SendPropAngle(
 	int nBits,
 	int flags,
 	SendVarProxyFn varProxy
+#ifdef BUILD_GMOD
+	, byte priority
+#endif
 	)
 {
 	SendProp ret;
@@ -550,6 +577,9 @@ SendProp SendPropAngle(
 	ret.m_fHighValue = 360.0f;
 	ret.m_fHighLowMul = AssignRangeMultiplier( ret.m_nBits, ret.m_fHighValue - ret.m_fLowValue );
 	ret.SetProxyFn( varProxy );
+#ifdef BUILD_GMOD
+	ret.SetPriority( priority );
+#endif
 
 	return ret;
 }
@@ -562,6 +592,9 @@ SendProp SendPropQAngles(
 	int nBits,
 	int flags,
 	SendVarProxyFn varProxy
+#ifdef BUILD_GMOD
+	, byte priority
+#endif
 	)
 {
 	SendProp ret;
@@ -584,6 +617,9 @@ SendProp SendPropQAngles(
 	ret.m_fHighLowMul = AssignRangeMultiplier( ret.m_nBits, ret.m_fHighValue - ret.m_fLowValue );
 
 	ret.SetProxyFn( varProxy );
+#ifdef BUILD_GMOD
+	ret.SetPriority( priority );
+#endif
 
 	return ret;
 }
@@ -595,6 +631,9 @@ SendProp SendPropInt(
 	int nBits,
 	int flags,
 	SendVarProxyFn varProxy
+#ifdef BUILD_GMOD
+	, byte priority
+#endif
 	)
 {
 	SendProp ret;
@@ -648,6 +687,9 @@ SendProp SendPropInt(
 	// the values correctly, but it lets us check the ranges of the data to make sure
 	// they're valid.
 	ret.SetProxyFn( varProxy );
+#ifdef BUILD_GMOD
+	ret.SetPriority( priority );
+#endif
 	if( ret.GetFlags() & SPROP_UNSIGNED )
 	{
 		if( varProxy == SendProxy_Int8ToInt32 )
@@ -673,7 +715,11 @@ SendProp SendPropString(
 	int offset,
 	int bufferLen,
 	int flags,
-	SendVarProxyFn varProxy)
+	SendVarProxyFn varProxy
+#ifdef BUILD_GMOD
+	, byte priority
+#endif
+	)
 {
 	SendProp ret;
 
@@ -684,6 +730,9 @@ SendProp SendPropString(
 	ret.SetOffset( offset );
 	ret.SetFlags( flags );
 	ret.SetProxyFn( varProxy );
+#ifdef BUILD_GMOD
+	ret.SetPriority( priority );
+#endif
 
 	return ret;
 }
@@ -695,6 +744,9 @@ SendProp SendPropArray3(
 	int elements,
 	SendProp pArrayProp,
 	SendTableProxyFn varProxy
+#ifdef BUILD_GMOD
+	, byte priority
+#endif
 	)
 {
 	SendProp ret;
@@ -729,6 +781,9 @@ SendProp SendPropArray3(
 	SendTable *pTable = new SendTable( pProps, elements, pVarName ); // TODO free that again
 
 	ret.SetDataTable( pTable );
+#ifdef BUILD_GMOD
+	ret.SetPriority( priority );
+#endif
 
 	return ret;
 }
@@ -738,6 +793,9 @@ SendProp SendPropDataTable(
 	int offset,
 	SendTable *pTable,
 	SendTableProxyFn varProxy
+#ifdef BUILD_GMOD
+	, byte priority
+#endif
 	)
 {
 	SendProp ret;
@@ -747,6 +805,9 @@ SendProp SendPropDataTable(
 	ret.SetOffset( offset );
 	ret.SetDataTable( pTable );
 	ret.SetDataTableProxyFn( varProxy );
+#ifdef BUILD_GMOD
+	ret.SetPriority( priority );
+#endif
 	
 	// Handle special proxy types where they always let all clients get the results.
 	if ( varProxy == SendProxy_DataTableToDataTable || varProxy == SendProxy_DataTablePtrToDataTable )
@@ -768,6 +829,9 @@ SendProp InternalSendPropArray(
 	const int elementStride,
 	const char *pName,
 	ArrayLengthSendProxyFn arrayLengthFn
+#ifdef BUILD_GMOD
+	, byte priority
+#endif
 	)
 {
 	SendProp ret;
@@ -780,6 +844,9 @@ SendProp InternalSendPropArray(
 	ret.m_pArrayProp = NULL;	// This gets set in SendTable_InitTable. It always points at the property that precedes
 								// this one in the datatable's list.
 	ret.SetArrayLengthProxy( arrayLengthFn );
+#ifdef BUILD_GMOD
+	ret.SetPriority( priority );
+#endif
 		
 	return ret;
 }
@@ -824,6 +891,10 @@ SendProp::SendProp()
 	m_ArrayLengthProxy = 0;
 	m_nElements = 1;
 	m_ElementStride = -1;
+
+#ifdef BUILD_GMOD
+	m_priority = SENDPROP_DEFAULT_PRIORITY;
+#endif
 }
 
 
