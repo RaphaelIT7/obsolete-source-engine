@@ -435,4 +435,9 @@ thirdparty/**/out/
 out/
 CMakeFiles/
 
+# Others
+GarrysMod/Lua/temp
+*.exe
+*.pdb
+
 enc_temp_folder/*
