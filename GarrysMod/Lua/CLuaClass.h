@@ -141,8 +141,6 @@ protected:
 	int m_iLUA_TYPE;
 	int m_reference;
 	GarrysMod::Lua::ILuaBase* m_pLua;
-protected:
-	int m_metatable;
 };
 
 #define CLuaFunc GarrysMod::Lua::CFunc
@@ -188,6 +186,7 @@ extern CLuaClass angle_class;
 extern CLuaClass vector_class;
 extern CLuaClass entity_class;
 extern CLuaClass recipientfilter_class;
+extern CLuaClass LC_bf_read;
 
 // Lua Libraries. Fix this later
 extern CLuaLibrary ents_library;
@@ -212,6 +211,8 @@ extern void Push_Entity(CBaseEntity* ent);
 extern CRecipientFilter* Get_CRecipientFilter(int index);
 // Pushes the given Vector and deletes it when it's unused!
 extern void Push_CRecipientFilter(CRecipientFilter* filter);
+#else
+extern void Push_bf_read( const bf_read* msg );
 #endif
 #endif
 

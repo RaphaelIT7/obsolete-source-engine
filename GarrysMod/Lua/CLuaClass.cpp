@@ -39,12 +39,15 @@ void CLuaObject::SetFromStack(int pos)
 {
 	m_pLua->Push(pos);
 
-	if (m_pLua->GetType(-1) != GarrysMod::Lua::Type::Nil)
+	//if (m_pLua->GetType(-1) != GarrysMod::Lua::Type::Nil)
 	{
 		UnReference();
+		m_iLUA_TYPE = m_pLua->GetType( -1 );
+		m_bUserData = m_iLUA_TYPE > 7;
+
 		m_reference = m_pLua->ReferenceCreate();
-	} else {
-		m_pLua->Pop(1);
+	//} else {
+	//	m_pLua->Pop(1);
 	}
 }
 
@@ -53,10 +56,6 @@ void CLuaObject::Push()
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_metatable != -1) {
-			m_pLua->ReferencePush(m_metatable);
-			m_pLua->SetMetaTable(-2);
-		}
 	} else {
 		m_pLua->PushNil();
 	}
@@ -356,11 +355,7 @@ GarrysMod::Lua::ILuaObject* CLuaObject::GetMember(const char* name, ILuaObject* 
 		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
 		{
 			m_pLua->GetField(-1, name);
-			if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table)) {
-				CLuaObject* obj = new CLuaObject;
-				obj->Init(m_pLua);
-				obj->SetFromStack(-1);
-			}
+			obj->SetFromStack(-1);
 			m_pLua->Pop(1);
 		}
 		m_pLua->Pop(1);
@@ -395,7 +390,9 @@ GarrysMod::Lua::ILuaObject* CLuaObject::GetMember(ILuaObject* name, ILuaObject* 
 
 void CLuaObject::SetMetaTable(ILuaObject* meta)
 {
-	m_metatable = ((CLuaObject*)meta)->m_reference;
+	Push();
+	meta->Push();
+	m_pLua->SetMetaTable( -2 );
 }
 
 void CLuaObject::SetUserData(void* data)
@@ -1153,6 +1150,10 @@ void InitLuaClasses(GarrysMod::Lua::ILuaInterface* LUA)
 
 #ifdef GAME_DLL
 	recipientfilter_class.InitClass();
+#endif
+
+#ifdef CLIENT_DLL
+	LC_bf_read.InitClass();
 #endif
 }
 
