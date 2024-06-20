@@ -5,14 +5,40 @@
 #include "Externals.h"
 #include "GarrysMod/Lua/Interface.h"
 #include "gmod_networkvars.h"
+#ifdef GAME_DLL
 #include "UserMessageManager.h"
+#endif
 
+#ifdef CLIENT_DLL
 void RecieveLuaUserMessage( bf_read& msg )
 {
-	// ToDo
+	char* pName = new char[255];
+	msg.ReadString( pName, 255 );
 
-	// call usermessage.IncomingMessage
+	CLuaObject umsg;
+	umsg.Init( g_Lua );
+	umsg.SetFromGlobal("usermessage");
+	if ( umsg.isTable() )
+	{
+		CLuaObject incoming;
+		incoming.Init( g_Lua );
+		umsg.GetMember( "IncomingMessage", &incoming );
+		if ( incoming.isFunction() )
+		{
+			incoming.Push();
+			g_Lua->PushString( pName );
+			Push_bf_read( &msg );
+			g_Lua->CallFunctionProtected( 2, 0, true );
+		} else {
+			Warning( "Got Lua Message - but haven't got usermessage.IncomingMessage function!\n" );
+			Warning( "Message was: '%s'\n", pName );
+		}
+	} else {
+		Warning( "Got Lua Message - but haven't got usermessage global table!\n" );
+		Warning( "Message was: '%s'\n", pName );
+	}
 }
+#endif
 
 void RegisterLuaUserMessages()
 {
@@ -24,7 +50,7 @@ void RegisterLuaUserMessages()
 }
 
 #ifdef GAME_DLL
-static bf_write* CurrentMessage = NULL;
+static QueuedMessage_t* CurrentMessage = NULL;
 LUA_FUNCTION_STATIC( umsg_Start ) // Redo it later on to better match gmod's version.
 {
 	const char* pName = LUA->CheckString( 1 );
@@ -52,6 +78,7 @@ LUA_FUNCTION_STATIC( umsg_Start ) // Redo it later on to better match gmod's ver
 					filter->MakeReliable();
 				} else {
 					g_Lua->ErrorFromLua( "umsg.Start: Error! Invalid Recipient Filter!" );
+					//g_Lua->ErrorNoHalt( "umsg.Start: Recipient Filter Is NULL!? - making it BROADCAST" ); ToDo: Where does this belong.
 				}
 				break;
 			}
@@ -61,8 +88,6 @@ LUA_FUNCTION_STATIC( umsg_Start ) // Redo it later on to better match gmod's ver
 	
 	if ( !filter )
 	{
-		g_Lua->ErrorNoHalt( "umsg.Start: Recipient Filter Is NULL!? - making it BROADCAST" );
-
 		filter = new CRecipientFilter;
 		filter->AddAllPlayers();
 		filter->MakeReliable();
@@ -74,8 +99,11 @@ LUA_FUNCTION_STATIC( umsg_Start ) // Redo it later on to better match gmod's ver
 		delete CurrentMessage;
 	}
 
-	CurrentMessage = new bf_write;
-	CurrentMessage->StartWriting( NULL, 0 );
+	CurrentMessage = new QueuedMessage_t;
+	CurrentMessage->bf = new bf_write;
+	CurrentMessage->filter = filter;
+	CurrentMessage->bf->StartWriting( new char[256], 256 );
+	CurrentMessage->bf->WriteString( pName );
 
 	return 0;
 }
@@ -85,8 +113,8 @@ LUA_FUNCTION_STATIC( umsg_End )
 	if ( !CurrentMessage )
 		LUA->ThrowError( "Calling umsg.End without a valid message!" );
 
-	// ToDo: Implement Gmod's CUserMessageManager.
-	// g_UserMessageManager->AddToQueue();
+	g_UserMessageManager.AddToQueue( CurrentMessage );
+	CurrentMessage = NULL;
 
 	return 0;
 }
@@ -102,35 +130,35 @@ LUA_FUNCTION_STATIC( umsg_PoolString )
 
 LUA_FUNCTION_STATIC( umsg_String )
 {
-	CurrentMessage->WriteString( LUA->CheckString( 1 ) );
+	CurrentMessage->bf->WriteString( LUA->CheckString( 1 ) );
 
 	return 0;
 }
 
 LUA_FUNCTION_STATIC( umsg_Short )
 {
-	CurrentMessage->WriteShort( LUA->CheckNumber( 1 ) );
+	CurrentMessage->bf->WriteShort( LUA->CheckNumber( 1 ) );
 
 	return 0;
 }
 
 LUA_FUNCTION_STATIC( umsg_Long )
 {
-	CurrentMessage->WriteLong( LUA->CheckNumber( 1 ) );
+	CurrentMessage->bf->WriteLong( LUA->CheckNumber( 1 ) );
 
 	return 0;
 }
 
 LUA_FUNCTION_STATIC( umsg_Bool )
 {
-	CurrentMessage->WriteOneBit( LUA->GetBool( 1 ) );
+	CurrentMessage->bf->WriteOneBit( LUA->GetBool( 1 ) );
 
 	return 0;
 }
 
 LUA_FUNCTION_STATIC( umsg_Char )
 {
-	CurrentMessage->WriteChar( LUA->CheckNumber( 1 ) );
+	CurrentMessage->bf->WriteChar( LUA->CheckNumber( 1 ) );
 
 	return 0;
 }
@@ -139,7 +167,7 @@ LUA_FUNCTION_STATIC( umsg_Vector )
 {
 	Vector* pVec = Get_Vector( 1 );
 	if ( pVec )
-		CurrentMessage->WriteBitVec3Coord( *pVec );
+		CurrentMessage->bf->WriteBitVec3Coord( *pVec );
 
 	return 0;
 }
@@ -148,7 +176,7 @@ LUA_FUNCTION_STATIC( umsg_Angle )
 {
 	QAngle* pAng = Get_Angle( 1 );
 	if ( pAng )
-		CurrentMessage->WriteBitAngles( *pAng );
+		CurrentMessage->bf->WriteBitAngles( *pAng );
 
 	return 0;
 }
@@ -157,14 +185,14 @@ LUA_FUNCTION_STATIC( umsg_VectorNormal )
 {
 	Vector* pVec = Get_Vector( 1 );
 	if ( pVec )
-		CurrentMessage->WriteBitVec3Normal( *pVec );
+		CurrentMessage->bf->WriteBitVec3Normal( *pVec );
 
 	return 0;
 }
 
 LUA_FUNCTION_STATIC( umsg_Float )
 {
-	CurrentMessage->WriteFloat( LUA->CheckNumber( 1 ) );
+	CurrentMessage->bf->WriteFloat( LUA->CheckNumber( 1 ) );
 
 	return 0;
 }
@@ -182,7 +210,7 @@ LUA_FUNCTION_STATIC( umsg_Entity )
 		iEncodedEHandle = INVALID_NETWORKED_EHANDLE_VALUE;
 	}
 	
-	CurrentMessage->WriteLong( iEncodedEHandle );
+	CurrentMessage->bf->WriteLong( iEncodedEHandle );
 
 	return 0;
 }

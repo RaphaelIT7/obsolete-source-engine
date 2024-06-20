@@ -1,5 +1,6 @@
 #ifndef CLUAGAMEMODE_H
 #define CLUAGAMEMODE_H
+#include "CLuaClass.h"
 #include <string>
 
 class CLuaGamemode
@@ -19,6 +20,9 @@ public:
 	void CallFinish( int hook );
 	void CallReturns( int hook, int returns );
 	void LoadCurrentlyActiveGamemode();
+
+protected:
+	CLuaObject* m_pGamemode;
 };
 
 // Definitions

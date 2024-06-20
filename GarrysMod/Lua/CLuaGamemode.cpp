@@ -60,7 +60,7 @@ bool CLuaGamemode::Call( int hook ) // Unfinished! Gmod uses CLuaObjects for thi
 
 	int reference = -1;
 	g_Lua->PushSpecial( GarrysMod::Lua::SPECIAL_GLOB );
-		g_Lua->GetField( -1, "hook" );
+		g_Lua->GetField( -1, "gamemode" );
 		if (g_Lua->IsType( -1, GarrysMod::Lua::Type::Table ))
 		{
 			g_Lua->GetField( -1, "Call" );
@@ -102,7 +102,7 @@ bool CLuaGamemode::CallWithArgs( int hook ) // Unfinished! Gmod uses CLuaObjects
 
 	int reference = -1;
 	g_Lua->PushSpecial( GarrysMod::Lua::SPECIAL_GLOB );
-		g_Lua->GetField( -1, "hook" );
+		g_Lua->GetField( -1, "gamemode" );
 		if (g_Lua->IsType( -1, GarrysMod::Lua::Type::Table ))
 		{
 			g_Lua->GetField( -1, "Call" );
