@@ -65,6 +65,8 @@
 
 #ifdef BUILD_GMOD
 #include "gmod_networkvars.h"
+#include "sendprop_priorities.h"
+#include "cellcoord.h"
 #endif
 
 #if defined( TF_DLL )
@@ -242,6 +244,161 @@ void SendProxy_OriginZ( const SendProp *pProp, const void *pStruct, const void *
 	pOut->m_Float = v->z;
 }
 
+#ifdef BUILD_GMOD
+static float const cellEpsilon = 0.001f;
+void CBaseEntity::SendProxy_CellX( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID)
+{
+	CBaseEntity *entity = (CBaseEntity*)pStruct;
+	Assert( entity );
+
+	const Vector *v;
+	int cell[3];
+
+	if ( entity->UseStepSimulationNetworkOrigin( &v, cell ) )
+	{
+		pOut->m_Int = cell[0];
+	}
+	else
+	{
+		pOut->m_Int = *((int*)pData);
+	}
+}
+
+void CBaseEntity::SendProxy_CellY( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID)
+{
+	CBaseEntity *entity = (CBaseEntity*)pStruct;
+	Assert( entity );
+
+	const Vector *v;
+	int cell[3];
+
+	if ( entity->UseStepSimulationNetworkOrigin( &v, cell ) )
+	{
+		pOut->m_Int = cell[1];
+	}
+	else
+	{
+		pOut->m_Int = *((int*)pData);
+	}
+}
+
+void CBaseEntity::SendProxy_CellZ( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID)
+{
+	CBaseEntity *entity = (CBaseEntity*)pStruct;
+	Assert( entity );
+
+	const Vector *v;
+	int cell[3];
+
+	if ( entity->UseStepSimulationNetworkOrigin( &v, cell ) )
+	{
+		pOut->m_Int = cell[2];
+	}
+	else
+	{
+		pOut->m_Int = *((int*)pData);
+	}
+}
+
+//--------------------------------------------------------------------------------------------------------
+// The origin is adjusted to be relative to current cell
+//--------------------------------------------------------------------------------------------------------
+void CBaseEntity::SendProxy_CellOrigin( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID )
+{
+	CBaseEntity *entity = (CBaseEntity*)pStruct;
+	Assert( entity );
+
+	const Vector *v;
+	int cell[3];
+
+	if ( !entity->UseStepSimulationNetworkOrigin( &v, cell ) )
+	{
+		v = &entity->GetLocalOrigin();
+		cell[0] = entity->m_cellX;
+		cell[1] = entity->m_cellY;
+		cell[2] = entity->m_cellZ;
+	}
+
+	register int const cellwidth = entity->m_cellwidth; // Load it into a register
+
+	float x1 = cell[0];
+	float x2 = CellFromCoord( cellwidth, v->x );
+	Assert( cell[0] == CellFromCoord( cellwidth, v->x ) );
+	Assert( cell[1] == CellFromCoord( cellwidth, v->y ) );
+	Assert( cell[2] == CellFromCoord( cellwidth, v->z ) );
+
+	// Adjust based on cell size
+	pOut->m_Vector[ 0 ] = CellInCoord( cellwidth, cell[0], v->x );
+	pOut->m_Vector[ 1 ] = CellInCoord( cellwidth, cell[1], v->y );
+	pOut->m_Vector[ 2 ] = CellInCoord( cellwidth, cell[2], v->z );
+
+	Assert( pOut->m_Vector[ 0 ] >= 0.0f );
+	Assert( pOut->m_Vector[ 1 ] >= 0.0f );
+	Assert( pOut->m_Vector[ 2 ] >= 0.0f );
+	Assert( fabs( CoordFromCell( cellwidth, cell[0], pOut->m_Vector[ 0 ] ) - v->x ) < cellEpsilon );
+	Assert( fabs( CoordFromCell( cellwidth, cell[1], pOut->m_Vector[ 1 ] ) - v->y ) < cellEpsilon );
+	Assert( fabs( CoordFromCell( cellwidth, cell[2], pOut->m_Vector[ 2 ] ) - v->z ) < cellEpsilon );
+}
+
+//--------------------------------------------------------------------------------------------------------
+// The origin is adjusted to be relative to current cell
+//--------------------------------------------------------------------------------------------------------
+void CBaseEntity::SendProxy_CellOriginXY( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID )
+{
+	CBaseEntity *entity = (CBaseEntity*)pStruct;
+	Assert( entity );
+
+	const Vector *v;
+	int cell[3];
+
+	if ( !entity->UseStepSimulationNetworkOrigin( &v, cell ) )
+	{
+		v = &entity->GetLocalOrigin();
+		cell[0] = entity->m_cellX;
+		cell[1] = entity->m_cellY;
+	}
+
+	register int const cellwidth = entity->m_cellwidth; // Load it into a register
+
+	Assert( cell[0] == CellFromCoord( cellwidth, v->x ) );
+	Assert( cell[1] == CellFromCoord( cellwidth, v->y ) );
+
+	pOut->m_Vector[ 0 ] = CellInCoord( cellwidth, cell[0], v->x );
+	pOut->m_Vector[ 1 ] = CellInCoord( cellwidth, cell[1], v->y );
+
+	Assert( pOut->m_Vector[ 0 ] >= 0.0f );
+	Assert( pOut->m_Vector[ 1 ] >= 0.0f );
+	Assert( fabs( CoordFromCell( cellwidth, cell[0], pOut->m_Vector[ 0 ] ) - v->x ) < cellEpsilon );
+	Assert( fabs( CoordFromCell( cellwidth, cell[1], pOut->m_Vector[ 1 ] ) - v->y ) < cellEpsilon );
+}
+
+//--------------------------------------------------------------------------------------------------------
+// The origin is adjusted to be relative to current cell
+//--------------------------------------------------------------------------------------------------------
+void CBaseEntity::SendProxy_CellOriginZ( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID )
+{
+	CBaseEntity *entity = (CBaseEntity*)pStruct;
+	Assert( entity );
+
+	const Vector *v;
+	int cell[3];
+
+	if ( !entity->UseStepSimulationNetworkOrigin( &v, cell ) )
+	{
+		v = &entity->GetLocalOrigin();
+		cell[2] = entity->m_cellZ;
+	}
+
+	register int const cellwidth = entity->m_cellwidth; // Load it into a register
+
+	Assert( cell[2] == CellFromCoord( cellwidth, v->z ) );
+
+	pOut->m_Float = CellInCoord( cellwidth, cell[2], v->z );
+
+	Assert( pOut->m_Float >= 0.0f );
+	Assert( fabs( CoordFromCell( cellwidth, cell[2], pOut->m_Float ) - v->z ) < cellEpsilon );
+}
+#endif
 
 void SendProxy_Angles( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID )
 {
@@ -263,12 +420,28 @@ void SendProxy_Angles( const SendProp *pProp, const void *pStruct, const void *p
 // This table encodes the CBaseEntity data.
 IMPLEMENT_SERVERCLASS_ST_NOBASE( CBaseEntity, DT_BaseEntity )
 	SendPropDataTable( "AnimTimeMustBeFirst", 0, &REFERENCE_SEND_TABLE(DT_AnimTimeMustBeFirst), SendProxy_ClientSideAnimation ),
-	SendPropInt			(SENDINFO(m_flSimulationTime),	SIMULATION_TIME_WINDOW_BITS, SPROP_UNSIGNED|SPROP_CHANGES_OFTEN|SPROP_ENCODED_AGAINST_TICKCOUNT, SendProxy_SimulationTime),
+#ifdef BUILD_GMOD
+	SendPropInt			(SENDINFO(m_flSimulationTime),	SIMULATION_TIME_WINDOW_BITS, SPROP_UNSIGNED|SPROP_CHANGES_OFTEN|SPROP_ENCODED_AGAINST_TICKCOUNT, SendProxy_SimulationTime, SENDPROP_SIMULATION_TIME_PRIORITY),
+#else
+		SendPropInt			(SENDINFO(m_flSimulationTime),	SIMULATION_TIME_WINDOW_BITS, SPROP_UNSIGNED|SPROP_CHANGES_OFTEN|SPROP_ENCODED_AGAINST_TICKCOUNT, SendProxy_SimulationTime),
+#endif
+
+#ifdef BUILD_GMOD
+	SendPropInt			(SENDINFO(m_cellbits), MINIMUM_BITS_NEEDED( 32 ), SPROP_UNSIGNED, 0, SENDPROP_CELL_INFO_PRIORITY ),
+//	SendPropArray       (SendPropInt(SENDINFO_ARRAY(m_cellXY), CELL_COUNT_BITS( CELL_BASEENTITY_ORIGIN_CELL_BITS ), SPROP_UNSIGNED|SPROP_CHANGES_OFTEN ), m_cellXY),
+	SendPropInt			(SENDINFO(m_cellX), CELL_COUNT_BITS( CELL_BASEENTITY_ORIGIN_CELL_BITS ), SPROP_UNSIGNED, CBaseEntity::SendProxy_CellX, SENDPROP_CELL_INFO_PRIORITY ), // 32 priority in the send table
+	SendPropInt			(SENDINFO(m_cellY), CELL_COUNT_BITS( CELL_BASEENTITY_ORIGIN_CELL_BITS ), SPROP_UNSIGNED, CBaseEntity::SendProxy_CellY, SENDPROP_CELL_INFO_PRIORITY ),
+	SendPropInt			(SENDINFO(m_cellZ), CELL_COUNT_BITS( CELL_BASEENTITY_ORIGIN_CELL_BITS ), SPROP_UNSIGNED, CBaseEntity::SendProxy_CellZ, SENDPROP_CELL_INFO_PRIORITY ),
+#endif
 
 #if PREDICTION_ERROR_CHECK_LEVEL > 1 
 	SendPropVector	(SENDINFO(m_vecOrigin), -1,  SPROP_NOSCALE|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_Origin ),
 #else
+#ifdef BUILD_GMOD // Raphael: When you use SPROP_CELL_COORD, you need to specify the bits! or else you get some issues.
+	SendPropVector	(SENDINFO(m_vecOrigin), CELL_BASEENTITY_ORIGIN_CELL_BITS, SPROP_CELL_COORD|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, CBaseEntity::SendProxy_CellOrigin ), // ToDo: Fix SPROP_CELL_COORD to work here like in CS:GO
+#else
 	SendPropVector	(SENDINFO(m_vecOrigin), -1,  SPROP_COORD|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_Origin ),
+#endif
 #endif
 
 	SendPropInt		(SENDINFO( m_ubInterpolationFrame ), NOINTERP_PARITY_MAX_BITS, SPROP_UNSIGNED ),
@@ -362,6 +535,11 @@ CBaseEntity::CBaseEntity( bool bServerOnly )
 	m_vecBaseVelocity.GetForModify().Init();
 	m_vecVelocity.Init();
 	m_vecAbsVelocity.Init();
+#endif
+
+#ifdef BUILD_GMOD
+	SetCellBits();
+	UpdateCell();
 #endif
 
 	m_bAlternateSorting = false;
@@ -1006,6 +1184,16 @@ void CBaseEntity::DrawDebugGeometryOverlays(void)
 	}
 }
 
+#ifdef BUILD_GMOD
+static ConVar debug_overlay_fullposition( "debug_overlay_fullposition", 
+#if defined( _DEBUG )
+	"1"
+#else
+	"0"
+#endif
+	);
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Draw any text overlays (override in subclass to add additional text)
 // Output : Current text offset from the top
@@ -1027,10 +1215,41 @@ int CBaseEntity::DrawDebugTextOverlays(void)
 			offset++;
 		}
 
-		Vector vecOrigin = GetAbsOrigin();
-		Q_snprintf( tempstr, sizeof(tempstr), "Position: %0.1f, %0.1f, %0.1f\n", vecOrigin.x, vecOrigin.y, vecOrigin.z );
-		EntityText( offset, tempstr, 0 );
-		offset++;
+#ifdef BUILD_GMOD
+		if (debug_overlay_fullposition.GetBool() )
+		{
+			Vector vecOrigin = GetAbsOrigin();
+			Q_snprintf( tempstr, sizeof(tempstr), "pos: (%f, %f, %f)\n", vecOrigin.x, vecOrigin.y, vecOrigin.z );
+			EntityText( offset, tempstr, 0 );
+			offset++;
+
+			QAngle angOrientation = GetAbsAngles();
+			Q_snprintf( tempstr, sizeof(tempstr), "ang: (%f, %f, %f)\n", angOrientation.x, angOrientation.y, angOrientation.z );
+			EntityText( offset, tempstr, 0 );
+			offset++;
+
+			Q_snprintf( tempstr, sizeof(tempstr), "cell: (%d, %d, %d)\n", m_cellX.Get(), m_cellY.Get(), m_cellZ.Get() );
+			EntityText( offset, tempstr, 0 );
+			offset++;
+
+			register int const cellwidth = m_cellwidth; // Load it into a register
+			Vector cellOrigin;
+			cellOrigin.x = CellInCoord( cellwidth, m_cellX, m_vecOrigin->x );
+			cellOrigin.y = CellInCoord( cellwidth, m_cellY, m_vecOrigin->y );
+			cellOrigin.z = CellInCoord( cellwidth, m_cellZ, m_vecOrigin->z );
+
+			Q_snprintf( tempstr, sizeof(tempstr), "celloffset: (%f, %f, %f)\n", cellOrigin.x, cellOrigin.y, cellOrigin.z );
+			EntityText( offset, tempstr, 0 );
+			offset++;
+		}
+		else
+#endif
+		{
+			Vector vecOrigin = GetAbsOrigin();
+			Q_snprintf( tempstr, sizeof(tempstr), "Position: %0.3f, %0.3f, %0.3f\n", vecOrigin.x, vecOrigin.y, vecOrigin.z );
+			EntityText( offset, tempstr, 0 );
+			offset++;
+		}
 
 		if( GetModelName() != NULL_STRING || GetBaseAnimating() )
 		{
@@ -3241,6 +3460,11 @@ int CBaseEntity::Restore( IRestore &restore )
 	{
 		m_hGroundEntity->AddEntityToGroundList( this );
 	}
+
+#ifdef BUILD_GMOD
+	// Ensure our cell is current
+	UpdateCell();
+#endif
 
 	return status;
 }
@@ -5946,6 +6170,9 @@ void CBaseEntity::SetAbsOrigin( const Vector& absOrigin )
 	{
 		m_vecOrigin = vecNewOrigin;
 		SetSimulationTime( gpGlobals->curtime );
+#ifdef BUILD_GMOD
+		UpdateCell();
+#endif
 	}
 }
 
@@ -6096,6 +6323,9 @@ void CBaseEntity::SetLocalOrigin( const Vector& origin )
 		InvalidatePhysicsRecursive( POSITION_CHANGED );
 		m_vecOrigin = origin;
 		SetSimulationTime( gpGlobals->curtime );
+#ifdef BUILD_GMOD
+		UpdateCell();
+#endif
 	}
 }
 
@@ -6819,6 +7049,9 @@ void CBaseEntity::ComputeStepSimulationNetwork( StepSimulationData *step )
 			{
 				Vector delta = step->m_Next.vecOrigin - step->m_Previous.vecOrigin;
 				VectorMA( step->m_Previous.vecOrigin, frac, delta, step->m_vecNetworkOrigin );
+#ifdef BUILD_GMOD
+				NetworkStateChanged();
+#endif
 			}
 			else if (!step_spline.GetBool())
 			{
@@ -6846,11 +7079,25 @@ void CBaseEntity::ComputeStepSimulationNetwork( StepSimulationData *step )
 		
 				Vector delta = pNewer->vecOrigin - pOlder->vecOrigin;
 				VectorMA( pOlder->vecOrigin, frac, delta, step->m_vecNetworkOrigin );
+#ifdef BUILD_GMOD
+				NetworkStateChanged();
+#endif
 			}
 			else
 			{
 				Hermite_Spline( step->m_Previous2.vecOrigin, step->m_Previous.vecOrigin, step->m_Next.vecOrigin, frac, step->m_vecNetworkOrigin );
+#ifdef BUILD_GMOD
+				NetworkStateChanged();
+#endif
 			}
+
+#ifdef BUILD_GMOD
+			// Calculate the cell of this origin
+			register int const cellwidth = m_cellwidth; // Load it into a register
+			step->m_networkCell[0] = CellFromCoord( cellwidth, step->m_vecNetworkOrigin[0] );
+			step->m_networkCell[1] = CellFromCoord( cellwidth, step->m_vecNetworkOrigin[1] );
+			step->m_networkCell[2] = CellFromCoord( cellwidth, step->m_vecNetworkOrigin[2] );
+#endif
 		}
 	}
 
@@ -6923,7 +7170,11 @@ void CBaseEntity::ComputeStepSimulationNetwork( StepSimulationData *step )
 
 
 //-----------------------------------------------------------------------------
+#ifdef BUILD_GMOD
+bool CBaseEntity::UseStepSimulationNetworkOrigin( const Vector **out_v, int cell[3] )
+#else
 bool CBaseEntity::UseStepSimulationNetworkOrigin( const Vector **out_v )
+#endif
 {
 	Assert( out_v );
 
@@ -6935,6 +7186,14 @@ bool CBaseEntity::UseStepSimulationNetworkOrigin( const Vector **out_v )
 		StepSimulationData *step = ( StepSimulationData * )GetDataObject( STEPSIMULATION );
 		ComputeStepSimulationNetwork( step );
 		*out_v = &step->m_vecNetworkOrigin;
+#ifdef BUILD_GMOD
+		if ( cell )
+		{
+			cell[0] = step->m_networkCell[0];
+			cell[1] = step->m_networkCell[1];
+			cell[2] = step->m_networkCell[2];
+		}
+#endif
 
 		return step->m_bOriginActive;
 	}
@@ -7323,6 +7582,38 @@ void CBaseEntity::SetCollisionBoundsFromModel()
 	}
 }
 
+#ifdef BUILD_GMOD
+//-----------------------------------------------------------------------------
+// Adjust the number of cell bits
+//-----------------------------------------------------------------------------
+void CBaseEntity::SetCellBits( int cellbits )
+{
+	m_cellbits = cellbits;
+	m_cellwidth = ( 1 << cellbits );
+	UpdateCell();
+}
+
+//-----------------------------------------------------------------------------
+// Called when the origin changes and recomputes cell
+//-----------------------------------------------------------------------------
+void CBaseEntity::UpdateCell()
+{
+	register int const cellwidth = m_cellwidth; // Load it into a register
+
+	m_cellX = CellFromCoord( cellwidth, m_vecOrigin.GetX() );
+	m_cellY = CellFromCoord( cellwidth, m_vecOrigin.GetY() );
+	m_cellZ	= CellFromCoord( cellwidth, m_vecOrigin.GetZ() );
+
+
+    // PRB TODO : HACK fix for hostage warping.
+    // Somehow the above code does not flag the network vars as modified, but below does... 
+    // Needs revisiting, but at this stage it fixes our bug
+
+    m_cellX.GetForModify();
+    m_cellY.GetForModify();
+    m_cellZ.GetForModify();
+}
+#endif
 
 //------------------------------------------------------------------------------
 // Purpose: Create an NPC of the given type

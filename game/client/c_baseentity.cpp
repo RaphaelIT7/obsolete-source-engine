@@ -45,6 +45,10 @@
 #include "c_tf_player.h"
 #endif
 
+#ifdef BUILD_GMOD
+#include "cellcoord.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -369,6 +373,130 @@ void RecvProxy_SimulationTime( const CRecvProxyData *pData, void *pStruct, void 
 	pEntity->m_flSimulationTime = ( t * TICK_INTERVAL );
 }
 
+#ifdef BUILD_GMOD
+void C_BaseEntity::RecvProxy_CellBits( const CRecvProxyData *pData, void *pStruct, void *pOut )
+{
+	CBaseEntity *pEnt = (CBaseEntity *)pStruct;
+
+	if ( pEnt->SetCellBits( pData->m_Value.m_Int ) )
+	{
+		if ( pEnt->ShouldRegenerateOriginFromCellBits() )
+		{
+			pEnt->m_vecNetworkOrigin.x = CoordFromCell( pEnt->m_cellwidth, pEnt->m_cellX, pEnt->m_vecCellOrigin.x );
+			pEnt->m_vecNetworkOrigin.y = CoordFromCell( pEnt->m_cellwidth, pEnt->m_cellY, pEnt->m_vecCellOrigin.y );
+			pEnt->m_vecNetworkOrigin.z = CoordFromCell( pEnt->m_cellwidth, pEnt->m_cellZ, pEnt->m_vecCellOrigin.z );
+		}
+	}
+}
+
+void C_BaseEntity::RecvProxy_CellX( const CRecvProxyData *pData, void *pStruct, void *pOut )
+{
+	CBaseEntity *pEnt = (CBaseEntity *)pStruct;
+
+	int *cellX = (int *)pOut;
+	Assert( cellX == &pEnt->m_cellX );
+
+	*cellX = pData->m_Value.m_Int;
+
+	// Cell changed, update world position
+	if ( pEnt->ShouldRegenerateOriginFromCellBits() )
+	{
+		pEnt->m_vecNetworkOrigin.x = CoordFromCell( pEnt->m_cellwidth, pEnt->m_cellX, pEnt->m_vecCellOrigin.x );
+	}
+}
+
+void C_BaseEntity::RecvProxy_CellY( const CRecvProxyData *pData, void *pStruct, void *pOut )
+{
+	CBaseEntity *pEnt = (CBaseEntity *)pStruct;
+
+	int *cellY = (int *)pOut;
+	Assert( cellY == &pEnt->m_cellY );
+
+	*cellY = pData->m_Value.m_Int;
+
+	// Cell changed, update world position
+	if ( pEnt->ShouldRegenerateOriginFromCellBits() )
+	{
+		pEnt->m_vecNetworkOrigin.y = CoordFromCell( pEnt->m_cellwidth, pEnt->m_cellY, pEnt->m_vecCellOrigin.y );
+	}
+}
+
+void C_BaseEntity::RecvProxy_CellZ( const CRecvProxyData *pData, void *pStruct, void *pOut )
+{
+	CBaseEntity *pEnt = (CBaseEntity *)pStruct;
+
+	int *cellZ = (int *)pOut;
+	Assert( cellZ == &pEnt->m_cellZ );
+
+	*cellZ = pData->m_Value.m_Int;
+
+	// Cell changed, update world position
+	if ( pEnt->ShouldRegenerateOriginFromCellBits() )
+	{
+		pEnt->m_vecNetworkOrigin.z = CoordFromCell( pEnt->m_cellwidth, pEnt->m_cellZ, pEnt->m_vecCellOrigin.z );
+	}
+}
+
+void C_BaseEntity::RecvProxy_CellOrigin( const CRecvProxyData *pData, void *pStruct, void *pOut )
+{
+	CBaseEntity *pEnt = (CBaseEntity *)pStruct;
+
+	Vector *vecNetworkOrigin = (Vector *)pOut;
+
+	Assert( vecNetworkOrigin == &pEnt->m_vecNetworkOrigin );
+
+	pEnt->m_vecCellOrigin.x = pData->m_Value.m_Vector[0];
+	pEnt->m_vecCellOrigin.y = pData->m_Value.m_Vector[1];
+	pEnt->m_vecCellOrigin.z = pData->m_Value.m_Vector[2];
+
+	if ( pEnt->ShouldRegenerateOriginFromCellBits() )
+	{
+		register int const cellwidth = pEnt->m_cellwidth; // Load it into a register
+		vecNetworkOrigin->x = CoordFromCell( cellwidth, pEnt->m_cellX, pData->m_Value.m_Vector[0] );
+		vecNetworkOrigin->y = CoordFromCell( cellwidth, pEnt->m_cellY, pData->m_Value.m_Vector[1] );
+		vecNetworkOrigin->z = CoordFromCell( cellwidth, pEnt->m_cellZ, pData->m_Value.m_Vector[2] );
+	}
+}
+
+void C_BaseEntity::RecvProxy_CellOriginXY( const CRecvProxyData *pData, void *pStruct, void *pOut )
+{
+	CBaseEntity *pEnt = (CBaseEntity *)pStruct;
+
+	Vector *vecNetworkOrigin = (Vector *)pOut;
+
+	Assert( vecNetworkOrigin == &pEnt->m_vecNetworkOrigin );
+
+	pEnt->m_vecCellOrigin.x = pData->m_Value.m_Vector[0];
+	pEnt->m_vecCellOrigin.y = pData->m_Value.m_Vector[1];
+
+	register int const cellwidth = pEnt->m_cellwidth; // Load it into a register
+
+	if ( pEnt->ShouldRegenerateOriginFromCellBits() )
+	{
+		vecNetworkOrigin->x = CoordFromCell( cellwidth, pEnt->m_cellX, pData->m_Value.m_Vector[0] );
+		vecNetworkOrigin->y = CoordFromCell( cellwidth, pEnt->m_cellY, pData->m_Value.m_Vector[1] );
+	}
+}
+
+void C_BaseEntity::RecvProxy_CellOriginZ( const CRecvProxyData *pData, void *pStruct, void *pOut )
+{
+	CBaseEntity *pEnt = (CBaseEntity *)pStruct;
+
+	float *vecNetworkOriginZ = (float *)pOut;
+
+	Assert( vecNetworkOriginZ == &pEnt->m_vecNetworkOrigin[2] );
+
+	pEnt->m_vecCellOrigin.z = pData->m_Value.m_Float;
+
+	register int const cellwidth = pEnt->m_cellwidth; // Load it into a register
+
+	if ( pEnt->ShouldRegenerateOriginFromCellBits() )
+	{
+		*vecNetworkOriginZ = CoordFromCell( cellwidth, pEnt->m_cellZ, pData->m_Value.m_Float );
+	}
+}
+#endif
+
 void RecvProxy_LocalVelocity( const CRecvProxyData *pData, void *pStruct, void *pOut )
 {
 	CBaseEntity *pEnt = (CBaseEntity *)pStruct;
@@ -438,7 +566,18 @@ BEGIN_RECV_TABLE_NOBASE(C_BaseEntity, DT_BaseEntity)
 	RecvPropInt( RECVINFO(m_flSimulationTime), 0, RecvProxy_SimulationTime ),
 	RecvPropInt( RECVINFO( m_ubInterpolationFrame ) ),
 
+#ifdef BUILD_GMOD
+	RecvPropInt( RECVINFO( m_cellbits ), 0, C_BaseEntity::RecvProxy_CellBits ),
+//	RecvPropArray( RecvPropInt( RECVINFO(m_cellXY[0]) ), m_cellXY ),
+	RecvPropInt( RECVINFO( m_cellX ), 0, C_BaseEntity::RecvProxy_CellX ),
+	RecvPropInt( RECVINFO( m_cellY ), 0, C_BaseEntity::RecvProxy_CellY ),
+	RecvPropInt( RECVINFO( m_cellZ ), 0, C_BaseEntity::RecvProxy_CellZ ),
+
+	RecvPropVector( RECVINFO_NAME( m_vecNetworkOrigin, m_vecOrigin ), 0, C_BaseEntity::RecvProxy_CellOrigin ),
+#else
 	RecvPropVector( RECVINFO_NAME( m_vecNetworkOrigin, m_vecOrigin ) ),
+#endif
+
 #if PREDICTION_ERROR_CHECK_LEVEL > 1 
 	RecvPropVector( RECVINFO_NAME( m_angNetworkAngles, m_angRotation ) ),
 #else
@@ -6669,6 +6808,24 @@ void* CBaseEntity::GetNextBot()
 
 void CBaseEntity::ComputeFxBlendForView( int unknown ) 
 {
+}
+
+//-----------------------------------------------------------------------------
+// Adjust the number of cell bits
+//-----------------------------------------------------------------------------
+bool C_BaseEntity::SetCellBits( int cellbits )
+{
+	if ( m_cellbits == cellbits )
+		return false;
+
+	m_cellbits = cellbits;
+	m_cellwidth = ( 1 << cellbits );
+	return true;
+}
+
+bool C_BaseEntity::ShouldRegenerateOriginFromCellBits() const
+{
+	return true;
 }
 #endif
 

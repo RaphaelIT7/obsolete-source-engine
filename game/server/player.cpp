@@ -82,6 +82,10 @@
 #include "weapon_physcannon.h"
 #endif
 
+#ifdef BUILD_GMOD
+#include "sendprop_priorities.h"
+#endif
+
 ConVar autoaim_max_dist( "autoaim_max_dist", "2160" ); // 2160 = 180 feet
 ConVar autoaim_max_deflect( "autoaim_max_deflect", "0.99" );
 
@@ -7930,15 +7934,25 @@ void SendProxy_CropFlagsToPlayerFlagBitsLength( const SendProp *pProp, const voi
 			
 		SendPropInt			( SENDINFO( m_fOnTarget ), 2, SPROP_UNSIGNED ),
 
+#ifdef BUILD_GMOD
+		SendPropInt			( SENDINFO( m_nTickBase ), -1, SPROP_CHANGES_OFTEN, 0, SENDPROP_TICKBASE_PRIORITY ),
+#else
 		SendPropInt			( SENDINFO( m_nTickBase ), -1, SPROP_CHANGES_OFTEN ),
+#endif
 		SendPropInt			( SENDINFO( m_nNextThinkTick ) ),
 
 		SendPropEHandle		( SENDINFO( m_hLastWeapon ) ),
 		SendPropEHandle		( SENDINFO( m_hGroundEntity ), SPROP_CHANGES_OFTEN ),
 
+#ifdef BUILD_GMOD
+		SendPropFloat		( SENDINFO_VECTORELEM(m_vecVelocity, 0), 32, SPROP_NOSCALE|SPROP_CHANGES_OFTEN, SENDPROP_PLAYER_VELOCITY_XY_PRIORITY ),
+		SendPropFloat		( SENDINFO_VECTORELEM(m_vecVelocity, 1), 32, SPROP_NOSCALE|SPROP_CHANGES_OFTEN, SENDPROP_PLAYER_VELOCITY_XY_PRIORITY ),
+		SendPropFloat		( SENDINFO_VECTORELEM(m_vecVelocity, 2), 32, SPROP_NOSCALE|SPROP_CHANGES_OFTEN, SENDPROP_PLAYER_VELOCITY_Z_PRIORITY  ),
+#else
 		SendPropFloat		( SENDINFO_VECTORELEM(m_vecVelocity, 0), 32, SPROP_NOSCALE|SPROP_CHANGES_OFTEN ),
 		SendPropFloat		( SENDINFO_VECTORELEM(m_vecVelocity, 1), 32, SPROP_NOSCALE|SPROP_CHANGES_OFTEN ),
 		SendPropFloat		( SENDINFO_VECTORELEM(m_vecVelocity, 2), 32, SPROP_NOSCALE|SPROP_CHANGES_OFTEN ),
+#endif
 
 #if PREDICTION_ERROR_CHECK_LEVEL > 1 
 		SendPropVector		( SENDINFO( m_vecBaseVelocity ), -1, SPROP_COORD ),

@@ -1311,6 +1311,19 @@ public:
 	void					IncrementLocalTime( float flTimeDelta );
 	float					GetMoveDoneTime( ) const;
 	void					SetMoveDoneTime( float flTime );
+
+#ifdef BUILD_GMOD
+	// Cell position
+	void					SetCellBits( int cellbits = CELL_BASEENTITY_ORIGIN_CELL_BITS );
+	void					UpdateCell();
+	
+	static void SendProxy_CellX( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID);
+	static void SendProxy_CellY( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID);
+	static void SendProxy_CellZ( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID);
+	static void SendProxy_CellOrigin( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID );
+	static void SendProxy_CellOriginXY( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID );
+	static void SendProxy_CellOriginZ( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID );
+#endif
 	
 	// Used by the PAS filters to ask the entity where in world space the sounds it emits come from.
 	// This is used right now because if you have something sitting on an incline, using our axis-aligned 
@@ -1535,7 +1548,11 @@ private:
 	void					ComputeStepSimulationNetwork( StepSimulationData *step );
 
 public:
+#ifdef BUILD_GMOD
+	bool					UseStepSimulationNetworkOrigin( const Vector **out_v, int cell[3] = NULL ); // cell should be a 3 int array
+#else
 	bool					UseStepSimulationNetworkOrigin( const Vector **out_v );
+#endif
 	bool					UseStepSimulationNetworkAngles( const QAngle **out_a );
 
 public:
@@ -1698,6 +1715,19 @@ private:
 	COutputEvent m_OnUser2;
 	COutputEvent m_OnUser3;
 	COutputEvent m_OnUser4;
+
+#ifdef BUILD_GMOD
+	// We cache the cell width for convenience
+	int m_cellwidth;
+
+	CNetworkVar( int, m_cellbits );
+
+	// Cell of the current origin
+	// CNetworkArray( int, m_cellXY, 2 );
+	CNetworkVar( int, m_cellX );
+	CNetworkVar( int, m_cellY );
+	CNetworkVar( int, m_cellZ );
+#endif
 
 	QAngle			m_angAbsRotation;
 

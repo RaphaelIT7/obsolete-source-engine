@@ -1009,6 +1009,10 @@ public:
 	bool							IsWorld() { return entindex() == 0; }
 	/////////////////
 
+#ifdef BUILD_GMOD
+	virtual bool 					ShouldRegenerateOriginFromCellBits() const;
+#endif
+
 	virtual bool					IsPlayer( void ) const { return false; };
 	virtual bool					IsBaseCombatCharacter( void ) { return false; };
 	virtual C_BaseCombatCharacter	*MyCombatCharacterPointer( void ) { return NULL; }
@@ -1280,6 +1284,30 @@ public:
 
 	void SetRenderMode( RenderMode_t nRenderMode, bool bForceUpdate = false );
 	RenderMode_t GetRenderMode() const;
+
+#ifdef BUILD_GMOD
+	// Returns true if there was a change.
+	bool SetCellBits( int cellbits = CELL_BASEENTITY_ORIGIN_CELL_BITS );
+
+	static void RecvProxy_CellBits( const CRecvProxyData *pData, void *pStruct, void *pOut );
+	static void RecvProxy_CellX( const CRecvProxyData *pData, void *pStruct, void *pOut );
+	static void RecvProxy_CellY( const CRecvProxyData *pData, void *pStruct, void *pOut );
+	static void RecvProxy_CellZ( const CRecvProxyData *pData, void *pStruct, void *pOut );
+	static void RecvProxy_CellOrigin( const CRecvProxyData *pData, void *pStruct, void *pOut );
+	static void RecvProxy_CellOriginXY( const CRecvProxyData *pData, void *pStruct, void *pOut );
+	static void RecvProxy_CellOriginZ( const CRecvProxyData *pData, void *pStruct, void *pOut );
+	static void RecvProxyOldSpottedByMask( const CRecvProxyData *pData, void *pStruct, void *pOut );
+
+protected: // Cell data is available to derived classes for RecvProxy issues
+	int								m_cellbits;
+	int								m_cellwidth;
+	int								m_cellX;
+	int								m_cellY;
+	int								m_cellZ;
+	Vector							m_vecCellOrigin; // cached cell offset position
+// BEGIN PREDICTION DATA COMPACTION (these fields are together to allow for faster copying in prediction system)
+// FTYPEDESC_INSENDTABLE STUFF
+#endif
 
 public:	
 
