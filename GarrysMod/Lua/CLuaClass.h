@@ -5,6 +5,9 @@
 #include "GarrysMod/Lua/LuaInterface.h"
 #include "mathlib/vector.h"
 #include <vector>
+#include "Bootil/Bootil.h"
+#include <list>
+#include <filesystem.h>
 
 class CBaseEntity;
 class CLuaObject : public GarrysMod::Lua::ILuaObject
@@ -188,9 +191,15 @@ extern CLuaClass entity_class;
 extern CLuaClass recipientfilter_class;
 extern CLuaClass LC_bf_read;
 
+namespace Lua
+{
+	extern CLuaClass LC_File;
+}
+
 // Lua Libraries. Fix this later
 extern CLuaLibrary ents_library;
 extern CLuaLibrary umsg_library;
+extern CLuaLibrary file_library;
 
 
 // Lua push functions
@@ -219,7 +228,25 @@ extern void Push_bf_read( const bf_read* msg );
 // File library
 namespace GarrysMod::Lua::Libraries::File
 {
+	 // ToDo: get Gmod's struct. 
+	 // Until then use this version. 
+	 // 
+	 // BUG: What if multiple ILuaInterfaces use the same version? 
+	 // It would probably break it by trying to call the callback from the registry 123 which could be anything since the registry will be different in each ILuaInterface.
+	struct FileAsyncCallback
+	{
+		int iCallback = -1;
+		int iBytesRead = 0;
+		int iStatus = -1;
+		const char* strContent = NULL;
+		const char* strFileName = NULL;
+		const char* strPathID = NULL;
+	};
+
 	extern void AsyncCycle();
+	extern void FileAsyncReadCallback( const FileAsyncRequest_t &request, int nBytesRead, FSAsyncStatus_t err );
+	extern Bootil::Threads::Mutex FileAsyncCallbackListMutex;
+	extern std::list<FileAsyncCallback*> FileAsyncCallbackList;
 }
 
 #endif
