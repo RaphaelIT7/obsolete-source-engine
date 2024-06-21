@@ -1113,7 +1113,7 @@ CLuaClass::CLuaClass(const char* name, int type, CLuaClassFunc func, const char*
 	m_strBaseClass = baseclass;
 }
 
-void* CLuaClass::Get(int index)
+void* CLuaClass::Get(int index) // Probably done differently.
 {
 	if (g_Lua->IsType(index, m_iType))
 		return g_Lua->GetUserType<void*>(index, m_iType);
@@ -1143,6 +1143,7 @@ void InitLuaClasses(GarrysMod::Lua::ILuaInterface* LUA)
 {
 	angle_class.InitClass();
 	vector_class.InitClass();
+	Lua::LC_File.InitClass();
 
 #ifndef MENUSYSTEM
 	entity_class.InitClass();
@@ -1185,6 +1186,8 @@ void CLuaLibrary::Push() // Idk
 
 void InitLuaLibraries(GarrysMod::Lua::ILuaInterface* LUA)
 {
+	file_library.Push();
+
 #ifndef MENUSYSTEM
 	ents_library.Push();
 #endif
