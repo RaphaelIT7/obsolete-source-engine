@@ -1144,6 +1144,7 @@ void InitLuaClasses(GarrysMod::Lua::ILuaInterface* LUA)
 	angle_class.InitClass();
 	vector_class.InitClass();
 	Lua::LC_File.InitClass();
+	LC_ConVar.InitClass();
 
 #ifndef MENUSYSTEM
 	entity_class.InitClass();

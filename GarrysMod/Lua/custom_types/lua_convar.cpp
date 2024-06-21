@@ -3,6 +3,7 @@
 #include "GarrysMod/Lua/Interface.h"
 #include "Externals.h"
 #include "tier1/strtools.h"
+#include "convar.h"
 
 extern CLuaClass LC_ConVar;
 LUA_FUNCTION_STATIC(ConVar__tostring)

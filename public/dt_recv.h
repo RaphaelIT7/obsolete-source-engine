@@ -399,6 +399,12 @@ RecvProp InternalRecvPropArray(
 	);
 
 
+RecvProp RecvPropGMODTable(
+	const char *pVarName,
+	int unknown
+	);
+
+
 //
 // Use this if you want to completely manage the way the array data is stored.
 // You'll need to provide a proxy inside varTemplate that looks for 'iElement'

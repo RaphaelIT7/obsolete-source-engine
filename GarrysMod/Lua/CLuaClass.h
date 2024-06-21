@@ -190,6 +190,7 @@ extern CLuaClass vector_class;
 extern CLuaClass entity_class;
 extern CLuaClass recipientfilter_class;
 extern CLuaClass LC_bf_read;
+extern CLuaClass LC_ConVar;
 
 namespace Lua
 {
