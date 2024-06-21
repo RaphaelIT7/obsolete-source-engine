@@ -133,7 +133,13 @@ public:
 						break;
 					}
 					// See if they reconnected
-					else if ( pPlayer && !engine->IsPlayerNameLocked( pPlayer->edict() ) )
+					else if ( pPlayer && 
+#ifdef BUILD_GMOD
+						true
+#else
+						!engine->IsPlayerNameLocked( pPlayer->edict() )
+#endif
+						)
 					{
 						engine->ServerCommand( UTIL_VarArgs( "namelockid %d %d\n", pPlayer->GetUserID(), 1 ) );
 					}
