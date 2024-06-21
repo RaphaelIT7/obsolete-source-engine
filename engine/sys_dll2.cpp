@@ -920,6 +920,10 @@ public:
 	// Reset the map we're on
 	void SetMap( const char *pMapName ) override;
 
+#ifdef BUILD_GMOD
+	virtual void SetHeadtrackDLLName( const char* pDllName );
+#endif
+
 	bool MainLoop();
 
 	int RunListenServer();
@@ -1217,6 +1221,13 @@ void CEngineAPI::SetMap( const char *pMapName )
 	Cbuf_AddText( buf );
 }
 
+
+#ifdef BUILD_GMOD
+void CEngineAPI::SetHeadtrackDLLName( const char* pDllName )
+{
+	// Do we need to do something? Idk
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Start/stop running the simulation

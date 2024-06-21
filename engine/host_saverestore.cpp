@@ -105,6 +105,7 @@ static bool HaveExactMap( const char *pszMapName )
 {
 	char szCanonName[64] = { 0 };
 	V_strncpy( szCanonName, pszMapName, sizeof( szCanonName ) );
+#ifndef BUILD_GMOD
 	IVEngineServer::eFindMapResult eResult = g_pVEngineServer->FindMap( szCanonName, sizeof( szCanonName ) );
 
 	switch ( eResult )
@@ -117,6 +118,7 @@ static bool HaveExactMap( const char *pszMapName )
 	case IVEngineServer::eFindMap_PossiblyAvailable:
 		return false;
 	}
+#endif
 
 	AssertMsg( false, "Unhandled engine->FindMap return value\n" );
 	return false;

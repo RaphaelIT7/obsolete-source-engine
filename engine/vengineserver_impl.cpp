@@ -511,6 +511,7 @@ public:
 		return false;
 	}
 
+#ifndef BUILD_GMOD
 	// See header comment. This is the canonical map lookup spot, and a superset of the server gameDLL's
 	// CanProvideLevel/PrepareLevelResources
 	eFindMapResult FindMap( /* in/out */ char *pMapName, int nMapNameMax ) override
@@ -518,7 +519,6 @@ public:
 		char szOriginalName[256] = { 0 };
 		V_strncpy( szOriginalName, pMapName, sizeof( szOriginalName ) );
 
-#ifndef BUILD_GMOD
 		IServerGameDLL::eCanProvideLevelResult eCanGameDLLProvide = IServerGameDLL::eCanProvideLevel_CannotProvide;
 		if ( g_iServerGameDLLVersion >= 10 )
 		{
@@ -537,7 +537,6 @@ public:
 
 		AssertMsg( eCanGameDLLProvide == IServerGameDLL::eCanProvideLevel_CannotProvide,
 		           "Unhandled enum member" );
-#endif
 
 		char szDiskName[MAX_PATH] = { 0 };
 		// Check if we can directly use this as a map
@@ -561,6 +560,7 @@ public:
 
 		return eFindMap_NotFound;
 	}
+#endif
 
 	int IndexOfEdict(const edict_t *pEdict) override
 	{
@@ -1624,7 +1624,90 @@ public:
 		return GetSteamInfIDVersionInfo().ServerVersion;
 	}
 
-	float GetServerTime() const override
+#ifdef BUILD_GMOD
+	virtual float *GMOD_SetTimeManipulator( float fScaleFramerate )
+	{
+		return &fScaleFramerate; // xd
+	}
+
+	virtual void GMOD_SendToClient( IRecipientFilter *filter, const void *data, int dataSize )
+	{
+		// ToDo
+	}
+
+	virtual void GMOD_SendToClient( int client, const void *data, int dataSize )
+	{
+		// ToDo
+	}
+
+	virtual void GMOD_RawServerCommand( const char *command )
+	{
+		if ( command == NULL )
+			Sys_Error( "GMOD_RawServerCommand with NULL string" );
+
+		Cbuf_AddRawText( command );
+	}
+
+	virtual IGMODDataTable *GMOD_CreateDataTable()
+	{
+		// ToDo
+		return NULL;
+	}
+
+	virtual void GMOD_DestroyDataTable( IGMODDataTable *dataTable )
+	{
+		// ToDo
+	}
+
+	virtual const char *GMOD_GetServerAddress() const
+	{
+		// ToDo
+		return NULL;
+	}
+
+	virtual void *GMOD_LoadModel( const char *path )
+	{
+		// ToDo
+		return NULL;
+	}
+
+	virtual float GetClientConVarFloat( int client, const char* cvar, float fallback )
+	{
+		// ToDo
+		return 0.0f;
+	}
+
+	virtual CSteamID *GMOD_GetPlayerOwnerSteamID( const edict_t* pClient )
+	{
+		// ToDo
+		return NULL;
+	}
+
+	virtual bool GMOD_GetPlayerIsSpeaking( const edict_t* pClient )
+	{
+		// ToDo
+		return false;
+	}
+
+	virtual bool GMOD_ShouldUpdateVoiceMasks()
+	{
+		// ToDo
+		return false;
+	}
+
+	virtual bool NET_IsHostLocal( const char* unknwon )
+	{
+		// ToDo
+		return true;
+	}
+
+	virtual void *GetReplay() const
+	{
+		// ToDo
+		return NULL;
+	}
+#else
+	virtual float GetServerTime() const OVERRIDE
 	{
 		return sv.GetTime();
 	}
@@ -1638,6 +1721,7 @@ public:
 	{
 		sv.SetPausedForced( bPaused, flDuration );
 	}
+#endif
 
 private:
 	
@@ -1682,14 +1766,21 @@ class CVEngineServer22 : public CVEngineServer
 // Expose CVEngineServer to the game DLL.
 //-----------------------------------------------------------------------------
 static CVEngineServer   g_VEngineServer;
+
+#ifndef BUILD_GMOD
 static CVEngineServer22 g_VEngineServer22;
 // INTERFACEVERSION_VENGINESERVER_VERSION_21 is compatible with 22 latest since we only added virtuals to the end, so expose that as well.
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CVEngineServer, IVEngineServer021, INTERFACEVERSION_VENGINESERVER_VERSION_21, g_VEngineServer22 );
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CVEngineServer, IVEngineServer022, INTERFACEVERSION_VENGINESERVER_VERSION_22, g_VEngineServer22 );
+#endif
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CVEngineServer, IVEngineServer, INTERFACEVERSION_VENGINESERVER, g_VEngineServer );
 
 // When bumping the version to this interface, check that our assumption is still valid and expose the older version in the same way
+#ifdef BUILD_GMOD
+COMPILE_TIME_ASSERT( INTERFACEVERSION_VENGINESERVER_INT == 21 );
+#else
 COMPILE_TIME_ASSERT( INTERFACEVERSION_VENGINESERVER_INT == 23 );
+#endif
 
 //-----------------------------------------------------------------------------
 // Expose CVEngineServer to the engine.
