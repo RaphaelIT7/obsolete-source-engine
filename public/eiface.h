@@ -60,7 +60,10 @@ class CSteamID;
 class IReplayFactory;
 class IReplaySystem;
 class IServer;
+#ifdef BUILD_GMOD
 class IGet;
+class IGMODDataTable;
+#endif
 
 typedef struct player_info_s player_info_t;
 
@@ -74,10 +77,15 @@ typedef struct player_info_s player_info_t;
 #define DLLEXPORT /* */
 #endif
 
+#ifdef BUILD_GMOD
+#define INTERFACEVERSION_VENGINESERVER				"VEngineServer021"
+#define INTERFACEVERSION_VENGINESERVER_INT			21
+#else
 #define INTERFACEVERSION_VENGINESERVER_VERSION_21	"VEngineServer021"
 #define INTERFACEVERSION_VENGINESERVER_VERSION_22	"VEngineServer022"
 #define INTERFACEVERSION_VENGINESERVER				"VEngineServer023"
 #define INTERFACEVERSION_VENGINESERVER_INT			23
+#endif
 
 struct bbox_t
 {
@@ -413,6 +421,23 @@ public:
 	// Server version from the steam.inf, this will be compared to the GC version
 	virtual int GetServerVersion() const = 0;
 
+#ifdef BUILD_GMOD
+	virtual float *GMOD_SetTimeManipulator( float fScaleFramerate ) = 0;
+	virtual void GMOD_SendToClient( IRecipientFilter *filter, const void *data, int dataSize ) = 0;
+	virtual void GMOD_SendToClient( int client, const void *data, int dataSize ) = 0;
+	virtual void GMOD_RawServerCommand( const char *command ) = 0;
+	virtual IGMODDataTable *GMOD_CreateDataTable() = 0;
+	virtual void GMOD_DestroyDataTable( IGMODDataTable *dataTable ) = 0;
+	virtual const char *GMOD_GetServerAddress() const = 0;
+	virtual void *GMOD_LoadModel( const char *path ) = 0;
+	virtual float GetClientConVarFloat( int client, const char* cvar, float fallback ) = 0;
+	virtual CSteamID *GMOD_GetPlayerOwnerSteamID( const edict_t* pClient ) = 0;
+	virtual bool GMOD_GetPlayerIsSpeaking( const edict_t* pClient ) = 0;
+	virtual bool GMOD_ShouldUpdateVoiceMasks() = 0;
+	virtual bool NET_IsHostLocal( const char* unknwon ) = 0;
+
+	virtual void *GetReplay() const = 0;
+#else
 	// Get sv.GetTime()
 	virtual float GetServerTime() const = 0;
 
@@ -446,6 +471,7 @@ public:
 	virtual eFindMapResult FindMap( /* in/out */ char *pMapName, int nMapNameMax ) = 0;
 	
 	virtual void SetPausedForced( bool bPaused, float flDuration = -1.f ) = 0;
+#endif
 };
 
 // These only differ in new items added to the end

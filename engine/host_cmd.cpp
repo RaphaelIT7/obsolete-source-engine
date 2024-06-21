@@ -660,6 +660,7 @@ void Host_Map_Helper( const CCommand &args, bool bEditmode, bool bBackground, bo
 	char szMapName[ MAX_QPATH ] = { 0 };
 	V_strncpy( szMapName, args[ 1 ], sizeof( szMapName ) );
 
+#ifndef BUILD_GMOD
 	// Call find map, proceed for any value besides NotFound
 	IVEngineServer::eFindMapResult eResult = g_pVEngineServer->FindMap( szMapName, sizeof( szMapName ) );
 	if ( eResult == IVEngineServer::eFindMap_NotFound )
@@ -667,6 +668,7 @@ void Host_Map_Helper( const CCommand &args, bool bEditmode, bool bBackground, bo
 		Warning( "map load failed: %s not found or invalid\n", args[ 1 ] );
 		return;
 	}
+#endif
 
 	COM_TimestampedLog( "*** Map Load: %s", szMapName );
 
@@ -879,6 +881,7 @@ void Host_Changelevel_f( const CCommand &args )
 	char szName[MAX_PATH] = { 0 };
 	V_strncpy( szName, args[1], sizeof( szName ) );
 
+#ifndef BUILD_GMOD
 	// Call find map to attempt to resolve fuzzy/non-canonical map names
 	IVEngineServer::eFindMapResult eResult = g_pVEngineServer->FindMap( szName, sizeof( szName ) );
 	if ( eResult == IVEngineServer::eFindMap_NotFound )
@@ -889,7 +892,6 @@ void Host_Changelevel_f( const CCommand &args )
 	}
 
 	const char *pszReason = NULL;
-#ifndef BUILD_GMOD
 	if ( ( g_iServerGameDLLVersion >= 10 ) && !serverGameDLL->IsManualMapChangeOkay( &pszReason ) )
 	{
 		if ( pszReason && pszReason[0] )
@@ -922,12 +924,14 @@ void Host_Changelevel2_f( const CCommand &args )
 
 	char szName[MAX_PATH] = { 0 };
 	V_strncpy( szName, args[1], sizeof( szName ) );
+#ifndef BUILD_GMOD // ToDo: Find an acient version of this command.
 	IVEngineServer::eFindMapResult eResult = g_pVEngineServer->FindMap( szName, sizeof( szName ) );
 	if ( eResult == IVEngineServer::eFindMap_NotFound )
 	{
 		Warning( "changelevel2 failed: %s not found\n", szName );
 		return;
 	}
+#endif
 
 	HostState_ChangeLevelSP( szName, args[2] );
 }

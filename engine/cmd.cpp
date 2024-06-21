@@ -245,6 +245,17 @@ void Cbuf_AddText( const char *pText )
 	}
 }
 
+#ifdef BUILD_GMOD
+void Cbuf_AddRawText( const char *pText )
+{
+	LOCK_COMMAND_BUFFER();
+	if ( !s_CommandBuffer.AddText( pText ) )
+	{
+		ConMsg( "Cbuf_AddRawText: buffer overflow\n" );
+	}
+}
+#endif
+
 
 //-----------------------------------------------------------------------------
 // Escape an argument for a command. This *can* fail as many characters cannot

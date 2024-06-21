@@ -61,7 +61,11 @@ bool Cbuf_EscapeCommandArg( const char *pText, char *pOut, unsigned int nOut );
 // as new commands are generated from the console or keybindings,
 // the text is added to the end of the command buffer.
 //-----------------------------------------------------------------------------
-void Cbuf_AddText (const char *text);
+void Cbuf_AddText(const char *text);
+
+#ifdef BUILD_GMOD
+void Cbuf_AddRawText(const char *text);
+#endif
 
 
 //-----------------------------------------------------------------------------

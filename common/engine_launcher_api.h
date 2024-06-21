@@ -78,6 +78,9 @@ public:
 	// Reset the map we're on
 	virtual void SetMap( const char *pMapName ) = 0;
 
+#ifdef BUILD_GMOD
+	virtual void SetHeadtrackDLLName( const char* pDllName ) = 0;
+#endif
 };
 
 
