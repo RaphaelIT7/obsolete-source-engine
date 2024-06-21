@@ -37,6 +37,10 @@
 #include "tier0/threadtools.h"
 #include "imovehelper.h"
 
+#ifdef BUILD_GMOD
+#include "GarrysMod/Lua/LuaObject.h"
+#endif
+
 class C_Team;
 class IPhysicsObject;
 class IClientVehicle;
@@ -1710,6 +1714,59 @@ protected:
 
 private:
 	bool	m_bOldShouldDraw;
+
+#ifdef BUILD_GMOD // ToDo: Move them into their proper position + check the entire vtable. Also check their return values again!
+public:
+	virtual void OnOwnerChanged();
+	virtual IPhysicsObject* VPhysicsGetElement( int index );
+	virtual bool IsARagdoll();
+	virtual void SetMaterialOverride( const char* strMaterial );
+	virtual void SetMaterialOverridePointer( IMaterial* pMaterial );
+	virtual IMaterial* GetMaterialOverridePointer();
+	virtual const char* GetMaterialOverride();
+	virtual void StartMaterialOverride();
+	virtual void EndMaterialOverride();
+	virtual float GetCreationTime();
+	virtual bool IsPredicted();
+	virtual bool IsWeapon();
+	virtual bool IsVehicle();
+	virtual bool IsJeep();
+	virtual bool UsesLua();
+	virtual const char* GetLuaEntityType();
+	virtual void PushEntity();
+	virtual void SetEntity( const char* unknown, CBaseEntity* ent );
+	virtual void GetParentPhysicsNum();
+	virtual void SetParentPhysicsNum();
+	virtual void StartMotionController();
+	virtual void StopMotionController();
+	virtual void AttachObjectToMotionController( IPhysicsObject* obj );
+	virtual void DetachObjectFromMotionController( IPhysicsObject* obj );
+	virtual void GetCustomisedRenderBounds( Vector& mins, Vector& maxs );
+	virtual void SetCustomisedRenderBounds( Vector* mins, Vector* maxs );
+	virtual const char* GetLuaScriptName();
+	virtual bool SpawnedViaLua();
+	virtual bool OverridePosition();
+	virtual void InitializeScriptedEntity( const char* unknown );
+	virtual void ClearLuaData();
+	virtual GarrysMod::Lua::ILuaObject* GetLuaTable();
+	virtual void* GetLuaEntity(); // Idk
+	virtual void SetLuaTable( GarrysMod::Lua::ILuaObject* obj );
+	virtual void Lua_OnEntityInitialized();
+	virtual bool HasLuaTable();
+	virtual void LuaEntityInitialized();
+	virtual bool ForcePhysicsDropObject();
+	virtual void StartDriving( CBasePlayer* ply );
+	virtual void FinishDriving( CBasePlayer* ply );
+	virtual bool GMod_ShouldRenderEntity();
+	virtual void OnClientsideLuaRestored();
+	virtual const char* Lua_GetLuaClass(); // Verify
+	//virtual void VPhysicsCollision( int unknown1, gamevcollisionevent)
+	virtual void* GetNextBot(); // ToDo
+	virtual void ComputeFxBlendForView( int unknown );
+
+private: // Add other vars later.
+	GarrysMod::Lua::ILuaObject* m_pLuaTable = NULL;
+#endif
 };
 
 EXTERN_RECV_TABLE(DT_BaseEntity);

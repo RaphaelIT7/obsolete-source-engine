@@ -6472,6 +6472,210 @@ int C_BaseEntity::GetCreationTick() const
 	return m_nCreationTick;
 }
 
+#ifdef BUILD_GMOD
+void CBaseEntity::OnOwnerChanged() 
+{
+}
+
+IPhysicsObject* CBaseEntity::VPhysicsGetElement( int index ) 
+{
+	return nullptr;
+}
+
+bool CBaseEntity::IsARagdoll() 
+{
+	return false;
+}
+
+void CBaseEntity::SetMaterialOverride( const char* strMaterial ) 
+{
+}
+
+void CBaseEntity::SetMaterialOverridePointer( IMaterial* pMaterial ) 
+{
+}
+
+IMaterial* CBaseEntity::GetMaterialOverridePointer() 
+{
+	return nullptr;
+}
+
+const char* CBaseEntity::GetMaterialOverride() 
+{
+	return nullptr;
+}
+
+void CBaseEntity::StartMaterialOverride() 
+{
+}
+
+void CBaseEntity::EndMaterialOverride() 
+{
+}
+
+float CBaseEntity::GetCreationTime() 
+{
+	return 0.0f;
+}
+
+bool CBaseEntity::IsPredicted() 
+{
+	return false;
+}
+
+bool CBaseEntity::IsWeapon() 
+{
+	return false;
+}
+
+bool CBaseEntity::IsVehicle() 
+{
+	return false;
+}
+
+bool CBaseEntity::IsJeep() 
+{
+	return false;
+}
+
+bool CBaseEntity::UsesLua() 
+{
+	return false;
+}
+
+const char* CBaseEntity::GetLuaEntityType() 
+{
+	return nullptr;
+}
+
+void CBaseEntity::PushEntity() 
+{
+}
+
+void CBaseEntity::SetEntity( const char* unknown, CBaseEntity* ent ) 
+{
+}
+
+void CBaseEntity::GetParentPhysicsNum() 
+{
+}
+
+void CBaseEntity::SetParentPhysicsNum() 
+{
+}
+
+void CBaseEntity::StartMotionController() 
+{
+}
+
+void CBaseEntity::StopMotionController() 
+{
+}
+
+void CBaseEntity::AttachObjectToMotionController( IPhysicsObject* obj ) 
+{
+}
+
+void CBaseEntity::DetachObjectFromMotionController( IPhysicsObject* obj ) 
+{
+}
+
+void CBaseEntity::GetCustomisedRenderBounds( Vector& mins, Vector& maxs ) 
+{
+}
+
+void CBaseEntity::SetCustomisedRenderBounds( Vector* mins, Vector* maxs ) 
+{
+}
+
+const char* CBaseEntity::GetLuaScriptName() 
+{
+	return nullptr;
+}
+
+bool CBaseEntity::SpawnedViaLua() 
+{
+	return false;
+}
+
+bool CBaseEntity::OverridePosition() 
+{
+	return false;
+}
+
+void CBaseEntity::InitializeScriptedEntity( const char* unknown ) 
+{
+}
+
+void CBaseEntity::ClearLuaData() 
+{
+}
+
+GarrysMod::Lua::ILuaObject* CBaseEntity::GetLuaTable() 
+{
+	return m_pLuaTable;
+}
+
+void* CBaseEntity::GetLuaEntity() 
+{
+	return nullptr;
+}
+
+void CBaseEntity::SetLuaTable( GarrysMod::Lua::ILuaObject* obj ) 
+{
+	m_pLuaTable = obj;
+}
+
+void CBaseEntity::Lua_OnEntityInitialized() 
+{
+}
+
+bool CBaseEntity::HasLuaTable() 
+{
+	return m_pLuaTable != NULL;
+}
+
+void CBaseEntity::LuaEntityInitialized() 
+{
+}
+
+bool CBaseEntity::ForcePhysicsDropObject() 
+{
+	return false;
+}
+
+void CBaseEntity::StartDriving( CBasePlayer* ply ) 
+{
+}
+
+void CBaseEntity::FinishDriving( CBasePlayer* ply ) 
+{
+}
+
+bool CBaseEntity::GMod_ShouldRenderEntity() 
+{
+	return true;
+}
+
+void CBaseEntity::OnClientsideLuaRestored() 
+{
+}
+
+const char* CBaseEntity::Lua_GetLuaClass() 
+{
+	return nullptr;
+}
+
+void* CBaseEntity::GetNextBot() 
+{
+	return nullptr;
+}
+
+void CBaseEntity::ComputeFxBlendForView( int unknown ) 
+{
+}
+#endif
+
 //------------------------------------------------------------------------------
 void CC_CL_Find_Ent( const CCommand& args )
 {
