@@ -87,8 +87,10 @@ IViewPortPanel* CHudViewport::CreatePanelByName( const char *szPanelName )
 		return newpanel;
 	}
 
-	
-	return BaseClass::CreatePanelByName( szPanelName ); 
+	if ( Q_strcmp("info", szPanelName) == 0 ) // Raphael: Don't show me the info panel every time I start a game :<
+		return NULL;
+
+	return BaseClass::CreatePanelByName( szPanelName );
 }
 
 //-----------------------------------------------------------------------------
