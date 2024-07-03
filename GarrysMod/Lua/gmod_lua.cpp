@@ -15,6 +15,8 @@ void CLuaManager::Startup() // ToDo: use definitions late for Client / Server st
 {
 	g_LuaNetworkedVars = new CLuaNetworkedVars();
 
+	LuaShared()->MountLua(LUA_PATH);
+
 	g_Lua = LuaShared()->GetLuaInterface(LUA_STATE);
 	g_Lua->Init(g_LuaCallback, false);
 	g_Lua->SetPathID(LUA_PATH);
@@ -62,6 +64,7 @@ void Lua::Kill()
 {
 	// ShutdownLuaClasses( g_Lua );
 	// Error( "!g_LuaNetworkedVars" )
+	LuaShared()->UnMountLua(LUA_PATH);
 	delete gGM;
 	// GarrysMod::Lua::Libraries::Timer::Shutdown();
 }

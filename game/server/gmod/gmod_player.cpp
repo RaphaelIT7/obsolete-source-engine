@@ -43,6 +43,10 @@ LINK_ENTITY_TO_CLASS( player, CGMOD_Player );
 LINK_ENTITY_TO_CLASS( info_player_combine, CPointEntity );
 LINK_ENTITY_TO_CLASS( info_player_rebel, CPointEntity );
 
+// Temp stuff to get other maps working
+LINK_ENTITY_TO_CLASS( info_player_terrorist, CPointEntity );
+LINK_ENTITY_TO_CLASS( info_player_counterterrorist, CPointEntity );
+
 IMPLEMENT_SERVERCLASS_ST(CGMOD_Player, DT_GMOD_Player)
 	
 END_SEND_TABLE()
@@ -85,8 +89,8 @@ void CGMOD_Player::Spawn()
 {
 	// ToDo
 
-	CHL2MP_Player::Spawn();
 	SetModel("models/humans/group03/male_01.mdl");
+	CHL2MP_Player::Spawn();
 
 	// ToDo
 
@@ -287,7 +291,11 @@ CBaseEntity* CGMOD_Player::EntSelectSpawnPoint()
 	// Call gamemode hook. (GM:PlayerSelectSpawn)
 	// ToDo
 
-	return BaseClass::EntSelectSpawnPoint();
+	CBaseEntity* pSpot = BaseClass::EntSelectSpawnPoint(); // Temp stuff to get some maps working
+	if ( !pSpot )
+		pSpot = gEntList.FindEntityByClassname( pSpot, "info_player_counterterrorist" );
+
+	return pSpot;
 }
 
 bool CGMOD_Player::GetInVehicle( IServerVehicle* pVehicle, int nRole )

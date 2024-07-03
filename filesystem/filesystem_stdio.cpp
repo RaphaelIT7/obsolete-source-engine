@@ -2610,7 +2610,7 @@ void CFileSystem_Stdio::GMOD_SetupDefaultPaths(const char *path, const char *gam
 	AddSearchPath(platform.c_str(), "GAME", PATH_ADD_TO_TAIL);
 	AddVPKFile((platform + "platform_misc.vpk").c_str(), "MOD", PATH_ADD_TO_TAIL);
 
-	PrintSearchPaths();
+	//PrintSearchPaths();
 }
 
 void CFileSystem_Stdio::GMOD_FixPathCase(char *a, size_t b)

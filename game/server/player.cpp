@@ -6166,7 +6166,9 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 		GiveNamedItem( "weapon_pistol" );
 		GiveNamedItem( "weapon_ar2" );
 		GiveNamedItem( "weapon_shotgun" );
+#ifndef BUILD_GMOD // Raphael: ToDo: Fix the sprites later
 		GiveNamedItem( "weapon_physcannon" );
+#endif
 		GiveNamedItem( "weapon_bugbait" );
 		GiveNamedItem( "weapon_rpg" );
 		GiveNamedItem( "weapon_357" );
