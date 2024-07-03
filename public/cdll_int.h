@@ -61,6 +61,9 @@ class CRenamedRecvTableInfo;
 class CMouthInfo;
 class IConVar;
 class IGet;
+class IGMODDataTable;
+struct CGMODVariant;
+class IClientEntity;
 
 //-----------------------------------------------------------------------------
 // Purpose: This data structure is filled in by the engine when the client .dll requests information about
@@ -187,7 +190,11 @@ struct OcclusionParams_t
 #define VENGINE_CLIENT_RANDOM_INTERFACE_VERSION	"VEngineRandom001"
 
 // change this when the new version is incompatable with the old
+#ifdef BUILD_GMOD
+#define VENGINE_CLIENT_INTERFACE_VERSION		"VEngineClient015"
+#else
 #define VENGINE_CLIENT_INTERFACE_VERSION		"VEngineClient014"
+#endif
 #define VENGINE_CLIENT_INTERFACE_VERSION_13		"VEngineClient013"
 
 //-----------------------------------------------------------------------------
@@ -551,12 +558,34 @@ public:
 	// Unlike Key_LookupBinding, leading '+' characters are not stripped from bindings.
 	virtual	const char		*Key_LookupBindingExact( const char *pBinding ) = 0;
 	
+#ifdef BUILD_GMOD
+	virtual void GMOD_SetTimeManipulator( float fScaleFramerate ) = 0;
+	virtual	void GMOD_SendToServer( void *data, unsigned int dataSize, bool reliable ) = 0;
+	virtual void GMOD_PlaceDecalMaterial( IMaterial *, bool, int, IClientEntity *, const Vector &, const Vector &, const color32_s &, float, float ) = 0;
+	virtual void GMOD_GetSpew( char *buffer, unsigned int bufferSize ) = 0;
+	virtual void GMOD_SetViewEntity( uint ) = 0;
+	virtual void GMOD_BrushMaterialOverride( IMaterial *matOverride ) = 0;
+	virtual void GMOD_R_RedownloadAllLightmaps( bool ) = 0;
+	virtual void GMOD_RawClientCmd_Unrestricted( const char *command ) = 0;
+	virtual IGMODDataTable *GMOD_CreateDataTable( void( * )( void *, int, const CGMODVariant & ) ) = 0;
+	virtual void GMOD_DestroyDataTable( IGMODDataTable *dataTable ) = 0;
+	virtual void GMOD_LoadModel( const char *path ) = 0;
+	virtual void GMOD_DecalRemoveEntity( int index ) = 0;
+	virtual const char *GMOD_TranslateAlias( const char *cmd ) = 0;
+	virtual void GMOD_R_StudioInitLightingCache() = 0;
+	virtual void PrecacheSentenceFile() = 0;
+	virtual float GetPlayerVoiceVolume( unsigned long long unknown ) = 0;
+	virtual void SetPlayerVoiceVolume( unsigned long long unknown, float volume ) = 0;
+	virtual bool NET_IsHostLocal() = 0;
+	virtual bool IsDedicatedServer() = 0;
+#else
 	virtual void			AddPhonemeFile( const char *pszPhonemeFile ) = 0;
 	virtual float			GetPausedExpireTime( void ) = 0;
 
 	virtual bool			StartDemoRecording( const char *pszFilename, const char *pszFolder = NULL ) = 0;
 	virtual void			StopDemoRecording( void ) = 0;
 	virtual void			TakeScreenshot( const char *pszFilename, const char *pszFolder = NULL ) = 0;
+#endif
 };
 
 abstract_class IVEngineClient : public IVEngineClient013

@@ -1798,7 +1798,11 @@ void CGameServer::CopyTempEntities( CFrameSnapshot* pSnapshot )
 // Bruce also had a patch to disable this in //ValveGames/staging/game/tf/cfg/unencrypted/print_instance_config.py
 // 
 // NOTE: The crash should be fixed.
+#ifdef BUILD_GMOD
 static ConVar sv_parallel_sendsnapshot( "sv_parallel_sendsnapshot", "1" );
+#else
+static ConVar sv_parallel_sendsnapshot( "sv_parallel_sendsnapshot", "0" );
+#endif
 
 static void SV_ParallelSendSnapshot( CGameClient *& pClient )
 {

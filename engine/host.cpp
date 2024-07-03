@@ -154,12 +154,19 @@ extern ConVar sv_cheats;
 bool g_bDedicatedServerBenchmarkMode = false;
 bool g_bAllowSecureServers = true;
 bool g_bLowViolence = false;
+#ifdef BUILD_GMOD
+bool g_bIsDedicated = false;
+#endif
 
 // These counters are for debugging in dumps.  If these are non-zero it may indicate some kind of 
 // heap problem caused by the setjmp/longjmp error handling
 int g_HostServerAbortCount = 0;
 int g_HostErrorCount = 0;
 int g_HostEndDemo = 0;
+
+#ifdef BUILD_GMOD
+float g_fScaleFramerate = 1.0f;
+#endif
 
 char g_szDefaultLogoFileName[] = "materials/vgui/logos/spray.vtf";
 
@@ -1727,6 +1734,10 @@ void Host_AccumulateTime( float dt )
 		else
 #endif // !NO_TOOLFRAMEWORK
 	{	// don't allow really long or short frames
+#ifdef BUILD_GMOD // ToDo: Verify this again
+		host_frametime *= g_fScaleFramerate;
+#endif
+
 		host_frametime_unbounded = host_frametime;
 		host_frametime = min( host_frametime, MAX_FRAMETIME );
 		host_frametime = max( host_frametime, MIN_FRAMETIME );

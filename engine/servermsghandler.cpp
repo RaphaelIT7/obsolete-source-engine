@@ -388,6 +388,10 @@ bool CClientState::ProcessServerInfo( SVC_ServerInfo *msg )
 	// Re-init hud video, especially if we changed game directories
 	ClientDLL_HudVidInit();
 
+#ifdef BUILD_GMOD
+	g_bIsDedicated = msg->m_bIsDedicated;
+#endif
+
 	// Don't verify the map and player .mdl crc's until after any missing resources have
 	// been downloaded.  This will still occur before requesting the rest of the signon.
 

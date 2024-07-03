@@ -100,6 +100,10 @@ extern bool			g_bInCommentaryMode;
 extern bool			g_bAllowSecureServers;
 extern bool			g_bLowViolence;
 
+#ifdef BUILD_GMOD
+extern bool			g_bIsDedicated;
+#endif
+
 // Returns true if host is not single stepping/pausing through code/
 // FIXME:  Remove from final, retail version of code.
 bool Host_ShouldRun( void );
@@ -167,6 +171,10 @@ extern bool g_bDedicatedServerBenchmarkMode;
 
 extern uint GetSteamAppID();
 extern EUniverse GetSteamUniverse();
+
+#ifdef BUILD_GMOD
+extern float g_fScaleFramerate;
+#endif
 
 #define STEAMREMOTESTORAGE_CLOUD_OFF	0
 #define STEAMREMOTESTORAGE_CLOUD_ON		1

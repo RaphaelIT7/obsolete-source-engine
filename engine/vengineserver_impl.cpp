@@ -1627,7 +1627,8 @@ public:
 #ifdef BUILD_GMOD
 	virtual float *GMOD_SetTimeManipulator( float fScaleFramerate )
 	{
-		return &fScaleFramerate; // xd
+		g_fScaleFramerate = fScaleFramerate;
+		return &g_fScaleFramerate;
 	}
 
 	virtual void GMOD_SendToClient( IRecipientFilter *filter, const void *data, int dataSize )
