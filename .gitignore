@@ -447,3 +447,4 @@ enc_temp_folder/*
 !lib/public/steam_api.def
 !lib/public/cryptlib.lib
 !lib/public/cryptlib.pdb
+!lib/public/FreeImage.lib
