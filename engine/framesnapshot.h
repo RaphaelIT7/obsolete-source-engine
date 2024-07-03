@@ -166,7 +166,9 @@ public:
 private:
 	void	DeleteFrameSnapshot( CFrameSnapshot* pSnapshot );
 
+#ifdef BUILD_GMOD
 	CThreadFastMutex									m_FrameSnapshotsWriteMutex;
+#endif
 	CUtlLinkedList<CFrameSnapshot*, unsigned short>		m_FrameSnapshots;
 	CClassMemoryPool< PackedEntity >					m_PackedEntitiesPool;
 

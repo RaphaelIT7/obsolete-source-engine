@@ -79,7 +79,9 @@ CFrameSnapshot*	CFrameSnapshotManager::NextSnapshot( const CFrameSnapshot *pSnap
 
 CFrameSnapshot*	CFrameSnapshotManager::CreateEmptySnapshot( int tickcount, int maxEntities )
 {
+#ifdef BUILD_GMOD
 	AUTO_LOCK(m_FrameSnapshotsWriteMutex);
+#endif
 
 	CFrameSnapshot *snap = new CFrameSnapshot;
 	snap->AddReference();
@@ -183,7 +185,9 @@ CFrameSnapshot* CFrameSnapshotManager::TakeTickSnapshot( int tickcount )
 
 void CFrameSnapshotManager::DeleteFrameSnapshot( CFrameSnapshot* pSnapshot )
 {
+#ifdef BUILD_GMOD
 	AUTO_LOCK(m_FrameSnapshotsWriteMutex);
+#endif
 
 	// Decrement reference counts of all packed entities
 	for (int i = 0; i < pSnapshot->m_nNumEntities; ++i)

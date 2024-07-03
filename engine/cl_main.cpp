@@ -2207,6 +2207,11 @@ bool CL_ShouldLoadBackgroundLevel( const CCommand &args )
 	if ( InEditMode() )
 		return false;
 
+#ifdef BUILD_GMOD
+	if ( true ) // Broken in Gmod.
+		return false;
+#endif
+
 	// If TF2 and PC we don't want to load the background map.
 	bool bIsTF2 = false;
 	if ( ( Q_stricmp( COM_GetModDirectory(), "tf" ) == 0 ) || ( Q_stricmp( COM_GetModDirectory(), "tf_beta" ) == 0 ) )

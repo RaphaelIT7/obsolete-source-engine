@@ -365,7 +365,9 @@ public:
 	CSentence *GetSentence( CAudioSource *pAudioSource ) override;
 	float GetSentenceLength( CAudioSource *pAudioSource ) override;
 	bool IsStreaming( CAudioSource *pAudioSource ) const override;
+#ifndef BUILD_GMOD
 	void AddPhonemeFile( const char *pszPhonemeFile ) override;
+#endif
 
 	// FIXME, move entirely to client .dll
 	void GetViewAngles( QAngle& va ) override;
@@ -565,11 +567,33 @@ public:
 
 	int		GetInstancesRunningCount( ) override;
 
+#ifdef BUILD_GMOD
+	virtual void GMOD_SetTimeManipulator( float fScaleFramerate );
+	virtual	void GMOD_SendToServer( void *data, unsigned int dataSize, bool reliable );
+	virtual void GMOD_PlaceDecalMaterial( IMaterial *, bool, int, IClientEntity *, const Vector &, const Vector &, const color32_s &, float, float );
+	virtual void GMOD_GetSpew( char *buffer, unsigned int bufferSize );
+	virtual void GMOD_SetViewEntity( uint );
+	virtual void GMOD_BrushMaterialOverride( IMaterial *matOverride );
+	virtual void GMOD_R_RedownloadAllLightmaps( bool );
+	virtual void GMOD_RawClientCmd_Unrestricted( const char *command );
+	virtual IGMODDataTable *GMOD_CreateDataTable( void( * )( void *, int, const CGMODVariant & ) );
+	virtual void GMOD_DestroyDataTable( IGMODDataTable *dataTable );
+	virtual void GMOD_LoadModel( const char *path );
+	virtual void GMOD_DecalRemoveEntity( int index );
+	virtual const char *GMOD_TranslateAlias( const char *cmd );
+	virtual void GMOD_R_StudioInitLightingCache();
+	virtual void PrecacheSentenceFile();
+	virtual float GetPlayerVoiceVolume( unsigned long long unknown );
+	virtual void SetPlayerVoiceVolume( unsigned long long unknown, float volume );
+	virtual bool NET_IsHostLocal();
+	virtual bool IsDedicatedServer();
+#else
 	float	GetPausedExpireTime( void ) override;
 
 	bool	StartDemoRecording( const char *pszFilename, const char *pszFolder = NULL ) override;
 	void	StopDemoRecording( void ) override;
 	void	TakeScreenshot( const char *pszFilename, const char *pszFolder = NULL ) override;
+#endif
 };
 
 
@@ -797,12 +821,14 @@ CSentence *CEngineClient::GetSentence( CAudioSource *pAudioSource )
 	return NULL;
 }
 
+#ifndef BUILD_GMOD
 void AddPhonemesFromFile( const char *pszFileName );
 
 void CEngineClient::AddPhonemeFile( const char *pszPhonemeFile )
 {
 	AddPhonemesFromFile( pszPhonemeFile );
 }
+#endif
 
 float CEngineClient::GetSentenceLength( CAudioSource *pAudioSource )
 {
@@ -2049,6 +2075,7 @@ void ClientDLL_VoiceStatus( int entindex, bool bTalking )
 #ifdef IS_WINDOWS_PC
 #include "winlite.h"
 #endif
+#include <gl_lightmap.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -2074,6 +2101,7 @@ int CEngineClient::GetInstancesRunningCount( )
 	return CheckOtherInstancesRunning( );
 }
 
+#ifndef BUILD_GMOD
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -2216,3 +2244,97 @@ void CEngineClient::TakeScreenshot( const char *pszFilename, const char *pszFold
 		Shader_SwapBuffers();
 	}
 }
+#else
+void CEngineClient::GMOD_SetTimeManipulator( float fScaleFramerate )
+{
+	g_fScaleFramerate = fScaleFramerate;
+}
+
+void CEngineClient::GMOD_SendToServer( void* data, unsigned int dataSize, bool reliable )
+{
+	VPROF( "CEngineClient::GMOD_SendToServer", VPROF_BUDGETGROUP_GMOD );
+}
+
+void CEngineClient::GMOD_PlaceDecalMaterial( IMaterial *, bool, int, IClientEntity *, const Vector &, const Vector &, const color32_s &, float, float )
+{
+	VPROF( "CEngineClient::GMOD_PlaceDecalMaterial", VPROF_BUDGETGROUP_GMOD );
+}
+
+void CEngineClient::GMOD_GetSpew( char *buffer, unsigned int bufferSize )
+{
+}
+
+void CEngineClient::GMOD_SetViewEntity( uint )
+{
+	VPROF( "CEngineClient::GMOD_SetViewEntity", VPROF_BUDGETGROUP_GMOD );
+}
+
+void CEngineClient::GMOD_BrushMaterialOverride( IMaterial *matOverride )
+{
+	VPROF( "CEngineClient::GMOD_BrushMaterialOverride", VPROF_BUDGETGROUP_GMOD );
+}
+
+void CEngineClient::GMOD_R_RedownloadAllLightmaps( bool )
+{
+	VPROF( "CEngineClient::GMOD_R_RedownloadAllLightmaps", VPROF_BUDGETGROUP_GMOD );
+	
+	GL_RebuildLightmaps();
+}
+
+void CEngineClient::GMOD_RawClientCmd_Unrestricted( const char *command )
+{
+	VPROF( "CEngineClient::GMOD_RawClientCmd_Unrestricted", VPROF_BUDGETGROUP_GMOD );
+
+	Cbuf_AddRawText( command );
+}
+
+IGMODDataTable* CEngineClient::GMOD_CreateDataTable( void( * )( void *, int, const CGMODVariant & ) )
+{
+	return NULL;
+}
+
+void CEngineClient::GMOD_DestroyDataTable( IGMODDataTable *dataTable )
+{
+}
+
+void CEngineClient::GMOD_LoadModel( const char *path )
+{
+}
+
+void CEngineClient::GMOD_DecalRemoveEntity( int index )
+{
+}
+
+const char* CEngineClient::GMOD_TranslateAlias( const char *cmd )
+{
+	return ""; // ToDo: Implement alias command and Cmd_TranslateAlias
+}
+
+void CEngineClient::GMOD_R_StudioInitLightingCache()
+{
+	R_StudioInitLightingCache();
+}
+
+void CEngineClient::PrecacheSentenceFile()
+{
+}
+
+float CEngineClient::GetPlayerVoiceVolume( unsigned long long unknown )
+{
+	return 1.0f;
+}
+
+void CEngineClient::SetPlayerVoiceVolume( unsigned long long unknown, float volume )
+{
+}
+
+bool CEngineClient::NET_IsHostLocal()
+{
+	return false; // ToDo: Implement NET_IsHostLocal(const char*);
+}
+
+bool CEngineClient::IsDedicatedServer()
+{
+	return false;
+}
+#endif

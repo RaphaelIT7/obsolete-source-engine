@@ -267,11 +267,13 @@ void VGui_PreRender()
 		loadingdisc->SetLoadingVisible( engine->IsDrawingLoadingImage() && !engine->IsPlayingDemo() );
 		
 		bool bShowPausedImage = !enginevgui->IsGameUIVisible() && cl_showpausedimage.GetBool() && engine->IsPaused() && !engine->IsTakingScreenshot() && !engine->IsPlayingDemo();
+#ifndef BUILD_GMOD
 #if !defined( TF_CLIENT_DLL )
 		loadingdisc->SetPausedVisible( bShowPausedImage, engine->GetPausedExpireTime()  );
 #else
 		bShowPausedImage &= ( TFGameRules() && !TFGameRules()->IsInTraining() );
 		loadingdisc->SetPausedVisible( bShowPausedImage, engine->GetPausedExpireTime() );
+#endif
 #endif
 	}
 }

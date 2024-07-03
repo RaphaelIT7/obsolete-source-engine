@@ -639,7 +639,8 @@ bool CVideoMode_Common::CreateGameWindow( int nWidth, int nHeight, bool bWindowe
 		COM_TimestampedLog( "SetMode - Finish" );
 
         // Play our videos for the background after the render device has been initialized
-        DrawStartupVideo();
+        // Raphael: This currently crashes :/
+        // DrawStartupVideo();
 
 		COM_TimestampedLog( "DrawStartupGraphic - Start" );
         // Play our videos or display our temp image for the background
