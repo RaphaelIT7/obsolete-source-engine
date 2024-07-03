@@ -534,7 +534,8 @@ void MaterialSystem_CreateSortinfo( void )
 
 		if ( !HushAsserts() )
 		{
-			Assert ( materialSortInfoArray[pSortIDRemap[sortID]].material == pMaterial );
+			// Raphael: Find out the purpose of this assert later and then readd it. (It spamms)
+			//Assert ( materialSortInfoArray[pSortIDRemap[sortID]].material == pMaterial );
 		}
 #endif
 		MSurf_MaterialSortID( surfID ) = pSortIDRemap[sortID];

@@ -53,6 +53,7 @@ public:
 	virtual void ResetRichPresense();
 	virtual void FilterText(const char*, char*, int, ETextFilteringContext, CSteamID);
 private:
+	char* m_strGameDir = new char[MAX_PATH];
 	IFileSystem* m_pfilesystem;
 	GarrysMod::Lua::ILuaShared* m_pluashared;
 	GarrysMod::Lua::ILuaConVars* m_pluaconvars;
@@ -77,7 +78,7 @@ void CGet::OnLoadFailed( const char* reason )
 
 const char* CGet::GameDir()
 {
-	return ""; // ToDo
+	return m_strGameDir; // ToDo
 }
 
 bool CGet::IsDedicatedServer()
@@ -237,6 +238,9 @@ void CGet::Initialize( IFileSystem* fs )
 	//m_pserveraddons = ( IServerAddons* )serveraddonsgn( INTERFACEVERSION_SERVERADDONS, NULL );
 
 	g_pFullFileSystem->GMOD_SetupDefaultPaths( GetBaseDirectory(), "garrysmod" /*COM_GetModDirectory()*/ ); // This is probably called from inside GMOD_SetupDefaultPaths
+
+	// Use COM_GetGameDir later, when we can use garrysmod as -game.
+	Q_snprintf( m_strGameDir, MAX_PATH, "%s\\%s", GetBaseDirectory(), "garrysmod" );
 }
 
 void CGet::ShutDown( )
