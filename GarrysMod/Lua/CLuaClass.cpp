@@ -1195,5 +1195,10 @@ void InitLuaLibraries(GarrysMod::Lua::ILuaInterface* LUA)
 
 #ifdef GAME_DLL
 	umsg_library.Push();
+	LL_Engine.Push();
+#endif
+
+#ifdef CLIENT_DLL
+	LL_Render.Push();
 #endif
 }
