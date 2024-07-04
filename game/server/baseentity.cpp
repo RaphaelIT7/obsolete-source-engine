@@ -112,7 +112,8 @@ void SendProxy_AnimTime( const SendProp *pProp, const void *pStruct, const void 
 
 	if ( pAnimating )
 	{
-		Assert( !pAnimating->IsUsingClientSideAnimation() );
+		// Raphael: Don't spamm this :< (It's called for Dynamic props?)
+		// Assert( !pAnimating->IsUsingClientSideAnimation() );
 	}
 #endif
 	
