@@ -201,6 +201,13 @@ namespace Lua
 extern CLuaLibrary ents_library;
 extern CLuaLibrary umsg_library;
 extern CLuaLibrary file_library;
+#ifdef CLIENT_DLL
+extern CLuaLibrary LL_Render;
+#endif
+
+#ifdef GAME_DLL
+extern CLuaLibrary LL_Engine;
+#endif
 
 
 // Lua push functions
