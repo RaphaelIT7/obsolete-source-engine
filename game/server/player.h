@@ -24,6 +24,10 @@
 #include "econ_item_view.h"
 #endif
 
+#ifdef BUILD_GMOD
+extern CBaseEntity *FindPlayerStart(const char *pszClassName);
+#endif
+
 // For queuing and processing usercmds
 class CCommandContext
 {

@@ -1384,7 +1384,11 @@ CBaseEntity* CHL2MP_Player::EntSelectSpawnPoint( void )
 
 	if ( !pSpot  )
 	{
+#ifdef BUILD_GMOD
+		pSpot = FindPlayerStart( "info_player_start" );
+#else
 		pSpot = gEntList.FindEntityByClassname( pSpot, "info_player_start" );
+#endif
 
 		if ( pSpot )
 			goto ReturnSpot;
