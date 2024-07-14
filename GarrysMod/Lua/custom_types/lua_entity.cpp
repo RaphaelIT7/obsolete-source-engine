@@ -854,16 +854,12 @@ CBaseEntity* Get_Entity(int index)
 	if (!udata)
 		return NULL;
 
-#ifdef CLIENT_DLL
-	return cl_entitylist->GetBaseEntityFromHandle(*(CBaseHandle*)udata);
-#else
-	return gEntList.GetBaseEntity(*(CBaseHandle*)udata);
-#endif
+	return (CBaseEntity*)udata;
 }
 
 void Push_Entity(CBaseEntity* ent)
 {
-	entity_class.Push(ent ? (void*)&ent->GetRefEHandle() : NULL);
+	entity_class.Push(ent ? (void*)&ent : NULL);
 }
 
 void Entity_Class()
