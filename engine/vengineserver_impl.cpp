@@ -274,7 +274,9 @@ public:
 			return i;
 		}
 		
+#ifndef BUILD_GMOD
 		Host_Error( "CVEngineServer::PrecacheDecal: '%s' overflow, too many decals", name );
+#endif
 		return 0;
 	}
 	
