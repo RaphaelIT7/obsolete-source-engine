@@ -109,6 +109,17 @@ END_SEND_TABLE()
 #define DOOR_SOUNDWAIT		1
 #define BUTTON_SOUNDWAIT	0.5
 
+#ifdef BUILD_GMOD
+void GMOD_FixDoorPAS(CBaseEntity* ent, CPASAttenuationFilter& filter)
+{
+	CBaseDoor* door = dynamic_cast<CBaseDoor*>(ent);
+	if ( door )
+	{
+		filter.AddRecipientsByPAS(door->GetAbsOrigin());
+		// ToDo: There is a second call to AddRecipientsByPAS
+	}
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: play door or button locked or unlocked sounds. 
@@ -138,6 +149,9 @@ void PlayLockSounds(CBaseEntity *pEdict, locksound_t *pls, int flocked, int fbut
 		{
 			// play 'door locked' sound
 			CPASAttenuationFilter filter( pEdict );
+#ifdef BUILD_GMOD
+			GMOD_FixDoorPAS( pEdict, filter );
+#endif
 
 			EmitSound_t ep;
 			ep.m_nChannel = CHAN_ITEM;
@@ -186,6 +200,9 @@ void PlayLockSounds(CBaseEntity *pEdict, locksound_t *pls, int flocked, int fbut
 		if (fplaysound)
 		{
 			CPASAttenuationFilter filter( pEdict );
+#ifdef BUILD_GMOD
+			GMOD_FixDoorPAS( pEdict, filter );
+#endif
 
 			EmitSound_t ep;
 			ep.m_nChannel = CHAN_ITEM;
@@ -354,6 +371,9 @@ void CBaseDoor::MovingSoundThink( void )
 {
 	CPASAttenuationFilter filter( this );
 	filter.MakeReliable();
+#ifdef BUILD_GMOD
+	GMOD_FixDoorPAS( this, filter );
+#endif
 
 	EmitSound_t ep;
 	ep.m_nChannel = CHAN_STATIC;
@@ -1017,6 +1037,9 @@ void CBaseDoor::DoorHitTop( void )
 		CPASAttenuationFilter filter( this );
 		filter.MakeReliable();
 		StopMovingSound();
+#ifdef BUILD_GMOD
+		GMOD_FixDoorPAS( this, filter );
+#endif
 
 		EmitSound_t ep;
 		ep.m_nChannel = CHAN_STATIC;
@@ -1100,6 +1123,10 @@ void CBaseDoor::DoorHitBottom( void )
 		filter.MakeReliable();
 
 		StopMovingSound();
+
+#ifdef BUILD_GMOD
+		GMOD_FixDoorPAS( this, filter );
+#endif
 
 		EmitSound_t ep;
 		ep.m_nChannel = CHAN_STATIC;
