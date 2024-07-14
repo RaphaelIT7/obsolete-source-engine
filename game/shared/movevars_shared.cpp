@@ -34,7 +34,22 @@ float GetCurrentGravity( void )
 	return sv_gravity.GetFloat();
 }
 
+#ifdef BUILD_GMOD
+void GMOD_Gravity_Changed( IConVar* cvar, const char* pOldValue, float flOldValue )
+{
+	if ( !physenv )
+		return;
+	
+	ConVar* gravity = (ConVar*)cvar;
+	Vector newgravity(0, 0, gravity->GetFloat());
+	physenv->SetGravity(newgravity);
+	// ToDo: Look into this again since Gmod seems to do it differently.
+}
+
+ConVar	sv_gravity		( "sv_gravity", DEFAULT_GRAVITY_STRING, FCVAR_NOTIFY | FCVAR_REPLICATED, "World gravity.", GMOD_Gravity_Changed );
+#else
 ConVar	sv_gravity		( "sv_gravity", DEFAULT_GRAVITY_STRING, FCVAR_NOTIFY | FCVAR_REPLICATED, "World gravity." );
+#endif
 
 #if defined( DOD_DLL ) || defined( CSTRIKE_DLL ) || defined( HL1MP_DLL )
 ConVar	sv_stopspeed	( "sv_stopspeed","100", FCVAR_NOTIFY | FCVAR_REPLICATED, "Minimum stopping speed when on ground." );
