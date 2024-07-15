@@ -56,6 +56,9 @@
 #include "sv_ipratelimit.h"
 #include "cl_steamauth.h"
 #include "sv_filter.h"
+#ifdef BUILD_GMOD
+#include "Externals.h"
+#endif
 
 #if defined( _X360 )
 #include "xbox/xbox_win32stubs.h"
@@ -149,6 +152,7 @@ static void ServerTagsCleanUp( void )
 	}
 }
 
+#ifndef BUILD_GMOD
 static void SvTagsChangeCallback( IConVar *pConVar, const char *pOldValue, float flOldValue )
 {
 	// We're going to modify the sv_tags convar here, which will cause this to be called again. Prevent recursion.
@@ -168,17 +172,23 @@ static void SvTagsChangeCallback( IConVar *pConVar, const char *pOldValue, float
 
 	bTagsChangeCallback = false;
 }
+#endif
 
 ConVar			sv_region( "sv_region","-1", FCVAR_NONE, "The region of the world to report this server in." );
 static ConVar	sv_instancebaselines( "sv_instancebaselines", "1", FCVAR_DEVELOPMENTONLY, "Enable instanced baselines. Saves network overhead." );
 static ConVar	sv_stats( "sv_stats", "1", 0, "Collect CPU usage stats" );
 static ConVar	sv_enableoldqueries( "sv_enableoldqueries", "0", 0, "Enable support for old style (HL1) server queries" );
 static ConVar	sv_password( "sv_password", "", FCVAR_NOTIFY | FCVAR_PROTECTED | FCVAR_DONTRECORD, "Server password for entry into multiplayer games" );
+#ifndef BUILD_GMOD
 ConVar			sv_tags( "sv_tags", "", FCVAR_NOTIFY, "Server tags. Used to provide extra information to clients when they're browsing for servers. Separate tags with a comma.", SvTagsChangeCallback );
+#endif
 ConVar			sv_visiblemaxplayers( "sv_visiblemaxplayers", "-1", 0, "Overrides the max players reported to prospective clients" );
 ConVar			sv_alternateticks( "sv_alternateticks", ( IsX360() ) ? "1" : "0", FCVAR_SPONLY, "If set, server only simulates entities on even numbered ticks.\n" );
 ConVar			sv_allow_wait_command( "sv_allow_wait_command", "1", FCVAR_REPLICATED, "Allow or disallow the wait command on clients connected to this server." );
 ConVar			sv_allow_color_correction( "sv_allow_color_correction", "1", FCVAR_REPLICATED, "Allow or disallow clients to use color correction on this server." );
+#ifdef BUILD_GMOD
+ConVar			sv_loadingurl( "sv_loadingurl", "", FCVAR_REPLICATED, "URL to show to clients while joining the server. Must start with http:// or https://");
+#endif
 
 extern CNetworkStringTableContainer *networkStringTableContainerServer;
 extern ConVar sv_stressbots;
@@ -2382,12 +2392,73 @@ void CBaseServer::SetMaxClients( int number )
 }
 
 extern ConVar tv_enable;
+#ifdef BUILD_GMOD
+ConVar		sv_location( "sv_location", "", 0, "The location of the server to be displayed in the server browser. Format is ISO 3166-1 alpha-2 country codes, all possible icons are in the materials/flags16/ folder.");
+std::string sv_location_cache;
+
+void GetGModServerTags(char* pDest, int iMaxSize, bool unknown)
+{
+	std::string tags;
+	// do something with _modded
+	const IGamemodeSystem::Information& info = g_pFullFileSystem->Gamemodes()->Active();
+
+	tags.append(" gm:");
+	tags.append(info.name);
+
+	if (info.workshopid != 0)
+	{
+		tags.append(" gmws:");
+		char buffer[32];
+		std::snprintf(buffer, 32, "%llu", info.workshopid); // GMOD uses vsnprintf
+		tags.append(buffer);
+	}
+
+	if (info.category != "")
+	{
+		tags.append(" gmc:");
+		tags.append(info.category);
+	}
+
+	if (tv_enable.GetBool()) // Verify this if check. Maybe it's the third arg?
+	{
+		tags.append(" hltv:1");
+	}
+
+	if (sv_location_cache.empty())
+	{
+		sv_location_cache = sv_location.GetString(); // Once sv_location_cache has ANY value, the server needs a restart to change the location. (This is gmod's behavior)
+	}
+
+	if (!sv_location_cache.empty())
+	{
+		tags.append(" loc:");
+		tags.append(sv_location_cache);
+	}
+
+	tags.append(" ver:");
+	char buffer[32];
+	std::snprintf(buffer, 32, "%d", get->Version()); // GMOD uses vsnprintf
+	tags.append(buffer);
+
+	V_strncpy(pDest, tags.c_str(), iMaxSize);
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CBaseServer::RecalculateTags( void )
 {
+#ifdef BUILD_GMOD
+	char buffer[512];
+	GetGModServerTags(buffer, sizeof(buffer), false);
+	//if (!Steam3Server().BIsActive())
+	//	return;
+
+	ISteamGameServer* steamServer = Steam3Server().SteamGameServer();
+	if (steamServer)
+		steamServer->SetGameTags(buffer);
+#else
 	if ( IsHLTV() || IsReplay() )
 		return;
 
@@ -2461,6 +2532,7 @@ void CBaseServer::RecalculateTags( void )
 #endif
 
 	bRecalculatingTags = false;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2468,6 +2540,7 @@ void CBaseServer::RecalculateTags( void )
 //-----------------------------------------------------------------------------
 void CBaseServer::AddTag( const char *pszTag )
 {
+#ifndef BUILD_GMOD
 	CUtlVector<char*> TagList;
 	V_SplitString( sv_tags.GetString(), ",", TagList );
 	for ( int i = 0; i < TagList.Count(); i++ )
@@ -2485,6 +2558,7 @@ void CBaseServer::AddTag( const char *pszTag )
 	Q_strncat( tmptags, ",", MAX_TAG_STRING_LENGTH );
 	Q_strncat( tmptags, sv_tags.GetString(), MAX_TAG_STRING_LENGTH );
 	sv_tags.SetValue( tmptags );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2492,6 +2566,7 @@ void CBaseServer::AddTag( const char *pszTag )
 //-----------------------------------------------------------------------------
 void CBaseServer::RemoveTag( const char *pszTag )
 {
+#ifndef BUILD_GMOD
 	const char *pszTags = sv_tags.GetString();
 	if ( !pszTags || !pszTags[0] )
 		return;
@@ -2522,6 +2597,7 @@ void CBaseServer::RemoveTag( const char *pszTag )
 		return;
 
 	sv_tags.SetValue( tmptags );
+#endif
 }
 
 //-----------------------------------------------------------------------------
