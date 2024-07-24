@@ -657,6 +657,8 @@ bool CVideoMode_Common::CreateGameWindow( int nWidth, int nHeight, bool bWindowe
 //-----------------------------------------------------------------------------
 IVTFTexture *CVideoMode_Common::LoadVTF( CUtlBuffer &temp, const char *szFileName )
 {
+	g_pFullFileSystem->PrintSearchPaths();
+
     if ( !g_pFileSystem->ReadFile( szFileName, NULL, temp ) )
         return NULL;
 

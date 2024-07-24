@@ -315,7 +315,11 @@ CBasePlayer *UTIL_GetCommandClient( void )
 bool UTIL_GetModDir( char *lpszTextOut, unsigned int nSize )
 {
 	// Must pass in a buffer at least large enough to hold the desired string
+#ifdef BUILD_GMOD
+	const char *pGameDir = CommandLine()->ParmValue( "-game", "garrysmod" );
+#else
 	const char *pGameDir = CommandLine()->ParmValue( "-game", "hl2" );
+#endif
 	Assert( strlen(pGameDir) <= nSize );
 	if ( strlen(pGameDir) > nSize )
 		return false;
@@ -2286,6 +2290,15 @@ void UpdateRichPresence ( void )
 		iChapterIndex	= g_nCurrentChapterIndex - 1;
 		iGamePresenceID = CONTEXT_PRESENCE_PORTAL_INGAME;
 	}
+#ifdef BUILD_GMOD
+	else if ( Q_stristr( modDir, "garrysmod" ) )
+	{
+		iGameID			= CONTEXT_GAME_GAME_GARRYSMOD;
+		iChapterID		= CONTEXT_CHAPTER_GMOD;
+		iChapterIndex	= g_nCurrentChapterIndex - 1;
+		iGamePresenceID = CONTEXT_PRESENCE_GMOD_INGAME;
+	}
+#endif
 	else
 	{
 		Warning( "UpdateRichPresence failed in GameInterface. Didn't recognize -game parameter." );

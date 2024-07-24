@@ -403,7 +403,11 @@ void CGameUI::PlayGameStartupSound()
 	bool bHolidayFound = false;
 
 	// only want to run the holiday check for TF2
+#ifdef BUILD_GMOD
+	const char *pGameName = CommandLine()->ParmValue( "-game", "garrysmod" );
+#else
 	const char *pGameName = CommandLine()->ParmValue( "-game", "hl2" );
+#endif
 	if ( ( Q_stricmp( pGameName, "tf" ) == 0 ) || ( Q_stricmp( pGameName, "tf_beta" ) == 0 ) )
 	{
 		// check for a holiday sound file
@@ -747,7 +751,11 @@ void CGameUI::OnGameUIActivated()
 
 	if ( GameClientExports() )
 	{
+#ifdef BUILD_GMOD
+		const char *pGameName = CommandLine()->ParmValue( "-game", "garrysmod" );
+#else
 		const char *pGameName = CommandLine()->ParmValue( "-game", "hl2" );
+#endif
 		// only want to run this for TF2
 		if ( ( Q_stricmp( pGameName, "tf" ) == 0 ) || ( Q_stricmp( pGameName, "tf_beta" ) == 0 ) )
 		{
@@ -763,7 +771,11 @@ void CGameUI::OnGameUIHidden()
 {
 	if ( GameClientExports() )
 	{
+#ifdef BUILD_GMOD
+		const char *pGameName = CommandLine()->ParmValue( "-game", "garrysmod" );
+#else
 		const char *pGameName = CommandLine()->ParmValue( "-game", "hl2" );
+#endif
 		// only want to run this for TF2
 		if ( ( Q_stricmp( pGameName, "tf" ) == 0 ) || ( Q_stricmp( pGameName, "tf_beta" ) == 0 ) )
 		{

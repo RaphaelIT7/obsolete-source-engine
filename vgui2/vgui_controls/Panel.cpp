@@ -1950,7 +1950,11 @@ void Panel::InternalMousePressed(int code)
 #endif
 
 #ifdef STAGING_ONLY
+#ifdef BUILD_GMOD
+	const char *pGameDir = CommandLine()->ParmValue( "-game", "garrysmod" );
+#else
 	const char *pGameDir = CommandLine()->ParmValue( "-game", "hl2" );
+#endif
 	if ( !V_stricmp( pGameDir, "tf" ) )
 	{
 		if ( code >= MOUSE_LEFT && code <= MOUSE_MIDDLE )
@@ -2095,7 +2099,11 @@ void Panel::InternalMouseReleased(int code)
 	}
 
 #ifdef STAGING_ONLY
+#ifdef BUILD_GMOD
+	const char *pGameDir = CommandLine()->ParmValue( "-game", "garrysmod" );
+#else
 	const char *pGameDir = CommandLine()->ParmValue( "-game", "hl2" );
+#endif
 	if ( tf_strict_mouse_up_events.GetBool() && !V_stricmp( pGameDir, "tf" ) )
 	{
 		// Only allow mouse release events to go to panels that we also
