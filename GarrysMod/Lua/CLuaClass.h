@@ -229,6 +229,7 @@ extern CRecipientFilter* Get_CRecipientFilter(int index);
 // Pushes the given Vector and deletes it when it's unused!
 extern void Push_CRecipientFilter(CRecipientFilter* filter);
 #else
+class bf_read;
 extern void Push_bf_read( const bf_read* msg );
 #endif
 #endif
