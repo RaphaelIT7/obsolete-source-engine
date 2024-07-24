@@ -36,7 +36,6 @@
 #define CHECK_TOI_CALCS 0
 
 constexpr inline int BRUTE_FORCE_VERT_COUNT{128};
-static_assert(UCHAR_MAX >= BRUTE_FORCE_VERT_COUNT);
 
 // NOTE: This is in inches (HL units)
 const float TEST_EPSILON{g_PhysicsUnits.collisionSweepIncrementalEpsilon};

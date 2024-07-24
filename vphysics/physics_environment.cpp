@@ -308,7 +308,7 @@ public:
 		// UNDONE: This only calls friciton for one object in each pair.
 		// UNDONE: Split energy in half and call for both objects?
 		// UNDONE: Don't split/call if one object is static (like the world)?
-		for ( auto *pObject : m_activeObjects )
+		for ( intp i = 0; i < m_activeObjects.Count(); i++ )
 		{
 			IVP_Real_Object *ivpObject = pObject->GetObject();
 			

@@ -67,7 +67,7 @@ struct leafmap_t
 		flags = LEAFMAP_HAS_CUBEMAP;
 	}
 
-	void SetSingleVertexSpan( unsigned short startVertIndex, unsigned short vertCountIn )
+	void SetSingleVertexSpan( unsigned short startVertIndex, int vertCountIn )
 	{
 		flags = 0;
 		flags |= LEAFMAP_HAS_SINGLE_VERTEX_SPAN;
@@ -88,7 +88,7 @@ struct leafmap_t
 		return reinterpret_cast<byte *>(&startVert[1]);
 	}
 
-	void SetRLESpans( unsigned short startVertIndex, byte spanCountIn, byte *pSpans )
+	void SetRLESpans( unsigned short startVertIndex, int spanCountIn, byte *pSpans )
 	{
 		flags = 0;
 		if ( spanCountIn > MaxSpans() )
