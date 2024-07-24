@@ -52,7 +52,9 @@
 #define A2S_KEY_STRING_STEAM		"Source Engine Query" // required postfix to a A2S_INFO query
 
 extern CNetworkStringTableContainer *networkStringTableContainerClient;
+#ifndef BUILD_GMOD
 extern ConVar sv_tags;
+#endif
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -2084,7 +2086,9 @@ void CHLTVServer::ReplyInfo( const netadr_t &adr )
 	//
 
 	// Write a byte with some flags that describe what is to follow.
+#ifndef BUILD_GMOD
 	const char *pchTags = sv_tags.GetString();
+#endif
 	byte nNewFlags = 0;
 	//if ( GetGamePort() != 0 )
 	//	nNewFlags |= S2A_EXTRA_DATA_HAS_GAME_PORT;
@@ -2095,8 +2099,10 @@ void CHLTVServer::ReplyInfo( const netadr_t &adr )
 	if ( GetUDPPort() != 0 )
 		nNewFlags |= S2A_EXTRA_DATA_HAS_SPECTATOR_DATA;
 
+#ifndef BUILD_GMOD
 	if ( pchTags && pchTags[0] != '\0' )
 		nNewFlags |= S2A_EXTRA_DATA_HAS_GAMETAG_DATA;
+#endif
 
 	nNewFlags |= S2A_EXTRA_DATA_GAMEID;
 
@@ -2119,10 +2125,12 @@ void CHLTVServer::ReplyInfo( const netadr_t &adr )
 		buf.PutString( GetName() );
 	}
 
+#ifndef BUILD_GMOD
 	if ( nNewFlags & S2A_EXTRA_DATA_HAS_GAMETAG_DATA )
 	{
 		buf.PutString( pchTags );
 	}
+#endif
 
 	if ( nNewFlags & S2A_EXTRA_DATA_GAMEID )
 	{
