@@ -109,6 +109,9 @@ Calculates a PVS that is the inclusive or of all leafs within 8 pixels of the
 given point.
 =============
 */
+#ifdef BUILD_GMOD
+void GMOD_ResetPVS();
+#endif
 void SV_ResetPVS( byte* pvs, int pvssize );
 void SV_AddOriginToPVS( const Vector& origin );
 
