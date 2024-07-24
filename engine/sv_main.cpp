@@ -1022,6 +1022,10 @@ bool CGameServer::IsPausable( void ) const
 
 void CGameServer::Shutdown( void )
 {
+#ifdef BUILD_GMOD
+	GMOD_ResetPVS();
+#endif
+
 	m_bIsLevelMainMenuBackground = false;
 
 	CBaseServer::Shutdown();
@@ -1434,6 +1438,14 @@ static void SV_AddToFatPVS( const Vector& org )
 		s_pFatPVS[i] |= pvs[i];
 	}
 }
+
+#ifdef BUILD_GMOD
+void GMOD_ResetPVS()
+{
+	s_FatBytes = 0;
+	s_pFatPVS = 0;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Zeroes out pvs, this way we can or together multiple pvs's for a player
