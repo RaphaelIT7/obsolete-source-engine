@@ -1005,17 +1005,7 @@ CShadowController::CShadowController()
 { 
 	m_shadow.targetPosition.set_to_zero(); 
 	m_shadow.targetRotation.init(); 
-	m_saveRot.set_to_zero();
-	m_savedRI.set_to_zero();
 	m_pObject = nullptr;
-	m_secondsToArrival = FP_NAN;
-	m_savedMass = FP_NAN;
-	m_savedFlags = 0;
-	m_savedMaterialIndex = USHRT_MAX;
-	m_enabled = true;
-	m_allowsTranslation = true;
-	m_allowsRotation = true;
-	m_isPhysicallyControlled = true;
 }
 
 CShadowController::CShadowController( CPhysicsObject *pObject, bool allowTranslation, bool allowRotation )

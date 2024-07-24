@@ -21,5 +21,3 @@ public:
 
 	virtual bool ShouldCollide( int index0, int index1 ) = 0;
 };
-
-#endif
