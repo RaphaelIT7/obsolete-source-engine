@@ -84,6 +84,11 @@ extern CNetworkStringTableContainer *networkStringTableContainerClient;
 //ConVar sv_hibernate_ms_vgui( "sv_hibernate_ms_vgui", "20", 0, "# of milliseconds to sleep per frame while hibernating but running the vgui dedicated server frontend" );
 //static ConVar sv_hibernate_postgame_delay( "sv_hibernate_postgame_delay", "5", 0, "# of seconds to wait after final client leaves before hibernating.");
 ConVar sv_shutdown_timeout_minutes( "sv_shutdown_timeout_minutes", "360", FCVAR_REPLICATED, "If sv_shutdown is pending, wait at most N minutes for server to drain before forcing shutdown." );
+#ifdef BUILD_GMOD
+ConVar sv_startup_time( "sv_startup_time", 0, 0, "Sets the starting CurTime of the server (in seconds). This is used for finding issues on a server that has been running for a long time. You don't need to change this." );
+ConVar sv_hibernate_think( "sv_hibernate_think", 0, 0, "Forces the server to think even when hibernating" );
+ConVar sv_hibernate_drop_bots( "sv_hibernate_drop_bots", 1, 0, "Kicks bots when the server enters hibernation" );
+#endif
 
 static double s_timeForceShutdown = 0.0;
 
@@ -1636,7 +1641,11 @@ void CGameServer::SetHibernating( bool bHibernating )
 			for ( int iClient = 0; iClient < m_Clients.Count(); iClient++ )
 			{			
 				CBaseClient *pClient = m_Clients[iClient];
+#ifdef BUILD_GMOD
+				if ( pClient->IsFakeClient() && pClient->IsConnected() && !pClient->IsSplitScreenUser() && !pClient->IsReplay() && !pClient->IsHLTV() && sv_hibernate_drop_bots.GetBool() )
+#else
 				if ( pClient->IsFakeClient() && pClient->IsConnected() && !pClient->IsSplitScreenUser() && !pClient->IsReplay() && !pClient->IsHLTV() )
+#endif
 				{
 					pClient->Disconnect( "Punting bot, server is hibernating" );
 				}
@@ -2559,7 +2568,11 @@ bool CGameServer::SpawnServer( const char *szMapName, const char *szMapFile, con
 	
 	// Set initial time values.
 	m_flTickInterval = host_state.interval_per_tick;
+#ifdef BUILD_GMOD
+	m_nTickCount = (int)( 1.0 / host_state.interval_per_tick ) + 1 + TIME_TO_TICKS(sv_startup_time.GetInt()); // Verify: Does GMOD set sv_startup_time here?
+#else
 	m_nTickCount = (int)( 1.0 / host_state.interval_per_tick ) + 1; // Start at appropriate 1
+#endif
 
 	g_ServerGlobalVariables.tickcount = m_nTickCount;
 	g_ServerGlobalVariables.curtime = GetTime();
