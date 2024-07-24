@@ -22,7 +22,6 @@
 #include "tier2/tier2.h"
 #include "zip_utils.h"
 #include "packfile.h"
-#include "vstdlib/jobthread.h"
 #ifdef _X360
 #include "xbox/xbox_launch.h"
 #endif
@@ -48,13 +47,7 @@
 
 
 ConVar fs_report_sync_opens( "fs_report_sync_opens", "0", 0, "0:Off, 1:Blocking only, 2:All" );
-ConVar fs_warning_mode( "fs_warning_mode", "0", 0, "0:Off, 1:Warn main thread, 2:Warn other threads" );
-
-// Raphael: Custom CVars.
-ConVar fs_guessfile( "fs_guessfile", "1", 0, "IsDirectory will check if a file ends with a file extension. If so, it guesses that it's a file" );
-ConVar fs_nopackfile( "fs_nopackfile", "1", 0, "IsDirectory won't check files in pack files" );
-ConVar fs_threadedsearch( "fs_threadedsearch", "0", 0, "Uses the Threadpool to search for files." ); // This didn't quiet work out as expected. It's fast if the file doesn't exist, but it's slow if it exists.
-ConVar fs_searchcache( "fs_searchcache", "1", 0, "Uses a cache to reduce the amount of searched searchpaths." ); // A huge performance improvement to find files that exist. More Searchpaths = Bigger Performance improvement
+ConVar fs_warning_mode( "fs_warning_mode", "0", 0, "0:Off, 1:Warn main thread, 2:Warn other threads"  );
 
 constexpr inline int BSPOUTPUT{0};	// bsp output flag -- determines type of fs_log output to generate
 
@@ -559,14 +552,12 @@ void CBaseFileSystem::LogAccessToFile( char const *accesstype, char const *fullp
 //-----------------------------------------------------------------------------
 FILE *CBaseFileSystem::Trace_FOpen( const char *filenameT, const char *options, unsigned flags, int64 *size )
 {
-	VPROF_BUDGET( "CBaseFileSystem::Trace_FOpen", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	AUTOBLOCKREPORTER_FN( Trace_FOpen, this, true, filenameT, FILESYSTEM_BLOCKING_SYNCHRONOUS, FileBlockingItem::FB_ACCESS_OPEN );
 
 	char filename[MAX_PATH];
 
 	FixUpPath ( filenameT, filename, sizeof( filename ) );
 
-	//Msg("File: %s\n", filename);
 	FILE *fp = FS_fopen( filename, options, flags, size );
 
 	if ( fp )
@@ -1318,22 +1309,22 @@ void CBaseFileSystem::PrintSearchPaths( void )
 		const char *pszType = "";
 		if ( sp.GetPackFile() && sp.GetPackFile()->m_bIsMapPath )
 		{
-			pszType = " (map)";
+			pszType = "(map)";
 		}
 		else if ( sp.GetPackFile()  )
 		{
-			pszType = " (pack)";
+			pszType = "(pack) ";
 			pszPack = pSearchPath->GetPackFile()->m_ZipName;
 		}
 		#ifdef SUPPORT_PACKED_STORE
 			else if ( sp.GetPackedStore()  )
 			{
-				pszType = " (VPK)";
+				pszType = "(VPK)";
 				pszPack = pSearchPath->GetPackedStore()->FullPathName();
 			}
 		#endif
 
-		Msg( "\"%s\" \"%s\" %s%s\n", pSearchPath->GetPathString(), (const char *)pSearchPath->GetPathIDString(), pszPack, pszType );
+		Msg( "\"%s\" \"%s\" %s%s\n", pSearchPath->GetPathString(), (const char *)pSearchPath->GetPathIDString(), pszType, pszPack );
 	}
 
 	if ( IsX360() && m_ExcludePaths.Count() )
@@ -1496,11 +1487,6 @@ void CBaseFileSystem::AddSearchPath( const char *pPath, const char *pathID, Sear
 		}
 #endif
 	}
-
-	if (!m_pBaseLength || m_pBaseLength < 3)
-		m_pBaseLength = GetSearchPath( "BASE_PATH", true, m_pBaseDir, sizeof( m_pBaseDir ) );
-
-	NukeSearchCache(pathID);
 }
 
 //-----------------------------------------------------------------------------
@@ -1607,10 +1593,6 @@ bool CBaseFileSystem::RemoveSearchPath( const char *pPath, const char *pathID )
 		m_SearchPaths.Remove( i );
 		bret = true;
 	}
-
-	if (bret)
-		NukeSearchCache(pathID);
-
 	return bret;
 }
 
@@ -1631,8 +1613,6 @@ void CBaseFileSystem::RemoveSearchPaths( const char *pathID )
 			m_SearchPaths.FastRemove(i);
 		}
 	}
-
-	NukeSearchCache(pathID);
 }
 
 
@@ -2028,7 +2008,6 @@ void CBaseFileSystem::RemoveAllSearchPaths( void )
 	AUTO_LOCK( m_SearchPathsMutex );
 	m_SearchPaths.Purge();
 	//m_PackFileHandles.Purge();
-	NukeSearchCache(NULL);
 }
 
 
@@ -2175,9 +2154,9 @@ public:
 	char m_AbsolutePath[MAX_FILEPATH];	// This is set 
 };
 
+
 void CBaseFileSystem::HandleOpenRegularFile( CFileOpenInfo &openInfo, bool bIsAbsolutePath )
 {
-	VPROF_BUDGET( "CBaseFileSystem::HandleOpenRegularFile", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	openInfo.m_pFileHandle = NULL;
 
 	int64 size;
@@ -2283,121 +2262,6 @@ FileHandle_t CBaseFileSystem::FindFileInSearchPath( CFileOpenInfo &openInfo )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-// Raphael: This doesn't exist in Gmod, but I'm testing a bit around to maybe come up with an improvement for Gmods filesystem.
-// Custom stuff starts
-struct AsyncThreadedFindFile
-{
-	CFileOpenInfo* file;
-	CBaseFileSystem::CSearchPath* path;
-	const char* pathID;
-	char** ppszResolvedFilename;
-};
-
-struct AsyncThreadedFindFileResult
-{
-	bool found;
-	CFileOpenInfo* file;
-	CBaseFileSystem::CSearchPath* path;
-	FileHandle_t handle;
-};
-
-CThreadFastMutex mutex;
-AsyncThreadedFindFileResult asyncfoundresult;
-void AsyncFindFileInSearchPath(AsyncThreadedFindFile*& thread)
-{
-	if (asyncfoundresult.found)
-	{
-		delete thread;
-		return;
-	}
-
-	CFileOpenInfo openInfo(thread->file->m_pFileSystem, thread->file->m_pFileName, thread->path, thread->file->m_pOptions, thread->file->m_Flags, thread->file->m_ppszResolvedFilename);
-	FileHandle_t filehandle = thread->file->m_pFileSystem->FindFileInSearchPath( openInfo );
-	if ( filehandle )
-	{
-		if ( !openInfo.m_pSearchPath->m_bIsTrustedForPureServer && openInfo.m_ePureFileClass == ePureServerFileClass_AnyTrusted )
-		{
-			#ifdef PURE_SERVER_DEBUG_SPEW
-				Msg( "Ignoring %s from %s for pure server operation\n", openInfo.m_pFileName, openInfo.m_pSearchPath->GetDebugString() );
-			#endif
-
-			thread->file->m_pFileSystem->m_FileTracker2.NoteFileIgnoredForPureServer( openInfo.m_pFileName, thread->pathID, openInfo.m_pSearchPath->m_storeId );
-			thread->file->m_pFileSystem->Close( filehandle );
-			openInfo.m_pFileHandle = NULL;
-			if ( thread->ppszResolvedFilename && *thread->ppszResolvedFilename )
-			{
-				free( *thread->ppszResolvedFilename );
-				*thread->ppszResolvedFilename = NULL;
-			}
-			return;
-		}
-
-		mutex.Lock();
-		asyncfoundresult.found = true;
-		asyncfoundresult.file = &openInfo;
-		asyncfoundresult.path = thread->path;
-		asyncfoundresult.handle = filehandle;
-		mutex.Unlock();
-	}
-
-	delete thread;
-}
-
-void CBaseFileSystem::AddFileToSearchCache( const char* pFileName, CSearchPath* path )
-{
-	if ( !fs_searchcache.GetBool() )
-		return;
-
-	std::unordered_map<std::string, int> cache = m_SearchCache[path->GetPathIDString()];
-	cache[ pFileName ] = path->m_storeId;
-}
-
-void CBaseFileSystem::RemoveFileFromSearchCache( const char* pFileName, const char* pathID )
-{
-	std::unordered_map<std::string, int> cache = m_SearchCache[pathID];
-	cache.erase( pFileName );
-}
-
-CBaseFileSystem::CSearchPath* CBaseFileSystem::GetPathFromSearchCache( const char* pFileName, const char* pathID )
-{
-	if ( !fs_searchcache.GetBool() )
-		return nullptr;
-
-	if ( pathID == NULL ) 
-		return nullptr;
-
-	auto it = m_SearchCache.find( pathID );
-	if ( it == m_SearchCache.end() )
-		return nullptr;
-
-	std::unordered_map<std::string, int> cache = it->second;
-	auto fit = cache.find( pFileName );
-	if ( fit == cache.end() )
-		return nullptr;
-
-	return FindSearchPathByStoreId( fit->second );
-}
-
-void CBaseFileSystem::NukeSearchCache( const char* pathID )
-{
-	if ( !fs_searchcache.GetBool() )
-		return;
-
-	if ( pathID == NULL ) // Nuke Everything
-	{
-		m_SearchCache.clear();
-		return;
-	}
-
-	auto it = m_SearchCache.find( pathID );
-	if ( it == m_SearchCache.end() )
-		return;
-
-	it->second.clear(); // Clear the cache for that specific path
-}
-
-// Custom stuff ends
-
 FileHandle_t CBaseFileSystem::OpenForRead( const char *pFileNameT, const char *pOptions, unsigned flags, const char *pathID, char **ppszResolvedFilename )
 {
 	VPROF( "CBaseFileSystem::OpenForRead" );
@@ -2540,13 +2404,14 @@ FileHandle_t CBaseFileSystem::OpenForRead( const char *pFileNameT, const char *p
 		}
 	}
 
-	const CBaseFileSystem::CSearchPath* cache_path = GetPathFromSearchCache( pFileName, pathID );
-	if ( cache_path )
+	CSearchPathsIterator iter( this, &pFileName, pathID, pathFilter );
+	for ( openInfo.m_pSearchPath = iter.GetFirst(); openInfo.m_pSearchPath != NULL; openInfo.m_pSearchPath = iter.GetNext() )
 	{
-		openInfo.m_pSearchPath = cache_path;
 		FileHandle_t filehandle = FindFileInSearchPath( openInfo );
 		if ( filehandle )
 		{
+			// Check if search path is excluded due to pure server white list,
+			// then we should make a note of this fact, and keep searching
 			if ( !openInfo.m_pSearchPath->m_bIsTrustedForPureServer && openInfo.m_ePureFileClass == ePureServerFileClass_AnyTrusted )
 			{
 				#ifdef PURE_SERVER_DEBUG_SPEW
@@ -2561,76 +2426,12 @@ FileHandle_t CBaseFileSystem::OpenForRead( const char *pFileNameT, const char *p
 					free( *ppszResolvedFilename );
 					*ppszResolvedFilename = NULL;
 				}
-			} else {
-				openInfo.HandleFileCRCTracking( openInfo.m_pFileName );
-				return filehandle;
+				continue;
 			}
-		} else {
-			RemoveFileFromSearchCache( pFileName, pathID ); // Somehow the file was not found? It probably was deleted
-		}
-	}
 
-	CSearchPathsIterator iter( this, &pFileName, pathID, pathFilter );
-	if (fs_threadedsearch.GetBool()) // Custom Stuff starts
-	{
-		CUtlVector<AsyncThreadedFindFile*> jobvec;
-		for ( CSearchPath* path = iter.GetFirst(); path != NULL; path = iter.GetNext() )
-		{
-			AsyncThreadedFindFile* thread = new AsyncThreadedFindFile;
-			thread->file = &openInfo;
-			thread->path = path;
-			thread->pathID = pathID;
-			thread->ppszResolvedFilename = ppszResolvedFilename;
-			jobvec.AddToTail(thread);
-		}
-
-		asyncfoundresult.found = false;
-		asyncfoundresult.file = nullptr;
-		asyncfoundresult.path = nullptr;
-		asyncfoundresult.handle = nullptr;
-
-		ParallelProcess("AsyncFindFile", jobvec.Base(), jobvec.Count(), &AsyncFindFileInSearchPath);
-
-		if (asyncfoundresult.found)
-		{
-			openInfo.m_pFileHandle = asyncfoundresult.file->m_pFileHandle;
-			openInfo.m_pSearchPath = asyncfoundresult.path;
-			openInfo.SetAbsolutePath( asyncfoundresult.file->m_AbsolutePath );
-			openInfo.SetResolvedFilename( asyncfoundresult.file->m_AbsolutePath );
+			// 
 			openInfo.HandleFileCRCTracking( openInfo.m_pFileName );
-			return asyncfoundresult.handle;
-		}
-	} else { // Custom stuff ends
-		for ( CSearchPath* path = iter.GetFirst(); path != NULL; path = iter.GetNext() )
-		{
-			openInfo.m_pSearchPath = path;
-			FileHandle_t filehandle = FindFileInSearchPath( openInfo );
-			if ( filehandle )
-			{
-				// Check if search path is excluded due to pure server white list,
-				// then we should make a note of this fact, and keep searching
-				if ( !openInfo.m_pSearchPath->m_bIsTrustedForPureServer && openInfo.m_ePureFileClass == ePureServerFileClass_AnyTrusted )
-				{
-					#ifdef PURE_SERVER_DEBUG_SPEW
-						Msg( "Ignoring %s from %s for pure server operation\n", openInfo.m_pFileName, openInfo.m_pSearchPath->GetDebugString() );
-					#endif
-
-					m_FileTracker2.NoteFileIgnoredForPureServer( openInfo.m_pFileName, pathID, openInfo.m_pSearchPath->m_storeId );
-					Close( filehandle );
-					openInfo.m_pFileHandle = NULL;
-					if ( ppszResolvedFilename && *ppszResolvedFilename )
-					{
-						free( *ppszResolvedFilename );
-						*ppszResolvedFilename = NULL;
-					}
-					continue;
-				}
-
-				// 
-				openInfo.HandleFileCRCTracking( openInfo.m_pFileName );
-				AddFileToSearchCache(pFileName, path);
-				return filehandle;
-			}
+			return filehandle;
 		}
 	}
 
@@ -3424,35 +3225,6 @@ long CBaseFileSystem::GetFileTime( const char *pFileName, const char *pPathID )
 	Q_strlower( tempFileName );
 #endif
 
-	CSearchPath* cSearchPath = GetPathFromSearchCache( pFileName, pPathID );
-	if ( cSearchPath )
-	{
-		long ft = FastFileTime( cSearchPath, tempFileName );
-		if ( ft != 0L )
-		{
-			if ( !cSearchPath->GetPackFile() && m_LogFuncs.Count() )
-			{
-				char pTmpFileName[ MAX_FILEPATH ]; 
-				if ( strchr( tempFileName, ':' ) )
-				{
-					Q_strncpy( pTmpFileName, tempFileName, sizeof( pTmpFileName ) );
-				}
-				else
-				{
-					Q_snprintf( pTmpFileName, sizeof( pTmpFileName ), "%s%s", cSearchPath->GetPathString(), tempFileName );
-				}
-
-				Q_FixSlashes( tempFileName );
-
-				LogAccessToFile( "filetime", pTmpFileName, "" );
-			}
-
-			return ft;
-		} else {
-			RemoveFileFromSearchCache( pFileName, pPathID ); // We failed to find the file?
-		}
-	}
-
 	for ( CSearchPath *pSearchPath = iter.GetFirst(); pSearchPath != NULL; pSearchPath = iter.GetNext() )
 	{
 		long ft = FastFileTime( pSearchPath, tempFileName );
@@ -3474,8 +3246,6 @@ long CBaseFileSystem::GetFileTime( const char *pFileName, const char *pPathID )
 
 				LogAccessToFile( "filetime", pTmpFileName, "" );
 			}
-
-			AddFileToSearchCache( pFileName, pSearchPath );
 
 			return ft;
 		}
@@ -3965,23 +3735,9 @@ bool CBaseFileSystem::SetFileWritable( char const *pFileName, bool writable, con
 // Input  : *pFileName - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool is_file(const char *path) {
-    const char *last_slash = strrchr(path, '/');
-    const char *last_dot = strrchr(path, '.');
-
-    return last_dot != NULL && (last_slash == NULL || last_dot > last_slash);
-}
-
 bool CBaseFileSystem::IsDirectory( const char *pFileName, const char *pathID )
 {
-	VPROF_BUDGET( "CBaseFileSystem::IsDirectory", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CHECK_DOUBLE_SLASHES( pFileName );
-
-	if (fs_guessfile.GetBool())
-	{
-		if (is_file(pFileName))
-			return false;
-	}
 
 	// Allow for UNC-type syntax to specify the path ID.
 	struct	_stat buf;
@@ -4003,44 +3759,11 @@ bool CBaseFileSystem::IsDirectory( const char *pFileName, const char *pathID )
 		return false;
 	}
 
-	bool nopackfile = fs_nopackfile.GetBool();
-	CSearchPath* cSearchPath = GetPathFromSearchCache( pFileName, pathID );
-	if ( cSearchPath )
-	{
-#ifdef SUPPORT_PACKED_STORE
-		if ( !nopackfile && cSearchPath->GetPackedStore() )
-		{
-			CUtlStringList outDir, outFile;
-			cSearchPath->GetPackedStore()->GetFileAndDirLists( outDir, outFile, false );
-			FOR_EACH_VEC( outDir, i )
-			{
-				if ( !Q_stricmp( outDir[i], pFileName ) )
-					return true;
-			}
-
-		}
-		else
-#endif // SUPPORT_PACKED_STORE
-		{
-			char pTmpFileName[ MAX_FILEPATH ];
-			Q_snprintf( pTmpFileName, sizeof( pTmpFileName ), "%s%s", cSearchPath->GetPathString(), pFileName );
-			Q_FixSlashes( pTmpFileName );
-
-			if ( FS_stat( pTmpFileName, &buf ) != -1 )
-			{
-				if ( buf.st_mode & _S_IFDIR )
-					return true;
-			} else {
-				RemoveFileFromSearchCache( pFileName, pathID ); // We failed to find the file?
-			}
-		}
-	}
-
 	CSearchPathsIterator iter( this, &pFileName, pathID, FILTER_CULLPACK );
 	for ( CSearchPath *pSearchPath = iter.GetFirst(); pSearchPath != NULL; pSearchPath = iter.GetNext() )
 	{
 #ifdef SUPPORT_PACKED_STORE
-		if ( !nopackfile && pSearchPath->GetPackedStore() )
+		if ( pSearchPath->GetPackedStore() )
 		{
 			CUtlStringList outDir, outFile;
 			pSearchPath->GetPackedStore()->GetFileAndDirLists( outDir, outFile, false );
@@ -4057,7 +3780,6 @@ bool CBaseFileSystem::IsDirectory( const char *pFileName, const char *pathID )
 			char pTmpFileName[ MAX_FILEPATH ];
 			Q_snprintf( pTmpFileName, sizeof( pTmpFileName ), "%s%s", pSearchPath->GetPathString(), pFileName );
 			Q_FixSlashes( pTmpFileName );
-
 			if ( FS_stat( pTmpFileName, &buf ) != -1 )
 			{
 				if ( buf.st_mode & _S_IFDIR )
@@ -4460,7 +4182,6 @@ void CBaseFileSystem::GetLocalCopy( const char *pFileName )
 //-----------------------------------------------------------------------------
 bool CBaseFileSystem::FixUpPath( const char *pFileName, char *pFixedUpFileName, int sizeFixedUpFileName )
 {
-	VPROF_BUDGET( "CBaseFileSystem::FixUpPath", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	//  If appropriate fixes up the filename to ensure that it's handled properly by the system.
 	//
 	V_strncpy( pFixedUpFileName, pFileName, sizeFixedUpFileName );
@@ -4478,19 +4199,19 @@ bool CBaseFileSystem::FixUpPath( const char *pFileName, char *pFixedUpFileName, 
 		//  Not just yet...
 
 
-		//int iBaseLength = 0;
-		//char pBaseDir[MAX_PATH];
+		int iBaseLength = 0;
+		char pBaseDir[MAX_PATH];
 
 		//  Need to get "BASE_PATH" from the filesystem paths, and then check this name against it.
 		//
-		//iBaseLength = GetSearchPath( "BASE_PATH", true, pBaseDir, sizeof( pBaseDir ) );
-		if ( m_pBaseLength )
+		iBaseLength = GetSearchPath( "BASE_PATH", true, pBaseDir, sizeof( pBaseDir ) );
+		if ( iBaseLength )
 		{
 			//  If the first part of the pFixedUpFilename is pBaseDir
 			//  then lowercase the part after that.
-			if ( *m_pBaseDir && (m_pBaseLength+1 < V_strlen( pFixedUpFileName ) ) && (0 != V_strncmp( m_pBaseDir, pFixedUpFileName, m_pBaseLength ) )  )
+			if ( *pBaseDir && (iBaseLength+1 < V_strlen( pFixedUpFileName ) ) && (0 != V_strncmp( pBaseDir, pFixedUpFileName, iBaseLength ) )  )
 			{
-				V_strlower( &pFixedUpFileName[m_pBaseLength-1] );
+				V_strlower( &pFixedUpFileName[iBaseLength-1] );
 			}
 		}
 	    
@@ -4516,7 +4237,6 @@ bool CBaseFileSystem::FixUpPath( const char *pFileName, char *pFixedUpFileName, 
 //-----------------------------------------------------------------------------
 const char *CBaseFileSystem::RelativePathToFullPath( const char *pFileName, const char *pPathID, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars, PathTypeFilter_t pathFilter, PathTypeQuery_t *pPathType )
 {
-	VPROF_BUDGET( "CBaseFileSystem::RelativePathToFullPath", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CHECK_DOUBLE_SLASHES( pFileName );
 
 	struct	_stat buf;
@@ -4525,8 +4245,6 @@ const char *CBaseFileSystem::RelativePathToFullPath( const char *pFileName, cons
 	{
 		*pPathType = PATH_IS_NORMAL;
 	}
-
-	//Msg("RelativePathToFullPath called %s %s\n", pFileName, pPathID);
 
 	// Convert filename to lowercase.  All files in the
 	// game logical filesystem must be accessed by lowercase name
@@ -4662,7 +4380,6 @@ const char *CBaseFileSystem::GetLocalPath( const char *pFileName, OUT_Z_CAP(maxL
 //-----------------------------------------------------------------------------
 bool CBaseFileSystem::FullPathToRelativePathEx( const char *pFullPath, const char *pPathId, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars )
 {
-	VPROF_BUDGET( "CBaseFileSystem::FullPathToRelativePathEx", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CHECK_DOUBLE_SLASHES( pFullPath );
 
 	intp nInlen = V_strlen( pFullPath );
@@ -4792,7 +4509,6 @@ bool CBaseFileSystem::GetCaseCorrectFullPath_Ptr( const char *pFullPath, OUT_Z_C
 #endif // _WIN32
 }
 #endif
-
 
 
 //-----------------------------------------------------------------------------
