@@ -32,6 +32,7 @@ class IResponseSystem;
 class IEntitySaveUtils;
 class CRecipientFilter;
 class CStudioHdr;
+class ILuaObject;
 
 // Matching the high level concept is significantly better than other criteria
 // FIXME:  Could do this in the script file by making it required and bumping up weighting there instead...
@@ -1133,11 +1134,16 @@ public:
 	// Which is remarkably slow.
 	// GetAttribInterface( CBaseEntity *pEntity ) in attribute_manager.h uses
 	//  this function, tests for NULL, and Asserts m_pAttributes == dynamic_cast.
+#ifndef BUILD_GMOD
 	inline IHasAttributes *GetHasAttributesInterfacePtr() const { return m_pAttributes; }
+#endif
 
 protected:
 	// NOTE: m_pAttributes needs to be set in the leaf class constructor.
+	// Raphael: m_pAttributes was added somewhere in the SourceSDK 2013. In the 2010 it doesn't exist and it's not in Gmod.
+#ifndef BUILD_GMOD
 	IHasAttributes *m_pAttributes;
+#endif
 
 private:
 	friend class CAI_Senses;
@@ -1415,6 +1421,10 @@ public:
 	virtual void	VPhysicsDestroyObject( void );
 	void			VPhysicsSwapObject( IPhysicsObject *pSwap );
 
+#ifdef BUILD_GMOD
+	//virtual bool	GMOD_VPhysicsTest( IPhysicsObject *pPhysics );
+#endif
+
 	inline IPhysicsObject *VPhysicsGetObject( void ) const { return m_pPhysicsObject; }
 	virtual void	VPhysicsUpdate( IPhysicsObject *pPhysics );
 	void			VPhysicsUpdatePusher( IPhysicsObject *pPhysics );
@@ -1424,6 +1434,10 @@ public:
 	virtual void	VPhysicsShadowCollision( int index, gamevcollisionevent_t *pEvent );
 	virtual void	VPhysicsShadowUpdate( IPhysicsObject * ) {}
 	virtual void	VPhysicsCollision( int index, gamevcollisionevent_t *pEvent );
+#ifdef BUILD_GMOD
+	//virtual void	GMOD_VPhysicsCollision( int index, gamevcollisionevent_t *pEvent );
+	//virtual matrix3x4_t GMOD_GetPhysBoneMatrix( int index );
+#endif
 	virtual void	VPhysicsFriction( IPhysicsObject *pObject, float energy, int surfaceProps, int surfacePropsHit );
 	
 	// update the shadow so it will coincide with the current AI position at some time
@@ -1685,7 +1699,11 @@ private:
 	int				m_nPushEnumCount;
 
 	Vector			m_vecAbsOrigin;
-	CNetworkVectorForDerived( m_vecVelocity );
+#ifdef BUILD_GMOD
+	CNetworkVector( m_vecVelocity );
+#else
+	CNetworkVarForDerived( m_vecVelocity );
+#endif
 	
 	//Adrian
 	CNetworkVar( unsigned char, m_iTextureFrameIndex );
@@ -1804,15 +1822,88 @@ public:
 
 	virtual bool ShouldBlockNav() const { return true; }
 
-	virtual bool ShouldForceTransmitsForTeam( int ) { return false; }
+#ifndef BUILD_GMOD
+	virtual bool ShouldForceTransmitsForTeam( int iTeam ) { return false; }
 
 	void 			SetTruceValidForEnt( bool bTruceValidForEnt ) { m_bTruceValidForEnt = bTruceValidForEnt; }
 	virtual bool	IsTruceValidForEnt( void ) const { return m_bTruceValidForEnt; }
 
 private:
 	CThreadFastMutex m_CalcAbsolutePositionMutex;
-
 	bool	m_bTruceValidForEnt;
+#else
+	/*virtual bool ShouldForceTransmitsForTeam( int team );
+
+	virtual void *VPhysicsGetElement( int element );
+
+	virtual void OnOwnerChanged();
+	virtual bool IsARagdoll();
+	virtual void SetMaterialOverride( const char * );
+	virtual const char *GetMaterialOverride();
+	virtual bool IsPredicted() const;
+	virtual bool IsWeapon() const;
+	virtual bool IsVehicle() const;
+	virtual bool IsJeep() const;
+	virtual bool UsesLua();
+	virtual int GetLuaEntityType();
+	virtual void PushEntity();
+	virtual void SetPhysObject( int, IPhysicsObject * );
+	virtual void SetEntity( const char *, CBaseEntity * );
+	virtual void DeleteOnRemove( CBaseEntity * );
+	virtual void DontDeleteOnRemove( CBaseEntity * );
+	virtual int GetParentPhysicsNum();
+	virtual void SetParentPhysicsNum( int );
+	virtual double GetCreationTime();
+	virtual void StartMotionController();
+	virtual void StopMotionController();
+	virtual void AttachObjectToMotionController( IPhysicsObject * );
+	virtual void DetachObjectFromMotionController( IPhysicsObject * );
+	virtual void SaveLua( ISave & );
+	virtual void LoadLua( IRestore & );
+	virtual void SetUseType( int );
+	virtual void UpdateBeforeRemove( int );
+	virtual const char *GetLuaScriptName();
+	virtual void SpawnedViaLua();
+	virtual void OverridePosition();
+	virtual void InitializeScriptedEntity( const char * );
+	virtual void ClearLuaData();
+	virtual ILuaObject *GetLuaTable();
+	virtual void *GetLuaEntity();
+	virtual void Lua_OnEntityInitialized();
+	virtual void SetLuaTable( ILuaObject * );
+	virtual bool HasLuaTable();
+	virtual void ForcePhysicsDropObject();
+	virtual void SetPhysicsAttacker( CBasePlayer*, float );
+	virtual void StartDriving( CBasePlayer * );
+	virtual void FinishDriving( CBasePlayer * );
+	virtual bool GMOD_ShouldPreventTransmitToPlayer( CBasePlayer * );
+	virtual void GMOD_SetShouldPreventTransmitToPlayer( CBasePlayer *, bool );
+	virtual bool GMOD_ShouldPlayPhysicsSounds();
+	virtual void *Lua_GetLuaClass();
+	virtual INextBot *GetNextBot();*/
+
+protected:
+	char m_OverrideMaterial[255];
+	bool offset4;
+	void* offset1[133];
+	//bool m_GMOD_bool[32];
+	//void* offset2[8];
+	int offset2[14];
+	bool m_GMOD_bool[32];
+	float m_GMOD_float[32];
+	int m_GMOD_int[32];
+	Vector m_GMOD_Vector[32];
+	QAngle m_GMOD_QAngle[32];
+	EHANDLE m_GMOD_EHANDLE[32];
+	char m_GMOD_String[4][512];
+	int m_iCreationID;
+	int m_iMapCreatedID;
+	
+	// Anything below is unknown.
+	int m_iGModPlayerFlags;
+	IGMODDataTable* m_GMOD_DataTable;
+	ILuaObject* m_GMOD_Table;
+#endif
 };
 
 // Send tables exposed in this module.

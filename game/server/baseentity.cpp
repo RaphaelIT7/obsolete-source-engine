@@ -351,7 +351,9 @@ void CBaseEntityModelLoadProxy::Handler::OnModelLoadComplete( const model_t *pMo
 
 CBaseEntity::CBaseEntity( bool bServerOnly )
 {
+#ifndef BUILD_GMOD
 	m_pAttributes = NULL;
+#endif
 
 	COMPILE_TIME_ASSERT( MOVETYPE_LAST < (1 << MOVETYPE_MAX_BITS) );
 	COMPILE_TIME_ASSERT( MOVECOLLIDE_COUNT < (1 << MOVECOLLIDE_MAX_BITS) );
@@ -422,7 +424,9 @@ CBaseEntity::CBaseEntity( bool bServerOnly )
 	AddEFlags( EFL_USE_PARTITION_WHEN_NOT_SOLID );
 #endif
 
+#ifndef BUILD_GMOD
 	m_bTruceValidForEnt = false;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -5746,7 +5750,9 @@ void CBaseEntity::CalcAbsolutePosition( void )
 		return;
 
 	{
+#ifndef BUILD_GMOD
 		AUTO_LOCK( m_CalcAbsolutePositionMutex );
+#endif
 
 		// Test again under the lock, in case another thread did the work in the interim
 		if ( !IsEFlagSet( EFL_DIRTY_ABSTRANSFORM ) )
