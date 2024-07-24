@@ -746,7 +746,11 @@ CBasePanel::CBasePanel() : Panel(NULL, "BaseGameUIPanel")
 	if ( IsX360() )
 	{
 		// Get our active mod directory name
-		const char *pGameName = CommandLine()->ParmValue( "-game", "hl2" );;
+#ifdef BUILD_GMOD
+		const char *pGameName = CommandLine()->ParmValue( "-game", "garrysmod" );
+#else
+		const char *pGameName = CommandLine()->ParmValue( "-game", "hl2" );
+#endif
 
 		// Set the game we're playing
 		m_iGameID = CONTEXT_GAME_GAME_HALF_LIFE_2;
@@ -768,7 +772,13 @@ CBasePanel::CBasePanel() : Panel(NULL, "BaseGameUIPanel")
 			m_iGameID = CONTEXT_GAME_GAME_TEAM_FORTRESS;
 			m_bSinglePlayer = false;
 		}
-
+#ifdef BUILD_GMOD
+		else if ( Q_stristr( pGameName, "garrysmod" ) )
+		{
+			m_iGameID = CONTEXT_GAME_GAME_GARRYSMOD;
+			m_bSinglePlayer = false;
+		}
+#endif
 	}
 }
 

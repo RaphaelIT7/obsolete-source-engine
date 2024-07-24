@@ -362,7 +362,11 @@ const char *COM_GetModDirectory()
 	static char modDir[MAX_PATH];
 	if ( Q_isempty( modDir ) )
 	{
+#ifdef BUILD_GMOD
+		const char *gamedir = CommandLine()->ParmValue("-game", CommandLine()->ParmValue( "-defaultgamedir", "garrysmod" ) );
+#else
 		const char *gamedir = CommandLine()->ParmValue("-game", CommandLine()->ParmValue( "-defaultgamedir", "hl2" ) );
+#endif
 		Q_strncpy( modDir, gamedir, sizeof(modDir) );
 		if ( strchr( modDir, '/' ) || strchr( modDir, '\\' ) )
 		{
