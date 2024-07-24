@@ -1350,7 +1350,11 @@ bool CBaseClient::ShouldSendMessages( void )
 	if ( m_NetChannel && m_NetChannel->IsOverflowed() )
 	{
 		m_NetChannel->Reset();
+#ifdef BUILD_GMOD
+		Disconnect( "%s overflowed reliable buffer (%i bytes, %s in, %s out)\n", m_Name, 0, V_pretifymem( m_NetChannel->GetNumBitsWritten(true), 3, false ), "0kb" ); // ToDo: Fill out all other values (bytes and out)
+#else
 		Disconnect ("%s overflowed reliable buffer\n", m_Name );
+#endif
 		return false;
 	}
 

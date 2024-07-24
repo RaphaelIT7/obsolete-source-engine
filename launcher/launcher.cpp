@@ -354,7 +354,7 @@ void CLogAllFiles::Init( char (&baseDirectory)[MAX_PATH] )
 
 	// game directory has not been established yet, must derive ourselves
 	char path[MAX_PATH];
-	Q_snprintf( path, sizeof(path), "%s/%s", m_szBaseDir, CommandLine()->ParmValue( "-game", "hl2" ) );
+	Q_snprintf( path, sizeof(path), "%s/%s", m_szBaseDir, CommandLine()->ParmValue( "-game", DEFAULT_HL2_GAMEDIR ) );
 	Q_FixSlashes( path );
 #ifdef WIN32
 	Q_strlower( path );
@@ -725,7 +725,7 @@ bool CSourceAppSystemGroup::PreInit()
 		fsInfo.m_pFileSystem->AddSearchPath( "platform", "PLATFORM" );
 
 		// This will get called multiple times due to being here, but only the first one will do anything
-		m_pReslistgenerator->Init( m_szBaseDir, CommandLine()->ParmValue( "-game", "hl2" ) );
+		m_pReslistgenerator->Init( m_szBaseDir, CommandLine()->ParmValue( "-game", DEFAULT_HL2_GAMEDIR ) );
 
 		// This will also get called each time, but will actually fix up the command line as needed
 		m_pReslistgenerator->SetupCommandLine();

@@ -135,6 +135,19 @@ defaultConfigInfo_t SourceTestInfo =
 	243730
 };
 
+// Garry's Mod
+#ifdef BUILD_GMOD
+defaultConfigInfo_t GMODInfo =
+{
+	"Garry's Mod 2",
+	"garrysmod",
+	"garrysmod.fgd",
+	"info_player_start",
+	"hl2.exe",
+	GetAppSteamAppId( k_App_GMOD )
+};
+#endif
+
 
 //-----------------------------------------------------------------------------
 // Constructor
@@ -895,6 +908,9 @@ bool CGameConfigManager::GetDefaultGameBlock( KeyValues *pIn )
 	defaultConfigs.AddToTail( Episode2Info );
 	defaultConfigs.AddToTail( PortalInfo );
 	defaultConfigs.AddToTail( SourceTestInfo );
+#ifdef BUILD_GMOD
+	defaultConfigs.AddToTail( GMODInfo );
+#endif
 
 	// Add TF2 games to list
 	defaultConfigs.AddToTail( TF2Info );

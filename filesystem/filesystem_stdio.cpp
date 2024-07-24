@@ -50,6 +50,7 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
+#include "../GarrysMod/Externals.h"
 
 ASSERT_INVARIANT( SEEK_CUR == FILESYSTEM_SEEK_CURRENT );
 ASSERT_INVARIANT( SEEK_SET == FILESYSTEM_SEEK_HEAD );
@@ -1552,9 +1553,9 @@ void CFileSystem_Stdio::RemoveSearchPathsByGroup(int group)
 	// Don't care
 }
 
-void CFileSystem_Stdio::SetGet(IGet* get)
+void CFileSystem_Stdio::SetGet(IGet* gett)
 {
-	m_pIGet = get;
+	get = gett;
 	Msg("CFileSystem_Stdio::SetGet\n");
 }
 
@@ -1825,7 +1826,7 @@ void CAddonFileSystem::ScanForSubscriptions(CSteamAPIContext* context, const cha
 void CAddonFileSystem::Think()
 {
 	//Msg("CAddonFileSystem::Think\n");
-	((CBaseFileSystem*)g_pFullFileSystem)->GetIGet()->RunSteamCallbacks();
+	get->RunSteamCallbacks();
 
 	if (m_pChanged)
 	{
@@ -2227,7 +2228,7 @@ bool CGamemodeSystem::IsServerBlacklisted(char const* address, char const* hostn
 {
 	Msg("CGamemodeSystem::IsServerBlacklisted\n");
 
-	return ((CBaseFileSystem*)g_pFullFileSystem)->GetIGet()->MenuSystem()->IsServerBlacklisted(address, hostname, description, gm, map);
+	return get->MenuSystem()->IsServerBlacklisted(address, hostname, description, gm, map);
 }
 
 CGamemodeSystem::CGamemodeSystem()
@@ -2499,7 +2500,6 @@ void Language2::ProcessFile( std::string language, const char* idk ) // Gmod doe
 
 void Language2::TellLuaLanguageChanged( const char* language )
 {
-	IGet* get = ((CBaseFileSystem*)g_pFullFileSystem)->GetIGet();
 	if (!get)
 		return;
 
@@ -2546,6 +2546,7 @@ void CFileSystem_Stdio::AddVPKFileFromPath(const char *vpk, const char *path, un
 	AddVPKFile(vpk, path, (SearchPathAdd_t)id);
 }
 
+IGet* get; // FixMe: Compiling Externals.cpp sucks.
 void CFileSystem_Stdio::GMOD_SetupDefaultPaths(const char *path, const char *game)
 {
 	Msg("CFileSystem_Stdio::GMOD_SetupDefaultPaths called with %s %s\n", path, game);
@@ -2610,7 +2611,7 @@ void CFileSystem_Stdio::GMOD_SetupDefaultPaths(const char *path, const char *gam
 	AddSearchPath(platform.c_str(), "GAME", PATH_ADD_TO_TAIL);
 	AddVPKFile((platform + "platform_misc.vpk").c_str(), "MOD", PATH_ADD_TO_TAIL);
 
-	//PrintSearchPaths();
+	PrintSearchPaths();
 }
 
 void CFileSystem_Stdio::GMOD_FixPathCase(char *a, size_t b)

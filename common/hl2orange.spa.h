@@ -33,6 +33,9 @@ extern "C" {
 #define CONTEXT_CHAPTER_EP1                         3
 #define CONTEXT_CHAPTER_EP2                         4
 #define CONTEXT_CHAPTER_PORTAL                      5
+#ifdef BUILD_GMOD
+#define CONTEXT_CHAPTER_GMOD						6
+#endif
 
 //
 // Context values
@@ -75,6 +78,9 @@ extern "C" {
 #define CONTEXT_GAME_GAME_EPISODE_TWO               2
 #define CONTEXT_GAME_GAME_PORTAL                    3
 #define CONTEXT_GAME_GAME_TEAM_FORTRESS             4
+#ifdef BUILD_GMOD
+#define CONTEXT_GAME_GAME_GARRYSMOD					5
+#endif
 
 // Values for CONTEXT_CHAPTER_EP1
 
@@ -122,6 +128,9 @@ extern "C" {
 #define CONTEXT_PRESENCE_PORTAL_INGAME              9
 #define CONTEXT_PRESENCE_COMMENTARY                 10
 #define CONTEXT_PRESENCE_IDLE                       11
+#ifdef BUILD_GMOD
+#define CONTEXT_PRESENCE_GMOD_INGAME              	12
+#endif
 
 // Values for X_CONTEXT_GAME_MODE
 
