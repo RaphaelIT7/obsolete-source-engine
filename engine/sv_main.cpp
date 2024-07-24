@@ -87,7 +87,7 @@ ConVar sv_shutdown_timeout_minutes( "sv_shutdown_timeout_minutes", "360", FCVAR_
 #ifdef BUILD_GMOD
 ConVar sv_startup_time( "sv_startup_time", 0, 0, "Sets the starting CurTime of the server (in seconds). This is used for finding issues on a server that has been running for a long time. You don't need to change this." );
 ConVar sv_hibernate_think( "sv_hibernate_think", 0, 0, "Forces the server to think even when hibernating" );
-ConVar sv_hibernate_drop_bots( "sv_hibernate_drop_bots", 1, 0, "Kicks bots when the server enters hibernation" );
+ConVar sv_hibernate_drop_bots( "sv_hibernate_drop_bots", "1", 0, "Kicks bots when the server enters hibernation" );
 #endif
 
 static double s_timeForceShutdown = 0.0;
