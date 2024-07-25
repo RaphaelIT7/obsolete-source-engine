@@ -106,7 +106,7 @@ public:
 	// Remove all symbols in the table.
 	void  RemoveAll();
 
-	unsigned short GetNumStrings( void ) const
+	intp GetNumStrings( void ) const
 	{
 		const size_t count = m_Lookup.Count();
 		Assert(count <= USHRT_MAX);

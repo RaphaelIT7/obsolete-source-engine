@@ -30,7 +30,7 @@ void CUtlMemoryPool::SetErrorReportFunc( MemoryPoolReportFunc_t func )
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CUtlMemoryPool::CUtlMemoryPool( intp blockSize, intp numElements, int growMode, const char *pszAllocOwner, unsigned short nAlignment )
+CUtlMemoryPool::CUtlMemoryPool( intp blockSize, intp numElements, int growMode, const char *pszAllocOwner, int nAlignment )
 {
 #ifdef _X360
 	if( numElements > 0 && growMode != UTLMEMORYPOOL_GROW_NONE )
@@ -181,8 +181,7 @@ void CUtlMemoryPool::AddNewBlob()
 	// maybe use something other than malloc?
 	intp nElements = m_BlocksPerBlob * sizeMultiplier;
 	intp blobSize = m_BlockSize * nElements;
-	// dimhotepus: Reduce blob size by 3 bytes as they are not needed.
-	CBlob *pBlob = (CBlob*)malloc( sizeof(CBlob) - sizeof(CBlob::m_Data) - sizeof(CBlob::m_Padding) + blobSize + ( m_nAlignment - 1 ) );
+	CBlob *pBlob = (CBlob*)malloc( sizeof(CBlob) - 1 + blobSize + ( m_nAlignment - 1 ) );
 	Assert( pBlob );
 	
 	// Link it in at the end of the blob list.

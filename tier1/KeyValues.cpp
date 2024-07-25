@@ -1473,7 +1473,7 @@ const char *KeyValues::GetString( const char *keyName, const char *defaultValue 
 			SetString( keyName, buf );
 			break;
 		case TYPE_PTR:
-			V_to_chars( buf, (int64)dat->m_pValue );
+			Q_snprintf( buf, sizeof( buf ), "%lld", (int64)dat->m_pValue );
 			SetString( keyName, buf );
 			break;
 		case TYPE_INT:
