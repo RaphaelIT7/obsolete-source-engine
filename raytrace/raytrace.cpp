@@ -888,8 +888,8 @@ void RayTracingEnvironment::SetupAccelerationStructure(void)
 	delete[] root_triangle_list;
 
 	// now, convert all triangles to "intersection format"
-	for(intp i=0;i<OptimizedTriangleList.Count();i++)
-		OptimizedTriangleList[i].ChangeIntoIntersectionFormat();
+	for(auto &t : OptimizedTriangleList)
+		t.ChangeIntoIntersectionFormat();
 }
 
 
