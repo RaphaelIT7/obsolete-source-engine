@@ -210,7 +210,7 @@ void bf_write::WriteSBitLong( int data, int numbits )
 void bf_write::WriteVarInt32( uint32 data )
 {
 	// Check if align and we have room, slow path if not
-	if ( (m_iCurBit & 7) == 0 && (m_iCurBit + (intp)bitbuf::kMaxVarint32Bytes * CHAR_BIT ) <= m_nDataBits)
+	if ( (m_iCurBit & 7) == 0 && (m_iCurBit + (intp)bitbuf::kMaxVarint32Bytes * 8 ) <= m_nDataBits)
 	{
 		uint8 *target = ((uint8*)m_pData) + (m_iCurBit>>3);
 

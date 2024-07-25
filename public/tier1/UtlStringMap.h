@@ -60,7 +60,7 @@ public:
 		return UTL_INVAL_SYMBOL;
 	}
 
-	unsigned short GetNumStrings( void ) const
+	intp GetNumStrings( void ) const
 	{
 		return m_SymbolTable.GetNumStrings();
 	}

@@ -163,7 +163,7 @@ public:
 	I  Root() const;
 
 	// Num elements
-	I Count() const;
+	size_t Count() const;
 
 	// Max "size" of the vector
 	// it's not generally safe to iterate from index 0 to MaxElement()-1
@@ -473,9 +473,9 @@ inline	I  CUtlRBTree<T, I, L, M>::Root() const
 //-----------------------------------------------------------------------------
 
 template < class T, class I, typename L, class M >
-inline	I CUtlRBTree<T, I, L, M>::Count() const          
+inline	size_t CUtlRBTree<T, I, L, M>::Count() const          
 { 
-	return m_NumElements; 
+	return static_cast<size_t>(m_NumElements); 
 }
 
 //-----------------------------------------------------------------------------

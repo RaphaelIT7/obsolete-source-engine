@@ -254,7 +254,7 @@ public:
 
 public:
 	// The current buffer.
-	uint32* RESTRICT	m_pData;
+	unsigned long* RESTRICT m_pData;
 	intp				m_nDataBytes;
 	intp				m_nDataBits;
 	
@@ -413,8 +413,8 @@ BITBUF_INLINE void bf_write::WriteUBitLong( unsigned int curData, int numbits, b
 	m_iCurBit += numbits;
 
 	// Mask in a dword.
-	Assert( (iDWord*4 + sizeof(uint32)) <= (size_t)m_nDataBytes );
-	uint32 * RESTRICT pOut = &m_pData[iDWord];
+	Assert( (iDWord*4 + sizeof(long)) <= (size_t)m_nDataBytes );
+	unsigned long * RESTRICT pOut = &m_pData[iDWord];
 
 	// Rotate data into dword alignment
 	curData = (curData << iCurBitMasked) | (curData >> (32 - iCurBitMasked));

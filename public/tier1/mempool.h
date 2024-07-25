@@ -50,7 +50,7 @@ public:
 		GROW_SLOW=UTLMEMORYPOOL_GROW_SLOW
 	};
 
-				CUtlMemoryPool( intp blockSize, intp numElements, int growMode = UTLMEMORYPOOL_GROW_FAST, const char *pszAllocOwner = nullptr, unsigned short nAlignment = 0 );
+				CUtlMemoryPool( intp blockSize, intp numElements, int growMode = UTLMEMORYPOOL_GROW_FAST, const char *pszAllocOwner = nullptr, int nAlignment = 0 );
 				~CUtlMemoryPool();
 
 	void*		Alloc();	// Allocate the element size you specified in the constructor.
@@ -112,7 +112,7 @@ class CMemoryPoolMT : public CUtlMemoryPool
 {
 public:
 	// dimhotepus: Add alignment.
-	CMemoryPoolMT(intp blockSize, intp numElements, int growMode = UTLMEMORYPOOL_GROW_FAST, const char *pszAllocOwner = nullptr, unsigned short nAlignment = 0)
+	CMemoryPoolMT(intp blockSize, intp numElements, int growMode = UTLMEMORYPOOL_GROW_FAST, const char *pszAllocOwner = nullptr, int nAlignment = 0)
 		: CUtlMemoryPool( blockSize, numElements, growMode, pszAllocOwner, nAlignment) {}
 
 
@@ -138,7 +138,7 @@ class CClassMemoryPool : public CUtlMemoryPool
 {
 public:
 	// dimhotepus: Alignment shold derive from class.
-	CClassMemoryPool(intp numElements, int growMode = GROW_FAST, unsigned short nAlignment = alignof(T) ) :
+	CClassMemoryPool(intp numElements, int growMode = GROW_FAST, int nAlignment = alignof(T) ) :
 		CUtlMemoryPool( sizeof(T), numElements, growMode, MEM_ALLOC_CLASSNAME(T), nAlignment ) {
 			#ifdef PLATFORM_64BITS 
 				COMPILE_TIME_ASSERT( sizeof(CUtlMemoryPool) == 96 );

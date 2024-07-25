@@ -477,7 +477,7 @@ int V_atoi( const char *str )
 float V_atof (const char *str)
 {
 	AssertValidStringPtr( str );
-	float           val;
+	double          val;
 	int             sign;
 	int             c;
 	int             decimal, total;
@@ -2179,7 +2179,7 @@ bool V_RemoveDotSlashes( char *pFilename, char separator, bool bRemoveDoubleSlas
 }
 
 
-void V_AppendSlash( INOUT_Z_CAP(strSize) char *pStr, ptrdiff_t strSize )
+void V_AppendSlash( char *pStr, ptrdiff_t strSize )
 {
 	ptrdiff_t len = V_strlen( pStr );
 	if ( len > 0 && !PATHSEPARATOR(pStr[len-1]) )
@@ -2371,7 +2371,7 @@ bool V_StrSubst(
 	IN_Z const char *pIn, 
 	IN_Z const char *pMatch,
 	const char *pReplaceWith,
-	OUT_Z_CAP(outLen) char *pOut,
+	char *pOut,
 	ptrdiff_t outLen,
 	bool bCaseSensitive
 	)
@@ -2434,7 +2434,7 @@ char* AllocString( const char *pStr, ptrdiff_t nMaxChars )
 }
 
 
-void V_SplitString2( IN_Z const char *pString, const char **pSeparators, ptrdiff_t nSeparators, CUtlVector<char*> &outStrings )
+void V_SplitString2( const char *pString, const char **pSeparators, ptrdiff_t nSeparators, CUtlVector<char*> &outStrings )
 {
 	outStrings.Purge();
 	const char *pCurPos = pString;
@@ -2498,7 +2498,7 @@ bool V_SetCurrentDirectory( const char *pDirName )
 // It follows the Python slice convention:
 // Negative numbers wrap around the string (-1 references the last character).
 // Numbers are clamped to the end of the string.
-void V_StrSlice( const char *pStr, ptrdiff_t firstChar, ptrdiff_t lastCharNonInclusive, OUT_Z_CAP(outSize) char *pOut, ptrdiff_t outSize )
+void V_StrSlice( const char *pStr, ptrdiff_t firstChar, ptrdiff_t lastCharNonInclusive, char *pOut, ptrdiff_t outSize )
 {
 	if ( outSize == 0 )
 		return;
@@ -2545,7 +2545,7 @@ void V_StrSlice( const char *pStr, ptrdiff_t firstChar, ptrdiff_t lastCharNonInc
 }
 
 
-void V_StrLeft( const char *pStr, ptrdiff_t nChars, OUT_Z_CAP(outSize) char *pOut, ptrdiff_t outSize )
+void V_StrLeft( const char *pStr, ptrdiff_t nChars, char *pOut, ptrdiff_t outSize )
 {
 	if ( nChars == 0 )
 	{
@@ -2559,7 +2559,7 @@ void V_StrLeft( const char *pStr, ptrdiff_t nChars, OUT_Z_CAP(outSize) char *pOu
 }
 
 
-void V_StrRight( const char *pStr, ptrdiff_t nChars, OUT_Z_CAP(outSize) char *pOut, ptrdiff_t outSize )
+void V_StrRight( const char *pStr, ptrdiff_t nChars, char *pOut, ptrdiff_t outSize )
 {
 	ptrdiff_t len = strlen( pStr );
 	if ( nChars >= len )
@@ -2866,7 +2866,7 @@ size_t Q_URLDecodeInternal( char *pchDecodeDest, ptrdiff_t nDecodeDestLen, const
 //
 //          Dest buffer should be at least as large as source buffer to guarantee room for decode.
 //-----------------------------------------------------------------------------
-void Q_URLEncode( OUT_Z_CAP(nDestLen) char *pchDest, ptrdiff_t nDestLen, const char *pchSource, ptrdiff_t nSourceLen )
+void Q_URLEncode( char *pchDest, ptrdiff_t nDestLen, const char *pchSource, ptrdiff_t nSourceLen )
 {
 	return Q_URLEncodeInternal( pchDest, nDestLen, pchSource, nSourceLen, true );
 }
@@ -2880,7 +2880,7 @@ void Q_URLEncode( OUT_Z_CAP(nDestLen) char *pchDest, ptrdiff_t nDestLen, const c
 //          Dest buffer should be at least as large as source buffer to guarantee room for decode.
 //			Dest buffer being the same as the source buffer (decode in-place) is explicitly allowed.
 //-----------------------------------------------------------------------------
-size_t Q_URLDecode( OUT_CAP(nDecodeDestLen) char *pchDecodeDest, ptrdiff_t nDecodeDestLen, const char *pchEncodedSource, ptrdiff_t nEncodedSourceLen )
+size_t Q_URLDecode( char *pchDecodeDest, ptrdiff_t nDecodeDestLen, const char *pchEncodedSource, ptrdiff_t nEncodedSourceLen )
 {
 	return Q_URLDecodeInternal( pchDecodeDest, nDecodeDestLen, pchEncodedSource, nEncodedSourceLen, true );
 }
@@ -2892,7 +2892,7 @@ size_t Q_URLDecode( OUT_CAP(nDecodeDestLen) char *pchDecodeDest, ptrdiff_t nDeco
 //
 //          Dest buffer should be at least as large as source buffer to guarantee room for decode.
 //-----------------------------------------------------------------------------
-void Q_URLEncodeRaw( OUT_Z_CAP(nDestLen) char *pchDest, ptrdiff_t nDestLen, const char *pchSource, ptrdiff_t nSourceLen )
+void Q_URLEncodeRaw( char *pchDest, ptrdiff_t nDestLen, const char *pchSource, ptrdiff_t nSourceLen )
 {
 	return Q_URLEncodeInternal( pchDest, nDestLen, pchSource, nSourceLen, false );
 }
@@ -2905,7 +2905,7 @@ void Q_URLEncodeRaw( OUT_Z_CAP(nDestLen) char *pchDest, ptrdiff_t nDestLen, cons
 //          Dest buffer should be at least as large as source buffer to guarantee room for decode.
 //			Dest buffer being the same as the source buffer (decode in-place) is explicitly allowed.
 //-----------------------------------------------------------------------------
-size_t Q_URLDecodeRaw( OUT_CAP(nDecodeDestLen) char *pchDecodeDest, ptrdiff_t nDecodeDestLen, const char *pchEncodedSource, ptrdiff_t nEncodedSourceLen )
+size_t Q_URLDecodeRaw( char *pchDecodeDest, ptrdiff_t nDecodeDestLen, const char *pchEncodedSource, ptrdiff_t nEncodedSourceLen )
 {
 	return Q_URLDecodeInternal( pchDecodeDest, nDecodeDestLen, pchEncodedSource, nEncodedSourceLen, false );
 }
@@ -3309,7 +3309,7 @@ const Tier1FullHTMLEntity_t g_Tier1_FullHTMLEntities[] =
 
 
 
-bool V_BasicHtmlEntityEncode( OUT_Z_CAP( nDestSize ) char *pDest, const ptrdiff_t nDestSize, char const *pIn, const ptrdiff_t nInSize, bool bPreserveWhitespace /*= false*/ )
+bool V_BasicHtmlEntityEncode( char *pDest, const ptrdiff_t nDestSize, char const *pIn, const ptrdiff_t nInSize, bool bPreserveWhitespace /*= false*/ )
 {
 	Assert( nDestSize == 0 || pDest != NULL );
 	ptrdiff_t iOutput = 0;

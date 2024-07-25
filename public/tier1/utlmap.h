@@ -82,7 +82,7 @@ public:
 
 	
 	// Num elements
-	I Count() const								{ return m_Tree.Count(); }
+	size_t Count() const								{ return m_Tree.Count(); }
 	
 	// Max "size" of the vector
 	IndexType_t  MaxElement() const							{ return m_Tree.MaxElement(); }
