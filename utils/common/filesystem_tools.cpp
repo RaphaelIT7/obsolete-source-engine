@@ -13,6 +13,7 @@
 #include <unistd.h>
 #endif
 
+#include <cstdio>
 #include <sys/stat.h>
 
 #include "tier1/KeyValues.h"

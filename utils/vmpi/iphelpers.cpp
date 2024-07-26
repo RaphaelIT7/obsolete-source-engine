@@ -431,39 +431,30 @@ bool ConvertStringToIPAddr(const char *pStr, IpV4 *pOut) {
     pOut->ip[3] = ip[3];
   } else {
     // It's a text string.
-    // dimhotepus: gethostbyname -> getaddrinfo
-    addrinfo hints = {}, *addr_info;  // will point to the results
-    hints.ai_family = AF_UNSPEC;      // don't care IPv4 or IPv6
-    hints.ai_socktype = SOCK_STREAM;  // TCP stream sockets
+    const hostent *ent{gethostbyname(ipStr)};
+    if (!ent) return false;
 
-    if (getaddrinfo(ipStr, nullptr, nullptr, &addr_info)) return false;
-
-    for (auto *p = addr_info; p; p = p->ai_next) {
-      // get the pointer to the IPv4 address itself
-      if (p->ai_family == AF_INET) {
-        sockaddr_in *ipv4 = (sockaddr_in *)p->ai_addr;
-
-        pOut->ip[0] = ipv4->sin_addr.S_un.S_un_b.s_b1;
-        pOut->ip[1] = ipv4->sin_addr.S_un.S_un_b.s_b2;
-        pOut->ip[2] = ipv4->sin_addr.S_un.S_un_b.s_b3;
-        pOut->ip[3] = ipv4->sin_addr.S_un.S_un_b.s_b4;
-      }
-    }
-
-    freeaddrinfo(addr_info);
+    pOut->ip[0] = ent->h_addr_list[0][0];
+    pOut->ip[1] = ent->h_addr_list[0][1];
+    pOut->ip[2] = ent->h_addr_list[0][2];
+    pOut->ip[3] = ent->h_addr_list[0][3];
   }
 
   return true;
 }
 
 bool ConvertIPAddrToString(const IpV4 *pIn, char *pOut, int outLen) {
-  sockaddr_in sa = {};
-  sa.sin_family = AF_INET;
-  sa.sin_addr.S_un.S_un_b.s_b1 = pIn->ip[0];
-  sa.sin_addr.S_un.S_un_b.s_b2 = pIn->ip[1];
-  sa.sin_addr.S_un.S_un_b.s_b3 = pIn->ip[2];
-  sa.sin_addr.S_un.S_un_b.s_b4 = pIn->ip[3];
-  sa.sin_port = htons(80);
+  in_addr addr = {};
+  addr.S_un.S_un_b.s_b1 = pIn->ip[0];
+  addr.S_un.S_un_b.s_b2 = pIn->ip[1];
+  addr.S_un.S_un_b.s_b3 = pIn->ip[2];
+  addr.S_un.S_un_b.s_b4 = pIn->ip[3];
 
-  return getnameinfo((struct sockaddr *)&sa, sizeof(sa), pOut, outLen, nullptr, 0, 0) == 0;
+  const hostent *ent{gethostbyaddr((char *)&addr, sizeof(addr), AF_INET)};
+  if (ent) {
+    Q_strncpy(pOut, ent->h_name, outLen);
+    return true;
+  }
+
+  return false;
 }

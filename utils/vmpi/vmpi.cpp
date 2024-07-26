@@ -1093,9 +1093,6 @@ void CMasterBroadcaster::ThreadFn() {
 }
 
 DWORD CMasterBroadcaster::StaticThreadFn(LPVOID lpParameter) {
-  // dimhotepus: Add thread name to aid debugging.
-  ThreadSetDebugName("VmpiMstBroadcast");
-
   ((CMasterBroadcaster *)lpParameter)->ThreadFn();
   return 0;
 }

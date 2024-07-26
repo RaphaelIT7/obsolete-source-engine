@@ -151,12 +151,12 @@ class CTransmitRateMgr {
 
  private:
   struct CMachineRecord {
-    uintp m_UniqueID;
+    unsigned long m_UniqueID;
     double m_flLastTime;
   };
   CUtlVector<CMachineRecord> m_MachineRecords;
 
-  uintp m_UniqueID;
+  unsigned long m_UniqueID;
   double m_flLastBroadcastTime;
   double m_nMicrosecondsPerByte;
   ISocket *m_pSocket;
@@ -192,10 +192,11 @@ void CTransmitRateMgr::ReadPackets() {
     int len = m_pSocket->RecvFrom(data, sizeof(data), &ipFrom);
     if (len == -1) break;
 
-    if (len == sizeof(s_cTransmitRateMgrPacket) + sizeof(uintp) &&
+    if (len == sizeof(s_cTransmitRateMgrPacket) + sizeof(unsigned long) &&
         memcmp(data, s_cTransmitRateMgrPacket,
                sizeof(s_cTransmitRateMgrPacket)) == 0) {
-      uintp id = *((uintp *)&data[sizeof(s_cTransmitRateMgrPacket)]);
+      unsigned long id =
+          *((unsigned long *)&data[sizeof(s_cTransmitRateMgrPacket)]);
       if (id == m_UniqueID) continue;
 
       intp i;
@@ -238,9 +239,9 @@ void CTransmitRateMgr::BroadcastPresence() {
 
   m_flLastBroadcastTime = flCurTime;
 
-  char cData[sizeof(s_cTransmitRateMgrPacket) + sizeof(uintp)];
+  char cData[sizeof(s_cTransmitRateMgrPacket) + sizeof(unsigned long)];
   memcpy(cData, s_cTransmitRateMgrPacket, sizeof(s_cTransmitRateMgrPacket));
-  *((uintp *)&cData[sizeof(s_cTransmitRateMgrPacket)]) = m_UniqueID;
+  *((unsigned long *)&cData[sizeof(s_cTransmitRateMgrPacket)]) = m_UniqueID;
 
   m_pSocket->Broadcast(cData, sizeof(cData),
                        VMPI_MASTER_FILESYSTEM_BROADCAST_PORT);
@@ -510,7 +511,7 @@ CMasterMulticastThread::CMasterMulticastThread() {
   m_pPassThru = NULL;
 
   m_hTermEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-  (void)::InitializeCriticalSectionAndSpinCount(&m_CS, 4000);
+  InitializeCriticalSection(&m_CS);
   m_nCurMemoryUsage = m_nMaxMemoryUsage = 0;
 }
 
@@ -808,9 +809,6 @@ void CMasterMulticastThread::CreateVirtualFile(const char *pFilename,
 }
 
 DWORD WINAPI CMasterMulticastThread::StaticMulticastThread(LPVOID pParameter) {
-  // dimhotepus: Add thread name to aid debugging.
-  ThreadSetDebugName("VmpiMstMulticast");
-
   return ((CMasterMulticastThread *)pParameter)->MulticastThread();
 }
 

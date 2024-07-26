@@ -10,7 +10,6 @@
 #pragma once
 #endif
 
-#include "tier0/vcrmode.h"
 #include "tier1/netadr.h"
 #include "msgbuffer.h"
 #include "tier1/utlvector.h"
@@ -144,7 +143,7 @@ private:
 	// One or more listeners for the incoming message
 	CMsgHandler				*m_pMessageHandlers;
 	// Winsock socket number
-	socket_handle			m_Socket;
+	int						m_Socket;
 	// User native-size value
 	uintp					m_nUserData;
 	// Socket to which non Broadcast SendMessage was directed.  The socket will wait for a response
