@@ -21,13 +21,6 @@ namespace se::utils::common {
 using ToolsExceptionHandler = void (*)(unsigned long code, void *info);
 
 /**
- * @brief Enable / disable writing full dumps instead of normal ones.
- * @param enable true to write full dumps, false otherwise.
- * @return Old full minidumps enable state.
- */
-bool EnableFullMinidumps(bool enable);
-
-/**
  * @brief Catches any crash, writes a minidump, and runs the default system
  * crash handler (which usually shows a dialog).
  * @return Old exception handler.  nullptr if none.
@@ -39,43 +32,7 @@ ToolsExceptionHandler SetupDefaultToolsMinidumpHandler();
  * @param new_handler New exception handler.
  * @return Old exception handler.  nullptr if none.
  */
-ToolsExceptionHandler SetupToolsMinidumpHandler(
-    ToolsExceptionHandler new_handler);
-
-/**
- * @brief Set default minidump handler for scope.
- */
-class ScopedDefaultMinidumpHandler {
- public:
-  ScopedDefaultMinidumpHandler() noexcept
-      : old_handler_{SetupDefaultToolsMinidumpHandler()} {}
-  ~ScopedDefaultMinidumpHandler() noexcept {
-    SetupToolsMinidumpHandler(old_handler_);
-  }
-
-  ScopedDefaultMinidumpHandler(ScopedDefaultMinidumpHandler &) = delete;
-  ScopedDefaultMinidumpHandler &operator=(ScopedDefaultMinidumpHandler &) =
-      delete;
-
- private:
-  const ToolsExceptionHandler old_handler_;
-};
-
-/**
- * @brief Set minidump handler for scope.
- */
-class ScopedMinidumpHandler {
- public:
-  ScopedMinidumpHandler(ToolsExceptionHandler handler) noexcept
-      : old_handler_{SetupToolsMinidumpHandler(handler)} {}
-  ~ScopedMinidumpHandler() noexcept { SetupToolsMinidumpHandler(old_handler_); }
-
-  ScopedMinidumpHandler(ScopedMinidumpHandler &) = delete;
-  ScopedMinidumpHandler &operator=(ScopedMinidumpHandler &) = delete;
-
- private:
-  const ToolsExceptionHandler old_handler_;
-};
+ToolsExceptionHandler SetupToolsMinidumpHandler(ToolsExceptionHandler new_handler);
 
 }  // namespace se::utils::common
 

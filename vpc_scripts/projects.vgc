@@ -15,7 +15,7 @@ $Project "actbusy"
 
 $Project "adminserver"
 {
-	"tracker\AdminServer\adminserver.vpc" [$WINDOWS]
+	"Tracker\AdminServer\AdminServer.vpc" [$WINDOWS]
 }
 
 $Project "appframework"

@@ -26,7 +26,7 @@ CDBInfo g_DBInfo;
 unsigned long g_JobPrimaryID;
 
 // Tracks how many remote processes have disconnected ungracefully.
-std::atomic_int g_nDisconnects = 0;
+long g_nDisconnects = 0;
 
 bool SharedDispatch(MessageBuffer *pBuf, int iSource, int iPacketID) {
   char *pInPos = &pBuf->data[2];
@@ -281,7 +281,7 @@ const char *GetExceptionDescription(unsigned long code, const char *reason,
 
   using RtlNtStatusToDosErrorFunction = ULONG (*)(LONG Status);
 
-  const auto [ntstatus2win32mapper, rc] =
+  const auto ntstatus2win32mapper =
       ntdll.GetFunction<RtlNtStatusToDosErrorFunction>("RtlNtStatusToDosError");
 
   if (ntstatus2win32mapper) {
@@ -324,7 +324,7 @@ void VMPI_ExceptionFilter(unsigned long code, void *exception_info) {
 
 void HandleMPIDisconnect(int procID, const char *pReason) {
   int nLiveWorkers = VMPI_GetCurrentNumberOfConnections() -
-                     g_nDisconnects.load(std::memory_order::memory_order_relaxed) - 1;
+                     ReadVolatileMemory(&g_nDisconnects) - 1;
 
   // We ran into the size limit before and it wasn't readily apparent that the
   // size limit had been breached, so make sure to show errors about invalid
@@ -338,7 +338,7 @@ void HandleMPIDisconnect(int procID, const char *pReason) {
   if (g_bMPIMaster) {
     Warning("%d workers remain.\n\n", nLiveWorkers);
 
-    g_nDisconnects.fetch_add(std::memory_order::memory_order_relaxed);
+    InterlockedIncrement(&g_nDisconnects);
     /*
     if ( VMPI_GetCurrentNumberOfConnections() - g_nDisconnects <= 1 )
     {

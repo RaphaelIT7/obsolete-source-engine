@@ -511,7 +511,7 @@ CMasterMulticastThread::CMasterMulticastThread() {
   m_pPassThru = NULL;
 
   m_hTermEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-  (void)::InitializeCriticalSectionAndSpinCount(&m_CS, 4000);
+  InitializeCriticalSection(&m_CS);
   m_nCurMemoryUsage = m_nMaxMemoryUsage = 0;
 }
 

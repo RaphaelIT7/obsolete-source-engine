@@ -7,8 +7,6 @@
 
 #include "vstdlib/jobthread.h"
 
-#include <memory>
-
 // Arrays that are indexed by thread should always be MAX_TOOL_THREADS+1
 // large so THREADINDEX_MAIN can be used from the main thread.
 constexpr inline int MAX_TOOL_THREADS{MAX_THREADS};
@@ -50,21 +48,6 @@ void RunThreads_Start(
     ERunThreadsPriority priority =
         ERunThreadsPriority::k_eRunThreadsPriority_UseGlobalState);
 void RunThreads_End();
-
-extern bool g_bLowPriorityThreads;
-
-int GetThreadWork();
-
-class ScopedThreadsLock {
- public:
-  ScopedThreadsLock() noexcept;
-  ~ScopedThreadsLock() noexcept;
-
- private:
-  class Impl;
-
-  std::unique_ptr<Impl> impl_;
-};
 
 #ifndef NO_THREAD_NAMES
 #define RunThreadsOn(n, p, f)        \

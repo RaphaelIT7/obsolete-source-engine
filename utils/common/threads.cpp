@@ -11,8 +11,6 @@
 
 #include "vstdlib/jobthread.h"
 
-bool g_bLowPriorityThreads = false;
-
 namespace {
 
 struct RunThreadArgs {
@@ -28,7 +26,7 @@ int workcount;
 bool pacifier;
 
 bool enable_threads;
-bool enter;
+bool g_bLowPriorityThreads = false;
 
 HANDLE g_ThreadHandles[MAX_THREADS];
 
@@ -71,37 +69,6 @@ ScopedCriticalSection g_threads_critical_section{2000};
 
 ThreadWorkerFn worker;
 
-void ThreadWorker(int iThread, void *pUserData) {
-  while (true) {
-    int work = GetThreadWork();
-
-    if (work == -1) break;
-
-    worker(iThread, work);
-  }
-}
-
-}  // namespace
-
-class ScopedThreadsLock::Impl {
- public:
-  explicit Impl(ScopedCriticalSection &section) noexcept
-      : section_{section}, lock_{section.Lock()} {}
-  ~Impl() noexcept = default;
-
- private:
-  ScopedCriticalSection &section_;
-  ScopedCriticalSectionLock lock_;
-};
-
-ScopedThreadsLock::ScopedThreadsLock() noexcept {
-  if (!enable_threads) return;
-
-  impl_ = std::make_unique<Impl>(g_threads_critical_section);
-}
-
-ScopedThreadsLock::~ScopedThreadsLock() noexcept = default;
-
 int GetThreadWork() {
   const ScopedCriticalSectionLock lock{g_threads_critical_section.Lock()};
 
@@ -114,6 +81,18 @@ int GetThreadWork() {
 
   return r;
 }
+
+void ThreadWorker(int iThread, void *pUserData) {
+  while (true) {
+    int work = GetThreadWork();
+
+    if (work == -1) break;
+
+    worker(iThread, work);
+  }
+}
+
+}  // namespace
 
 void RunThreadsOnIndividual(int workcnt, qboolean showpacifier,
                             ThreadWorkerFn func) {
@@ -138,13 +117,10 @@ void ThreadSetDefault() {
 
     numthreads = info.dwNumberOfProcessors;
 
-    if (numthreads < 1) numthreads = 1;
-    // dimhotepus: If threads count > max one,
-    // use max, not 1 as in original source
-    if (numthreads > MAX_THREADS) numthreads = MAX_THREADS;
+    if (numthreads < 1 || numthreads > MAX_THREADS) numthreads = 1;
   }
 
-  Msg("Using pool of %d threads.\n", numthreads);
+  Msg("%i threads\n", numthreads);
 }
 
 // This runs in the thread and dispatches a RunThreadsFn call.
@@ -229,7 +205,5 @@ void RunThreadsOn(int workcnt, qboolean showpacifier, RunThreadsFn fn,
   if (pacifier) {
     EndPacifier(false);
     printf(" (%.2f)\n", end - start);
-    // dimhotepus: Add new line on end.
-    Msg("\n");
   }
 }

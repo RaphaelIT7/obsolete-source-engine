@@ -348,7 +348,7 @@ char *CMsgBuffer::ReadString (void)
 			break;
 		string[l] = c;
 		l++;
-	} while ( l < ssize(string)-1 );
+	} while ( l < static_cast<int>(sizeof(string))-1 );
 	
 	string[ l ] = '\0';
 	

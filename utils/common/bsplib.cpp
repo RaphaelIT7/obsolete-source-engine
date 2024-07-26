@@ -4485,8 +4485,7 @@ bool CompressGameLump( dheader_t *pInBSPHeader, dheader_t *pOutBSPHeader, CUtlBu
 				byte *pCompressedLump = ((byte *)pInBSPHeader) + pInGameLump[i].fileofs;
 				if ( CLZMA::IsCompressed( pCompressedLump ) )
 				{
-					unsigned int actualSize = CLZMA::GetActualSize( pCompressedLump );
-					inputBuffer.EnsureCapacity( actualSize );
+					inputBuffer.EnsureCapacity( CLZMA::GetActualSize( pCompressedLump ) );
 					unsigned int outSize = CLZMA::Uncompress( pCompressedLump, inputBuffer.Base<unsigned char>() );
 					inputBuffer.SeekPut( CUtlBuffer::SEEK_CURRENT, outSize );
 					if ( outSize != actualSize )
@@ -4630,7 +4629,7 @@ bool RepackBSP( CUtlBuffer &inputBufferIn, CUtlBuffer &outputBuffer, CompressFun
 					inputBuffer.EnsureCapacity( CLZMA::GetActualSize( pCompressedLump ) );
 					unsigned int outSize = CLZMA::Uncompress( pCompressedLump, inputBuffer.Base<unsigned char>() );
 					inputBuffer.SeekPut( CUtlBuffer::SEEK_CURRENT, outSize );
-					if ( outSize != headerSize )
+					if ( outSize != static_cast<unsigned>(pSortedLump->pLump->uncompressedSize) )
 					{
 						Warning( "Decompressed size %u differs from header %u one, BSP may be corrupt.\n",
 							outSize, headerSize );
