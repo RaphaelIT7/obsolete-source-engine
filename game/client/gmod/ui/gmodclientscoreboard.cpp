@@ -332,7 +332,7 @@ void CHL2MPClientScoreBoardDialog::InitScoreboardSections()
 	// fill out the structure of the scoreboard
 	AddHeader();
 
-	if ( HL2MPRules()->IsTeamplay() )
+	if ( HL2MPRules() && HL2MPRules()->IsTeamplay() )
 	{
 		// add the team sections
 		AddSection( TYPE_TEAM, TEAM_COMBINE );
