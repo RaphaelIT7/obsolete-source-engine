@@ -859,7 +859,7 @@ CBaseEntity* Get_Entity(int index)
 
 void Push_Entity(CBaseEntity* ent)
 {
-	entity_class.Push(ent ? (void*)&ent : NULL);
+	entity_class.Push(ent ? (void*)ent : NULL);
 }
 
 void Entity_Class()
