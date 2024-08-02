@@ -39,3 +39,9 @@
 [submodule "external/vpc"]
 	path = external/vpc
 	url = https://github.com/Source-Authors/vpc.git
+[submodule "thirdparty/mpaheaderinfo"]
+	path = thirdparty/mpaheaderinfo
+	url = https://Source-Authors/mpaheaderInfo.git
+[submodule "thirdparty/minimp3"]
+	path = thirdparty/minimp3
+	url = https://Source-Authors/minimp3.git

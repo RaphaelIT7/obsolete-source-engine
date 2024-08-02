@@ -129,7 +129,7 @@ void *GetModuleHandle(const char *name)
 
 #if defined( _WIN32 ) && !defined( _X360 )
 #define WIN32_LEAN_AND_MEAN
-#include "windows.h"
+#include "Windows.h"
 #endif
 
 //-----------------------------------------------------------------------------
@@ -299,7 +299,7 @@ CSysModule *Sys_LoadModule( const char *pModuleName, Sys_Flags flags /* = SYS_NO
 		}
 
 		size_t cCwd = strlen( szCwd );
-		if ( cCwd > 0 && szCwd[cCwd - 1] == '/' || szCwd[cCwd - 1] == '\\' )
+		if ( cCwd > 0 && (szCwd[cCwd - 1] == '/' || szCwd[cCwd - 1] == '\\') )
 		{
 			szCwd[cCwd - 1] = '\0';
 		}
@@ -314,7 +314,11 @@ CSysModule *Sys_LoadModule( const char *pModuleName, Sys_Flags flags /* = SYS_NO
 		}
 		else
 		{
+#ifdef PLATFORM_64BITS
+			Q_snprintf( szAbsoluteModuleName, sizeof(szAbsoluteModuleName), "%s/bin/x64/%s", szCwd, pModuleName );
+#else
 			Q_snprintf( szAbsoluteModuleName, sizeof(szAbsoluteModuleName), "%s/bin/%s", szCwd, pModuleName );
+#endif
 		}
 		hDLL = Sys_LoadLibrary( szAbsoluteModuleName, flags );
 	}
@@ -447,7 +451,7 @@ CreateInterfaceFn Sys_GetFactoryThis( void )
 CreateInterfaceFn Sys_GetFactory( const char *pModuleName )
 {
 #ifdef _WIN32
-	return static_cast<CreateInterfaceFn>( Sys_GetProcAddress( pModuleName, CREATEINTERFACE_PROCNAME ) );
+	return reinterpret_cast<CreateInterfaceFn>( Sys_GetProcAddress( pModuleName, CREATEINTERFACE_PROCNAME ) );
 #elif defined(POSIX)
 	// see Sys_GetFactory( CSysModule *pModule ) for an explanation
 	return (CreateInterfaceFn)( Sys_GetProcAddress( pModuleName, CREATEINTERFACE_PROCNAME ) );

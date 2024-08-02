@@ -4,13 +4,14 @@
 
 #include "tier0/minidump.h"
 #include "tier0/platform.h"
+#include "tier0/threadtools.h"
 
 #if defined( _WIN32 ) && !defined( _X360 )
 
 #include "tier0/valve_off.h"
 
 #include "winlite.h"
-#include <dbghelp.h>
+#include <DbgHelp.h>
 #include <ctime>
 
 // MiniDumpWriteDump() function declaration (so we can just get the function directly from windows)
@@ -18,7 +19,7 @@ using MINIDUMPWRITEDUMP = decltype(&::MiniDumpWriteDump);
 
 
 // counter used to make sure minidump names are unique
-static volatile long g_nMinidumpsWritten = 0;
+static CInterlockedInt g_nMinidumpsWritten = 0;
 
 // process-wide prefix to use for minidumps
 static tchar g_rgchMinidumpFilenamePrefix[MAX_PATH];
@@ -31,16 +32,16 @@ static char g_rgchMinidumpComment[8192];
 // Input  : uStructuredExceptionCode	- windows exception code, unused.
 //			pExceptionInfo				- call stack.
 //			minidumpType				- type of minidump to write.
-//			ptchMinidumpFileNameBuffer	- if not-NULL points to a writable tchar buffer
+//			ptchMinidumpFileNameBuffer	- if not-nullptr points to a writable tchar buffer
 //										  of length at least _MAX_PATH to contain the name
 //										  of the written minidump file on return.
 //-----------------------------------------------------------------------------
 bool WriteMiniDumpUsingExceptionInfo( 
-	unsigned int uStructuredExceptionCode, 
+	[[maybe_unused]] unsigned int uStructuredExceptionCode, 
 	_EXCEPTION_POINTERS * pExceptionInfo, 
 	int minidumpType,
 	const char *pszFilenameSuffix,
-	tchar *ptchMinidumpFileNameBuffer /* = NULL */
+	tchar *ptchMinidumpFileNameBuffer /* = nullptr */
 	)
 {
 	if ( ptchMinidumpFileNameBuffer )
@@ -61,19 +62,19 @@ bool WriteMiniDumpUsingExceptionInfo(
 	if ( pfnMiniDumpWrite )
 	{
 		// create a unique filename for the minidump based on the current time and module name
-		time_t currTime = ::time( NULL );
+		time_t currTime = ::time( nullptr );
 		struct tm * pTime = ::localtime( &currTime );
 
-		::InterlockedIncrement( &g_nMinidumpsWritten );
+		++g_nMinidumpsWritten;
 
 		// If they didn't set a dump prefix, then set one for them using the module name
 		if ( g_rgchMinidumpFilenamePrefix[0] == TCHAR(0) )
 		{
 			tchar rgchModuleName[MAX_PATH];
 			#ifdef TCHAR_IS_WCHAR
-				::GetModuleFileNameW( NULL, rgchModuleName, ARRAYSIZE(rgchModuleName) );
+				::GetModuleFileNameW( nullptr, rgchModuleName, std::size(rgchModuleName) );
 			#else
-				::GetModuleFileName( NULL, rgchModuleName, ARRAYSIZE(rgchModuleName) );
+				::GetModuleFileName( nullptr, rgchModuleName, std::size(rgchModuleName) );
 			#endif
 
 			// strip off the rest of the path from the .exe name
@@ -87,19 +88,19 @@ bool WriteMiniDumpUsingExceptionInfo(
 			{
 				// move past the last slash
 				pch++;
+				_tcscpy( g_rgchMinidumpFilenamePrefix, pch );
 			}
 			else
 			{
-				pch = _T("unknown");
+				_tcscpy( g_rgchMinidumpFilenamePrefix, _T("unknown") );
 			}
-			_tcscpy( g_rgchMinidumpFilenamePrefix, pch );
 		}
 
 		
 		// can't use the normal string functions since we're in tier0
 		tchar rgchFileName[MAX_PATH];
-		_sntprintf( rgchFileName, ARRAYSIZE(rgchFileName),
-			_T("%s_%d%02d%02d_%02d%02d%02d_%ld%hs%hs.mdmp"),
+		_sntprintf( rgchFileName, std::size(rgchFileName),
+			_T("%s_%d%02d%02d_%02d%02d%02d_%d%hs%hs.mdmp"),
 			g_rgchMinidumpFilenamePrefix,
 			pTime->tm_year + 1900,	/* Year less 2000 */
 			pTime->tm_mon + 1,		/* month (0 - 11 : 0 = January) */
@@ -107,12 +108,12 @@ bool WriteMiniDumpUsingExceptionInfo(
 			pTime->tm_hour,			/* hour (0 - 23) */
 			pTime->tm_min,		    /* minutes (0 - 59) */
 			pTime->tm_sec,		    /* seconds (0 - 59) */
-			g_nMinidumpsWritten,	// ensures the filename is unique
-			( pszFilenameSuffix != NULL ) ? _T("_") : _T(""),
-			( pszFilenameSuffix != NULL ) ? pszFilenameSuffix : _T("")
+			g_nMinidumpsWritten.GetRaw(),	// ensures the filename is unique
+			( pszFilenameSuffix != nullptr ) ? _T("_") : _T(""),
+			( pszFilenameSuffix != nullptr ) ? pszFilenameSuffix : _T("")
 			);
 		// Ensure null-termination.
-		rgchFileName[ ARRAYSIZE(rgchFileName) - 1 ] = 0;
+		rgchFileName[ std::size(rgchFileName) - 1 ] = 0;
 
 		// Create directory, if our dump filename had a directory in it
 		for ( char *pSlash = rgchFileName ; *pSlash != '\0' ; ++pSlash )
@@ -121,16 +122,16 @@ bool WriteMiniDumpUsingExceptionInfo(
 			if ( c == '/' || c == '\\' )
 			{
 				*pSlash = '\0';
-				::CreateDirectory( rgchFileName, NULL );
+				::CreateDirectory( rgchFileName, nullptr );
 				*pSlash = c;
 			}
 		}
 
 		BOOL bMinidumpResult = FALSE;
 #ifdef TCHAR_IS_WCHAR
-		HANDLE hFile = ::CreateFileW( rgchFileName, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+		HANDLE hFile = ::CreateFileW( rgchFileName, GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr );
 #else
-		HANDLE hFile = ::CreateFile( rgchFileName, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+		HANDLE hFile = ::CreateFile( rgchFileName, GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr );
 #endif
 		if ( hFile )
 		{
@@ -154,7 +155,7 @@ bool WriteMiniDumpUsingExceptionInfo(
 				pCommentStream->BufferSize = (ULONG)strlen(g_rgchMinidumpComment)+1;
 			}
 
-			bMinidumpResult = (*pfnMiniDumpWrite)( ::GetCurrentProcess(), ::GetCurrentProcessId(), hFile, (MINIDUMP_TYPE)minidumpType, &ExInfo, &StreamInformationHeader, NULL );
+			bMinidumpResult = (*pfnMiniDumpWrite)( ::GetCurrentProcess(), ::GetCurrentProcessId(), hFile, (MINIDUMP_TYPE)minidumpType, &ExInfo, &StreamInformationHeader, nullptr );
 			::CloseHandle( hFile );
 
 			// Clear comment for next time
@@ -183,7 +184,7 @@ bool WriteMiniDumpUsingExceptionInfo(
 			tchar rgchFailedFileName[_MAX_PATH];
 			_sntprintf( rgchFailedFileName, sizeof(rgchFailedFileName) / sizeof(tchar), "(failed)%s", rgchFileName );
 			// Ensure null-termination.
-			rgchFailedFileName[ Q_ARRAYSIZE(rgchFailedFileName) - 1 ] = '\0';
+			rgchFailedFileName[ std::size(rgchFailedFileName) - 1 ] = '\0';
 			// dimhotepus: If rename failed, well, do nothing.
 			(void)rename( rgchFileName, rgchFailedFileName );
 		}
@@ -243,7 +244,7 @@ static FnMiniDump g_UnhandledExceptionFunction;
 static LONG STDCALL ValveUnhandledExceptionFilter( _EXCEPTION_POINTERS* pExceptionInfo )
 {
 	uint uStructuredExceptionCode = pExceptionInfo->ExceptionRecord->ExceptionCode;
-	g_UnhandledExceptionFunction( uStructuredExceptionCode, pExceptionInfo, 0 );
+	g_UnhandledExceptionFunction( uStructuredExceptionCode, pExceptionInfo, nullptr );
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
@@ -271,7 +272,7 @@ void SetMinidumpFilenamePrefix( const char *pszPrefix )
 //-----------------------------------------------------------------------------
 void SetMinidumpComment( const char *pszComment )
 {
-	if ( pszComment == NULL )
+	if ( pszComment == nullptr )
 		pszComment = "";
 	strncpy( g_rgchMinidumpComment, pszComment, sizeof(g_rgchMinidumpComment) - 1 );
 }
@@ -289,7 +290,7 @@ void WriteMiniDump( const char *pszFilenameSuffix )
 			EXCEPTION_BREAKPOINT,		// dwExceptionCode
 			EXCEPTION_NONCONTINUABLE,	// dwExceptionFlags
 			0,							// nNumberOfArguments,
-			NULL						// const ULONG_PTR* lpArguments
+			nullptr						// const ULONG_PTR* lpArguments
 			);
 
 		// Never get here (non-continuable exception)
@@ -301,7 +302,7 @@ void WriteMiniDump( const char *pszFilenameSuffix )
 	}
 }
 
-DBG_OVERLOAD bool g_bInException = false;
+bool g_bInException = false;
 
 //-----------------------------------------------------------------------------
 // Purpose: Catches and writes out any exception throw by the specified function.
@@ -340,26 +341,27 @@ struct CatchAndWriteContext_t
 		m_pargv = pargv;
 		m_ppv = ppv;
 
-		ErrorIfNot( m_pfn, ( "CatchAndWriteContext_t::Set w/o a function pointer!" ) );
+		ErrorIfNot( m_pfn, ( "CatchAndWriteContext_t::Set w/o a function pointer!" ) )
 	}
 
 	int							Invoke()
 	{
 		switch ( m_eType )
 		{
-		default:
 		case k_eSCatchAndWriteFunctionTypeInvalid:
 			break;
 		case k_eSCatchAndWriteFunctionTypeWMain:
-			ErrorIfNot( m_pargc && m_pargv, ( "CatchAndWriteContext_t::Invoke with bogus argc/argv" ) );
+			ErrorIfNot( m_pargc && m_pargv, ( "CatchAndWriteContext_t::Invoke with bogus argc/argv" ) )
 			((FnWMain)m_pfn)( *m_pargc, *m_pargv );
 			break;
 		case k_eSCatchAndWriteFunctionTypeWMainIntReg:
-			ErrorIfNot( m_pargc && m_pargv, ( "CatchAndWriteContext_t::Invoke with bogus argc/argv" ) );
+			ErrorIfNot( m_pargc && m_pargv, ( "CatchAndWriteContext_t::Invoke with bogus argc/argv" ) )
 			return ((FnWMainIntRet)m_pfn)( *m_pargc, *m_pargv );
 		case k_eSCatchAndWriteFunctionTypeVoidPtr:
-			ErrorIfNot( m_ppv, ( "CatchAndWriteContext_t::Invoke with bogus void *ptr" ) );
+			ErrorIfNot( m_ppv, ( "CatchAndWriteContext_t::Invoke with bogus void *ptr" ) )
 			((FnVoidPtrFn)m_pfn)( *m_ppv );
+			break;
+		default:
 			break;
 		}
 
@@ -463,7 +465,7 @@ int CatchAndWriteMiniDump_Impl( CatchAndWriteContext_t &ctx )
 void CatchAndWriteMiniDumpEx( FnWMain pfn, int argc, tchar *argv[], ECatchAndWriteMinidumpAction eAction )
 {
 	CatchAndWriteContext_t ctx;
-	ctx.Set( k_eSCatchAndWriteFunctionTypeWMain, eAction, (void *)pfn, &argc, &argv, NULL );
+	ctx.Set( k_eSCatchAndWriteFunctionTypeWMain, eAction, (void *)pfn, &argc, &argv, nullptr );
 	CatchAndWriteMiniDump_Impl( ctx );
 }
 
@@ -476,7 +478,7 @@ void CatchAndWriteMiniDumpEx( FnWMain pfn, int argc, tchar *argv[], ECatchAndWri
 int CatchAndWriteMiniDumpExReturnsInt( FnWMainIntRet pfn, int argc, tchar *argv[], ECatchAndWriteMinidumpAction eAction )
 {
 	CatchAndWriteContext_t ctx;
-	ctx.Set( k_eSCatchAndWriteFunctionTypeWMainIntReg, eAction, (void *)pfn, &argc, &argv, NULL );
+	ctx.Set( k_eSCatchAndWriteFunctionTypeWMainIntReg, eAction, (void *)pfn, &argc, &argv, nullptr );
 	return CatchAndWriteMiniDump_Impl( ctx );
 }
 
@@ -491,7 +493,7 @@ int CatchAndWriteMiniDumpExReturnsInt( FnWMainIntRet pfn, int argc, tchar *argv[
 void CatchAndWriteMiniDumpExForVoidPtrFn( FnVoidPtrFn pfn, void *pv, ECatchAndWriteMinidumpAction eAction )
 {
 	CatchAndWriteContext_t ctx;
-	ctx.Set( k_eSCatchAndWriteFunctionTypeVoidPtr, eAction, (void *)pfn, NULL, NULL, &pv );
+	ctx.Set( k_eSCatchAndWriteFunctionTypeVoidPtr, eAction, (void *)pfn, nullptr, nullptr, &pv );
 	CatchAndWriteMiniDump_Impl( ctx );
 }
 
@@ -571,13 +573,19 @@ void EnableCrashingOnCrashes()
 			pSetProcessUserModeExceptionPolicy(dwFlags & ~PROCESS_CALLBACK_FILTER_ENABLED); // turn off bit 1
 		}
 	}
-}
-#elif defined(_X360 )
-PLATFORM_INTERFACE void WriteMiniDump( const char *pszFilenameSuffix )
-{
-	DmCrashDump(false);
-}
 
+	// If set to FALSE, Windows will not enclose its calls to TimerProc with an exception handler.
+	// A setting of FALSE is recommended. Otherwise, the application could behave unpredictably,
+	// and could be more vulnerable to security exploits.
+	BOOL suppress_timer_proc_exceptions = FALSE;
+	SetUserObjectInformation
+	(
+		GetCurrentProcess(),
+		UOI_TIMERPROC_EXCEPTION_SUPPRESSION,
+		&suppress_timer_proc_exceptions,
+		sizeof(suppress_timer_proc_exceptions)
+	);
+}
 #else // !_WIN32
 #include "tier0/minidump.h"
 
@@ -606,8 +614,8 @@ void MinidumpUserStreamInfoSetHeader( const char *pFormat, ... )
 	va_list marker;
 
 	va_start( marker, pFormat );
-	_vsnprintf( g_UserStreamInfoHeader, ARRAYSIZE( g_UserStreamInfoHeader ), pFormat, marker );
-	g_UserStreamInfoHeader[ ARRAYSIZE( g_UserStreamInfoHeader ) - 1 ] = 0;
+	_vsnprintf( g_UserStreamInfoHeader, std::size( g_UserStreamInfoHeader ), pFormat, marker );
+	g_UserStreamInfoHeader[ std::size( g_UserStreamInfoHeader ) - 1 ] = 0;
 	va_end( marker );
 }
 
@@ -616,7 +624,7 @@ void MinidumpUserStreamInfoAppend( const char *pFormat, ... )
 {
 	va_list marker;
 	char *pData = g_UserStreamInfo[ g_UserStreamInfoIndex ];
-	const int DataSize = ARRAYSIZE( g_UserStreamInfo[ g_UserStreamInfoIndex ] );
+	const int DataSize = ssize( g_UserStreamInfo[ g_UserStreamInfoIndex ] );
 
 	// Add tick count just so we have a general idea of when this event happened.
 	_snprintf( pData, DataSize, "[%x]", Plat_MSTime() );
@@ -630,7 +638,7 @@ void MinidumpUserStreamInfoAppend( const char *pFormat, ... )
 
 	// Bump up index, and go back to 0 if we've hit the end.
 	g_UserStreamInfoIndex++;
-	if( g_UserStreamInfoIndex >= ARRAYSIZE( g_UserStreamInfo ) )
+	if( g_UserStreamInfoIndex >= ssize( g_UserStreamInfo ) )
 	{
 		g_UserStreamInfoIndex = 0;
 	}
@@ -639,19 +647,19 @@ void MinidumpUserStreamInfoAppend( const char *pFormat, ... )
 // Retrieve the string given the Index.
 //	Index 0: header string
 //	Index 1+: comment string
-//	Returns NULL when you've reached the end of the comment string array
+//	Returns nullptr when you've reached the end of the comment string array
 //  Empty strings ("\0") can be returned if comment hasn't been set
 const char *MinidumpUserStreamInfoGet( int Index )
 {
-	if( ( Index < 0 ) || ( Index >= (ARRAYSIZE( g_UserStreamInfo ) + 1) ) ) //+1 because we map 0 to the header
-		return NULL;
+	if( ( Index < 0 ) || ( Index >= ssize( g_UserStreamInfo ) + 1) ) //+1 because we map 0 to the header
+		return nullptr;
 
 	if( Index == 0 )
 		return g_UserStreamInfoHeader;
 
-	Index = ( (Index + (ARRAYSIZE( g_UserStreamInfo ) - 1)) + //subtract 1 in a way that circularly wraps. Since 0 maps to the header, the comment indices are 1 based
+	Index = ( (Index + (ssize( g_UserStreamInfo ) - 1)) + //subtract 1 in a way that circularly wraps. Since 0 maps to the header, the comment indices are 1 based
 		g_UserStreamInfoIndex ) //start with our oldest comment
-		% ARRAYSIZE( g_UserStreamInfo ); //circular buffer wrapping
+		% ssize( g_UserStreamInfo ); //circular buffer wrapping
 
 	return g_UserStreamInfo[ Index ];
 }

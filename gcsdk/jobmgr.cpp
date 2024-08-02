@@ -25,10 +25,10 @@ typedef int (__cdecl *QSortCompareFuncCtx_t)(void *, const void *, const void *)
 //-----------------------------------------------------------------------------
 CJobMgr::CJobMgr()
 :	m_MapJob( 0, 0, DefLessFunc( GID_t ) ), 
-	m_QueueJobSleeping( 0, 0, &JobSleepingLessFunc ),
+	m_QueueJobSleeping( (intp)0, 0, &JobSleepingLessFunc ),
+	m_WorkThreadPool( "CJobMgr::m_WorkThreadPool" ),
 	m_unNextJobID( 0 ),
 	m_mapStatsBucket( 0, 0, DefLessFunc(uint32) ),
-	m_WorkThreadPool( "CJobMgr::m_WorkThreadPool" ),
 	m_bDebugDisallowPause( false )
 {
 	SetDefLessFunc( m_MapJobTimeoutsIndexByJobID );
@@ -1187,7 +1187,7 @@ int CJobMgr::DumpJobSummary()
 	jobprofilestats.m_iJobProfileSort = k_EJobProfileSortOrder_Count;
 	jobprofilestats.pmapStatsBucket = &mapStatsBucket;
 
-	CUtlVector<int> vecSort( 0, mapStatsBucket.Count() );
+	CUtlVector<int> vecSort( (intp)0, mapStatsBucket.Count() );
 	FOR_EACH_MAP_FAST( mapStatsBucket, iBucket )
 	{
 		vecSort.AddToTail( iBucket );
@@ -1355,7 +1355,7 @@ bool CJobMgr::BLaunchJobFromNetworkMsg( void *pParent, const JobMsgInfo_t &jobMs
 
 	if ( pNetPacket->BHasTargetJobName() && BIsValidSystemMsg( pNetPacket->GetEMsg(), NULL ) )
 	{
-		JobType_t jobSearch = { pNetPacket->GetTargetJobName(), k_EGCMsgInvalid, jobMsgInfo.m_eServerType };
+		JobType_t jobSearch = { pNetPacket->GetTargetJobName(), k_EGCMsgInvalid, jobMsgInfo.m_eServerType, nullptr };
 		int iJobType = GMapJobTypesByName().Find( &jobSearch );
 
 		if ( GMapJobTypesByName().IsValidIndex( iJobType ) )
@@ -1383,7 +1383,7 @@ bool CJobMgr::BLaunchJobFromNetworkMsg( void *pParent, const JobMsgInfo_t &jobMs
 	}
 	else
 	{
-		JobType_t jobSearch = { 0, jobMsgInfo.m_eMsg, jobMsgInfo.m_eServerType };
+		JobType_t jobSearch = { 0, jobMsgInfo.m_eMsg, jobMsgInfo.m_eServerType, nullptr };
 		int iJobType = GMapJobTypesByMsg().Find( &jobSearch );
 
 		if ( GMapJobTypesByMsg().IsValidIndex( iJobType ) )
@@ -1485,7 +1485,7 @@ void CJobMgr::ProfileJobs( EJobProfileAction ejobProfileAction, EJobProfileSortO
 	jobprofilestats.m_iJobProfileSort = iSortOrder;
 	jobprofilestats.pmapStatsBucket = &m_mapStatsBucket;
 
-	CUtlVector<int> vecSort( 0, m_mapStatsBucket.Count() );
+	CUtlVector<int> vecSort( (intp)0, m_mapStatsBucket.Count() );
 	FOR_EACH_MAP_FAST( m_mapStatsBucket, iBucket )
 	{
 		vecSort.AddToTail( iBucket );

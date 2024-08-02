@@ -70,18 +70,20 @@ void WaitForDebuggerConnect(int argc, char *argv[], int time) {
 }  // namespace
 
 int main(int argc, char *argv[]) {
-  const source::ScopedDll launcher_dll {
-#if !defined(PLATFORM_64BITS)
-    "bin/launcher" DLL_EXT_STRING
+  const char kLauncherPath[] =
+#ifdef PLATFORM_64BITS
+#ifdef OSX
+      "bin/osx64/launcher" DLL_EXT_STRING;
 #else
-    "bin/x64/launcher" DLL_EXT_STRING
+      "bin/linux64/launcher" DLL_EXT_STRING;
 #endif
-        ,
-        RTLD_NOW
+#endif
+  const source::ScopedDll launcher_dll {
+     kLauncherPath, RTLD_NOW
   };
   if (!launcher_dll) {
-    fprintf(stderr, "Failed to load the bin/launcher" DLL_EXT_STRING ": %s.\n",
-            ::dlerror());
+    fprintf(stderr, "Failed to load the %s: %s.\n",
+            kLauncherPath, ::dlerror());
     return 1;
   }
 
@@ -105,9 +107,9 @@ int main(int argc, char *argv[]) {
   // The google tcmalloc allocator gives us this guarantee.
   // Test the current allocator to make sure it gives us the required alignment.
   void *pointers[20];
-  for (int i = 0; i < ARRAYSIZE(pointers); ++i) {
+  for (auto *&pv : pointers) {
     void *p = malloc(16);
-    pointers[i] = p;
+    pv = p;
     if (((size_t)p) & 0xF) {
       fprintf(stderr, "%p is not 16-byte aligned. Aborting.\n", p);
       fprintf(stderr, "Pass /define:CLANG to VPC to correct this.\n");
@@ -115,8 +117,8 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  for (int i = 0; i < ARRAYSIZE(pointers); ++i) {
-    if (pointers[i]) free(pointers[i]);
+  for (auto *p : pointers) {
+    free(p);
   }
 
   if (__has_feature(address_sanitizer)) {

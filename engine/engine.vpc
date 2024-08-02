@@ -21,8 +21,8 @@ $Macro ZLIBSRCDIR		"$SRCDIR\thirdparty\zlib"
 $Macro ZLIBSRC2DIR		"$ZLIBSRCDIR\out"
 $Macro ZLIBOUTDIR		"$ZLIBSRCDIR\out\Release"
 
-$Macro MPAHEADERINFOOUTDIRDEBUG	"$SRCDIR\thirdparty\MPAHeaderInfo\out\Debug"
-$Macro MPAHEADERINFOOUTDIRRELEASE	"$SRCDIR\thirdparty\MPAHeaderInfo\out\Release"
+$Macro MPAHEADERINFOOUTDIRDEBUG	"$SRCDIR\thirdparty\mpaheaderinfo\out\Debug"
+$Macro MPAHEADERINFOOUTDIRRELEASE	"$SRCDIR\thirdparty\mpaheaderinfo\out\Release"
 
 $include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 $include "$SRCDIR\vpc_scripts\source_replay.vpc"
@@ -43,8 +43,6 @@ $Configuration	"Debug"
 		$PreprocessorDefinitions		"$BASE;MPA_BUILD_WITHOUT_ATL"
 		$PreprocessorDefinitions		"$BASE;USE_WEBM_FOR_REPLAY"	[$LINUXALL]
 
-		$AdditionalIncludeDirectories	"$BASE;..\common\quicktime_win32\"		[$QUICKTIME_WIN32]
-
 		$AdditionalIncludeDirectories	"$BASE;$SRCDIR/thirdparty/gperftools-2.0/src/" [$GPROFILER]
 		$PreprocessorDefinitions		"$BASE;GPROFILER" [$GPROFILER]
 		$PreprocessorDefinitions		"$BASE;ENABLE_RPT" [$ENABLE_RPT]
@@ -56,7 +54,8 @@ $Configuration	"Debug"
 	$Linker
 	{
 		$AdditionalLibraryDirectories		"$BASE;$SNAPPYOUTDIRDEBUG;$MPAHEADERINFOOUTDIRDEBUG;"
-		$AdditionalDependencies			"$BASE dsound.lib dxguid.lib winmm.lib wsock32.lib ws2_32.lib wininet.lib vfw32.lib Rpcrt4.lib snappy.lib" [$WINDOWS]
+		
+		$AdditionalDependencies			"$BASE Advapi32.lib dsound.lib dxguid.lib Gdi32.lib winmm.lib wsock32.lib ws2_32.lib wininet.lib vfw32.lib Rpcrt4.lib Shell32.lib User32.lib snappy.lib" [$WINDOWS]
 		$AdditionalDependencies			"$BASE mpaheaderinfo.lib" [$WINDOWS&&!$DEDICATED]
 		$SystemFrameworks				"Carbon;AppKit;OpenAL;CoreAudio;AudioToolbox;SystemConfiguration;Quicktime;AudioUnit" [$OSXALL]
 		$SystemLibraries				"iconv" [$OSXALL]
@@ -89,8 +88,6 @@ $Configuration	"Release"
 		$PreprocessorDefinitions		"$BASE;MPA_BUILD_WITHOUT_ATL"
 		$PreprocessorDefinitions		"$BASE;USE_WEBM_FOR_REPLAY"	[$LINUXALL]
 
-		$AdditionalIncludeDirectories	"$BASE;..\common\quicktime_win32\"		[$QUICKTIME_WIN32]
-
 		$AdditionalIncludeDirectories	"$BASE;$SRCDIR/thirdparty/gperftools-2.0/src/" [$GPROFILER]
 		$PreprocessorDefinitions		"$BASE;GPROFILER" [$GPROFILER]
 		$PreprocessorDefinitions		"$BASE;ENABLE_RPT" [$ENABLE_RPT]
@@ -102,7 +99,8 @@ $Configuration	"Release"
 	$Linker
 	{
 		$AdditionalLibraryDirectories		"$BASE;$SNAPPYOUTDIRRELEASE;$MPAHEADERINFOOUTDIRRELEASE;"
-		$AdditionalDependencies			"$BASE dsound.lib dxguid.lib winmm.lib wsock32.lib ws2_32.lib wininet.lib vfw32.lib Rpcrt4.lib snappy.lib" [$WINDOWS]
+
+		$AdditionalDependencies			"$BASE Advapi32.lib dsound.lib dxguid.lib Gdi32.lib winmm.lib wsock32.lib ws2_32.lib wininet.lib vfw32.lib Rpcrt4.lib Shell32.lib User32.lib snappy.lib" [$WINDOWS]
 		$AdditionalDependencies			"$BASE mpaheaderinfo.lib" [$WINDOWS&&!$DEDICATED]
 		$SystemFrameworks				"Carbon;AppKit;OpenAL;CoreAudio;AudioToolbox;SystemConfiguration;Quicktime;AudioUnit" [$OSXALL]
 		$SystemLibraries				"iconv" [$OSXALL]
@@ -563,7 +561,7 @@ $Project "engine"
 			$File	"audio\private\snd_channels.h"
 			$File	"audio\private\snd_convars.h"
 			$File	"audio\private\snd_dev_common.h"
-			$File	"audio\private\snd_dev_direct.h"					[$WIN32]
+			$File	"audio\private\snd_dev_direct.h"					[$WINDOWS]
 			$File	"audio\private\snd_dev_xaudio.h"
 			$File	"audio\private\snd_dma.h"
 			$File	"audio\private\snd_env_fx.h"

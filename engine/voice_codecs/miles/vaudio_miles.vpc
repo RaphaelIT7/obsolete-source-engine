@@ -8,6 +8,7 @@ $Macro SRCDIR		"..\..\.."
 $Macro OUTBINDIR	"$SRCDIR\..\game\bin"
 
 $Macro MSSSRCDIR $SRCDIR\thirdparty\mss
+$Macro MINIMP3SRCDIR $SRCDIR\thirdparty\minimp3
 $Macro MSSLIBDIR win32   [$WIN32]
 $Macro MSSLIBDIR win64   [$WIN64]
 $Macro MSSLIBDIR linux32 [$LINUX32]
@@ -32,9 +33,9 @@ $Configuration
 	{
 		$CommandLine		"IF NOT EXIST $QUOTE$OUTBINDIR$QUOTE MKDIR $QUOTE$OUTBINDIR$QUOTE" "\n"		\
 									"COPY $MSSSRCDIR\bin\$MSSLIBDIR\mss32.dll $OUTBINDIR\mss32.dll" "\n"				\
-									"COPY $MSSSRCDIR\bin\$MSSLIBDIR\mssmp3.asi $OUTBINDIR\mssmp3.asi" "\n"			\
-									"COPY $MSSSRCDIR\bin\$MSSLIBDIR\mssogg.asi $OUTBINDIR\mssogg.asi" "\n"			\
-									"COPY $MSSSRCDIR\bin\$MSSLIBDIR\mssvoice.asi $OUTBINDIR\mssvoice.asi" "\n"	\
+									"REM COPY $MSSSRCDIR\bin\$MSSLIBDIR\mssmp3.asi $OUTBINDIR\mssmp3.asi" "\n"			\
+									"REM COPY $MSSSRCDIR\bin\$MSSLIBDIR\mssogg.asi $OUTBINDIR\mssogg.asi" "\n"			\
+									"REM COPY $MSSSRCDIR\bin\$MSSLIBDIR\mssvoice.asi $OUTBINDIR\mssvoice.asi" "\n"	\
 									"IF ERRORLEVEL 1 GOTO BuildEventFailed" "\n" \
 									"$BASE"
 	}
@@ -62,7 +63,8 @@ $Project "vaudio_miles"
 		$File	"$SRCDIR\public\tier1\interface.h"
 		$File	"$SRCDIR\public\vaudio\ivaudio.h"
 		$File	"milesbase.h"
-		$File	"$SRCDIR\thirdparty\mss\include\mss.h"
+		$File	"$MSSSRCDIR\include\mss.h"
+		$File	"$MINIMP3SRCDIR\minimp3_ex.h"
 	}
 
 	$Folder	"Link Libraries"

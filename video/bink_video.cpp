@@ -180,8 +180,7 @@ VideoResult_t CBinkVideoSubSystem::VideoSoundDeviceCMD( VideoSoundDeviceOperatio
 		case VideoSoundDeviceOperation::SET_DIRECT_SOUND_DEVICE:
 		{
 #ifdef __RADWIN__
-			BinkSoundUseDirectSound( pDevice );
-			return SetResult( VideoResult::SUCCESS );
+			return SetResult( BinkSoundUseDirectSound( pDevice ) ? VideoResult::SUCCESS : VideoResult::AUDIO_ERROR_OCCURED );
 #else
 			// On any other OS, we don't support this operation
 			return SetResult( VideoResult::OPERATION_NOT_SUPPORTED );
@@ -191,8 +190,7 @@ VideoResult_t CBinkVideoSubSystem::VideoSoundDeviceCMD( VideoSoundDeviceOperatio
 		case VideoSoundDeviceOperation::SET_MILES_SOUND_DEVICE:
 		{
 #ifdef __RADWIN__
-			BinkSoundUseMiles( pDevice );
-			return SetResult( VideoResult::SUCCESS );
+			return SetResult( BinkSoundUseMiles( pDevice ) ? VideoResult::SUCCESS : VideoResult::AUDIO_ERROR_OCCURED );
 #else
 			// On any other OS, we don't support this operation
 			return SetResult( VideoResult::OPERATION_NOT_SUPPORTED );
@@ -212,8 +210,7 @@ VideoResult_t CBinkVideoSubSystem::VideoSoundDeviceCMD( VideoSoundDeviceOperatio
 		case VideoSoundDeviceOperation::SET_SOUND_MANAGER_DEVICE:
 		{
 #ifdef __RADMAC__
-			BinkSoundUseSoundManager();
-			return SetResult( VideoResult::SUCCESS );
+			return SetResult( BinkSoundUseSoundManager() ? VideoResult::SUCCESS : VideoResult::AUDIO_ERROR_OCCURED );
 #else
 			return SetResult( VideoResult::OPERATION_NOT_SUPPORTED );
 #endif
@@ -222,8 +219,7 @@ VideoResult_t CBinkVideoSubSystem::VideoSoundDeviceCMD( VideoSoundDeviceOperatio
 		case VideoSoundDeviceOperation::SET_SDL_SOUND_DEVICE:
 		{
 #ifdef __RADLINUX__
-			BinkSoundUseSDLMixer();
-			return SetResult( VideoResult::SUCCESS );
+			return SetResult( BinkSoundUseSDLMixer() ? VideoResult::SUCCESS : VideoResult::AUDIO_ERROR_OCCURED );
 #else
 			return SetResult( VideoResult::OPERATION_NOT_SUPPORTED );
 #endif
@@ -328,9 +324,6 @@ VideoResult_t CBinkVideoSubSystem::PlayVideoFileFullScreen( const char *filename
 
 		return SetResult( VideoResult::VIDEO_ERROR_OCCURED );
 	}
-	
-	nNewWidth = ( displayXOffset + nBufferWidth );
-	nNewHeight = ( displayYOffset + nBufferHeight );
 
 	// Create a buffer to decompress to
 	// NOTE: The DIB version is the only one we can call on without DirectDraw
@@ -347,7 +340,7 @@ VideoResult_t CBinkVideoSubSystem::PlayVideoFileFullScreen( const char *filename
 	}
 
 	// Scale if we need to
-	BinkBufferSetScale( hBINKBuffer, nNewWidth, nNewHeight );
+	BinkBufferSetScale( hBINKBuffer, nBufferWidth, nBufferHeight );
 
 	// Offset to the middle of the screen
 	BinkBufferSetOffset( hBINKBuffer, displayXOffset, displayYOffset );
