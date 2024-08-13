@@ -225,7 +225,7 @@ void CMapListManager::Think( void )
 
 	m_bDirty = false;
 		
-	for ( auto i = m_Items.Count() - 1; i >= 0 ; i-- )
+	for ( intp i = m_Items.Count() - 1; i >= 0 ; i-- )
 	{
 		CMapListItem *item = &m_Items[ i ];
 		if ( item->GetValid() != CMapListItem::PENDING )

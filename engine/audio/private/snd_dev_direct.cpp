@@ -10,8 +10,6 @@
 #include <ks.h>
 #include <ksmedia.h>
 
-#include <system_error>
-
 #include "com_ptr.h"
 #include "iprediction.h"
 #include "eax.h"
@@ -40,18 +38,22 @@ typedef enum {SIS_SUCCESS, SIS_FAILURE, SIS_NOTAVAIL} sndinitstat;
 #define SECONDARY_BUFFER_SIZE			0x10000		// output buffer size in bytes
 #define SECONDARY_BUFFER_SIZE_SURROUND	0x04000		// output buffer size in bytes, one per channel
 
-extern void ReleaseSurround();
+
+using DirectSoundCreate8Fn = decltype(&DirectSoundCreate8);
+DirectSoundCreate8Fn pDirectSoundCreate;
+
+extern void ReleaseSurround(void);
 extern bool MIX_ScaleChannelVolume( paintbuffer_t *ppaint, channel_t *pChannel, int volume[CCHANVOLUMES], int mixchans );
 
 void OnSndSurroundCvarChanged( IConVar *var, const char *pOldString, float flOldValue );
 void OnSndSurroundLegacyChanged( IConVar *var, const char *pOldString, float flOldValue );
 void OnSndVarChanged( IConVar *var, const char *pOldString, float flOldValue );
 
-static LPDIRECTSOUND8 pDS = nullptr;
-static LPDIRECTSOUNDBUFFER pDSBuf = nullptr;
+static LPDIRECTSOUND8 pDS = NULL;
+static LPDIRECTSOUNDBUFFER pDSBuf = NULL;
 // For the primary buffer, you must use the IDirectSoundBuffer interface; IDirectSoundBuffer8 is not available.
 // See https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee418055(v=vs.85)
-static LPDIRECTSOUNDBUFFER pDSPBuf = nullptr;
+static LPDIRECTSOUNDBUFFER pDSPBuf = NULL;
 
 static GUID IID_IDirectSound3DBufferDef = {0x279AFA86, 0x4981, 0x11CE, {0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60}};
 static ConVar windows_speaker_config("windows_speaker_config", "-1", FCVAR_ARCHIVE);
@@ -724,8 +726,14 @@ sndinitstat CAudioDirectSound::SNDDMA_InitDirect( void )
 		m_hInstDS = LoadLibraryExA( "dsound.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32 );
 		if (!m_hInstDS)
 		{
-			Warning( "dsound [init]: Unable to load 'dsound.dll': %s.\n",
-				std::system_category().message( GetLastError() ).c_str() );
+			Warning( "Couldn't load dsound.dll\n");
+			return SIS_FAILURE;
+		}
+
+		pDirectSoundCreate = (DirectSoundCreate8Fn)GetProcAddress(m_hInstDS, V_STRINGIFY(DirectSoundCreate8) );
+		if (!pDirectSoundCreate)
+		{
+			Warning( "Couldn't get DS proc addr\n");
 			return SIS_FAILURE;
 		}
 	}
@@ -756,11 +764,11 @@ sndinitstat CAudioDirectSound::SNDDMA_InitDirect( void )
 		return SIS_NOTAVAIL;
 	}
 
-	DWORD is_certified{DS_UNCERTIFIED};
-	hr = pDS->VerifyCertification( &is_certified );
-	if ( SUCCEEDED(hr) && is_certified == DS_CERTIFIED )
+	DWORD isCertified = DS_UNCERTIFIED;
+	hresult = pDS->VerifyCertification( &isCertified );
+	if ( SUCCEEDED(hresult) && isCertified == DS_CERTIFIED )
 	{
-		Msg( "dsound [init]: DirectSound8 card driver is certified.\n" );
+		Msg( "Direct Sound card driver is certified." );
 	}
 
 	// get snd_surround value from window settings
@@ -916,8 +924,8 @@ sndinitstat CAudioDirectSound::SNDDMA_InitDirect( void )
 			buffer_desc.dwFlags |= DSBCAPS_GLOBALFOCUS;
 
 			se::win::com::com_ptr<IDirectSoundBuffer, &IID_IDirectSoundBuffer> buffer;
-			if (FAILED(hr = pDS->CreateSoundBuffer(&buffer_desc, &buffer, nullptr)) || 
-				FAILED(hr = buffer.QueryInterface(IID_IDirectSoundBuffer8, &pDSBuf)))
+			if (DS_OK != pDS->CreateSoundBuffer(&dsbuf, &buffer, NULL) || 
+				FAILED(buffer.QueryInterface(IID_IDirectSoundBuffer8, &pDSBuf)))
 			{
 				Warning( "dsound [init]: DirectSound8 device unable to create sound buffer 8 w/e 0x%8x.\n", hr );
 				Shutdown();
@@ -965,7 +973,7 @@ sndinitstat CAudioDirectSound::SNDDMA_InitDirect( void )
 
 		if ( snd_firsttime )
 		{
-			DevMsg("   %d channel(s) |  %d bits/sample |  %d Hz\n",
+			DevMsg("   %d channel(s) |  %d bits/sample |  %d samples/sec\n",
 				DeviceChannels(), DeviceSampleBits(), DeviceDmaSpeed());
 		}
 
@@ -1541,7 +1549,7 @@ bool CAudioDirectSound::SNDDMA_InitSurround(LPDIRECTSOUND8 lpDS, WAVEFORMATEX* l
 		pDSBufFC->Play(0, 0, DSBPLAY_LOOPING);
 
 	if (snd_firsttime)
-		DevMsg("   %d channel(s) |  %d bits/sample |  %d Hz\n",
+		DevMsg("   %d channel(s) |  %d bits/sample |  %d samples/sec\n",
 					cchan, DeviceSampleBits(), DeviceDmaSpeed());
 
 	m_bufferSizeBytes = lpdsbc->dwBufferBytes;

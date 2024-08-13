@@ -1026,7 +1026,7 @@ bool CGame::CreateGameWindow( void )
 
 #if defined( WIN32 ) && !defined( USE_SDL )
 #ifndef SWDS
-	WNDCLASSW     wc = {};
+	WNDCLASSW wc = {};
 	wc.style         = CS_OWNDC | CS_DBLCLKS;
 	wc.lpfnWndProc   = CallDefaultWindowProc;
 	wc.hInstance     = m_hInstance;

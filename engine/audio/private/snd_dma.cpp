@@ -772,10 +772,9 @@ void S_Shutdown(void)
 	
 	// shutdown vaudio
 	delete vaudio;
-	vaudio = nullptr;
-
 	FileSystem_UnloadModule( g_pVAudioModule );
-	g_pVAudioModule = nullptr;
+	g_pVAudioModule = NULL;
+	vaudio = NULL;
 
 	MIX_FreeAllPaintbuffers();
 	snd_initialized = false;
@@ -6461,8 +6460,8 @@ void S_Update_( float mixAheadTime )
 	{
 		if ( !g_hMixThread )
 		{
-			g_bMixThreadExit.store(false, std::memory_order::memory_order_relaxed);
-			g_hMixThread = ThreadExecuteSolo( "SoundMixer", S_Update_Thread );
+			g_bMixThreadExit = false;
+			g_hMixThread = ThreadExecuteSolo( "SndMix", S_Update_Thread );
 		}
 	}
 }

@@ -666,7 +666,7 @@ void RequestSelected( int nCount, UtlSymId_t const *pNameIds )
 //
 struct ViewParamsLast
 {
-	ViewParamsLast() : flTime( 0.0 ), bHighlighted( false ), lstMaterials( DefLessFunc( UtlSymId_t ) ) {}
+	ViewParamsLast() : flTime( 0.f ), bHighlighted( false ), lstMaterials( DefLessFunc( UtlSymId_t ) ) {}
 
 	double flTime;
 	bool bHighlighted;
@@ -718,7 +718,7 @@ void DisplaySelectedTextures()
 		// Wait for the flash-time
 		double fCurTime = Plat_FloatTime();
 		if ( fCurTime >= s_viewParamsLast.flTime &&
-			 fCurTime < s_viewParamsLast.flTime + 0.4 )
+			 fCurTime < s_viewParamsLast.flTime + 0.4f )
 			 return;
 
 		s_viewParamsLast.flTime = fCurTime;

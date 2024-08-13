@@ -1366,6 +1366,55 @@ bool NET_ReceiveDatagram ( const intp sock, netpacket_t * packet )
 
 		unsigned int nVoiceBits = 0u;
 
+		if ( X360SecureNetwork() )
+		{
+			// X360TBD: Check for voice data and forward it to XAudio
+			// For now, just pull off the 2-byte VDP header and shift the data
+			unsigned short nDataBytes = ( *( unsigned short * )packet->data );
+
+			Assert( nDataBytes > 0 && nDataBytes <= ret );
+
+			int nVoiceBytes = ret - nDataBytes - 2;
+			if ( nVoiceBytes > 0 )
+			{
+				char *pVoice = (char *)packet->data + 2 + nDataBytes;
+
+				nVoiceBits = (unsigned int)LittleShort( *( unsigned short *)pVoice );
+				unsigned int nExpectedVoiceBytes = Bits2Bytes( nVoiceBits );
+				pVoice += sizeof( unsigned short );
+
+				int nCompressedSize = nVoiceBytes - sizeof( unsigned short );
+				int nDecompressedVoice = COM_GetUncompressedSize( pVoice, nCompressedSize );
+				if ( nDecompressedVoice >= 0 )
+				{
+					if ( (unsigned)nDecompressedVoice != nExpectedVoiceBytes )
+					{
+						return false;
+					}
+
+					bufVoice.EnsureCapacity( nDecompressedVoice );
+
+					// Decompress it
+					unsigned unActualDecompressedSize = (unsigned)nDecompressedVoice;
+					if ( !COM_BufferToBufferDecompress( bufVoice.Base(), &unActualDecompressedSize, pVoice, nCompressedSize ) )
+						return false;
+					Assert( unActualDecompressedSize == (unsigned)nDecompressedVoice );
+
+					nVoiceBytes = unActualDecompressedSize;
+				}
+				else
+				{
+					bufVoice.EnsureCapacity( nVoiceBytes );
+					Q_memcpy( bufVoice.Base(), pVoice, nVoiceBytes );
+				}
+			}
+
+			Q_memmove( packet->data, &packet->data[2], nDataBytes );
+
+			ret = nDataBytes;
+		}
+
+
 		if ( ret < NET_MAX_MESSAGE )
 		{
 			// Check for split message
@@ -1688,7 +1737,7 @@ void NET_ProcessListen(intp sock)
 	}
 }
 
-struct TSLIST_NODE_ALIGN NetScratchBuffer_t : public CAlignedNewDelete<TSLIST_NODE_ALIGNMENT, TSLNodeBase_t>
+struct TSLIST_NODE_ALIGN NetScratchBuffer_t : CAlignedNewDelete<TSLIST_NODE_ALIGNMENT, TSLNodeBase_t>
 {
 	byte data[NET_MAX_MESSAGE];
 };
