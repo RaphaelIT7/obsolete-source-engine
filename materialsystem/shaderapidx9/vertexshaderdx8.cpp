@@ -1811,9 +1811,8 @@ retry_compile:
 		V_strcat_safe( pSendbuf, "" );
 
 		// Send commands to remote shader compiler
-		if ( int rc =
-				send( m_RemoteShaderCompileSocket, pSendbuf, V_strlen( pSendbuf ), 0 );
-			 rc == SOCKET_ERROR )
+		int nResult = send( m_RemoteShaderCompileSocket, pSendbuf, V_strlen( pSendbuf ), 0 );
+		if ( nResult == SOCKET_ERROR )
 		{
 			Warning( "send(%s) failed: %s\n",
 				pSendbuf,

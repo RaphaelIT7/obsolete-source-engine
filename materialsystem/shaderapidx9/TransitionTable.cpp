@@ -177,13 +177,13 @@ StateSnapshot_t CTransitionTable::CreateStateSnapshot( ShadowStateId_t shadowSta
 //-----------------------------------------------------------------------------
 CTransitionTable::ShadowStateId_t CTransitionTable::CreateShadowState( const ShadowState_t &currentState )
 {
-	ShadowStateId_t newShaderState = m_ShadowStateList.AddToTail();
+	intp newShaderState = m_ShadowStateList.AddToTail();
 
 	// Copy our snapshot into the list
 	memcpy( &m_ShadowStateList[newShaderState], &currentState, sizeof(ShadowState_t) );
 
 	// all existing states must transition to the new state
-	ShadowStateId_t i;
+	intp i;
 	for ( i = 0; i < newShaderState; ++i )
 	{
 		// Add a new transition to all existing states
