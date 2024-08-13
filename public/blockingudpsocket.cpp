@@ -26,9 +26,9 @@ public:
 };
 
 CBlockingUDPSocket::CBlockingUDPSocket() :
-	m_pImpl( new Impl ),
+	m_pImpl( new CImpl ),
 	m_cserIP(),
-	m_Socket( kInvalidSocketHandle )
+	m_Socket( 0 )
 {
 	CreateSocket();
 }

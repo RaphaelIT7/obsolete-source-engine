@@ -5,7 +5,6 @@
 #ifndef BLOCKINGUDPSOCKET_H
 #define BLOCKINGUDPSOCKET_H
 
-#include "tier0/vcrmode.h"
 #include "tier1/netadr.h"
 
 class CBlockingUDPSocket
@@ -27,7 +26,9 @@ protected:
 	Impl				*m_pImpl;
 
 	netadr_t			m_cserIP;
-	socket_handle		m_Socket;
+	uintp				m_Socket;
+
+
 };
 
 #endif // BLOCKINGUDPSOCKET_H
