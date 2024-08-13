@@ -909,6 +909,7 @@ template <class T>
 void	CUtlCachedFileData<T>::CheckDiskInfo( bool forcerebuild, long cacheFileTime )
 {
 	char fn[ 512 ];
+	unsigned short i;
 	if ( forcerebuild )
 	{
 		for ( auto i = m_Elements.FirstInorder(); i != m_Elements.InvalidIndex(); i = m_Elements.NextInorder( i ) )

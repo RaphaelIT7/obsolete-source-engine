@@ -1475,8 +1475,7 @@ inline const mstudio_meshvertexdata_t *mstudiomesh_t::GetVertexData( void *pMode
 	this->pModel()->GetVertexData( pModelData );
 #ifdef PLATFORM_64BITS
 	modelvertexdata = &this->pModel()->vertexdata;
-	// Distance must fit int.
-	vertexdata.index_modelvertexdata = static_cast<int>((byte *)&modelvertexdata - (byte *)&vertexdata);
+	vertexdata.index_modelvertexdata = (byte *)&modelvertexdata - (byte *)&vertexdata;
 #else
 	vertexdata.modelvertexdata = &this->pModel()->vertexdata;
 #endif
@@ -2312,14 +2311,8 @@ struct studiohdr_t
 
 	// used by tools only that don't cache, but persist mdl's peer data
 	// engine uses virtualModel to back link to cache pointers
-#ifdef PLATFORM_64BITS
-	// dimhotepus: Backward-compat with 32 bit format. 
-	int					pVertexBase_index;
-	int					pIndexBase_index;
-#else
-	void*				pVertexBase;
-	void*				pIndexBase;
-#endif
+	int					pVertexBase;
+	int					pIndexBase;
 
 	// if STUDIOHDR_FLAGS_CONSTANT_DIRECTIONAL_LIGHT_DOT is set,
 	// this value is used to calculate directional components of lighting 
@@ -2371,42 +2364,6 @@ struct studiohdr_t
 	// [and move all fields in studiohdr2_t into studiohdr_t and kill studiohdr2_t],
 	// or add your stuff to studiohdr2_t. See NumSrcBoneTransforms/SrcBoneTransform for the pattern to use.
 	int					unused2[1]; //-V730_NOINIT
-
-	[[nodiscard]] void* GetVertexBase()
-	{
-#ifdef PLATFORM_64BITS
-        return pStudioHdr2()->pVertexBase;
-#else
-		return pVertexBase;
-#endif
-	}
-
-	void SetVertexBase(void *base)
-	{
-#ifdef PLATFORM_64BITS
-		pStudioHdr2()->pVertexBase = base;
-#else
-		pVertexBase = base;
-#endif
-	}
-
-	[[nodiscard]] void* GetIndexBase()
-	{
-#ifdef PLATFORM_64BITS
-        return pStudioHdr2()->pIndexBase;
-#else
-		return pIndexBase;
-#endif
-	}
-
-	void SetIndexBase(void *base)
-	{
-#ifdef PLATFORM_64BITS
-		pStudioHdr2()->pIndexBase = base;
-#else
-		pIndexBase = base;
-#endif
-	}
 
 	studiohdr_t() = default;
 

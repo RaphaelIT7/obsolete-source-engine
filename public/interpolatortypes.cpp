@@ -48,17 +48,18 @@ unsigned char Interpolator_InterpolatorForName( char const *name )
 			return slot.type;
 	}
 	
-	AssertMsg( false, "Interpolator_InterpolatorForName failed for %s!!!", name );
+	AssertMsg( false, "Interpolator_InterpolatorForName failed!!!" );
 	return INTERPOLATE_DEFAULT;
 }
 
 char const *Interpolator_NameForInterpolator( unsigned char type, bool printname )
 {
-	size_t i = type;
-	size_t c = std::size( g_InterpolatorNameMap );
+	int i = (int)type;
+	int c = ssize( g_InterpolatorNameMap );
 	if ( i < 0 || i >= c )
 	{
-		AssertMsg( false, "!Interpolator_NameForInterpolator: bogus type %hhu!", type );
+		AssertMsg( false, "!Interpolator_NameForInterpolator:  bogus type!" );
+		// returns "unspecified!!!";
 		return printname ? g_InterpolatorNameMap[ 0 ].printname : g_InterpolatorNameMap[ 0 ].name;
 	}
 
@@ -151,7 +152,8 @@ void Interpolator_CurveInterpolatorsForType( int type, int& inbound, int& outbou
 
 int Interpolator_CurveTypeForHotkey( int key )
 {
-	for ( auto &m : g_CurveNameMap )
+	int c = ssize( g_CurveNameMap );
+	for ( int i = 0; i < c; ++i )
 	{
 		if ( m.hotkey == key )
 			return m.type;
