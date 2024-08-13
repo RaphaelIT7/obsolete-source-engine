@@ -61,9 +61,6 @@
 #ifdef _WIN32
 #include <io.h>
 #endif
-
-#include "audio/public/snd_device.h"
-#include "audio/private/sound_private.h"
 #include "toolframework/itoolframework.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -77,28 +74,19 @@ ConVar mem_min_heapsize( "mem_min_heapsize",
 #else
 	"48"
 #endif
-	, FCVAR_INTERNAL_USE,
-	"Minimum amount of memory to dedicate to engine hunk and datacache (in MiB)." );
+	, FCVAR_INTERNAL_USE, "Minimum amount of memory to dedicate to engine hunk and datacache (in MiB)" );
 ConVar mem_max_heapsize( "mem_max_heapsize",
 #ifdef PLATFORM_64BITS	
 	"512"
 #else
 	"256"
 #endif
-	, FCVAR_INTERNAL_USE,
-	"Maximum amount of memory to dedicate to engine hunk and datacache (in MiB)." );
-ConVar mem_max_heapsize_dedicated( "mem_max_heapsize_dedicated",
-#ifdef PLATFORM_64BITS
-	"128"
-#else
-    "64"
-#endif
-	, FCVAR_INTERNAL_USE,
-	"Maximum amount of memory to dedicate to engine hunk and datacache, for dedicated server (in MiB)." );
+	, FCVAR_INTERNAL_USE, "Maximum amount of memory to dedicate to engine hunk and datacache (in MiB)" );
+ConVar mem_max_heapsize_dedicated( "mem_max_heapsize_dedicated", "64", FCVAR_INTERNAL_USE, "Maximum amount of memory to dedicate to engine hunk and datacache, for dedicated server (in MiB)" );
 
-inline size_t GetMinimumHeapSize() noexcept { return static_cast<size_t>(mem_min_heapsize.GetInt()) * 1024 * 1024; }
-inline size_t GetMaximumHeapSize() noexcept { return max( static_cast<size_t>(mem_max_heapsize.GetInt()) * 1024 * 1024, GetMinimumHeapSize() ); }
-inline size_t GetMaximumDedicatedHeapSize() noexcept { return static_cast<size_t>(mem_max_heapsize_dedicated.GetInt()) * 1024 * 1024; }
+#define MINIMUM_WIN_MEMORY			(size_t)(mem_min_heapsize.GetInt()*1024*1024)
+#define MAXIMUM_WIN_MEMORY			max( (size_t)(mem_max_heapsize.GetInt()*1024*1024), MINIMUM_WIN_MEMORY )
+#define MAXIMUM_DEDICATED_MEMORY	(size_t)(mem_max_heapsize_dedicated.GetInt()*1024*1024)
 
 
 void SeedRandomNumberGenerator( bool random_invariant );
@@ -551,19 +539,17 @@ void Sys_Sleep( int msec )
 }
 
 #if defined(_WIN32) && !defined( _X360 )
-int prevCRTMemDebugState = -1;
+int prevCRTMemDebugState = 0;
 
-BOOL WINAPI DllMain(HMODULE module, ULONG ulInit, LPVOID)
+BOOL WINAPI DllMain(HANDLE, ULONG ulInit, LPVOID)
 {
 	if (ulInit == DLL_PROCESS_ATTACH)
 	{
-		::DisableThreadLibraryCalls(module);
 		prevCRTMemDebugState = InitCRTMemDebug();
 	} 
 	else if (ulInit == DLL_PROCESS_DETACH)
 	{
 		ShutdownCRTMemDebug(prevCRTMemDebugState);
-		prevCRTMemDebugState = -1;
 	}
 
 	return TRUE;
@@ -605,9 +591,7 @@ void Sys_InitMemory()
 
 	if ( host_parms.memsize < ONE_HUNDRED_TWENTY_EIGHT_MIB )
 	{
-		Sys_Error( "Host available memory %s is less than %s.\n",
-			Q_pretifymem( host_parms.memsize, 2, true ),
-			Q_pretifymem( ONE_HUNDRED_TWENTY_EIGHT_MIB, 2, true ) );
+		Sys_Error( "Available memory less than 128MiB!!! %zu\n", host_parms.memsize );
 	}
 
 	// take one quarter the physical memory
@@ -771,11 +755,11 @@ SpewRetval_t Sys_SpewFunc( SpewType_t spewType, const char *pMsg )
 		{
 			if (spewType == SPEW_MESSAGE || spewType == SPEW_LOG)
 			{
-				printf( "%s", message );
+				printf( "[%s] %s", group, pMsg );
 			}
 			else
 			{
-				fprintf( stderr, "%s", message );
+				fprintf( stderr, "[%s] %s", group, pMsg );
 			}
 		}
 
@@ -808,12 +792,12 @@ SpewRetval_t Sys_SpewFunc( SpewType_t spewType, const char *pMsg )
 				}
 				break;
 			}
-			Con_ColorPrintf( color, "%s", message );
+			Con_ColorPrintf( color, "[%s] %s", group, pMsg );
 
 		}
 		else
 		{
-			g_Log.Printf( "%s", message );
+			g_Log.Printf( "[%s] %s", group, pMsg );
 		}
 	}
 
@@ -821,7 +805,7 @@ SpewRetval_t Sys_SpewFunc( SpewType_t spewType, const char *pMsg )
 
 	if (spewType == SPEW_ERROR)
 	{
-		Sys_Error( "%s", message );
+		Sys_Error( "[%s] %s", group, pMsg );
 		return SPEW_ABORT;
 	}
 	if (spewType == SPEW_ASSERT)
@@ -1306,7 +1290,7 @@ void Sys_SetRegKeyValueUnderRoot( HKEY rootKey, const char *pszSubKey, const cha
 	{
 		// Didn't find it, so write out new value
 		// Just Set the Values according to the defaults
-		lResult = VCRHook_RegSetValueEx( hKey, pszElement, 0, REG_SZ, (CONST BYTE *)pszValue, static_cast<unsigned long>(strlen(pszValue)) + 1 ); 
+		lResult = VCRHook_RegSetValueEx( hKey, pszElement, 0, REG_SZ, (CONST BYTE *)pszValue, Q_strlen(pszValue) + 1 ); 
 	}
 
 	// Always close this key before exiting.

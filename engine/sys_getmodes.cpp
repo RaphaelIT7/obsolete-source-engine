@@ -107,7 +107,7 @@ public:
     void        DrawNullBackground( void *hdc, int w, int h ) override;
     void        InvalidateWindow() override;
     void        DrawStartupGraphic() override;
-    bool        CreateGameWindow( int nWidth, int nHeight, bool bWindowed, bool bBorderless ) override;
+    bool        CreateGameWindow( int nWidth, int nHeight, bool bWindowed ) override;
     int         GetModeWidth( void ) const override;
     int         GetModeHeight( void ) const override;
 	int			GetModeStereoWidth() const override;
@@ -2312,9 +2312,6 @@ bool CVideoMode_MaterialSystem::SetMode( int nWidth, int nHeight, bool bWindowed
     config.m_VideoMode.m_RefreshRate = GetRefreshRateForMode( pMode );
 #endif
 
-    config.SetFlag( MATSYS_VIDCFG_FLAGS_WINDOWED, bWindowed );
-	config.SetFlag( MATSYS_VIDCFG_FLAGS_BORDERLESS, bBorderless );
-
     // FIXME: This is trash. We have to do *different* things depending on how we're setting the mode!
     if ( !m_bSetModeOnce )
     {
@@ -2401,7 +2398,7 @@ void CVideoMode_MaterialSystem::SetGameWindow( void *hWnd )
 //-----------------------------------------------------------------------------
 void CVideoMode_MaterialSystem::ReleaseVideo( void )
 {
-    if ( IsWindowedMode() || IsBorderlessMode() )
+    if ( IsWindowedMode() )
         return;
 
     ReleaseFullScreen();
@@ -2413,7 +2410,7 @@ void CVideoMode_MaterialSystem::ReleaseVideo( void )
 //-----------------------------------------------------------------------------
 void CVideoMode_MaterialSystem::RestoreVideo( void )
 {
-    if ( IsWindowedMode() || IsBorderlessMode() )
+    if ( IsWindowedMode() )
         return;
 
 #if defined( USE_SDL )
@@ -2430,7 +2427,7 @@ void CVideoMode_MaterialSystem::RestoreVideo( void )
 //-----------------------------------------------------------------------------
 void CVideoMode_MaterialSystem::ReleaseFullScreen( void )
 {
-    if ( IsWindowedMode() || IsBorderlessMode() )
+    if ( IsWindowedMode() )
         return;
 
 #if !defined( USE_SDL )
@@ -2451,7 +2448,7 @@ void CVideoMode_MaterialSystem::ReleaseFullScreen( void )
 //-----------------------------------------------------------------------------
 void CVideoMode_MaterialSystem::ChangeDisplaySettingsToFullscreen( int nWidth, int nHeight, int nBPP )
 {
-    if ( IsWindowedMode() || IsBorderlessMode() )
+    if ( IsWindowedMode() )
         return;
 
 #if defined( WIN32 ) && !defined( USE_SDL )

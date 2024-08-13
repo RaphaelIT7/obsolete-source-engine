@@ -1665,9 +1665,11 @@ void CAsyncWavDataCache::SpewMemoryUsage( int level )
 
 	if ( level >= 1 )
 	{
-		for ( auto i = m_CacheHandles.FirstInorder();
-			m_CacheHandles.IsValidIndex(i);
-			i = m_CacheHandles.NextInorder(i) )
+		float percent = 100.0f * (float)bytesUsed / (float)bytesTotal;
+
+		Msg( "CAsyncWavDataCache:  %zd .wavs total %s, %.2f %% of capacity\n", m_CacheHandles.Count(), Q_pretifymem( bytesUsed, 2 ), percent );
+
+		if ( level >= 1 )
 		{
 			char name[MAX_PATH];
 			if ( !g_pFileSystem->String( m_CacheHandles[ i ].name, name, sizeof( name ) ) )
@@ -1675,9 +1677,34 @@ void CAsyncWavDataCache::SpewMemoryUsage( int level )
 				Assert( 0 );
 				continue;
 			}
-			memhandle_t &handle = m_CacheHandles[ i ].handle;
-			CAsyncWaveData *data = CacheGetNoTouch( handle );
-			if ( data )
+			Msg( "CAsyncWavDataCache:  %zd .wavs total %s, %.2f %% of capacity\n", m_CacheHandles.Count(), Q_pretifymem( bytesUsed, 2 ), percent );
+		}
+	}
+	
+	if ( IsX360() )
+	{
+		CAsyncWaveData	*pData;
+		BufferEntry_t	*pBuffer;
+		BufferHandle_t	h;
+		float			percent;
+		int				lockCount;
+		
+		if ( bytesTotal <= 0 )
+		{
+			// unbounded, indeterminate
+			percent = 0;
+			bytesTotal = 0;
+		}
+		else
+		{
+			percent = 100.0f*(float)bytesUsed/(float)bytesTotal;
+		}
+
+		if ( level >= 1 )
+		{
+			// detail buffers
+			ConMsg( "Streaming Buffer List:\n" );
+			for ( h = m_BufferList.FirstInorder(); h != m_BufferList.InvalidIndex(); h = m_BufferList.NextInorder( h ) )
 			{
 				Msg( "\t%16.16s : %s\n", Q_pretifymem(data->Size()), name);
 			}

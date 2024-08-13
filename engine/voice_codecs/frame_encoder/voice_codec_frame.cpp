@@ -35,7 +35,7 @@ public:
 			m_pFrameEncoder->Release();
 	}
 	
-	bool	Init( VoiceCodecQuality quality ) override
+	bool	Init( int quality ) override
 	{
 		if(m_pFrameEncoder && m_pFrameEncoder->Init(quality, m_nRawBytes, m_nEncodedBytes))
 		{

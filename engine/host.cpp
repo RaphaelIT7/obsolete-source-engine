@@ -533,7 +533,7 @@ CON_COMMAND( host_timer_report, "Spew CPU timer jitter for the last 128 frames i
 		for (size_t i = 1; i <= std::size( host_jitterhistory ); ++i)
 		{
 			size_t slot = ( i + host_jitterhistorypos ) % std::size( host_jitterhistory );
-			Msg( "%1.3fms\n", host_jitterhistory[ slot ] * 1000.0 );
+			Msg( "%1.3fms\n", host_jitterhistory[ slot ] * 1000 );
 		}
 	}
 }

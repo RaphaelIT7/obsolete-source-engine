@@ -73,7 +73,7 @@ public:
 		return 1;
 	}
 
-	virtual intp	GetRecipientIndex( intp ) const
+	virtual int		GetRecipientIndex( int ) const
 	{
 		return m_nClientIndex;
 	}

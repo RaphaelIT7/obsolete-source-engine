@@ -146,6 +146,8 @@ static bool Filter_ConvertString( const char *s, ipfilter_t *f )
 //-----------------------------------------------------------------------------
 static void Filter_Add_f( const CCommand& args )
 {
+	intp		i = 0;
+	float		banTime;
 	bool		bKick = true;
 	bool		bFound = false;
 	char		szDuration[256];
@@ -468,7 +470,8 @@ USERID_t *Filter_StringToUserID( const char *str )
 
 	if ( str && !Q_isempty(str) )
 	{
-		if ( char szTemp[128]; !Q_strnicmp( str, STEAM_PREFIX, ssize( STEAM_PREFIX ) - 1 ) )
+		char szTemp[128];
+		if ( !Q_strnicmp( str, STEAM_PREFIX, ssize( STEAM_PREFIX ) - 1 ) )
 		{
 			Q_strncpy( szTemp, str + ssize( STEAM_PREFIX ) - 1, sizeof( szTemp ) - 1 );
 			id.idtype = IDTYPE_STEAM;
@@ -690,6 +693,20 @@ CON_COMMAND( listid, "Lists banned users." )
 //-----------------------------------------------------------------------------
 CON_COMMAND( banid, "Add a user ID to the ban list." )
 {
+#ifndef _XBOX
+	intp		i;
+	float		banTime;
+	USERID_t	localId;
+	USERID_t *	id = NULL;
+	int			iSearchIndex = -1;
+	char		szDuration[256];
+	char		szSearchString[64];
+	szSearchString[0] = '\0';
+	bool		bKick = false;
+	bool		bPlaying = false;
+	const char	*pszArg2 = NULL;
+	CGameClient *client = NULL;
+
 	if ( Steam3Server().BLanOnly() )
 	{
 		ConMsg( "Can't ban users on a LAN.\n" );
