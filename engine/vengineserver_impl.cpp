@@ -477,6 +477,7 @@ public:
 
 	}
 	
+#ifndef BUILD_GMOD
 	bool IsPlayerNameLocked( const edict_t *pEdict ) override
 	{
 		if ( !sv.IsActive() || !pEdict )
@@ -513,7 +514,6 @@ public:
 		return false;
 	}
 
-#ifndef BUILD_GMOD
 	// See header comment. This is the canonical map lookup spot, and a superset of the server gameDLL's
 	// CanProvideLevel/PrepareLevelResources
 	eFindMapResult FindMap( /* in/out */ char *pMapName, int nMapNameMax ) override

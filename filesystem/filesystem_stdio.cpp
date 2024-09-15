@@ -2413,7 +2413,13 @@ void Language2::ReloadLanguage()
 	Msg("Language::ReloadLanguage\n");
 }
 
-std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+std::wstring utf8_to_utf16(const std::string& utf8Str) {
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, utf8Str.c_str(), (int)utf8Str.size(), NULL, 0);
+    std::wstring utf16Str(size_needed, 0);
+    MultiByteToWideChar(CP_UTF8, 0, utf8Str.c_str(), (int)utf8Str.size(), &utf16Str[0], size_needed);
+    return utf16Str;
+}
+
 void Language2::GetString(const char* inputString, wchar_t* outputString, int32_t bufferSize)
 {
 	bool custom = false;
@@ -2427,7 +2433,7 @@ void Language2::GetString(const char* inputString, wchar_t* outputString, int32_
 	auto it = m_pStrings.find(inputString);
 	if (it == m_pStrings.end())
 	{
-		std::wcsncpy(outputString, converter.from_bytes(inputString).c_str(), bufferSize);
+		std::wcsncpy(outputString, utf8_to_utf16(inputString).c_str(), bufferSize);
 		Msg("Language::GetString FAILED! %s\n", inputString);
 		if (custom)
 			delete inputString;
@@ -2435,7 +2441,7 @@ void Language2::GetString(const char* inputString, wchar_t* outputString, int32_
 		return;
 	}
 
-	std::wcsncpy(outputString, converter.from_bytes(it->second).c_str(), bufferSize);
+	std::wcsncpy(outputString, utf8_to_utf16(it->second).c_str(), bufferSize);
 	Msg("Language::GetString %s\n", inputString);
 
 	if (custom)

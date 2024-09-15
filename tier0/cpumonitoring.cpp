@@ -49,12 +49,14 @@ constexpr int nMaxCPUs = 128;
 
 namespace {
 
+#ifndef BUILD_GMOD
 struct CPUMonitoringStarter {
   CPUMonitoringStarter() noexcept {
     // Start up the disabled CPU monitoring at low frequency.
     if (kDelayMsWhenDisabled) SetCPUMonitoringInterval(0);
   }
 } s_CPUMonitoringStarter;
+#endif
 
 int64 GetFrequency()
 {
@@ -234,6 +236,8 @@ DWORD WINAPI HeartbeatThread( LPVOID )
 	// This will never be hit.
 	HINT(0);
 }
+
+}  // namespace
 
 #ifndef BUILD_GMOD
 PLATFORM_INTERFACE CPUFrequencyResults GetCPUFrequencyResults( bool fGetDisabledResults )

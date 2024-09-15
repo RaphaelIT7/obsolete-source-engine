@@ -1085,7 +1085,7 @@ public:
 #endif
 
 	// returns the display device name that matches the adapter index we were started with
-	virtual char *GetDisplayDeviceName() const = 0;
+	virtual const char *GetDisplayDeviceName() const = 0;
 
 #ifdef BUILD_GMOD
 	virtual void				GMOD_FlushQueue( void ) = 0;

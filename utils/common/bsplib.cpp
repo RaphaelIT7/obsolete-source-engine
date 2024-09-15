@@ -3184,7 +3184,7 @@ int		IntForKeyWithDefault(entity_t *ent, char *key, int nDefault )
 void 	GetVectorForKey (entity_t *ent, char *key, Vector& vec)
 {
 
-	char *k = ValueForKey (ent, key);
+	const char *k = ValueForKey (ent, key);
 // scanf into doubles, then assign, so it is vec_t size independent
 	double	v1, v2, v3;
 	v1 = v2 = v3 = 0;
@@ -3202,7 +3202,7 @@ void 	GetVectorForKey (entity_t *ent, char *key, Vector& vec)
 // dimhotepus: Unused.
 void 	GetAnglesForKey (entity_t *ent, char *key, QAngle& angle)
 {
-	char	*k;
+	const char	*k;
 	double	v1, v2, v3;
 
 	k = ValueForKey (ent, key);

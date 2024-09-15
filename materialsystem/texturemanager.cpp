@@ -657,8 +657,8 @@ public:
 		unsigned int textureFlags, 
 		unsigned int renderTargetFlags ) override;
 
-	bool HasPendingTextureDestroys() const override;
 #ifndef BUILD_GMOD
+	bool HasPendingTextureDestroys() const override;
 	void MarkUnreferencedTextureForCleanup( ITextureInternal *pTexture ) override;
 #endif
 	void RemoveTexture( ITextureInternal *pTexture ) override;
@@ -3083,14 +3083,12 @@ CTextureCompositorTemplate* CTextureManager::FindTextureCompositorTemplate( cons
 
 	return NULL;
 }
-#endif
 
 bool CTextureManager::HasPendingTextureDestroys() const
 {
 	return m_PossiblyUnreferencedTextures.Count() != 0;
 }
 
-#ifndef BUILD_GMOD
 void CTextureManager::CoolTextureCache()
 {
 	FOR_EACH_VEC( m_preloadedTextures, i )

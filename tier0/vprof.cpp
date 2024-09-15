@@ -544,18 +544,6 @@ static void DumpSorted( CVProfile::StreamOut_t outputStream, const tchar *pszHea
 	}
 }
 
-	if ( pNode->GetSibling() )
-	{
-		DumpPMC( pNode->GetSibling(), bPrintHeader, L2thresh, LHSthresh );
-	}
-
-	if ( pNode->GetChild() )
-	{
-		DumpPMC( pNode->GetChild(), bPrintHeader, L2thresh, LHSthresh );
-	}
-}
-#endif
-
 //-------------------------------------
 #ifndef BUILD_GMOD
 void CVProfile::SetOutputStream( StreamOut_t outputStream )
