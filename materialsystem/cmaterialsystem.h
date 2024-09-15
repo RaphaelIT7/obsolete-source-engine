@@ -172,7 +172,7 @@ public:
 	// -----------------------------------------------------------
 	unsigned										GetDisplayAdapterCount() const;
 	unsigned										GetCurrentAdapter() const;
-	char									*GetDisplayDeviceName() const OVERRIDE;
+	const char								*GetDisplayDeviceName() const OVERRIDE;
 	void									GetDisplayAdapterInfo( unsigned adapter, MaterialAdapterInfo_t& info ) const;
 	unsigned										GetModeCount( unsigned adapter ) const;
 	void									GetModeInfo( unsigned adapter, unsigned mode, MaterialVideoMode_t& info ) const;

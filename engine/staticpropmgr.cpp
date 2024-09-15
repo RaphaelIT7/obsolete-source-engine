@@ -2228,9 +2228,9 @@ void CStaticPropMgr::AddDecalToStaticProp( Vector const& rayStart, Vector const&
 										  int staticPropIndex, int decalIndex, bool doTrace, trace_t& tr )
 {
 #ifdef BUILD_GMOD
-	#ifndef SWDS
+#ifndef SWDS
 	// Invalid static prop? Blow it off! 
-	if (staticPropIndex >= m_StaticProps.Size())
+	if (staticPropIndex >= m_StaticProps.Count())
 	{
 		memset( &tr, 0, sizeof(trace_t) );
 		tr.fraction = 1.0f;

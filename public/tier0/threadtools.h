@@ -826,7 +826,7 @@ public:
 	void Unlock()
 	{
 #ifdef _DEBUG
-		if ( m_ownerID != ThreadGetCurrentId() )
+		if ( m_ownerID.GetRaw() != ThreadGetCurrentId() )
 			DebuggerBreak();
 
 		if ( m_depth <= 0 )

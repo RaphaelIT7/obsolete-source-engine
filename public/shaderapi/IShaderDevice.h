@@ -271,7 +271,7 @@ public:
 #ifdef DX_TO_GL_ABSTRACTION
 	virtual void DoStartupShaderPreloading( void ) = 0;
 #endif
-	virtual char *GetDisplayDeviceName() = 0;
+	virtual const char *GetDisplayDeviceName() = 0;
 
 };
 

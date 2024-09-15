@@ -1314,17 +1314,17 @@ void CBaseFileSystem::PrintSearchPaths( void )
 		else if ( sp.GetPackFile()  )
 		{
 			pszType = "(pack) ";
-			pszPack = pSearchPath->GetPackFile()->m_ZipName;
+			pszPack = sp.GetPackFile()->m_ZipName;
 		}
 		#ifdef SUPPORT_PACKED_STORE
 			else if ( sp.GetPackedStore()  )
 			{
 				pszType = "(VPK)";
-				pszPack = pSearchPath->GetPackedStore()->FullPathName();
+				pszPack = sp.GetPackedStore()->FullPathName();
 			}
 		#endif
 
-		Msg( "\"%s\" \"%s\" %s%s\n", pSearchPath->GetPathString(), (const char *)pSearchPath->GetPathIDString(), pszType, pszPack );
+		Msg( "\"%s\" \"%s\" %s%s\n", sp.GetPathString(), (const char *)sp.GetPathIDString(), pszType, pszPack );
 	}
 
 	if ( IsX360() && m_ExcludePaths.Count() )

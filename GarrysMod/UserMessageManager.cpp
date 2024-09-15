@@ -65,8 +65,8 @@ void CUserMessageManager::SendMessage( QueuedMessage_t* msg ) // This is still u
 
 void CUserMessageManager::AddToQueue( QueuedMessage_t* msg )
 {
-	if ( m_pQueue.Size() > 5000 )
-		Warning( "Warning: %i global queued usermessages!", m_pQueue.Size() );
+	if ( m_pQueue.Count() > 5000 )
+		Warning( "Warning: %i global queued usermessages!", m_pQueue.Count() );
 
 	// if magicTarget.Size() > 5000
 	// Warning( "Warning: Player %i has %i queued usermessages!" );

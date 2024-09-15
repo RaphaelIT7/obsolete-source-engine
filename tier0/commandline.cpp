@@ -32,7 +32,9 @@ public:
 	const char	*GetCmdLine( void ) const override;
 	const char	*CheckParm( const char *psz, const char **ppszValue = 0 ) const override;
 	// A bool return of whether param exists, useful for just checking if param that is just a flag is set
+#ifndef BUILD_GMOD
 	bool		HasParm( const char *psz ) const override;
+#endif
 
 	void		RemoveParm( const char *parm ) override;
 	void		AppendParm( const char *pszParm, const char *pszValues ) override;
@@ -601,10 +603,12 @@ int CCommandLine::FindParm( const char *psz ) const
 	return 0;
 }
 
+#ifndef BUILD_GMOD
 bool CCommandLine::HasParm( const char *psz ) const
 {
 	return ( FindParm( psz ) != 0 );
 }
+#endif
 
 const char* CCommandLine::GetParm( int nIndex ) const
 {

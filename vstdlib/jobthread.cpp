@@ -571,7 +571,7 @@ int CThreadPool::SuspendExecution()
 
 		// Because worker must signal before suspending, we could reach
 		// here with the thread not actually suspended
-		for ( i = 0; i < m_Threads.Count(); i++ )
+		for ( auto &&t : m_Threads )
 		{
 			t->BWaitForThreadSuspendCooperative();
 		}
@@ -589,7 +589,7 @@ int CThreadPool::ResumeExecution()
 	int result = m_nSuspend--;
 	if ( m_nSuspend == 0 )
 	{
-		for ( int i = 0; i < m_Threads.Count(); i++ )
+		for ( auto &&t : m_Threads )
 		{
 			t->ResumeCooperative();
 		}
@@ -1053,7 +1053,7 @@ void CThreadPool::Distribute( bool bDistribute, int *pAffinityTable )
 							iProc = ( iProc + 1 ) % nHwThreadsPer;
 						}
 					}
-					SetThreadIdealProcessor( (ThreadHandle_t)m_Threads[i]->GetThreadHandle(), iProc );
+					SetThreadIdealProcessor( t->GetThreadHandle(), iProc );
 				}
 #else
 				// no affinity table, distribution is cycled across all available
@@ -1096,7 +1096,7 @@ void CThreadPool::Distribute( bool bDistribute, int *pAffinityTable )
 		{
 			for ( auto &&t : m_Threads )
 			{
-				ThreadSetAffinity( (ThreadHandle_t)m_Threads[i]->GetThreadHandle(), dwProcessAffinity );
+				ThreadSetAffinity( (ThreadHandle_t)t->GetThreadHandle(), dwProcessAffinity );
 			}
 		}
 #endif
