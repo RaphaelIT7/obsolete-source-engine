@@ -2883,15 +2883,15 @@ void PrintBSPFileSizes (void)
 	totalmemory += ArrayUsage( "nodes",			numnodes,		ssize(dnodes),		ENTRYSIZE(dnodes) );
 	totalmemory += ArrayUsage( "texinfos",		texinfo.Count(),MAX_MAP_TEXINFO,		sizeof(texinfo_t) );
 	totalmemory += ArrayUsage( "texdata",		numtexdata,		ssize(dtexdata),		ENTRYSIZE(dtexdata) );
-    
-	totalmemory += ArrayUsage( "dispinfos",     g_dispinfo.Count(),			0,			sizeof( ddispinfo_t ) );
-    totalmemory += ArrayUsage( "disp_verts",	g_DispVerts.Count(),		0,			sizeof( g_DispVerts[0] ) );
-    totalmemory += ArrayUsage( "disp_tris",		g_DispTris.Count(),			0,			sizeof( g_DispTris[0] ) );
-    totalmemory += ArrayUsage( "disp_lmsamples",g_DispLightmapSamplePositions.Count(),0,sizeof( g_DispLightmapSamplePositions[0] ) );
+	
+	totalmemory += ArrayUsage( "dispinfos",	 g_dispinfo.Count(),			0,			sizeof( ddispinfo_t ) );
+	totalmemory += ArrayUsage( "disp_verts",	g_DispVerts.Count(),		0,			sizeof( g_DispVerts[0] ) );
+	totalmemory += ArrayUsage( "disp_tris",		g_DispTris.Count(),			0,			sizeof( g_DispTris[0] ) );
+	totalmemory += ArrayUsage( "disp_lmsamples",g_DispLightmapSamplePositions.Count(),0,sizeof( g_DispLightmapSamplePositions[0] ) );
 	
 	totalmemory += ArrayUsage( "faces",			numfaces,		ssize(dfaces),		ENTRYSIZE(dfaces) );
-	totalmemory += ArrayUsage( "hdr faces",     numfaces_hdr,	ssize(dfaces_hdr),	ENTRYSIZE(dfaces_hdr) );
-    totalmemory += ArrayUsage( "origfaces",     numorigfaces,   ssize(dorigfaces),    ENTRYSIZE(dorigfaces) );    // original faces
+	totalmemory += ArrayUsage( "hdr faces",	 numfaces_hdr,	ssize(dfaces_hdr),	ENTRYSIZE(dfaces_hdr) );
+	totalmemory += ArrayUsage( "origfaces",	 numorigfaces,   ssize(dorigfaces),	ENTRYSIZE(dorigfaces) );	// original faces
 	totalmemory += ArrayUsage( "leaves",		numleafs,		ssize(dleafs),		ENTRYSIZE(dleafs) );
 	totalmemory += ArrayUsage( "leaffaces",		numleaffaces,	ssize(dleaffaces),	ENTRYSIZE(dleaffaces) );
 	totalmemory += ArrayUsage( "leafbrushes",	numleafbrushes,	ssize(dleafbrushes),	ENTRYSIZE(dleafbrushes) );
@@ -2906,7 +2906,7 @@ void PrintBSPFileSizes (void)
 	totalmemory += ArrayUsage( "waterverts",	g_numprimverts,	ssize(g_primverts),	ENTRYSIZE(g_primverts) );
 	totalmemory += ArrayUsage( "waterindices",	g_numprimindices,ssize(g_primindices),ENTRYSIZE(g_primindices) );
 	totalmemory += ArrayUsage( "cubemapsamples", g_nCubemapSamples,ssize(g_CubemapSamples),ENTRYSIZE(g_CubemapSamples) );
-	totalmemory += ArrayUsage( "overlays",      g_nOverlayCount, ssize(g_Overlays),   ENTRYSIZE(g_Overlays) );
+	totalmemory += ArrayUsage( "overlays",	  g_nOverlayCount, ssize(g_Overlays),   ENTRYSIZE(g_Overlays) );
 	
 	totalmemory += GlobUsage( "LDR lightdata",		dlightdataLDR.Count(),	0 );
 	totalmemory += GlobUsage( "HDR lightdata",	dlightdataHDR.Count(),	0 );
@@ -2918,9 +2918,9 @@ void PrintBSPFileSizes (void)
 	totalmemory += ArrayUsage( "LDR leaf ambient lighting", g_LeafAmbientLightingLDR.Count(), MAX_MAP_LEAFS, sizeof( g_LeafAmbientLightingLDR[0] ) );
 	totalmemory += ArrayUsage( "HDR leaf ambient lighting", g_LeafAmbientLightingHDR.Count(), MAX_MAP_LEAFS, sizeof( g_LeafAmbientLightingHDR[0] ) );
 
-	totalmemory += ArrayUsage( "occluders",     g_OccluderData.Count(),	0, sizeof( g_OccluderData[0] ) );
-    totalmemory += ArrayUsage( "occluder polygons",	g_OccluderPolyData.Count(),	0, sizeof( g_OccluderPolyData[0] ) );
-    totalmemory += ArrayUsage( "occluder vert ind",g_OccluderVertexIndices.Count(),0, sizeof( g_OccluderVertexIndices[0] ) );
+	totalmemory += ArrayUsage( "occluders",	 g_OccluderData.Count(),	0, sizeof( g_OccluderData[0] ) );
+	totalmemory += ArrayUsage( "occluder polygons",	g_OccluderPolyData.Count(),	0, sizeof( g_OccluderPolyData[0] ) );
+	totalmemory += ArrayUsage( "occluder vert ind",g_OccluderVertexIndices.Count(),0, sizeof( g_OccluderVertexIndices[0] ) );
 
 	GameLumpHandle_t h = g_GameLumps.GetGameLumpHandle( GAMELUMP_DETAIL_PROPS );
 	if (h != g_GameLumps.InvalidGameLump())
