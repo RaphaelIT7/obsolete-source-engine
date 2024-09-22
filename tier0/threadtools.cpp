@@ -1324,7 +1324,12 @@ bool CThreadMutex::TryLock()
 
 #define THREAD_SPIN (8*1024)
 
-void CThreadFastMutex::Lock( const ThreadId_t threadId, unsigned nSpinSleepTime ) 
+void CThreadFastMutex::Lock( const uint32 threadId, unsigned nSpinSleepTime ) volatile
+{
+	const_cast<CThreadFastMutex*>(this)->_Lock(threadId, nSpinSleepTime);
+}
+
+void CThreadFastMutex::_Lock( const uint32 threadId, unsigned nSpinSleepTime )
 {
 	int i;
 	if ( nSpinSleepTime != TT_INFINITE )
