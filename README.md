@@ -33,6 +33,8 @@ List of currently (probably)working dlls:
 - `vvis_dll.dll` (~40% faster than Gmod's version. Compile it in Release for the Performance benefit)
 - `vvis.exe`
 - `vrad.exe`
+
+List of currently verified working dlls:
 - `vphysics.dll` (Also, fixes ShouldCollide breaking the physics engine)
 
 ## Prerequisites

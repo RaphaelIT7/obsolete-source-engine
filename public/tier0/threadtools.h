@@ -777,11 +777,17 @@ private:
 	}
 	
 	// dimhotepus: This one is for old vphysics dll to work. 
+#ifndef BUILD_GMOD
 	PLATFORM_CLASS void Lock( const uint32 threadId, unsigned nSpinSleepTime ) volatile
 	{
 		const_cast<CThreadFastMutex *>(this)->Lock(threadId, nSpinSleepTime);
 	}
 	PLATFORM_CLASS void Lock( const uint32 threadId, unsigned nSpinSleepTime );
+#else
+	PLATFORM_CLASS void Lock( const uint32 threadId, unsigned nSpinSleepTime ) volatile;
+	PLATFORM_CLASS void _Lock( const uint32 threadId, unsigned nSpinSleepTime ); // Workaround for the name mangling shit..
+#endif
+
 
 public:
 	bool TryLock()
