@@ -247,7 +247,7 @@ void CHudDeathNotice::Paint()
 void CHudDeathNotice::RetireExpiredDeathNotices( void )
 {
 	// Loop backwards because we might remove one
-	int iSize = m_DeathNotices.Size();
+	int iSize = m_DeathNotices.Count();
 	for ( int i = iSize-1; i >= 0; i-- )
 	{
 		if ( m_DeathNotices[i].flDisplayTime < gpGlobals->curtime )
