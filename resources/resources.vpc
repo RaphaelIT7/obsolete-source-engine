@@ -45,4 +45,9 @@ $Project "resources"
 		$Lib 	bootil
 		$Lib 	FreeImage
 	}
+
+	$Folder "Resource Scripts" [$WINDOWS]
+	{
+		-$File	"$SRCDIR\build\win\resource_scripts\windows_dll_base.rc"
+	}
 }

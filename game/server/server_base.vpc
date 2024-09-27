@@ -65,7 +65,7 @@ $Configuration
 
 	$Linker
 	{
-		$AdditionalDependencies			"$BASE winmm.lib User32.lib" [$WINDOWS]
+		$AdditionalDependencies			"$BASE winmm.lib User32.lib shell32.lib Advapi32.lib" [$WINDOWS]
 		$SystemLibraries                                                        "iconv" [$OSXALL]
 	}
 }

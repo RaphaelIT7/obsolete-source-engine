@@ -17,6 +17,8 @@
 #include "include/SDL3/SDL_gamepad.h"
 #include "include/SDL3/SDL_haptic.h"
 
+#define SDL_bool bool
+
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
 
@@ -212,7 +214,9 @@ void CInputSystem::InitializeJoysticks( void )
 
 	m_bJoystickInitialized = true;
 
+#ifndef BUILD_GMOD
 	SDL_AddEventWatch(JoystickSDLWatcher, this);
+#endif
 	
 	int totalSticks;
 	SDL_JoystickID *joystickIds = SDL_GetJoysticks(&totalSticks);
@@ -226,12 +230,14 @@ void CInputSystem::InitializeJoysticks( void )
 		} 
 		else
 		{
+#ifndef BUILD_GMOD
 			SDL_GUID joyGUID = SDL_GetJoystickGUIDForID(joystickId);
 
 			char szGUID[sizeof(joyGUID.data)*2 + 1];
 			SDL_GUIDToString(joyGUID, szGUID, sizeof(szGUID));
 
 			Msg("inputsystem: Found joystick '%s' (%s), but no recognized controller configuration for it.\n", SDL_GetJoystickNameForID(joystickId), szGUID);
+#endif
 		}
 	}
 	SDL_free(joystickIds);
@@ -249,7 +255,9 @@ void CInputSystem::ShutdownJoysticks()
 		return;
 	}
 
+#ifndef BUILD_GMOD
 	SDL_RemoveEventWatch( JoystickSDLWatcher, this );
+#endif
 	if ( m_pJoystickInfo[ 0 ].m_pDevice != NULL )
 	{
 		JoystickHotplugRemoved( m_pJoystickInfo[ 0 ].m_nDeviceId );
@@ -277,6 +285,7 @@ static void SetJoyXControllerFound( bool found )
 
 void CInputSystem::JoystickHotplugAdded( unsigned joystickId )
 {
+#ifndef BUILD_GMOD
 	int joystickCount;
 	SDL_JoystickID *joystickIds = SDL_GetJoysticks(&joystickCount);
 	if (!joystickIds)
@@ -349,8 +358,10 @@ void CInputSystem::JoystickHotplugAdded( unsigned joystickId )
 
 	info.m_pDevice = controller;
 	info.m_pHaptic = haptic;
+#ifndef BUILD_GMOD
 	info.m_nDeviceId = SDL_GetJoystickID(SDL_GetGamepadJoystick(controller));
-	info.m_nButtonCount = SDL_GAMEPAD_BUTTON_COUNT;
+#endif
+	info.m_nButtonCount = SDL_GAMEPAD_BUTTON_MAX;
 	info.m_bRumbleEnabled = false;
 
 	SetJoyXControllerFound(true);
@@ -361,6 +372,7 @@ void CInputSystem::JoystickHotplugAdded( unsigned joystickId )
 	// We reset joy_active to -1 because joystick ids are never reused - until you restart.
 	// Setting it to -1 means that you get expected hotplugging behavior if you disconnect the current joystick.
 	joy_active.SetValue(-1);
+#endif
 }
 
 void CInputSystem::JoystickHotplugRemoved( unsigned joystickId )
@@ -384,7 +396,9 @@ void CInputSystem::JoystickHotplugRemoved( unsigned joystickId )
 	EnableJoystickInput(0, false);
 	SetJoyXControllerFound(false);
 
+#ifndef BUILD_GMOD
 	SDL_CloseHaptic((SDL_Haptic *)info.m_pHaptic);
+#endif
 	SDL_CloseGamepad((SDL_Gamepad *)info.m_pDevice);
 
 	info.m_pHaptic = NULL;
@@ -554,7 +568,9 @@ void CInputSystem::SetXDeviceRumble( float fLeftMotor, float fRightMotor, int us
 	{
 		if ( info.m_bRumbleEnabled )
 		{
+#ifndef BUILD_GMOD
 			SDL_StopHapticRumble( (SDL_Haptic *)info.m_pHaptic );
+#endif
 			info.m_bRumbleEnabled = false;
 			info.m_fCurrentRumble = 0.0f;
 		}
@@ -571,21 +587,25 @@ void CInputSystem::SetXDeviceRumble( float fLeftMotor, float fRightMotor, int us
 	info.m_bRumbleEnabled = true;
 	info.m_fCurrentRumble = strength;
 
+#ifndef BUILD_GMOD
 	if ( SDL_PlayHapticRumble((SDL_Haptic *)info.m_pHaptic, strength, SDL_HAPTIC_INFINITY) != 0 )
 	{
 		Warning("inputsystem: Couldn't play rumble (strength %.1f): %s\n", strength, SDL_GetError());
 	}
+#endif
 }
 
 ButtonCode_t ControllerButtonToButtonCode( SDL_GamepadButton button )
 {
 	switch ( button )
 	{
+#ifndef BUILD_GMOD
 		case SDL_GAMEPAD_BUTTON_SOUTH: // KEY_XBUTTON_A
 		case SDL_GAMEPAD_BUTTON_EAST: // KEY_XBUTTON_B
 		case SDL_GAMEPAD_BUTTON_WEST: // KEY_XBUTTON_X
 		case SDL_GAMEPAD_BUTTON_NORTH: // KEY_XBUTTON_Y
 			return JOYSTICK_BUTTON(0, button);
+#endif
 
 		case SDL_GAMEPAD_BUTTON_BACK:
 			return KEY_XBUTTON_BACK;

@@ -86,4 +86,9 @@ $Project "menusystem"
 		$DynamicFile	"$SRCDIR\lib\$PLATFORM\$_IMPLIB_PREFIXsteam$_IMPLIB_EXT" [$POSIX || $LINUX]
 		$DynamicFile	"$SRCDIR\lib\$PLATFORM\$_IMPLIB_PREFIXsteam_api$_IMPLIB_EXT" [$POSIX || $LINUX]
 	}
+
+	$Folder "Resource Scripts" [$WINDOWS]
+	{
+		-$File	"$SRCDIR\build\win\resource_scripts\windows_dll_base.rc"
+	}
 }
