@@ -201,6 +201,7 @@ namespace Lua
 extern CLuaLibrary ents_library;
 extern CLuaLibrary umsg_library;
 extern CLuaLibrary file_library;
+extern CLuaLibrary LL_Global;
 #ifdef CLIENT_DLL
 extern CLuaLibrary LL_Render;
 #endif

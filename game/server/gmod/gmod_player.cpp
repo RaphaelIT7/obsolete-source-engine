@@ -92,6 +92,22 @@ void CGMOD_Player::Spawn()
 	SetModel("models/humans/group03/male_01.mdl");
 	CHL2MP_Player::Spawn();
 
+	// Temporary Function to not get stuck in one map.
+	const CEntInfo *pInfo = g_pEntityList->FirstEntInfo();
+	for ( ;pInfo; pInfo = pInfo->m_pNext ) {
+		CBaseEntity *ent = (CBaseEntity*)pInfo->m_pEntity;
+		if ( !ent ) 
+			continue;
+
+#ifdef GAME_DLL
+		if ( Q_strcmp(ent->GetClassname(), "item_suit") != 0 )
+			continue;
+
+		m_Local.m_bWearingSuit = false;
+		break;
+#endif
+	}
+
 	// ToDo
 
 	// Make Gamemode call. (Probably: GM:PlayerSpawn)

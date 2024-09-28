@@ -1187,6 +1187,7 @@ void CLuaLibrary::Push() // Idk
 
 void InitLuaLibraries(GarrysMod::Lua::ILuaInterface* LUA)
 {
+	LL_Global.Push();
 	file_library.Push();
 
 #ifndef MENUSYSTEM
