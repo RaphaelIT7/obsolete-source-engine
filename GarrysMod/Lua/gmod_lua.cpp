@@ -65,7 +65,10 @@ void Lua::Kill()
 	// ShutdownLuaClasses( g_Lua );
 	// Error( "!g_LuaNetworkedVars" )
 	LuaShared()->UnMountLua(LUA_PATH);
-	delete gGM;
+	if (gGM)
+		delete gGM;
+
+	gGM = NULL;
 	// GarrysMod::Lua::Libraries::Timer::Shutdown();
 }
 

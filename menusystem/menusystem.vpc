@@ -51,6 +51,7 @@ $Project "menusystem"
 				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_system.cpp"
 				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_timer.cpp"
 				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_util.cpp"
+				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_globals.cpp"
 
 				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_menusystem.cpp"
 				$File	"$SRCDIR\GarrysMod\Lua\custom_libs\gl_servers.cpp"

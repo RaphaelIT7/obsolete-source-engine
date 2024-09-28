@@ -17,6 +17,18 @@ LUA_FUNCTION_STATIC( engine_LightStyle )
 }
 #endif
 
+LUA_FUNCTION_STATIC( engine_TickCount )
+{
+	LUA->PushNumber(gpGlobals->tickcount);
+	return 1;
+}
+
+LUA_FUNCTION_STATIC( engine_TickInterval )
+{
+	LUA->PushNumber(gpGlobals->interval_per_tick);
+	return 1;
+}
+
 void Engine_Library()
 {
 	g_Lua->PushSpecial( GarrysMod::Lua::SPECIAL_GLOB );
@@ -25,6 +37,12 @@ void Engine_Library()
 			g_Lua->PushCFunction( engine_LightStyle );
 			g_Lua->SetField( -2, "LightStyle" );
 #endif
+
+		g_Lua->PushCFunction( engine_TickCount );
+		g_Lua->SetField( -2, "TickCount" );
+
+		g_Lua->PushCFunction( engine_TickInterval );
+		g_Lua->SetField( -2, "TickInterval" );
 
 		g_Lua->SetField( -2, "engine" );
 
