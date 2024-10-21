@@ -2049,3 +2049,15 @@ void CClientState::RunFrame()
 
 	ConsistencyCheck( false );
 }
+
+#ifdef BUILD_GMOD
+void CClientState::GMOD_SendToServer( void* data, unsigned int dataSize, bool reliable )
+{
+	VPROF( "CClientState::GMOD_SendToServer", VPROF_BUDGETGROUP_GMOD );
+
+	CLC_GMod_ClientToServer clientToServer;
+	clientToServer.m_DataOut.StartWriting( data, dataSize );
+
+	m_NetChannel->SendNetMsg( clientToServer, reliable );
+}
+#endif

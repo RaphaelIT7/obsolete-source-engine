@@ -20,6 +20,9 @@
 #include "tier1/bitbuf.h"
 #include "inputsystem/ButtonCode.h"
 #include "modes.h"
+#ifdef BUILD_GMOD
+#include "datacache/imdlcache.h"
+#endif
 
 #if !defined( _X360 )
 #include "xbox/xboxstubs.h"
@@ -569,14 +572,14 @@ public:
 	virtual void GMOD_RawClientCmd_Unrestricted( const char *command ) = 0;
 	virtual IGMODDataTable *GMOD_CreateDataTable( void( * )( void *, int, const CGMODVariant & ) ) = 0;
 	virtual void GMOD_DestroyDataTable( IGMODDataTable *dataTable ) = 0;
-	virtual void GMOD_LoadModel( const char *path ) = 0;
+	virtual MDLHandle_t GMOD_LoadModel( const char *pModel ) = 0;
 	virtual void GMOD_DecalRemoveEntity( int index ) = 0;
 	virtual const char *GMOD_TranslateAlias( const char *cmd ) = 0;
 	virtual void GMOD_R_StudioInitLightingCache() = 0;
-	virtual void PrecacheSentenceFile() = 0;
+	virtual int PrecacheSentenceFile( const char* pFileName ) = 0;
 	virtual float GetPlayerVoiceVolume( unsigned long long unknown ) = 0;
 	virtual void SetPlayerVoiceVolume( unsigned long long unknown, float volume ) = 0;
-	virtual bool NET_IsHostLocal() = 0;
+	virtual bool NET_IsHostLocal( const char* pHostName ) = 0;
 	virtual bool IsDedicatedServer() = 0;
 #else
 	virtual void			AddPhonemeFile( const char *pszPhonemeFile ) = 0;

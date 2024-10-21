@@ -83,7 +83,7 @@ const char* CGet::GameDir()
 
 bool CGet::IsDedicatedServer()
 {
-	return ServerAddons() != nullptr;
+	return ServerAddons() != NULL;
 }
 
 int CGet::GetClientCount()

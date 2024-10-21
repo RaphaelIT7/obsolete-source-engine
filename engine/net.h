@@ -148,6 +148,12 @@ INetChannel	*NET_CreateNetChannel( intp socketnumber, netadr_t *adr, const char 
 void		NET_RemoveNetChannel( INetChannel *netchan, bool bDeleteNetChan );
 void		NET_PrintChannelStatus( INetChannel * chan );
 
+void		NET_WriteStringCmd( const char * cmd, bf_write *buf );
+
+#ifdef BUILD_GMOD
+bool		NET_IsHostLocal( const char* pHostName );
+#endif
+
 // Address conversion
 bool		NET_StringToAdr ( const char *s, netadr_t *a);
 // Convert from host to network byte ordering

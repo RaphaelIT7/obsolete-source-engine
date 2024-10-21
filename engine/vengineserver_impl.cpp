@@ -1633,14 +1633,35 @@ public:
 		return &g_fScaleFramerate;
 	}
 
-	virtual void GMOD_SendToClient( IRecipientFilter *filter, const void *data, int dataSize )
+	virtual void GMOD_SendToClient( IRecipientFilter *filter, void *data, int dataSize )
 	{
-		// ToDo
+		SVC_GMod_ServerToClient serverToClient;
+
+		serverToClient.m_DataOut.StartWriting(data, dataSize); // Recheck this later
+
+		sv.BroadcastMessage(serverToClient, *filter);
 	}
 
-	virtual void GMOD_SendToClient( int client, const void *data, int dataSize )
+	virtual void GMOD_SendToClient( int client, void *data, int dataSize )
 	{
-		// ToDo
+		IClient* cl = sv.GetClient(client);
+		if (!cl)
+		{
+			Msg("Not sending to null client.\n");
+			return;
+		}
+
+		if (cl->IsFakeClient())
+		{
+			DevMsg("Not sending to fake client '%s'.\n", cl->GetClientName());
+			return;
+		}
+
+		SVC_GMod_ServerToClient serverToClient;
+
+		serverToClient.m_DataOut.StartWriting(data, dataSize); // Recheck this later
+
+		cl->SendNetMsg(serverToClient);
 	}
 
 	virtual void GMOD_RawServerCommand( const char *command )
@@ -1668,10 +1689,9 @@ public:
 		return NULL;
 	}
 
-	virtual void *GMOD_LoadModel( const char *path )
+	virtual MDLHandle_t GMOD_LoadModel( const char *path ) // ToDo: Verify return value
 	{
-		// ToDo
-		return NULL;
+		return modelloader->GMOD_LoadModel(path);
 	}
 
 	virtual float GetClientConVarFloat( int client, const char* cvar, float fallback )
@@ -1698,10 +1718,9 @@ public:
 		return false;
 	}
 
-	virtual bool NET_IsHostLocal( const char* unknwon )
+	virtual bool NET_IsHostLocal( const char* pHostName )
 	{
-		// ToDo
-		return true;
+		return ::NET_IsHostLocal(pHostName);
 	}
 
 	virtual void *GetReplay() const

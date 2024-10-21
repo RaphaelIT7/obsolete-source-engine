@@ -10,6 +10,7 @@
 #include "Externals.h"
 #include "GarrysMod/Lua/LuaObject.h"
 #include "Lua/CLuaClass.h"
+#include "tier0/icommandline.h"
 
 void CLuaManager::Startup() // ToDo: use definitions late for Client / Server stuff
 {
@@ -31,18 +32,59 @@ void CLuaManager::Startup() // ToDo: use definitions late for Client / Server st
 	g_Lua->PushString("unknown");
 	g_Lua->SetMember(global, "BRANCH");
 
+	InitLuaLibraries(g_Lua);
+	InitLuaClasses(g_Lua);
+
 	g_Lua->PushBool(LUA_CLIENT);
 	g_Lua->SetMember(global, "CLIENT");
 
 	g_Lua->PushBool(LUA_SERVER);
 	g_Lua->SetMember(global, "SERVER");
 
-	InitLuaClasses(g_Lua);
-	InitLuaLibraries(g_Lua);
+	// MakeLuaNULLEntity
 
 	g_Lua->FindAndRunScript("includes/init.lua", true, true, "", true);
 
-	// ToDo
+	if (!gGM)
+		Error("We should have a gGM at this point!");
+
+	gGM->LoadGamemode( g_pFullFileSystem->Gamemodes()->Active().name );
+
+	RunScriptsInFolder( "autorun", "!RELOAD" );
+	SendScriptsInFolder( "matproxy", "!RELOAD_CL" );
+	SendScriptsInFolder( "postprocess", "!RELOAD_CL" );
+	SendScriptsInFolder( "vgui", "!RELOAD_CL" );
+	SendScriptsInFolder( "skins", "!RELOAD_CL" );
+	// SendScriptsInFolder( "???", "!RELOAD" );
+	SendScriptsInFolder( "autorun/client", "!RELOAD_CL" );
+	RunScriptsInFolder( "autorun/server", "!RELOAD_SV" );
+	RunScriptsInFolder( "autorun/server/sensorbones", "!RELOAD_SV" );
+
+	if (CommandLine()->CheckParm("-systemtest") && g_Lua)
+	{
+		g_Lua->FindAndRunScript( "includes/dev_server_test.lua", true, true, "!UNKNOWN", true ); // Verify
+	}
+}
+
+void CLuaManager::RunScript( const char* file, const char* pathID, bool, const char* unknown )
+{
+}
+
+void CLuaManager::RunScriptsInFolder( const char* folder, const char* pathID )
+{
+}
+
+void CLuaManager::SendScriptsInFolder( const char* folder, const char* pathID )
+{
+}
+
+bool CLuaManager::ScriptExists( const char* folder, const char* pathID )
+{
+	return false;
+}
+
+void CLuaManager::CreateEntity( const char* pEntClass )
+{
 }
 
 void Lua::Create()

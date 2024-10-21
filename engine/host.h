@@ -102,6 +102,8 @@ extern bool			g_bLowViolence;
 
 #ifdef BUILD_GMOD
 extern bool			g_bIsDedicated;
+
+extern float		g_fScaleFramerate;
 #endif
 
 // Returns true if host is not single stepping/pausing through code/
@@ -171,10 +173,6 @@ extern bool g_bDedicatedServerBenchmarkMode;
 
 extern uint GetSteamAppID();
 extern EUniverse GetSteamUniverse();
-
-#ifdef BUILD_GMOD
-extern float g_fScaleFramerate;
-#endif
 
 #define STEAMREMOTESTORAGE_CLOUD_OFF	0
 #define STEAMREMOTESTORAGE_CLOUD_ON		1

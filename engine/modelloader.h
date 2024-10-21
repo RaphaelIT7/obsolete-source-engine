@@ -16,6 +16,9 @@ class IFileList;
 class IModelLoadCallback;
 
 #include "utlmemory.h"
+#ifdef BUILD_GMOD
+#include "datacache/imdlcache.h"
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -86,8 +89,10 @@ public:
 	virtual void		UnreferenceModel( model_t *model, REFERENCETYPE referencetype ) = 0;
 	// Unmasks the specified reference type across all models
 	virtual void		UnreferenceAllModels( REFERENCETYPE referencetype ) = 0;
+#ifndef BUILD_GMOD
 	// Set all models to last loaded on server count -1
 	virtual void		ResetModelServerCounts() = 0;
+#endif
 
 	// For any models with referencetype blank, frees all memory associated with the model
 	//  and frees up the models slot
@@ -152,6 +157,15 @@ public:
 	virtual void		UnregisterModelLoadCallback( model_t *pModel, bool bClientOnly, IModelLoadCallback *pCallback ) = 0;
 
 	virtual void		Client_OnServerModelStateChanged( model_t *pModel, bool bServerLoaded ) = 0;
+
+#ifdef BUILD_GMOD
+	virtual MDLHandle_t	GMOD_LoadModel(const char* pModel) = 0;
+	virtual void		GMOD_ReloadModels(bool bUnknown) = 0;
+
+	// NOTE: This function is NOT a part of GMOD! I keep it here to not potentially break anything.
+	// Set all models to last loaded on server count -1
+	virtual void		ResetModelServerCounts() = 0;
+#endif
 };
 
 extern IModelLoader *modelloader;

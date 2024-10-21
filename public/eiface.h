@@ -423,13 +423,13 @@ public:
 
 #ifdef BUILD_GMOD
 	virtual float *GMOD_SetTimeManipulator( float fScaleFramerate ) = 0;
-	virtual void GMOD_SendToClient( IRecipientFilter *filter, const void *data, int dataSize ) = 0;
-	virtual void GMOD_SendToClient( int client, const void *data, int dataSize ) = 0;
+	virtual void GMOD_SendToClient( IRecipientFilter *filter, void *data, int dataSize ) = 0;
+	virtual void GMOD_SendToClient( int client, void *data, int dataSize ) = 0;
 	virtual void GMOD_RawServerCommand( const char *command ) = 0;
 	virtual IGMODDataTable *GMOD_CreateDataTable() = 0;
 	virtual void GMOD_DestroyDataTable( IGMODDataTable *dataTable ) = 0;
 	virtual const char *GMOD_GetServerAddress() const = 0;
-	virtual void *GMOD_LoadModel( const char *path ) = 0;
+	virtual MDLHandle_t GMOD_LoadModel( const char *path ) = 0;
 	virtual float GetClientConVarFloat( int client, const char* cvar, float fallback ) = 0;
 	virtual CSteamID *GMOD_GetPlayerOwnerSteamID( const edict_t* pClient ) = 0;
 	virtual bool GMOD_GetPlayerIsSpeaking( const edict_t* pClient ) = 0;

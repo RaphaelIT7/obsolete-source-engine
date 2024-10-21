@@ -224,6 +224,10 @@ public:
 	void				CheckOthersCustomFile(CRC32_t crc); // check if we have to download custom files from server
 	void				AddCustomFile( int slot, const char *resourceFile);
 
+#ifdef BUILD_GMOD
+	void				GMOD_SendToServer( void* data, unsigned int dataSize, bool reliable );
+#endif
+
 public:
 
 

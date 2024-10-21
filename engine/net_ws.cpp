@@ -348,6 +348,27 @@ void NET_ClearLagData( intp sock )
 	}
 }
 
+#ifdef BUILD_GMOD
+bool NET_IsHostLocal( const char* pHostName )
+{
+	sockaddr addr;
+	netadr_s netAdr;
+
+	bool valid = NET_StringToSockaddr( pHostName, &addr );
+	if ( !valid )
+		return false;
+
+	netAdr.SetFromSockadr( &addr );
+	netAdr.SetIP( 0 );
+	netAdr.SetPort( 0 );
+	netAdr.SetType( netadrtype_t::NA_IP );
+
+	// ToDo: Figure out the rest
+
+	return false;
+}
+#endif
+
 /*
 =============
 NET_StringToAdr
