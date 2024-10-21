@@ -905,11 +905,12 @@ private:
 };
 
 #ifdef BUILD_GMOD
-class SVC_GMod_ServerToClient : public CNetMessage
+class SVC_GMod_ServerToClient : public CNetMessage // This entire class is guessed
 {
 public:
 	DECLARE_SVC_MESSAGE( GMod_ServerToClient );
 
+	bf_write	m_DataOut;
 	bf_read		m_DataIn;
 };
 
@@ -918,6 +919,7 @@ class CLC_GMod_ClientToServer : public CNetMessage
 public:
 	DECLARE_CLC_MESSAGE( GMod_ClientToServer );
 
+	bf_write	m_DataOut; // Guess. Most likely doesn't match gmod.
 	bf_read		m_DataIn;
 };
 #endif

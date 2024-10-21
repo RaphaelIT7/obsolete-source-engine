@@ -203,7 +203,7 @@ public:
 	// Unmasks the specified reference type across all models
 	void			UnreferenceAllModels( REFERENCETYPE referencetype );
 	// Set all models to last loaded on server count -1
-	void			ResetModelServerCounts();
+	void			ResetModelServerCounts(); // <------------ NOTE: This is not a part in GMOD! This is just here to not break anything. #ifdef BUILD_GMOD
 
 	// For any models with referencetype blank, frees all memory associated with the model
 	//  and frees up the models slot
@@ -276,6 +276,12 @@ public:
 	virtual void	Client_OnServerModelStateChanged( model_t *pModel, bool bServerLoaded );
 
 	void			DebugPrintDynamicModels();
+
+#ifdef BUILD_GMOD
+public:
+	virtual MDLHandle_t	GMOD_LoadModel(const char* pModel);
+	virtual void		GMOD_ReloadModels(bool bUnknown);
+#endif
 
 // Internal types
 private:
@@ -6143,4 +6149,38 @@ void CModelLoader::DebugPrintDynamicModels()
 			(dyn.m_nLoadFlags & CDynamicModelInfo::CLIENTREADY) ? " CLIENTREADY" : "",
 			(dyn.m_nLoadFlags & CDynamicModelInfo::ALLREADY) ? " ALLREADY" : "" );
 	}
+}
+
+MDLHandle_t CModelLoader::GMOD_LoadModel( const char* pModel )
+{
+	if ( g_ClientDLL )
+		g_ClientDLL->InvalidateMdlCache();
+
+	if ( serverGameDLL )
+		serverGameDLL->InvalidateMdlCache();
+
+	MDLHandle_t pMDLHandle = g_pMDLCache->FindMDL( pModel );
+	if ( !pMDLHandle )
+		return MDLHANDLE_INVALID;
+
+	g_pMDLCache->AddRef( pMDLHandle ); // Also verify
+	//g_pMDLCache->GetStudioHdr( pMDLHandle );
+	g_pMDLCache->GetHardwareData( pMDLHandle ); // Memory Caching stuff
+	g_pMDLCache->TouchAllData( pMDLHandle );
+	
+	if ( g_pMDLCache->IsErrorModel( pMDLHandle ) )
+	{
+		g_pMDLCache->Release( pMDLHandle );
+		return MDLHANDLE_INVALID;
+	}
+
+	g_pMDLCache->LockStudioHdr( pMDLHandle ); // Verify this someday.
+	g_pMDLCache->UnlockStudioHdr( pMDLHandle );
+
+	return pMDLHandle;
+}
+
+void CModelLoader::GMOD_ReloadModels( bool bUnknown )
+{
+	// gmod_unload_test stuff
 }

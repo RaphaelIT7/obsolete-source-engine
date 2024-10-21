@@ -578,14 +578,14 @@ public:
 	virtual void GMOD_RawClientCmd_Unrestricted( const char *command );
 	virtual IGMODDataTable *GMOD_CreateDataTable( void( * )( void *, int, const CGMODVariant & ) );
 	virtual void GMOD_DestroyDataTable( IGMODDataTable *dataTable );
-	virtual void GMOD_LoadModel( const char *path );
+	virtual MDLHandle_t GMOD_LoadModel( const char *pModel );
 	virtual void GMOD_DecalRemoveEntity( int index );
 	virtual const char *GMOD_TranslateAlias( const char *cmd );
 	virtual void GMOD_R_StudioInitLightingCache();
-	virtual void PrecacheSentenceFile();
+	virtual int PrecacheSentenceFile( const char* pFileName );
 	virtual float GetPlayerVoiceVolume( unsigned long long unknown );
 	virtual void SetPlayerVoiceVolume( unsigned long long unknown, float volume );
-	virtual bool NET_IsHostLocal();
+	virtual bool NET_IsHostLocal( const char* pHostName );
 	virtual bool IsDedicatedServer();
 #else
 	float	GetPausedExpireTime( void ) override;
@@ -2253,6 +2253,8 @@ void CEngineClient::GMOD_SetTimeManipulator( float fScaleFramerate )
 void CEngineClient::GMOD_SendToServer( void* data, unsigned int dataSize, bool reliable )
 {
 	VPROF( "CEngineClient::GMOD_SendToServer", VPROF_BUDGETGROUP_GMOD );
+	
+	cl.GMOD_SendToServer( data, dataSize, reliable );
 }
 
 void CEngineClient::GMOD_PlaceDecalMaterial( IMaterial *, bool, int, IClientEntity *, const Vector &, const Vector &, const color32_s &, float, float )
@@ -2264,9 +2266,11 @@ void CEngineClient::GMOD_GetSpew( char *buffer, unsigned int bufferSize )
 {
 }
 
-void CEngineClient::GMOD_SetViewEntity( uint )
+void CEngineClient::GMOD_SetViewEntity( uint iViewEntity )
 {
 	VPROF( "CEngineClient::GMOD_SetViewEntity", VPROF_BUDGETGROUP_GMOD );
+
+	cl.m_nViewEntity = iViewEntity;
 }
 
 void CEngineClient::GMOD_BrushMaterialOverride( IMaterial *matOverride )
@@ -2297,8 +2301,9 @@ void CEngineClient::GMOD_DestroyDataTable( IGMODDataTable *dataTable )
 {
 }
 
-void CEngineClient::GMOD_LoadModel( const char *path )
+MDLHandle_t CEngineClient::GMOD_LoadModel( const char *pModel )
 {
+	return modelloader->GMOD_LoadModel( pModel );
 }
 
 void CEngineClient::GMOD_DecalRemoveEntity( int index )
@@ -2315,8 +2320,11 @@ void CEngineClient::GMOD_R_StudioInitLightingCache()
 	R_StudioInitLightingCache();
 }
 
-void CEngineClient::PrecacheSentenceFile()
+int CEngineClient::PrecacheSentenceFile( const char* pFileName )
 {
+	VOX_ReadSentenceFile( pFileName );
+
+	return 0;
 }
 
 float CEngineClient::GetPlayerVoiceVolume( unsigned long long unknown )
@@ -2328,13 +2336,13 @@ void CEngineClient::SetPlayerVoiceVolume( unsigned long long unknown, float volu
 {
 }
 
-bool CEngineClient::NET_IsHostLocal()
+bool CEngineClient::NET_IsHostLocal(const char* pHostName)
 {
-	return false; // ToDo: Implement NET_IsHostLocal(const char*);
+	return ::NET_IsHostLocal( pHostName );
 }
 
 bool CEngineClient::IsDedicatedServer()
 {
-	return false;
+	return g_bIsDedicated;
 }
 #endif
