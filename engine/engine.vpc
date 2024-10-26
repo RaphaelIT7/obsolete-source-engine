@@ -79,7 +79,7 @@ $Configuration	"Release"
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories	"$BASE;.\;audio;audio\private;audio\public;$SRCDIR\vgui2\include;$SRCDIR\vgui2\controls"
+		$AdditionalIncludeDirectories	"$BASE;.\;audio;audio\private;audio\public;$SRCDIR\vgui2\include;$SRCDIR\vgui2\controls;$SRCDIR\GarrysMod;$SRCDIR\bootil\include"
 		$AdditionalIncludeDirectories	"$BASE;$LIBJPEGSRCDIR;$LIBJPEGSRC2DIR;$LIBJPEGOUTDIR"
 		$AdditionalIncludeDirectories	"$BASE;$ZLIBSRCDIR;$ZLIBSRC2DIR;$ZLIBOUTDIR"
 		$AdditionalIncludeDirectories	"$BASE;$SDL3SRCDIR;$SDL3SRCDIR\include"	[$SDL]
