@@ -967,7 +967,7 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 #endif
 
 #ifdef BUILD_GMOD
-	igarrysmod->InitializeMod( appSystemFactory );
+	garrysmod.InitializeMod( appSystemFactory );
 #endif
 
 #if defined( REPLAY_ENABLED )
@@ -1128,7 +1128,7 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 #endif
 
 #ifdef BUILD_GMOD
-	igarrysmod->PostInitialize();
+	garrysmod.PostInitialize();
 
 	Msg("Initializing Serverside..");
 
@@ -1224,7 +1224,7 @@ void CHLClient::Shutdown( void )
 
 	C_BaseAnimating::ShutdownBoneSetupThreadPool();
 #ifdef BUILD_GMOD
-	igarrysmod->Shutdown();
+	garrysmod.Shutdown();
 #endif
 	ClientWorldFactoryShutdown();
 
@@ -1660,7 +1660,7 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 #endif // USES_ECON_ITEMS
 
 #ifdef BUILD_GMOD
-	igarrysmod->LevelInit( pMapName, NULL, NULL, NULL, false, false );
+	garrysmod.LevelInit( pMapName, NULL, NULL, NULL, false, false );
 #endif
 
 	ResetWindspeed();
@@ -1803,7 +1803,7 @@ void CHLClient::LevelShutdown( void )
 	// DataPack()->Reset()
 	GarrysMod::StringTable::Reset();
 	Lua::Kill();
-	igarrysmod->LevelShutdown();
+	garrysmod.LevelShutdown();
 #endif
 }
 
@@ -2725,8 +2725,18 @@ CSteamID GetSteamIDForPlayerIndex( int iPlayerIndex )
 #endif
 
 #ifdef BUILD_GMOD
-void CHLClient::GMOD_ReceiveServerMessage( bf_read*, int )
+void CHLClient::GMOD_ReceiveServerMessage( bf_read* pBF, int )
 {
+	int iType = pBF->ReadBitLong(4, false);
+	Msg("%i\n", iType);
+	switch(iType)
+	{
+		case 1: // Used for now by ClearModelPrecache logic.
+			garrysmod.OnClearModelPrecache(pBF);
+			break;
+		default:
+			break;
+	}
 	// Call net.Incoming
 }
 

@@ -1827,7 +1827,7 @@ bool CBaseClientState::ProcessGetCvarValue( SVC_GetCvarValue *msg )
 #ifdef BUILD_GMOD
 bool CBaseClientState::ProcessGMod_ServerToClient( SVC_GMod_ServerToClient *msg )
 {
-	g_ClientDLL->GMOD_ReceiveServerMessage( (bf_read*)msg, 0 );
+	g_ClientDLL->GMOD_ReceiveServerMessage( &msg->m_DataIn, 0 );
 
 	return true;
 }

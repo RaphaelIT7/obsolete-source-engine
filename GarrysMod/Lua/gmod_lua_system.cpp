@@ -3,6 +3,7 @@
 #include "gmod_lua.h"
 #include "usermessages.h"
 #include "Lua/custom_libs/gl_message.h"
+#include "Externals.h"
 
 void MsgFunc_BreakModel( bf_read& msg )
 {
@@ -32,12 +33,26 @@ void RegisterGModMessages()
 }
 
 #ifdef CLIENT_DLL
-class CLuaGameSystem : public CAutoGameSystem
+class CLuaGameSystem : public CAutoGameSystemPerFrame
 {
 	virtual void LevelInitPreEntity()
 	{
 		Lua::Create();
 		Lua::OnLoaded();
+	}
+
+	virtual void Update(float _)
+	{
+		garrysmod.Think();
+	}
+};
+CLuaGameSystem g_LuaGameSystem;
+#else
+class CLuaGameSystem : public CAutoGameSystemPerFrame
+{
+	virtual void FrameUpdatePreEntityThink()
+	{
+		garrysmod.Think();
 	}
 };
 CLuaGameSystem g_LuaGameSystem;

@@ -11,7 +11,6 @@
 
 #include "cbase.h"
 #include "garrysmod.h"
-#include "Externals.h"
 #include "Lua/gmod_lua.h"
 #include "GModMaterialProxyFactory.h"
 #include "CLuaClass.h"
@@ -23,7 +22,7 @@ GarrysMod::Lua::ILuaShared* LuaShared()
 }
 
 CGarrysMod garrysmod;
-CGarrysMod* igarrysmod = &garrysmod;
+IGarrysMod* igarrysmod = &garrysmod;
 
 CGarrysMod::CGarrysMod()
 {
