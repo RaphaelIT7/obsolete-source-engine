@@ -912,8 +912,10 @@ bool CEngineTrace::ClipRayToBSP( const Ray_t &ray, unsigned int fMask, ICollidea
 {
 	int nModelIndex = pEntity->GetCollisionModelIndex();
 	cmodel_t *pCModel = CM_InlineModelNumber( nModelIndex - 1 );
-	int nHeadNode = pCModel->headnode;
+	if (!pCModel)
+		return false;
 
+	int nHeadNode = pCModel->headnode;
 	CM_TransformedBoxTrace( ray, nHeadNode, fMask, pEntity->GetCollisionOrigin(), pEntity->GetCollisionAngles(), *pTrace );
 	return true;
 }

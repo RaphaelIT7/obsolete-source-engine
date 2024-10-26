@@ -697,7 +697,7 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	g_pGameSaveRestoreBlockSet->AddBlockHandler( GetAchievementSaveRestoreBlockHandler() );
 
 #ifdef BUILD_GMOD
-	igarrysmod->InitializeMod( appSystemFactory );
+	garrysmod.InitializeMod( appSystemFactory );
 #endif
 
 	// The string system must init first + shutdown last
@@ -771,7 +771,7 @@ void CServerGameDLL::PostInit()
 void CServerGameDLL::DLLShutdown( void )
 {
 #ifdef BUILD_GMOD
-	igarrysmod->Shutdown();
+	garrysmod.Shutdown();
 #endif
 
 	// Due to dependencies, these are not autogamesystems
@@ -993,7 +993,7 @@ bool CServerGameDLL::LevelInit( const char *pMapName, char const *pMapEntities, 
 	}
 
 #ifdef BUILD_GMOD
-	igarrysmod->LevelInit( pMapName, pMapEntities, pOldLevel, pLandmarkName, loadGame, background );
+	garrysmod.LevelInit( pMapName, pMapEntities, pOldLevel, pLandmarkName, loadGame, background );
 #endif
 
 	//Tony; parse custom manifest if exists!

@@ -32,10 +32,9 @@
 #endif
 
 extern IGet* get;
-#if !defined(GAME_DLL) && !defined(CLIENT_DLL)
 extern IGarrysMod* igarrysmod;
-#else
-extern CGarrysMod* igarrysmod;
+#if defined(GAME_DLL) || defined(CLIENT_DLL)
+extern CGarrysMod garrysmod;
 #endif
 extern GarrysMod::Lua::ILuaGameCallback* g_LuaCallback;
 extern GarrysMod::Lua::ILuaInterface* g_Lua;

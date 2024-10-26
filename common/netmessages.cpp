@@ -2070,19 +2070,25 @@ const char *SVC_GetCvarValue::ToString(void) const
 #ifdef BUILD_GMOD
 bool SVC_GMod_ServerToClient::ReadFromBuffer( bf_read &buffer )
 {
-	// ToDo
-	return !buffer.IsOverflowed();
+	VPROF( "SVC_GMod_ServerToClient::ReadFromBuffer" );
+
+	m_iLength = buffer.ReadUBitLong(32);
+	m_DataIn = buffer;
+	return buffer.SeekRelative( m_iLength );
 }
 
 bool SVC_GMod_ServerToClient::WriteToBuffer( bf_write &buffer )
 {
-	// ToDo
-	return !buffer.IsOverflowed();
+	m_iLength = m_DataOut.GetMaxNumBits();
+
+	buffer.WriteUBitLong( GetType(), NETMSG_TYPE_BITS );
+	buffer.WriteUBitLong( m_iLength, 32 );
+
+	return buffer.WriteBits( m_DataOut.GetData(), m_iLength );
 }
 
 const char* SVC_GMod_ServerToClient::ToString() const
 {
-	//char s_text[8];
 	//V_snprintf(s_text, sizeof(s_text), "boobies");
 
 	return "boobies";
@@ -2090,6 +2096,7 @@ const char* SVC_GMod_ServerToClient::ToString() const
 
 bool CLC_GMod_ClientToServer::ReadFromBuffer( bf_read &buffer )
 {
+	VPROF( "CLC_GMod_ClientToServer::ReadFromBuffer" );
 	// ToDo
 	return !buffer.IsOverflowed();
 }
@@ -2102,7 +2109,6 @@ bool CLC_GMod_ClientToServer::WriteToBuffer( bf_write &buffer )
 
 const char* CLC_GMod_ClientToServer::ToString() const
 {
-	//char s_text[8];
 	//V_snprintf(s_text, sizeof(s_text), "boobies");
 
 	return "boobies";

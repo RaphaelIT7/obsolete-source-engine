@@ -10,6 +10,10 @@ CLuaGamemode* gGM;
 CLuaNetworkedVars* g_LuaNetworkedVars;
 #endif
 
+#if !defined(GAME_DLL) && !defined(CLIENT_DLL) && !defined(MENUSYSTEM)
+IGarrysMod* igarrysmod;
+#endif
+
 #ifdef MENUSYSTEM
 CGlobalVarsBase* gpGlobals;
 #endif

@@ -212,7 +212,7 @@ const char* CGMODRules::GetGameDescription()
 #ifdef CLIENT_DLL
 	return "Garry's Mod";
 #else
-	return igarrysmod->GetGameDescription();
+	return garrysmod.GetGameDescription();
 #endif
 }
 

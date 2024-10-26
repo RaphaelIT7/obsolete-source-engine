@@ -910,6 +910,7 @@ class SVC_GMod_ServerToClient : public CNetMessage // This entire class is guess
 public:
 	DECLARE_SVC_MESSAGE( GMod_ServerToClient );
 
+	int			m_iLength;
 	bf_write	m_DataOut;
 	bf_read		m_DataIn;
 };
@@ -919,7 +920,8 @@ class CLC_GMod_ClientToServer : public CNetMessage
 public:
 	DECLARE_CLC_MESSAGE( GMod_ClientToServer );
 
-	bf_write	m_DataOut; // Guess. Most likely doesn't match gmod.
+	int			m_iLength; // Guess. Most likely doesn't match gmod.
+	bf_write	m_DataOut;
 	bf_read		m_DataIn;
 };
 #endif

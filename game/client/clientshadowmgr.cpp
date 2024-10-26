@@ -3540,7 +3540,8 @@ void CClientShadowMgr::RemoveAllShadowsFromReceiver(
 	case SHADOW_RECEIVER_BRUSH_MODEL:
 		{
 			model_t* pModel = const_cast<model_t*>(pRenderable->GetModel());
-			shadowmgr->RemoveAllShadowsFromBrushModel( pModel );
+			if ( pModel ) // Just a crash fix, if for some reason the pRenderable doesn't have a model anymore
+				shadowmgr->RemoveAllShadowsFromBrushModel( pModel );
 		}
 		break;
 
