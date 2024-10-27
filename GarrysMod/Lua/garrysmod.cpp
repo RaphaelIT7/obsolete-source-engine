@@ -15,6 +15,7 @@
 #include "GModMaterialProxyFactory.h"
 #include "CLuaClass.h"
 #include "sv_autorefresh.h"
+#include "Externals.h"
 
 GarrysMod::Lua::ILuaShared* LuaShared()
 {
@@ -237,3 +238,44 @@ void CGarrysMod::FireGameEvent( IGameEvent* event )
 	// if name == server_spawn
 	// Do some print
 }
+
+void dumpstringtables_newCmd( const CCommand &args )
+{
+	if ( args.ArgC() > 0 )
+	{
+		INetworkStringTable* pTable = networkstringtable->FindTable( args.Arg( 1 ) );
+		if ( !pTable )
+		{
+			Msg( "Table %s not found.\n", args.Arg( 1 ) );
+			return;
+		}
+
+		for ( int i=0; i<pTable->GetNumStrings(); ++i )
+		{
+			int iLength;
+			const void* pUserData = pTable->GetStringUserData( i, &iLength );
+			if (iLength > 0)
+				Msg( "%i: '%s'(data %i bytes)\n", i, pTable->GetString( i ), iLength );
+			else
+				Msg( "%i: '%s'\n", i, pTable->GetString( i ) );
+		}
+
+		Msg( "Max Strings: %i\n", pTable->GetMaxStrings() );
+		Msg( "Num Strings: %i\n", pTable->GetNumStrings() );
+		Msg( "Total String Bytes: %i\n", 0 );  // ToDo: Finish this later.
+		Msg( "Total Data Bytes: %i\n", 0 );
+		return;
+	}
+
+	for ( int i=0; i<networkstringtable->GetNumTables(); ++i )
+	{
+		INetworkStringTable* pTable = networkstringtable->GetTable( i );
+		Msg( "%i: %s\n	strings: %i\n	strdata: %i\n	databts: %i\n", i, pTable->GetTableName(), pTable->GetNumStrings(), 0, pTable->GetEntryBits() ); // ToDo: get strdata properly
+	}
+}
+
+#ifdef CLIENT_DLL
+ConCommand dumpstringtables_new( "cl_dumpstringtables_new", dumpstringtables_newCmd, "", 0 );
+#else
+ConCommand dumpstringtables_new( "dumpstringtables_new", dumpstringtables_newCmd, "", 0 );
+#endif
