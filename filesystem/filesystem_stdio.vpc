@@ -103,6 +103,19 @@ $Project "filesystem_stdio"
 		$File	"$SRCDIR\public\filesystem\IQueuedLoader.h"
 	}
 
+	$Folder	"Garry's Mod Header Files"
+	{
+		$File	"$SRCDIR\public\GarrysMod\Addon.h"
+		$File	"$SRCDIR\public\GarrysMod\GameDepot.h"
+		$File	"$SRCDIR\public\GarrysMod\Gamemode.h"
+		$File	"$SRCDIR\public\GarrysMod\IAddonDownloadNotify.h"
+		$File	"$SRCDIR\public\GarrysMod\IGet.h"
+		$File	"$SRCDIR\public\GarrysMod\IMenuSystem.h"
+		$File	"$SRCDIR\public\GarrysMod\IServerAddons.h"
+		$File	"$SRCDIR\public\GarrysMod\Language.h"
+		$File	"$SRCDIR\public\GarrysMod\LegacyAddons.h"
+	}
+
 	$Folder "Link Libraries"
 	{
 		$Lib	tier2

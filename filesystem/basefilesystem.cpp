@@ -496,6 +496,8 @@ void CBaseFileSystem::Shutdown()
 //-----------------------------------------------------------------------------
 inline void CBaseFileSystem::ComputeFullWritePath( char* pDest, int maxlen, const char *pRelativePath, const char *pWritePathID )
 {
+	VPROF_BUDGET( "CBaseFileSystem::ComputeFullWritePath", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
+
 	Q_strncpy( pDest, GetWritePath( pRelativePath, pWritePathID ), maxlen );
 	Q_strncat( pDest, pRelativePath, maxlen, COPY_ALL_CHARACTERS );
 	Q_FixSlashes( pDest );
@@ -552,6 +554,8 @@ void CBaseFileSystem::LogAccessToFile( char const *accesstype, char const *fullp
 //-----------------------------------------------------------------------------
 FILE *CBaseFileSystem::Trace_FOpen( const char *filenameT, const char *options, unsigned flags, int64 *size )
 {
+	VPROF_BUDGET( "CBaseFileSystem::Trace_FOpen", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
+
 	AUTOBLOCKREPORTER_FN( Trace_FOpen, this, true, filenameT, FILESYSTEM_BLOCKING_SYNCHRONOUS, FileBlockingItem::FB_ACCESS_OPEN );
 
 	char filename[MAX_PATH];
@@ -629,6 +633,8 @@ void CBaseFileSystem::GetFileNameForHandle( FileHandle_t handle, char *buf, size
 //-----------------------------------------------------------------------------
 void CBaseFileSystem::Trace_FClose( FILE *fp )
 {
+	VPROF_BUDGET( "CBaseFileSystem::Trace_FClose", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
+
 	if ( fp )
 	{
 		m_OpenedFilesMutex.Lock();
@@ -665,6 +671,8 @@ void CBaseFileSystem::Trace_FClose( FILE *fp )
 
 void CBaseFileSystem::Trace_FRead( int size, FILE* fp )
 {
+	VPROF_BUDGET( "CBaseFileSystem::Trace_FRead", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
+
 	if ( !fp || m_fwLevel < FILESYSTEM_WARNING_REPORTALLACCESSES_READ )
 		return;
 
@@ -690,6 +698,8 @@ void CBaseFileSystem::Trace_FRead( int size, FILE* fp )
 
 void CBaseFileSystem::Trace_FWrite( int size, FILE* fp )
 {
+	VPROF_BUDGET( "CBaseFileSystem::Trace_FWrite", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
+
 	if ( !fp || m_fwLevel < FILESYSTEM_WARNING_REPORTALLACCESSES_READWRITE )
 		return;
 
@@ -767,6 +777,7 @@ CPackedStoreRefCount::CPackedStoreRefCount( char const *pFileBasename, char *psz
 
 void CBaseFileSystem::AddVPKFile( char const *pPath, const char *pPathID, SearchPathAdd_t addType )
 {
+	VPROF_BUDGET( "CBaseFileSystem::AddVPKFile", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 #if defined( SUPPORT_PACKED_STORE )
 	char nameBuf[MAX_PATH];
 
@@ -825,6 +836,7 @@ void CBaseFileSystem::AddVPKFile( char const *pPath, const char *pPathID, Search
 
 bool CBaseFileSystem::RemoveVPKFile( const char *pPath, const char *pPathID )
 {
+	VPROF_BUDGET( "CBaseFileSystem::RemoveVPKFile", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 #if defined( SUPPORT_PACKED_STORE )
 	char nameBuf[MAX_PATH];
 
@@ -859,6 +871,7 @@ bool CBaseFileSystem::RemoveVPKFile( const char *pPath, const char *pPathID )
 //-----------------------------------------------------------------------------
 bool CBaseFileSystem::AddPackFile( const char *pFileName, const char *pathID )
 {
+	VPROF_BUDGET( "CBaseFileSystem::AddPackFile", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CHECK_DOUBLE_SLASHES( pFileName );
 
 	AsyncFinishAll();
@@ -871,6 +884,7 @@ bool CBaseFileSystem::AddPackFile( const char *pFileName, const char *pathID )
 //-----------------------------------------------------------------------------
 bool CBaseFileSystem::AddPackFileFromPath( const char *pPath, const char *pakfile, bool bCheckForAppendedPack, const char *pathID )
 {
+	VPROF_BUDGET( "CBaseFileSystem::AddPackFileFromPath", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	char fullpath[ MAX_PATH ];
 	_snprintf( fullpath, sizeof(fullpath), "%s%s", pPath, pakfile );
 	Q_FixSlashes( fullpath );
@@ -929,6 +943,7 @@ bool CBaseFileSystem::AddPackFileFromPath( const char *pPath, const char *pakfil
 
 void CBaseFileSystem::AddPackFiles( const char *pPath, const CUtlSymbol &pathID, SearchPathAdd_t addType )
 {
+	VPROF_BUDGET( "CBaseFileSystem::AddPackFiles", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	Assert( ThreadInMainThread() );
 	DISK_INTENSIVE();
 
@@ -1068,6 +1083,7 @@ void CBaseFileSystem::AddPackFiles( const char *pPath, const CUtlSymbol &pathID,
 //-----------------------------------------------------------------------------
 void CBaseFileSystem::RemoveAllMapSearchPaths( void )
 {
+	VPROF_BUDGET( "CBaseFileSystem::RemoveAllMapSearchPaths", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	AsyncFinishAll();
 
 	intp c = m_SearchPaths.Count();
@@ -1087,6 +1103,7 @@ void CBaseFileSystem::RemoveAllMapSearchPaths( void )
 //-----------------------------------------------------------------------------
 void CBaseFileSystem::AddMapPackFile( const char *pPath, const char *pPathID, SearchPathAdd_t addType )
 {
+	VPROF_BUDGET( "CBaseFileSystem::AddMapPackFile", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	char tempPathID[MAX_PATH];
 	ParsePathID( pPath, pPathID, tempPathID );
 
@@ -1234,6 +1251,7 @@ void CBaseFileSystem::AddMapPackFile( const char *pPath, const char *pPathID, Se
 
 void CBaseFileSystem::BeginMapAccess() 
 {
+	VPROF_BUDGET( "CBaseFileSystem::BeginMapAccess", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	if ( m_iMapLoad++ == 0 )
 	{
 		for( auto &sp : m_SearchPaths )
@@ -1272,6 +1290,7 @@ void CBaseFileSystem::BeginMapAccess()
 
 void CBaseFileSystem::EndMapAccess() 
 {
+	VPROF_BUDGET( "CBaseFileSystem::EndMapAccess", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	if ( m_iMapLoad-- == 1 )
 	{
 		for( auto &sp : m_SearchPaths )
@@ -1351,6 +1370,7 @@ void CBaseFileSystem::PrintSearchPaths( void )
 //-----------------------------------------------------------------------------
 void CBaseFileSystem::AddSearchPathInternal( const char *pPath, const char *pathID, SearchPathAdd_t addType, bool bAddPackFiles )
 {
+	VPROF_BUDGET( "CBaseFileSystem::AddSearchPathInternal", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	AsyncFinishAll();
 
 	Assert( ThreadInMainThread() );
@@ -1473,6 +1493,7 @@ CBaseFileSystem::CSearchPath *CBaseFileSystem::FindSearchPathByStoreId( int stor
 //-----------------------------------------------------------------------------
 void CBaseFileSystem::AddSearchPath( const char *pPath, const char *pathID, SearchPathAdd_t addType )
 {
+	VPROF_BUDGET( "CBaseFileSystem::AddSearchPath", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	intp currCount = m_SearchPaths.Count();
 
 	AddSearchPathInternal( pPath, pathID, addType, true );
@@ -1496,6 +1517,7 @@ void CBaseFileSystem::AddSearchPath( const char *pPath, const char *pathID, Sear
 //-----------------------------------------------------------------------------
 int CBaseFileSystem::GetSearchPath( const char *pathID, bool bGetPackFiles, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars )
 {
+	VPROF_BUDGET( "CBaseFileSystem::GetSearchPath", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	AUTO_LOCK( m_SearchPathsMutex );
 
 	if ( maxLenInChars )
@@ -1547,6 +1569,7 @@ int CBaseFileSystem::GetSearchPath( const char *pathID, bool bGetPackFiles, OUT_
 //-----------------------------------------------------------------------------
 bool CBaseFileSystem::RemoveSearchPath( const char *pPath, const char *pathID )
 {
+	VPROF_BUDGET( "CBaseFileSystem::RemoveSearchPath", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	AsyncFinishAll();
 
 	char newPath[ MAX_FILEPATH ];
@@ -1603,6 +1626,7 @@ bool CBaseFileSystem::RemoveSearchPath( const char *pPath, const char *pathID )
 //-----------------------------------------------------------------------------
 void CBaseFileSystem::RemoveSearchPaths( const char *pathID )
 {
+	VPROF_BUDGET( "CBaseFileSystem::RemoveSearchPaths", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	AsyncFinishAll();
 
 	intp nCount = m_SearchPaths.Count();
@@ -1621,6 +1645,7 @@ void CBaseFileSystem::RemoveSearchPaths( const char *pathID )
 //-----------------------------------------------------------------------------
 CBaseFileSystem::CSearchPath *CBaseFileSystem::FindWritePath( const char *pFilename, const char *pathID )
 {
+	VPROF_BUDGET( "CBaseFileSystem::FindWritePath", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CUtlSymbol lookup = g_PathIDTable.AddString( pathID );
 
 	AUTO_LOCK( m_SearchPathsMutex );
@@ -1651,6 +1676,8 @@ CBaseFileSystem::CSearchPath *CBaseFileSystem::FindWritePath( const char *pFilen
 //-----------------------------------------------------------------------------
 const char *CBaseFileSystem::GetWritePath( const char *pFilename, const char *pathID )
 {
+	VPROF_BUDGET( "CBaseFileSystem::GetWritePath", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
+
 	CSearchPath *pSearchPath = NULL;
 	if ( pathID && pathID[ 0 ] != '\0' )
 	{
@@ -1694,6 +1721,7 @@ const char *CBaseFileSystem::GetWritePath( const char *pFilename, const char *pa
 CThreadLocal<char *> g_pszReadFilename;
 bool CBaseFileSystem::ReadToBuffer( FileHandle_t fp, CUtlBuffer &buf, int nMaxBytes, FSAllocFunc_t pfnAlloc )
 {
+	VPROF_BUDGET( "CBaseFileSystem::ReadToBuffer", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	SetBufferSize( fp, 0 );  // TODO: what if it's a pack file? restore buffer size?
 
 	int nBytesToRead = Size( fp );
@@ -1788,6 +1816,7 @@ bool CBaseFileSystem::ReadToBuffer( FileHandle_t fp, CUtlBuffer &buf, int nMaxBy
 //-----------------------------------------------------------------------------
 bool CBaseFileSystem::ReadFile( const char *pFileName, const char *pPath, CUtlBuffer &buf, int nMaxBytes, int nStartingByte, FSAllocFunc_t pfnAlloc )
 {
+	VPROF_BUDGET( "CBaseFileSystem::ReadFile", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CHECK_DOUBLE_SLASHES( pFileName );
 
 	bool bBinary = !( buf.IsText() && !buf.ContainsCRLF() );
@@ -1818,6 +1847,8 @@ bool CBaseFileSystem::ReadFile( const char *pFileName, const char *pPath, CUtlBu
 //-----------------------------------------------------------------------------
 int CBaseFileSystem::ReadFileEx( const char *pFileName, const char *pPath, void **ppBuf, bool bNullTerminate, bool bOptimalAlloc, int nMaxBytes, int nStartingByte, FSAllocFunc_t pfnAlloc )
 {
+	VPROF_BUDGET( "CBaseFileSystem::ReadFileEx", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
+
 	FileHandle_t fp = Open( pFileName, "rb", pPath );
 	if ( !fp )
 	{
@@ -1895,6 +1926,8 @@ int CBaseFileSystem::ReadFileEx( const char *pFileName, const char *pPath, void 
 //-----------------------------------------------------------------------------
 bool CBaseFileSystem::WriteFile( const char *pFileName, const char *pPath, CUtlBuffer &buf )
 {
+	VPROF_BUDGET( "CBaseFileSystem::WriteFile", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
+
 	CHECK_DOUBLE_SLASHES( pFileName );
 
 	const char *pWriteFlags = "wb";
@@ -1916,6 +1949,8 @@ bool CBaseFileSystem::WriteFile( const char *pFileName, const char *pPath, CUtlB
 
 bool CBaseFileSystem::UnzipFile( const char *pFileName, const char *pPath, const char *pDestination )
 {
+	VPROF_BUDGET( "CBaseFileSystem::UnzipFile", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
+
 	IZip *pZip = IZip::CreateZip( NULL, true );
 
 	HANDLE hZipFile = pZip->ParseFromDisk( pFileName );
@@ -2005,6 +2040,8 @@ bool CBaseFileSystem::UnzipFile( const char *pFileName, const char *pPath, const
 //-----------------------------------------------------------------------------
 void CBaseFileSystem::RemoveAllSearchPaths( void )
 {
+	VPROF_BUDGET( "CBaseFileSystem::RemoveAllSearchPaths", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
+
 	AUTO_LOCK( m_SearchPathsMutex );
 	m_SearchPaths.Purge();
 	//m_PackFileHandles.Purge();
@@ -2013,6 +2050,7 @@ void CBaseFileSystem::RemoveAllSearchPaths( void )
 
 void CBaseFileSystem::LogFileAccess( const char *pFullFileName )
 {
+	VPROF_BUDGET( "CBaseFileSystem::LogFileAccess", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	if( !m_pLogFile )
 	{
 		return;
@@ -2202,7 +2240,7 @@ void CBaseFileSystem::HandleOpenRegularFile( CFileOpenInfo &openInfo, bool bIsAb
 //-----------------------------------------------------------------------------
 FileHandle_t CBaseFileSystem::FindFileInSearchPath( CFileOpenInfo &openInfo )
 {
-	VPROF( "CBaseFileSystem::FindFile" );
+	VPROF_BUDGET( "CBaseFileSystem::FindFileInSearchPath", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	
 	Assert( openInfo.m_pSearchPath );
 	openInfo.m_pFileHandle = NULL;
@@ -2445,6 +2483,7 @@ FileHandle_t CBaseFileSystem::OpenForRead( const char *pFileNameT, const char *p
 //-----------------------------------------------------------------------------
 FileHandle_t CBaseFileSystem::OpenForWrite( const char *pFileName, const char *pOptions, const char *pathID )
 {
+	VPROF_BUDGET( "CBaseFileSystem::OpenForWrite", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	char tempPathID[MAX_PATH];
 	ParsePathID( pFileName, pathID, tempPathID );
 
@@ -2488,6 +2527,7 @@ FileHandle_t CBaseFileSystem::OpenForWrite( const char *pFileName, const char *p
 // pFilename to "cfg/config.cfg" and pPathID to "mod" (mod is placed in tempPathID).
 void CBaseFileSystem::ParsePathID( const char* &pFilename, const char* &pPathID, char tempPathID[MAX_PATH] )
 {
+	VPROF_BUDGET( "CBaseFileSystem::ParsePathID", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	tempPathID[0] = 0;
 	
 	if ( !pFilename || pFilename[0] == 0 )
@@ -2689,6 +2729,7 @@ unsigned int CBaseFileSystem::Size( const char* pFileName, const char *pPathID )
 //-----------------------------------------------------------------------------
 long CBaseFileSystem::FastFileTime( const CSearchPath *path, const char *pFileName )
 {
+	VPROF_BUDGET( "CBaseFileSystem::FastFileTime", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	struct	_stat buf;
 
 	if ( path->GetPackFile() )
@@ -2804,6 +2845,7 @@ void CBaseFileSystem::UnloadCompiledKeyValues()
 //-----------------------------------------------------------------------------
 void CBaseFileSystem::LoadCompiledKeyValues( KeyValuesPreloadType_t type, char const *archiveFile )
 {
+	VPROF_BUDGET( "CBaseFileSystem::LoadCompiledKeyValues", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	// Just add to list for appropriate loader
 	Assert( type >= 0 && type < IFileSystem::NUM_PRELOAD_TYPES );
 	CompiledKeyValuesPreloaders_t& loader = m_PreloadData[ type ];
@@ -2821,6 +2863,7 @@ void CBaseFileSystem::LoadCompiledKeyValues( KeyValuesPreloadType_t type, char c
 //-----------------------------------------------------------------------------
 bool CBaseFileSystem::LoadKeyValues( KeyValues& head, KeyValuesPreloadType_t type, char const *filename, char const *pPathID /*= 0*/ )
 {
+	VPROF_BUDGET( "CBaseFileSystem::LoadKeyValues", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	bool bret = true;
 
 #ifndef DEDICATED
@@ -2851,6 +2894,7 @@ bool CBaseFileSystem::LoadKeyValues( KeyValues& head, KeyValuesPreloadType_t typ
 //-----------------------------------------------------------------------------
 KeyValues *CBaseFileSystem::LoadKeyValues( KeyValuesPreloadType_t type, char const *filename, char const *pPathID /*= 0*/ )
 {
+	VPROF_BUDGET( "CBaseFileSystem::LoadKeyValues", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	KeyValues *kv = NULL;
 
 	if ( !m_PreloadData[ type ].m_pReader )
@@ -2889,6 +2933,7 @@ KeyValues *CBaseFileSystem::LoadKeyValues( KeyValuesPreloadType_t type, char con
 //-----------------------------------------------------------------------------
 bool CBaseFileSystem::LookupKeyValuesRootKeyName( char const *filename, char const *pPathID, char *rootName, size_t bufsize )
 {
+	VPROF_BUDGET( "CBaseFileSystem::LookupKeyValuesRootKeyName", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	if ( FileExists( filename, pPathID ) )
 	{
 		// open file and get shader name
@@ -2944,6 +2989,7 @@ bool CBaseFileSystem::LookupKeyValuesRootKeyName( char const *filename, char con
 //-----------------------------------------------------------------------------
 bool CBaseFileSystem::ExtractRootKeyName( KeyValuesPreloadType_t type, char *outbuf, size_t bufsize, char const *filename, char const *pPathID /*= 0*/ )
 {
+	VPROF_BUDGET( "CBaseFileSystem::ExtractRootKeyName", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	char tempPathID[MAX_PATH];
 	ParsePathID( filename, pPathID, tempPathID );
 
@@ -2974,6 +3020,7 @@ bool CBaseFileSystem::ExtractRootKeyName( KeyValuesPreloadType_t type, char *out
 //-----------------------------------------------------------------------------
 void CBaseFileSystem::SetupPreloadData()
 {
+	VPROF_BUDGET( "CBaseFileSystem::SetupPreloadData", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	intp i;
 
 	for ( i = 0; i < m_SearchPaths.Count(); i++ )
@@ -3011,6 +3058,7 @@ void CBaseFileSystem::SetupPreloadData()
 //-----------------------------------------------------------------------------
 void CBaseFileSystem::DiscardPreloadData()
 {
+	VPROF_BUDGET( "CBaseFileSystem::DiscardPreloadData", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	intp i;
 	for( i = 0; i < m_SearchPaths.Count(); i++ )
 	{
@@ -3124,6 +3172,7 @@ void CBaseFileSystem::Flush( FileHandle_t file )
 
 bool CBaseFileSystem::Precache( const char *pFileName, const char *pPathID)
 {
+	VPROF_BUDGET( "CBaseFileSystem::Precache", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CHECK_DOUBLE_SLASHES( pFileName );
 
 	// Allow for UNC-type syntax to specify the path ID.
@@ -3343,6 +3392,7 @@ void CBaseFileSystem::EnableWhitelistFileTracking( bool bEnable, bool bCacheAllV
 
 void CBaseFileSystem::CacheAllVPKFileHashes( bool bCacheAllVPKHashes, bool bRecalculateAndCheckHashes )
 {
+	VPROF_BUDGET( "CBaseFileSystem::CacheAllVPKFileHashes", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 #ifdef SUPPORT_PACKED_STORE
 	for ( intp i = 0; i < m_SearchPaths.Count(); i++ )
 	{
@@ -3428,6 +3478,7 @@ void CBaseFileSystem::CacheAllVPKFileHashes( bool bCacheAllVPKHashes, bool bReca
 
 bool CBaseFileSystem::CheckVPKFileHash( int PackFileID, int nPackFileNumber, int nFileFraction, MD5Value_t &md5Value )
 {
+	VPROF_BUDGET( "CBaseFileSystem::CheckVPKFileHash", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 #ifdef SUPPORT_PACKED_STORE
 	for ( auto &sp : m_SearchPaths )
 	{
@@ -3470,6 +3521,7 @@ bool CBaseFileSystem::CheckVPKFileHash( int PackFileID, int nPackFileNumber, int
 
 void CBaseFileSystem::RegisterFileWhitelist( IPureServerWhitelist *pWhiteList, IFileList **pFilesToReload )
 {
+	VPROF_BUDGET( "CBaseFileSystem::RegisterFileWhitelist", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	if ( pFilesToReload )
 		*pFilesToReload = NULL;
 
@@ -3507,6 +3559,7 @@ void CBaseFileSystem::NotifyFileUnloaded( const char *pszFilename, const char *p
 
 void CBaseFileSystem::SetSearchPathIsTrustedSource( CSearchPath *pSearchPath )
 {
+	VPROF_BUDGET( "CBaseFileSystem::SetSearchPathIsTrustedSource", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	// Most paths are not considered trusted
 	pSearchPath->m_bIsTrustedForPureServer = false;
 
@@ -3593,6 +3646,7 @@ void CBaseFileSystem::SetWhitelistSpewFlags( int flags )
 //-----------------------------------------------------------------------------
 void CBaseFileSystem::FileTimeToString( char *pString, int maxCharsIncludingTerminator, long fileTime )
 {
+	VPROF_BUDGET( "CBaseFileSystem::FileTimeToString", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	if ( IsX360() )
 	{
 		char szTemp[ 256 ];
@@ -3645,6 +3699,7 @@ bool CBaseFileSystem::FileExists( const char *pFileName, const char *pPathID )
 
 bool CBaseFileSystem::IsFileWritable( char const *pFileName, char const *pPathID /*=0*/ )
 {
+	VPROF_BUDGET( "CBaseFileSystem::IsFileWritable", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CHECK_DOUBLE_SLASHES( pFileName );
 
 	struct	_stat buf;
@@ -3696,6 +3751,7 @@ bool CBaseFileSystem::IsFileWritable( char const *pFileName, char const *pPathID
 
 bool CBaseFileSystem::SetFileWritable( char const *pFileName, bool writable, const char *pPathID /*= 0*/ )
 {
+	VPROF_BUDGET( "CBaseFileSystem::SetFileWritable", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CHECK_DOUBLE_SLASHES( pFileName );
 
 #ifdef _WIN32
@@ -3737,6 +3793,8 @@ bool CBaseFileSystem::SetFileWritable( char const *pFileName, bool writable, con
 //-----------------------------------------------------------------------------
 bool CBaseFileSystem::IsDirectory( const char *pFileName, const char *pathID )
 {
+	VPROF_BUDGET( "CBaseFileSystem::IsDirectory", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
+
 	CHECK_DOUBLE_SLASHES( pFileName );
 
 	// Allow for UNC-type syntax to specify the path ID.
@@ -3797,6 +3855,7 @@ bool CBaseFileSystem::IsDirectory( const char *pFileName, const char *pathID )
 //-----------------------------------------------------------------------------
 void CBaseFileSystem::CreateDirHierarchy( const char *pRelativePathT, const char *pathID )
 {	
+	VPROF_BUDGET( "CBaseFileSystem::CreateDirHierarchy", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	// Allow for UNC-type syntax to specify the path ID.
 	char tempPathID[MAX_PATH];
 	ParsePathID(pRelativePathT, pathID, tempPathID); // use the original path param to preserve "//"
@@ -4182,6 +4241,7 @@ void CBaseFileSystem::GetLocalCopy( const char *pFileName )
 //-----------------------------------------------------------------------------
 bool CBaseFileSystem::FixUpPath( const char *pFileName, char *pFixedUpFileName, int sizeFixedUpFileName )
 {
+	VPROF_BUDGET( "CBaseFileSystem::FixUpPath", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	//  If appropriate fixes up the filename to ensure that it's handled properly by the system.
 	//
 	V_strncpy( pFixedUpFileName, pFileName, sizeFixedUpFileName );
@@ -4237,6 +4297,7 @@ bool CBaseFileSystem::FixUpPath( const char *pFileName, char *pFixedUpFileName, 
 //-----------------------------------------------------------------------------
 const char *CBaseFileSystem::RelativePathToFullPath( const char *pFileName, const char *pPathID, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars, PathTypeFilter_t pathFilter, PathTypeQuery_t *pPathType )
 {
+	VPROF_BUDGET( "CBaseFileSystem::RelativePathToFullPath", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CHECK_DOUBLE_SLASHES( pFileName );
 
 	struct	_stat buf;
@@ -4369,6 +4430,7 @@ const char *CBaseFileSystem::RelativePathToFullPath( const char *pFileName, cons
 
 const char *CBaseFileSystem::GetLocalPath( const char *pFileName, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars )
 {
+	VPROF_BUDGET( "CBaseFileSystem::GetLocalPath", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CHECK_DOUBLE_SLASHES( pFileName );
 
 	return RelativePathToFullPath( pFileName, NULL, pDest, maxLenInChars );
@@ -4380,6 +4442,7 @@ const char *CBaseFileSystem::GetLocalPath( const char *pFileName, OUT_Z_CAP(maxL
 //-----------------------------------------------------------------------------
 bool CBaseFileSystem::FullPathToRelativePathEx( const char *pFullPath, const char *pPathId, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars )
 {
+	VPROF_BUDGET( "CBaseFileSystem::FullPathToRelativePathEx", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CHECK_DOUBLE_SLASHES( pFullPath );
 
 	intp nInlen = V_strlen( pFullPath );
@@ -4516,6 +4579,7 @@ bool CBaseFileSystem::GetCaseCorrectFullPath_Ptr( const char *pFullPath, OUT_Z_C
 //-----------------------------------------------------------------------------
 void CBaseFileSystem::RemoveFile( char const* pRelativePath, const char *pathID )
 {
+	VPROF_BUDGET( "CBaseFileSystem::RemoveFile", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CHECK_DOUBLE_SLASHES( pRelativePath );
 
 	// Allow for UNC-type syntax to specify the path ID.
@@ -4547,6 +4611,7 @@ void CBaseFileSystem::RemoveFile( char const* pRelativePath, const char *pathID 
 //-----------------------------------------------------------------------------
 bool CBaseFileSystem::RenameFile( char const *pOldPath, char const *pNewPath, const char *pathID )
 {
+	VPROF_BUDGET( "CBaseFileSystem::RenameFile", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	Assert( pOldPath && pNewPath );
 
 	CHECK_DOUBLE_SLASHES( pOldPath );
@@ -4610,6 +4675,7 @@ bool CBaseFileSystem::RenameFile( char const *pOldPath, char const *pNewPath, co
 //-----------------------------------------------------------------------------
 bool CBaseFileSystem::GetCurrentDirectory( char* pDirectory, int maxlen )
 {
+	VPROF_BUDGET( "CBaseFileSystem::GetCurrentDirectory", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 #if defined( _WIN32 ) && !defined( _X360 )
 	if ( !::GetCurrentDirectoryA( maxlen, pDirectory ) )
 #elif defined( POSIX ) || defined( _X360 )
@@ -4907,6 +4973,7 @@ void CBaseFileSystem::CSearchPathsIterator::CopySearchPaths( const CUtlVector<CS
 //-----------------------------------------------------------------------------
 CSysModule *CBaseFileSystem::LoadModule( const char *pFileName, const char *pPathID, bool bValidatedDllOnly )
 {
+	VPROF_BUDGET( "CBaseFileSystem::LoadModule", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CHECK_DOUBLE_SLASHES( pFileName );
 
 	// dimhotepus: Load directly by system if absolute path.
