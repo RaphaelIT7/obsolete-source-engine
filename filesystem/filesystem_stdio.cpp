@@ -1594,20 +1594,23 @@ public:
 	virtual bool IsSubscribed( uint64_t );
 	virtual const IAddonSystem::Information *FindFileOwner( const std::string & );
 	virtual void AddFile( const IAddonSystem::Information & );
-	virtual void ClearAllGMAs( );
-	virtual void GetSteamUGCFile( uint64_t, bool );
+	virtual void ClearUnusedGMAs( );
+	virtual const char* GetAddonFilepath( uint64_t, bool );
 	virtual void UnmountAddon( uint64_t );
 	virtual void UnmountServerAddons( );
-	virtual void MountFloatingAddons( );
 	virtual void Shutdown( );
 	virtual void AddFile( const SteamUGCDetails_t & );
 	virtual void AddSubscription( const SteamUGCDetails_t & );
 	virtual void AddJob( Addon::Job::Base * );
+	virtual const std::list<SteamUGCDetails_t> &GetSubList( ) const;
+	virtual void MountFloatingAddons();
+	virtual void AddAddonFromSteamDetails(const SteamUGCDetails_t&);
+	virtual void OnAddonSubscribed(const SteamUGCDetails_t&);
+	virtual void AddUnloadedSubscription(uint64_t);
 	virtual bool HasChanges( );
 	virtual void MarkChanged( );
-	virtual void AddonDownloaded( IAddonSystem::Information & );
-	virtual void NotifyAddonFailedToDownload( IAddonSystem::Information & );
-	virtual const std::list<SteamUGCDetails_t> &GetSubList( ) const;
+	virtual void OnAddonDownloaded( IAddonSystem::Information & );
+	virtual void OnAddonDownloadFailed( IAddonSystem::Information & );
 	virtual void IsAddonValidPreInstall( SteamUGCDetails_t );
 	virtual void Load( );
 public:
@@ -1875,14 +1878,15 @@ void CAddonFileSystem::AddFile(const IAddonSystem::Information&)
 	Msg("CAddonFileSystem::AddFile\n");
 }
 
-void CAddonFileSystem::ClearAllGMAs()
+void CAddonFileSystem::ClearUnusedGMAs()
 {
-	Msg("CAddonFileSystem::ClearAllGMAs\n");
+	Msg("CAddonFileSystem::ClearUnusedGMAs\n");
 }
 
-void CAddonFileSystem::GetSteamUGCFile(uint64_t, bool)
+const char* CAddonFileSystem::GetAddonFilepath(uint64_t, bool)
 {
-	Msg("CAddonFileSystem::GetSteamUGCFile\n");
+	Msg("CAddonFileSystem::GetAddonFilepath\n");
+	return NULL;
 }
 
 void CAddonFileSystem::UnmountAddon(uint64_t)
@@ -1893,11 +1897,6 @@ void CAddonFileSystem::UnmountAddon(uint64_t)
 void CAddonFileSystem::UnmountServerAddons()
 {
 	Msg("CAddonFileSystem::UnmountServerAddons\n");
-}
-
-void CAddonFileSystem::MountFloatingAddons()
-{
-	Msg("CAddonFileSystem::MountFloatingAddons\n");
 }
 
 void CAddonFileSystem::Shutdown()
@@ -1964,6 +1963,32 @@ void CAddonFileSystem::AddJob(Addon::Job::Base* base)
 	base->Init(this, m_pSteamContext);
 }
 
+const std::list<SteamUGCDetails_t>& CAddonFileSystem::GetSubList() const
+{
+	Msg("CAddonFileSystem::GetSubList\n");
+	return m_pSubscriptions;
+}
+
+void CAddonFileSystem::MountFloatingAddons()
+{
+	Msg("CAddonFileSystem::MountFloatingAddons\n");
+}
+
+void CAddonFileSystem::AddAddonFromSteamDetails(const SteamUGCDetails_t&)
+{
+	Msg("CAddonFileSystem::AddAddonFromSteamDetails\n");
+}
+
+void CAddonFileSystem::OnAddonSubscribed(const SteamUGCDetails_t&)
+{
+	Msg("CAddonFileSystem::AddAddonFromSteamDetails\n");
+}
+
+void CAddonFileSystem::AddUnloadedSubscription(uint64_t)
+{
+	Msg("CAddonFileSystem::AddAddonFromSteamDetails\n");
+}
+
 bool CAddonFileSystem::HasChanges()
 {
 	Msg("CAddonFileSystem::HasChanges\n");
@@ -1976,20 +2001,14 @@ void CAddonFileSystem::MarkChanged()
 	m_pChanged = true;
 }
 
-void CAddonFileSystem::AddonDownloaded(IAddonSystem::Information&)
+void CAddonFileSystem::OnAddonDownloaded(IAddonSystem::Information&)
 {
 	Msg("CAddonFileSystem::AddonDownloaded\n");
 }
 
-void CAddonFileSystem::NotifyAddonFailedToDownload(IAddonSystem::Information&)
+void CAddonFileSystem::OnAddonDownloadFailed(IAddonSystem::Information&)
 {
-	Msg("CAddonFileSystem::NotifyAddonFailedToDownload\n");
-}
-
-const std::list<SteamUGCDetails_t>& CAddonFileSystem::GetSubList() const
-{
-	Msg("CAddonFileSystem::GetSubList\n");
-	return m_pSubscriptions;
+	Msg("CAddonFileSystem::OnAddonDownloadFailed\n");
 }
 
 void CAddonFileSystem::IsAddonValidPreInstall(SteamUGCDetails_t)
@@ -2061,7 +2080,7 @@ void CAddonFileSystem::OnSteam_OnQueryUGCDetails(SteamUGCQueryCompleted_t* pResu
 CAddonFileSystem g_pAddonFileSystem;
 Addon::FileSystem* CFileSystem_Stdio::Addons()
 {
-	//Msg("CFileSystem_Stdio::Addons\n");
+	Msg("CFileSystem_Stdio::Addons\n");
 	return &g_pAddonFileSystem;
 }
 
