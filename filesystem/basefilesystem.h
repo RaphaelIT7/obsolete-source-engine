@@ -855,7 +855,7 @@ protected:
 	void RemoveAsyncCustomFetchJob( CFileAsyncReadJob *pJob );
 
 	char m_pBaseDir[MAX_PATH];
-	int m_pBaseLength;
+	int m_iBaseLength;
 };
 
 inline const CUtlSymbol& CBaseFileSystem::CPathIDInfo::GetPathID() const
