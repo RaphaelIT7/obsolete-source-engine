@@ -170,12 +170,13 @@ void CGMODRules::LevelInitPreEntity()
 {
 	// Episodic Behavior
 	// ToDo
+	// Check if the map starts with ep1_ or ep2_
 }
 
 bool CGMODRules::ShouldCollide( int idx1, int idx2 )
 {
 	// ToDo
-	return true;
+	return BaseClass::ShouldCollide(idx1, idx2);
 }
 
 const unsigned char* CGMODRules::GetEncryptionKey()
