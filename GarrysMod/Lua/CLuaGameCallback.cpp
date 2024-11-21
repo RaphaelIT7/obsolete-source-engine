@@ -1,23 +1,23 @@
 #include "cbase.h"
-#include <GarrysMod/Lua/LuaObject.h>
-#include <GarrysMod/Lua/LuaGameCallback.h>
-#include <GarrysMod/Lua/LuaInterface.h>
+#include <ILuaObject.h>
+#include <ILuaGameCallback.h>
+#include <ILuaInterface.h>
 #include "Lua/CLuaClass.h"
 #include "Externals.h"
 #include "Color.h"
 #include <sstream>
 #include <string>
 
-class CLuaGameCallback : public GarrysMod::Lua::ILuaGameCallback
+class CLuaGameCallback : public ILuaGameCallback
 {
 public:
-	virtual GarrysMod::Lua::ILuaObject* CLuaGameCallback::CreateLuaObject();
-	virtual void CLuaGameCallback::DestroyLuaObject(GarrysMod::Lua::ILuaObject* pObject);
+	virtual ILuaObject* CLuaGameCallback::CreateLuaObject();
+	virtual void CLuaGameCallback::DestroyLuaObject(ILuaObject* pObject);
 	virtual void CLuaGameCallback::ErrorPrint(const char* error, bool print);
 	virtual void CLuaGameCallback::Msg(const char* msg, bool unknown);
 	virtual void CLuaGameCallback::MsgColour(const char* msg, const Color& color);
 	virtual void CLuaGameCallback::LuaError(const CLuaError* error);
-	virtual void CLuaGameCallback::InterfaceCreated(GarrysMod::Lua::ILuaInterface* iface);
+	virtual void CLuaGameCallback::InterfaceCreated(ILuaInterface* iface);
 };
 
 #ifdef CLIENT_DLL
@@ -38,14 +38,14 @@ void UTLVarArgs(char* buffer, const char* format, ...) {
 	va_end(args);
 }
 
-GarrysMod::Lua::ILuaObject* CLuaGameCallback::CreateLuaObject()
+ILuaObject* CLuaGameCallback::CreateLuaObject()
 {
 	CLuaObject* obj = new CLuaObject();
 	obj->Init(g_Lua); // Gmod doesn't pass it to the CLuaObject. The object gets it inside the Init function.
 	return obj;
 }
 
-void CLuaGameCallback::DestroyLuaObject(GarrysMod::Lua::ILuaObject* pObject)
+void CLuaGameCallback::DestroyLuaObject(ILuaObject* pObject)
 {
 	delete pObject;
 }
@@ -98,7 +98,7 @@ void CLuaGameCallback::LuaError(const CLuaError* error)
 	MsgColour(str.str().c_str(), col_error);
 }
 
-void CLuaGameCallback::InterfaceCreated(GarrysMod::Lua::ILuaInterface* iface) {} // Unused
+void CLuaGameCallback::InterfaceCreated(ILuaInterface* iface) {} // Unused
 
 CLuaGameCallback gamecallback;
-GarrysMod::Lua::ILuaGameCallback* g_LuaCallback = &gamecallback;
+ILuaGameCallback* g_LuaCallback = &gamecallback;

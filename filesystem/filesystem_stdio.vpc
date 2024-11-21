@@ -45,7 +45,7 @@ $Configuration
 		// Add VPK support
 		$PreprocessorDefinitions	"$BASE;SUPPORT_PACKED_STORE" [$WINDOWS]
 		$EnableC++Exceptions		"Yes (/EHsc)"
-		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\bootil\include"
+		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\bootil\include,$SRCDIR\gmod-lua-shared\source\public"
 	}
 	$Linker
 	{

@@ -12,7 +12,7 @@ std::string GarrysMod::AutoRefresh::ConvertLuaFilename( const std::string& fileN
 	return "";
 }
 
-void GarrysMod::AutoRefresh::FindRootFile_( const std::string& fileName, CUtlVector<GarrysMod::Lua::LuaFile*> vec )
+void GarrysMod::AutoRefresh::FindRootFile_( const std::string& fileName, CUtlVector<LuaFile*> vec )
 {
 	// ToDo
 }

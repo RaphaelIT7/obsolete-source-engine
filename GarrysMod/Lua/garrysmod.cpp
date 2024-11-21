@@ -16,10 +16,15 @@
 #include "CLuaClass.h"
 #include "sv_autorefresh.h"
 #include "Externals.h"
+#ifdef CLIENT_DLL
+#include "networkstringtable_clientdll.h"
+#else
+#include "networkstringtable_gamedll.h"
+#endif
 
-GarrysMod::Lua::ILuaShared* LuaShared()
+ILuaShared* LuaShared()
 {
-	return (GarrysMod::Lua::ILuaShared*)get->LuaShared();
+	return (ILuaShared*)get->LuaShared();
 }
 
 CGarrysMod garrysmod;

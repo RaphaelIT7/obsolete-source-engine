@@ -31,7 +31,7 @@ LUA_FUNCTION_STATIC( engine_TickInterval )
 
 void Engine_Library()
 {
-	g_Lua->PushSpecial( GarrysMod::Lua::SPECIAL_GLOB );
+	g_Lua->PushSpecial( SPECIAL_GLOB );
 		g_Lua->CreateTable();
 #ifdef GAME_DLL // Serverside only.
 			g_Lua->PushCFunction( engine_LightStyle );

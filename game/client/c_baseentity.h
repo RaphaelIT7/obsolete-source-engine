@@ -38,7 +38,7 @@
 #include "imovehelper.h"
 
 #ifdef BUILD_GMOD
-#include "GarrysMod/Lua/LuaObject.h"
+#include "ILuaObject.h"
 #endif
 
 class C_Team;
@@ -1748,9 +1748,9 @@ public:
 	virtual bool OverridePosition();
 	virtual void InitializeScriptedEntity( const char* unknown );
 	virtual void ClearLuaData();
-	virtual GarrysMod::Lua::ILuaObject* GetLuaTable();
+	virtual ILuaObject* GetLuaTable();
 	virtual void* GetLuaEntity(); // Idk
-	virtual void SetLuaTable( GarrysMod::Lua::ILuaObject* obj );
+	virtual void SetLuaTable( ILuaObject* obj );
 	virtual void Lua_OnEntityInitialized();
 	virtual bool HasLuaTable();
 	virtual void LuaEntityInitialized();
@@ -1765,7 +1765,7 @@ public:
 	virtual void ComputeFxBlendForView( int unknown );
 
 private: // Add other vars later.
-	GarrysMod::Lua::ILuaObject* m_pLuaTable = NULL;
+	ILuaObject* m_pLuaTable = NULL;
 #endif
 };
 

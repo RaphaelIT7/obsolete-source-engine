@@ -7,7 +7,7 @@ void CLuaObject::Init()
 	Error("What called this?");
 }
 
-void CLuaObject::Init(GarrysMod::Lua::ILuaBase* Lm_pLua)
+void CLuaObject::Init(ILuaInterface* Lm_pLua)
 {
 	m_pLua = Lm_pLua;
 
@@ -39,7 +39,7 @@ void CLuaObject::SetFromStack(int pos)
 {
 	m_pLua->Push(pos);
 
-	//if (m_pLua->GetType(-1) != GarrysMod::Lua::Type::Nil)
+	//if (m_pLua->GetType(-1) != Type::Nil)
 	{
 		UnReference();
 		m_iLUA_TYPE = m_pLua->GetType( -1 );
@@ -70,7 +70,7 @@ int CLuaObject::GetType()
 		m_pLua->Pop(1);
 		return type;
 	} else {
-		return GarrysMod::Lua::Type::Nil;
+		return Type::Nil;
 	}
 }
 
@@ -131,7 +131,7 @@ void* CLuaObject::GetUserData()
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		GarrysMod::Lua::ILuaBase::UserData* data = m_pLua->GetUserdata(-1);
+		ILuaBase::UserData* data = m_pLua->GetUserdata(-1);
 		m_pLua->Pop(1);
 		return data->data;
 	} else {
@@ -144,7 +144,7 @@ void CLuaObject::SetMember(const char* name)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->Push(-2);
 			m_pLua->SetField(-2, name);
@@ -158,7 +158,7 @@ void CLuaObject::SetMember(const char* name, ILuaObject *obj)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			obj->Push();
 			m_pLua->SetField(-2, name);
@@ -172,7 +172,7 @@ void CLuaObject::SetMember(const char* name, float val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushNumber(val);
 			m_pLua->SetField(-2, name);
@@ -186,7 +186,7 @@ void CLuaObject::SetMember(const char* name, bool val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushBool(val);
 			m_pLua->SetField(-2, name);
@@ -200,7 +200,7 @@ void CLuaObject::SetMember(const char* name, const char* val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushString(val);
 			m_pLua->SetField(-2, name);
@@ -209,12 +209,12 @@ void CLuaObject::SetMember(const char* name, const char* val)
 	}
 }
 
-void CLuaObject::SetMember(const char* name, GarrysMod::Lua::CFunc val)
+void CLuaObject::SetMember(const char* name, CFunc val)
 {
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushCFunction(val);
 			m_pLua->SetField(-2, name);
@@ -229,10 +229,10 @@ bool CLuaObject::GetMemberBool(const char* name, bool b)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->GetField(-1, name);
-			if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Bool)) {
+			if (m_pLua->IsType(-1, Type::Bool)) {
 				val = m_pLua->GetBool(-1);
 			}
 			m_pLua->Pop(1);
@@ -249,10 +249,10 @@ int CLuaObject::GetMemberInt(const char* name, int b)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->GetField(-1, name);
-			if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Number)) {
+			if (m_pLua->IsType(-1, Type::Number)) {
 				val = m_pLua->GetNumber(-1);
 			}
 			m_pLua->Pop(1);
@@ -269,10 +269,10 @@ float CLuaObject::GetMemberFloat(const char* name, float b)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->GetField(-1, name);
-			if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Number)) {
+			if (m_pLua->IsType(-1, Type::Number)) {
 				val = m_pLua->GetNumber(-1);
 			}
 			m_pLua->Pop(1);
@@ -289,10 +289,10 @@ const char* CLuaObject::GetMemberStr(const char* name, const char* b)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->GetField(-1, name);
-			if (m_pLua->IsType(-1, GarrysMod::Lua::Type::String)) {
+			if (m_pLua->IsType(-1, Type::String)) {
 				val = m_pLua->GetString(-1);
 			}
 			m_pLua->Pop(1);
@@ -309,10 +309,10 @@ void* CLuaObject::GetMemberUserData(const char* name, void* b)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->GetField(-1, name);
-			if (m_pLua->IsType(-1, GarrysMod::Lua::Type::UserData)) {
+			if (m_pLua->IsType(-1, Type::UserData)) {
 				val = m_pLua->GetUserdata(-1);
 			}
 			m_pLua->Pop(1);
@@ -329,11 +329,11 @@ void* CLuaObject::GetMemberUserData(float name, void* b)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushNumber(name);
 			m_pLua->GetTable(-1);
-			if (m_pLua->IsType(-1, GarrysMod::Lua::Type::UserData)) {
+			if (m_pLua->IsType(-1, Type::UserData)) {
 				val = m_pLua->GetUserdata(-1);
 			}
 			m_pLua->Pop(1);
@@ -344,7 +344,7 @@ void* CLuaObject::GetMemberUserData(float name, void* b)
 	return val;
 }
 
-GarrysMod::Lua::ILuaObject* CLuaObject::GetMember(const char* name, ILuaObject* obj)
+ILuaObject* CLuaObject::GetMember(const char* name, ILuaObject* obj)
 {
 	if ( !obj )
 		return NULL;
@@ -352,7 +352,7 @@ GarrysMod::Lua::ILuaObject* CLuaObject::GetMember(const char* name, ILuaObject* 
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->GetField(-1, name);
 			obj->SetFromStack(-1);
@@ -364,17 +364,17 @@ GarrysMod::Lua::ILuaObject* CLuaObject::GetMember(const char* name, ILuaObject* 
 	return obj;
 }
 
-GarrysMod::Lua::ILuaObject* CLuaObject::GetMember(ILuaObject* name, ILuaObject* b)
+ILuaObject* CLuaObject::GetMember(ILuaObject* name, ILuaObject* b)
 {
 	ILuaObject* val = b;
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			name->Push();
 			m_pLua->GetTable(-1);
-			if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table)) {
+			if (m_pLua->IsType(-1, Type::Table)) {
 				CLuaObject* obj = new CLuaObject;
 				obj->Init(m_pLua);
 				obj->SetFromStack(-1);
@@ -398,51 +398,51 @@ void CLuaObject::SetMetaTable(ILuaObject* meta)
 void CLuaObject::SetUserData(void* data)
 {
 	UnReference();
-	m_pLua->PushUserType(data, GarrysMod::Lua::Type::UserData);
+	m_pLua->PushUserType(data, Type::UserData);
 	SetFromStack(-1);
 }
 
 bool CLuaObject::isNil()
 {
-	return GetType() == GarrysMod::Lua::Type::Nil;
+	return GetType() == Type::Nil;
 }
 
 bool CLuaObject::isTable()
 {
-	return GetType() == GarrysMod::Lua::Type::Table;
+	return GetType() == Type::Table;
 }
 
 bool CLuaObject::isString()
 {
-	return GetType() == GarrysMod::Lua::Type::String;
+	return GetType() == Type::String;
 }
 
 bool CLuaObject::isNumber()
 {
-	return GetType() == GarrysMod::Lua::Type::Number;
+	return GetType() == Type::Number;
 }
 
 bool CLuaObject::isFunction()
 {
-	return GetType() == GarrysMod::Lua::Type::Function;
+	return GetType() == Type::Function;
 }
 
 bool CLuaObject::isUserData()
 {
-	return GetType() == GarrysMod::Lua::Type::UserData;
+	return GetType() == Type::UserData;
 }
 
-GarrysMod::Lua::ILuaObject* CLuaObject::GetMember(float name, ILuaObject* b)
+ILuaObject* CLuaObject::GetMember(float name, ILuaObject* b)
 {
 	ILuaObject* val = b;
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushNumber(name);
 			m_pLua->GetTable(-1);
-			if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table)) {
+			if (m_pLua->IsType(-1, Type::Table)) {
 				CLuaObject* obj = new CLuaObject;
 				obj->Init(m_pLua);
 				obj->SetFromStack(-1);
@@ -467,7 +467,7 @@ void CLuaObject::SetMember(float name)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->Push(-2);
 			m_pLua->PushNumber(name);
@@ -482,7 +482,7 @@ void CLuaObject::SetMember(float name, ILuaObject *obj)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			obj->Push();
 			m_pLua->PushNumber(name);
@@ -497,7 +497,7 @@ void CLuaObject::SetMember(float name, float val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushNumber(val);
 			m_pLua->PushNumber(name);
@@ -527,7 +527,7 @@ void CLuaObject::SetMember(float name, bool val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushBool(val);
 			m_pLua->PushNumber(name);
@@ -542,7 +542,7 @@ void CLuaObject::SetMember(float name, const char* val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushString(val);
 			m_pLua->PushNumber(name);
@@ -552,12 +552,12 @@ void CLuaObject::SetMember(float name, const char* val)
 	}
 }
 
-void CLuaObject::SetMember(float name, GarrysMod::Lua::CFunc val)
+void CLuaObject::SetMember(float name, CFunc val)
 {
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushCFunction(val);
 			m_pLua->PushNumber(name);
@@ -573,11 +573,11 @@ const char* CLuaObject::GetMemberStr(float name, const char* b)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushNumber(name);
 			m_pLua->GetTable(-1);
-			if (m_pLua->IsType(-1, GarrysMod::Lua::Type::String)) {
+			if (m_pLua->IsType(-1, Type::String)) {
 				val = m_pLua->GetString(-1);
 			}
 			m_pLua->Pop(1);
@@ -593,7 +593,7 @@ void CLuaObject::SetMember(ILuaObject* name, ILuaObject* val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			name->Push();
 			val->Push();
@@ -627,7 +627,7 @@ void CLuaObject::SetMemberFast(int name, int val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushNumber(name);
 			m_pLua->PushNumber(val);
@@ -678,7 +678,7 @@ void CLuaObject::SetMember_FixKey(const char* key, int val)
 
 bool CLuaObject::isBool()
 {
-	return GetType() == GarrysMod::Lua::Type::Bool;
+	return GetType() == Type::Bool;
 }
 
 void CLuaObject::SetMemberDouble(const char* name, double val)
@@ -686,7 +686,7 @@ void CLuaObject::SetMemberDouble(const char* name, double val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushNumber(val);
 			m_pLua->SetField(-2, name);
@@ -700,7 +700,7 @@ void CLuaObject::SetMemberNil(const char* name)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushNil();
 			m_pLua->SetField(-2, name);
@@ -714,7 +714,7 @@ void CLuaObject::SetMemberNil(float name)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushNumber(name);
 			m_pLua->PushNil();
@@ -731,7 +731,7 @@ bool CLuaObject::RemoveMe()
 
 void CLuaObject::SetFromGlobal( const char* name )
 {
-	m_pLua->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+	m_pLua->PushSpecial(SPECIAL_GLOB);
 		m_pLua->GetField(-1, name);
 		SetFromStack(-1);
 	m_pLua->Pop(2);
@@ -752,10 +752,10 @@ unsigned int CLuaObject::GetMemberUInt(const char* name, unsigned int b)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->GetField(-1, name);
-			if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Number)) {
+			if (m_pLua->IsType(-1, Type::Number)) {
 				val = m_pLua->GetNumber(-1);
 			}
 			m_pLua->Pop(1);
@@ -771,7 +771,7 @@ void CLuaObject::SetMember(const char* name, unsigned long long val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushNumber(val);
 			m_pLua->SetField(-2, name);
@@ -785,7 +785,7 @@ void CLuaObject::SetMember(const char* name, int val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushNumber(val);
 			m_pLua->SetField(-2, name);
@@ -810,10 +810,10 @@ bool CLuaObject::MemberIsNil(const char* name)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->GetField(-1, name);
-			if (m_pLua->GetType(-1) != GarrysMod::Lua::Type::Nil) {
+			if (m_pLua->GetType(-1) != Type::Nil) {
 				val = false;
 			}
 			m_pLua->Pop(1);
@@ -829,7 +829,7 @@ void CLuaObject::SetMemberDouble(float name, double val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushNumber(val);
 			m_pLua->PushNumber(name);
@@ -845,10 +845,10 @@ double CLuaObject::GetMemberDouble(const char* name, double b)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->GetField(-1, name);
-			if (m_pLua->GetType(-1) == GarrysMod::Lua::Type::Number) {
+			if (m_pLua->GetType(-1) == Type::Number) {
 				val = m_pLua->GetNumber(-1);
 			}
 			m_pLua->Pop(1);
@@ -865,10 +865,10 @@ BaseEntity* CLuaObject::GetMemberEntity(const char* name, BaseEntity* b)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->GetField(-1, name);
-			if (m_pLua->GetType(-1) == GarrysMod::Lua::Type::Entity) {
+			if (m_pLua->GetType(-1) == Type::Entity) {
 				//val = Get_Entity
 			}
 			m_pLua->Pop(1);
@@ -884,7 +884,7 @@ void CLuaObject::SetMemberEntity(float name, BaseEntity* val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			// Push_Entity
 			m_pLua->PushNumber(name);
@@ -899,7 +899,7 @@ void CLuaObject::SetMemberEntity(const char* name, BaseEntity* val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			// Push_Entity
 			m_pLua->SetField(-2, name);
@@ -910,7 +910,7 @@ void CLuaObject::SetMemberEntity(const char* name, BaseEntity* val)
 
 bool CLuaObject::isEntity()
 {
-	return GetType() == GarrysMod::Lua::Type::Entity;
+	return GetType() == Type::Entity;
 }
 
 BaseEntity* CLuaObject::GetEntity()
@@ -934,7 +934,7 @@ void CLuaObject::SetMemberVector(const char* name, Vector* val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			// Push_Vector
 			m_pLua->SetField(-2, name);
@@ -948,7 +948,7 @@ void CLuaObject::SetMemberVector(const char* name, Vector& val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			// Push_Vector
 			m_pLua->SetField(-2, name);
@@ -962,7 +962,7 @@ void CLuaObject::SetMemberVector(float name, Vector* val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->PushNumber(name);
 			// Push_Vector
@@ -978,10 +978,10 @@ Vector* CLuaObject::GetMemberVector(const char* name, const Vector* b)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->GetField(-1, name);
-			if (m_pLua->GetType(-1) == GarrysMod::Lua::Type::Vector) {
+			if (m_pLua->GetType(-1) == Type::Vector) {
 				//val = Get_Vector
 			}
 			m_pLua->Pop(1);
@@ -1002,7 +1002,7 @@ Vector* CLuaObject::GetMemberVector(int what)
 
 bool CLuaObject::isVector()
 {
-	return GetType() == GarrysMod::Lua::Type::Vector;
+	return GetType() == Type::Vector;
 }
 
 Vector* CLuaObject::GetVector()
@@ -1019,7 +1019,7 @@ void CLuaObject::SetMemberAngle(const char* name, QAngle& val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			// Push_Angle
 			m_pLua->SetField(-2, name);
@@ -1033,7 +1033,7 @@ void CLuaObject::SetMemberAngle(const char* name, QAngle* val)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			// Push_Angle
 			m_pLua->SetField(-2, name);
@@ -1048,10 +1048,10 @@ QAngle* CLuaObject::GetMemberAngle(const char* name, QAngle* b)
 	if (m_reference != -1)
 	{
 		m_pLua->ReferencePush(m_reference);
-		if (m_pLua->IsType(-1, GarrysMod::Lua::Type::Table))
+		if (m_pLua->IsType(-1, Type::Table))
 		{
 			m_pLua->GetField(-1, name);
-			if (m_pLua->GetType(-1) == GarrysMod::Lua::Type::Angle) {
+			if (m_pLua->GetType(-1) == Type::Angle) {
 				// val = Get_Angle
 			}
 			m_pLua->Pop(1);
@@ -1064,7 +1064,7 @@ QAngle* CLuaObject::GetMemberAngle(const char* name, QAngle* b)
 
 bool CLuaObject::isAngle()
 {
-	return GetType() == GarrysMod::Lua::Type::Angle;
+	return GetType() == Type::Angle;
 }
 
 QAngle* CLuaObject::GetAngle()
@@ -1139,7 +1139,7 @@ void CLuaClass::MetaTableDerive()
 	// ToDo: Implement it for later when we have Players and Entities
 }
 
-void InitLuaClasses(GarrysMod::Lua::ILuaInterface* LUA)
+void InitLuaClasses(ILuaInterface* LUA)
 {
 	angle_class.InitClass();
 	vector_class.InitClass();
@@ -1185,7 +1185,7 @@ void CLuaLibrary::Push() // Idk
 	}
 }
 
-void InitLuaLibraries(GarrysMod::Lua::ILuaInterface* LUA)
+void InitLuaLibraries(ILuaInterface* LUA)
 {
 	LL_Global.Push();
 	file_library.Push();

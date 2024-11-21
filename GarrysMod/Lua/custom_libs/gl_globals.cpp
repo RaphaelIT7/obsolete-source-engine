@@ -9,6 +9,12 @@ LUA_FUNCTION_STATIC( global_CurTime )
 	return 1;
 }
 
+LUA_FUNCTION_STATIC( global_SysTime )
+{
+	LUA->PushNumber(Plat_FloatTime());
+	return 1;
+}
+
 LUA_FUNCTION_STATIC( global_FrameTime )
 {
 	LUA->PushNumber(gpGlobals->frametime);
@@ -17,13 +23,16 @@ LUA_FUNCTION_STATIC( global_FrameTime )
 
 void Global_Library()
 {
-	g_Lua->PushSpecial( GarrysMod::Lua::SPECIAL_GLOB );
+	g_Lua->PushSpecial( SPECIAL_GLOB );
 
 		g_Lua->PushCFunction( global_CurTime );
 		g_Lua->SetField( -2, "CurTime" );
 
 		g_Lua->PushCFunction( global_FrameTime );
 		g_Lua->SetField( -2, "FrameTime" );
+
+		g_Lua->PushCFunction( global_SysTime );
+		g_Lua->SetField( -2, "SysTime" );
 
 	g_Lua->Pop( 1 );
 }

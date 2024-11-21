@@ -24,12 +24,8 @@ class IMotionSensor;
 class IGMod_Audio;
 class IAnalytics;
 class CSteamID;
-
-namespace GarrysMod::Lua
-{
-	class ILuaShared;
-	class ILuaConVars;
-}
+class ILuaShared;
+class ILuaConVars;
 
 class IGet
 {
@@ -39,8 +35,8 @@ public:
 	virtual bool IsDedicatedServer() = 0;
 	virtual int GetClientCount() = 0;
 	virtual IFileSystem* FileSystem() = 0;
-	virtual GarrysMod::Lua::ILuaShared* LuaShared() = 0;
-	virtual GarrysMod::Lua::ILuaConVars* LuaConVars() = 0;
+	virtual ILuaShared* LuaShared() = 0;
+	virtual ILuaConVars* LuaConVars() = 0;
 	virtual IMenuSystem* MenuSystem() = 0;
 	virtual IResources* Resources() = 0;
 	virtual IIntroScreen* IntroScreen() = 0;
