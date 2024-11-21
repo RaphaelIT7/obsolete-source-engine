@@ -206,6 +206,7 @@ void CHL2MP_Player::GiveDefaultItems( void )
 	CBasePlayer::GiveAmmo( 6,	"Buckshot");
 	CBasePlayer::GiveAmmo( 6,	"357" );
 
+#ifndef BUILD_GMOD
 	if ( GetPlayerModelType() == PLAYER_SOUNDS_METROPOLICE || GetPlayerModelType() == PLAYER_SOUNDS_COMBINESOLDIER )
 	{
 		GiveNamedItem( "weapon_stunstick" );
@@ -214,6 +215,7 @@ void CHL2MP_Player::GiveDefaultItems( void )
 	{
 		GiveNamedItem( "weapon_crowbar" );
 	}
+#endif
 	
 	GiveNamedItem( "weapon_pistol" );
 	GiveNamedItem( "weapon_smg1" );

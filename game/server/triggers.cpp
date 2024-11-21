@@ -1616,8 +1616,10 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 	Assert(!FStrEq(m_szMapName, ""));
 
 	// Don't work in deathmatch
+#ifndef BUILD_GMOD
 	if ( g_pGameRules->IsDeathmatch() )
 		return;
+#endif
 
 	// Some people are firing these multiple times in a frame, disable
 	if ( m_bTouched )
