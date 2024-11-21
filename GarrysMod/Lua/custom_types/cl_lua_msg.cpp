@@ -6,7 +6,7 @@
 
 LUA_FUNCTION_STATIC( bf_read_Reset )
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::UserMsg);
+	LUA->CheckType(1, Type::UserMsg);
 
 	bf_read* msg = (bf_read*)LC_bf_read.Get( 1 );
 	if ( msg )
@@ -19,7 +19,7 @@ LUA_FUNCTION_STATIC( bf_read_Reset )
 
 LUA_FUNCTION_STATIC( bf_read_ReadFloat )
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::UserMsg);
+	LUA->CheckType(1, Type::UserMsg);
 
 	bf_read* msg = (bf_read*)LC_bf_read.Get( 1 );
 	LUA->PushNumber( msg ? msg->ReadFloat() : 0 );
@@ -29,7 +29,7 @@ LUA_FUNCTION_STATIC( bf_read_ReadFloat )
 
 LUA_FUNCTION_STATIC( bf_read_ReadShort )
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::UserMsg);
+	LUA->CheckType(1, Type::UserMsg);
 
 	bf_read* msg = (bf_read*)LC_bf_read.Get( 1 );
 	LUA->PushNumber( msg ? msg->ReadShort() : 0 );
@@ -39,7 +39,7 @@ LUA_FUNCTION_STATIC( bf_read_ReadShort )
 
 LUA_FUNCTION_STATIC( bf_read_ReadChar )
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::UserMsg);
+	LUA->CheckType(1, Type::UserMsg);
 
 	bf_read* msg = (bf_read*)LC_bf_read.Get( 1 );
 	LUA->PushNumber( msg ? msg->ReadChar() : 0 );
@@ -49,7 +49,7 @@ LUA_FUNCTION_STATIC( bf_read_ReadChar )
 
 LUA_FUNCTION_STATIC( bf_read_ReadLong )
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::UserMsg);
+	LUA->CheckType(1, Type::UserMsg);
 
 	bf_read* msg = (bf_read*)LC_bf_read.Get( 1 );
 	LUA->PushNumber( msg ? msg->ReadLong() : 0 );
@@ -59,7 +59,7 @@ LUA_FUNCTION_STATIC( bf_read_ReadLong )
 
 LUA_FUNCTION_STATIC( bf_read_ReadString )
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::UserMsg);
+	LUA->CheckType(1, Type::UserMsg);
 
 	bf_read* msg = (bf_read*)LC_bf_read.Get( 1 );
 	char* pStr = new char[255];
@@ -77,7 +77,7 @@ LUA_FUNCTION_STATIC( bf_read_ReadString )
 
 LUA_FUNCTION_STATIC( bf_read_ReadEntity )
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::UserMsg);
+	LUA->CheckType(1, Type::UserMsg);
 
 	bf_read* msg = (bf_read*)LC_bf_read.Get( 1 );
 	if ( msg )
@@ -92,7 +92,7 @@ LUA_FUNCTION_STATIC( bf_read_ReadEntity )
 
 LUA_FUNCTION_STATIC( bf_read_ReadVector )
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::UserMsg);
+	LUA->CheckType(1, Type::UserMsg);
 
 	bf_read* msg = (bf_read*)LC_bf_read.Get( 1 );
 	if ( msg )
@@ -109,7 +109,7 @@ LUA_FUNCTION_STATIC( bf_read_ReadVector )
 
 LUA_FUNCTION_STATIC( bf_read_ReadAngle )
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::UserMsg);
+	LUA->CheckType(1, Type::UserMsg);
 
 	bf_read* msg = (bf_read*)LC_bf_read.Get( 1 );
 	if ( msg )
@@ -126,7 +126,7 @@ LUA_FUNCTION_STATIC( bf_read_ReadAngle )
 
 LUA_FUNCTION_STATIC( bf_read_ReadVectorNormal )
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::UserMsg);
+	LUA->CheckType(1, Type::UserMsg);
 
 	bf_read* msg = (bf_read*)LC_bf_read.Get( 1 );
 	if ( msg )
@@ -143,7 +143,7 @@ LUA_FUNCTION_STATIC( bf_read_ReadVectorNormal )
 
 LUA_FUNCTION_STATIC( bf_read_ReadBool )
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::UserMsg);
+	LUA->CheckType(1, Type::UserMsg);
 
 	bf_read* msg = (bf_read*)LC_bf_read.Get( 1 );
 	LUA->PushBool( msg ? msg->ReadOneBit() : false );
@@ -158,7 +158,7 @@ void Push_bf_read( const bf_read* msg )
 
 void bf_read_Class()
 {
-	g_Lua->CreateMetaTableType( "bf_read", GarrysMod::Lua::Type::UserMsg );
+	g_Lua->CreateMetaTableType( "bf_read", Type::UserMsg );
 		g_Lua->PushCFunction( bf_read_Reset );
 		g_Lua->SetField(-2, "Reset");
 
@@ -193,4 +193,4 @@ void bf_read_Class()
 		g_Lua->SetField(-2, "ReadBool");
 }
 
-CLuaClass LC_bf_read( "bf_read", GarrysMod::Lua::Type::UserMsg, bf_read_Class );
+CLuaClass LC_bf_read( "bf_read", Type::UserMsg, bf_read_Class );

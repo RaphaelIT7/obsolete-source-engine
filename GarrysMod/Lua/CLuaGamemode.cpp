@@ -1,6 +1,6 @@
 #include "cbase.h"
 #include "Externals.h"
-#include "GarrysMod/Lua/LuaInterface.h"
+#include "ILuaInterface.h"
 #include "CLuaClass.h"
 #include "vprof.h"
 
@@ -59,12 +59,12 @@ bool CLuaGamemode::Call( int hook ) // Unfinished! Gmod uses CLuaObjects for thi
 	VPROF( "CLuaGamemode::Call", VPROF_BUDGETGROUP_GMOD );
 
 	int reference = -1;
-	g_Lua->PushSpecial( GarrysMod::Lua::SPECIAL_GLOB );
+	g_Lua->PushSpecial( SPECIAL_GLOB );
 		g_Lua->GetField( -1, "gamemode" );
-		if (g_Lua->IsType( -1, GarrysMod::Lua::Type::Table ))
+		if (g_Lua->IsType( -1, Type::Table ))
 		{
 			g_Lua->GetField( -1, "Call" );
-			if ( g_Lua->IsType( -1, GarrysMod::Lua::Type::Function ))
+			if ( g_Lua->IsType( -1, Type::Function ))
 			{
 				reference = g_Lua->ReferenceCreate();
 			} else {
@@ -101,12 +101,12 @@ bool CLuaGamemode::CallWithArgs( int hook ) // Unfinished! Gmod uses CLuaObjects
 		Error("[GM:CallWithArgs - !ThreadInMainThread] %s", g_Lua->GetPooledString(hook));
 
 	int reference = -1;
-	g_Lua->PushSpecial( GarrysMod::Lua::SPECIAL_GLOB );
+	g_Lua->PushSpecial( SPECIAL_GLOB );
 		g_Lua->GetField( -1, "gamemode" );
-		if (g_Lua->IsType( -1, GarrysMod::Lua::Type::Table ))
+		if (g_Lua->IsType( -1, Type::Table ))
 		{
 			g_Lua->GetField( -1, "Call" );
-			if ( g_Lua->IsType( -1, GarrysMod::Lua::Type::Function ))
+			if ( g_Lua->IsType( -1, Type::Function ))
 			{
 				reference = g_Lua->ReferenceCreate();
 			} else {

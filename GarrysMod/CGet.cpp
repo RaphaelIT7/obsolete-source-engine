@@ -1,6 +1,6 @@
 #include "GarrysMod/IGet.h"
-#include <GarrysMod/Lua/LuaShared.h>
-#include <GarrysMod/Lua/LuaConVars.h>
+#include <ILuaShared.h>
+#include <ILuaConVars.h>
 #include <GarrysMod/IMenuSystem.h>
 #include <GarrysMod/IntroScreen.h>
 #include <materialsystem/imaterialsystemstub.h>
@@ -20,8 +20,8 @@ public:
 	virtual bool IsDedicatedServer();
 	virtual int GetClientCount();
 	virtual IFileSystem* FileSystem();
-	virtual GarrysMod::Lua::ILuaShared* LuaShared();
-	virtual GarrysMod::Lua::ILuaConVars* LuaConVars();
+	virtual ILuaShared* LuaShared();
+	virtual ILuaConVars* LuaConVars();
 	virtual IMenuSystem* MenuSystem();
 	virtual IResources* Resources();
 	virtual IIntroScreen* IntroScreen();
@@ -46,17 +46,19 @@ public:
 	virtual IMotionSensor* MotionSensor();
 	virtual int Version();
 	virtual const char* VersionStr();
+	virtual const char* SteamBranch();
 	virtual IGMod_Audio* Audio();
 	virtual const char* VersionTimeStr();
 	virtual IAnalytics* Analytics();
+	virtual const char* BuildName();
 	virtual void UpdateRichPresense( const char* status );
 	virtual void ResetRichPresense();
 	virtual void FilterText(const char*, char*, int, ETextFilteringContext, CSteamID);
 private:
 	char* m_strGameDir = new char[MAX_PATH];
 	IFileSystem* m_pfilesystem;
-	GarrysMod::Lua::ILuaShared* m_pluashared;
-	GarrysMod::Lua::ILuaConVars* m_pluaconvars;
+	ILuaShared* m_pluashared;
+	ILuaConVars* m_pluaconvars;
 	IMenuSystem* m_pmenusystem;
 	IResources* m_presources;
 	IIntroScreen* m_pintroscreen;
@@ -96,12 +98,12 @@ IFileSystem* CGet::FileSystem()
 	return m_pfilesystem;
 }
 
-GarrysMod::Lua::ILuaShared* CGet::LuaShared()
+ILuaShared* CGet::LuaShared()
 {
 	return m_pluashared;
 }
 
-GarrysMod::Lua::ILuaConVars* CGet::LuaConVars()
+ILuaConVars* CGet::LuaConVars()
 {
 	return m_pluaconvars;
 }
@@ -208,8 +210,8 @@ void CGet::Initialize( IFileSystem* fs )
 	// NOTE: Gmod uses CModuleLoader<T>(IFileSystem*, const char*, const char*, bool) for this.
 
 	CreateInterfaceFn lua_sharedfn = GetFactory( "lua_shared" DLL_EXT_STRING );
-	m_pluashared = (GarrysMod::Lua::ILuaShared*)lua_sharedfn( GMOD_LUASHARED_INTERFACE, NULL );
-	m_pluaconvars = (GarrysMod::Lua::ILuaConVars*)lua_sharedfn( GMOD_LUACONVARS_INTERFACE, NULL );
+	m_pluashared = (ILuaShared*)lua_sharedfn( GMOD_LUASHARED_INTERFACE, NULL );
+	m_pluaconvars = (ILuaConVars*)lua_sharedfn( GMOD_LUACONVARS_INTERFACE, NULL );
 	m_pluashared->Init( g_AppSystemFactory, false, nullptr, this );
 	//m_pluaconvars->Init(); // ToDo: find out why it crashes :<
 
@@ -291,10 +293,22 @@ const char* CGet::VersionTimeStr( )
 	return "1.01.0001";
 }
 
+const char* CGet::SteamBranch()
+{
+	// ToDo, read it from garrysmod.ver
+	return "none";
+}
+
 IAnalytics* CGet::Analytics( )
 {
 	// ToDo
 	return m_panalytics;
+}
+
+const char* CGet::BuildName()
+{
+	// ToDo
+	return "0000"; // I have no idea what it even returns
 }
 
 void CGet::UpdateRichPresense( const char* )

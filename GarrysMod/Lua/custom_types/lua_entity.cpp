@@ -15,7 +15,7 @@ inline CBaseEntity* Get_ValidEntity(int index) // Helper function
 
 LUA_FUNCTION_STATIC(Entity__tostring)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	char szBuf[128] = {};
 	CBaseEntity* ent = Get_Entity(1);
@@ -31,7 +31,7 @@ LUA_FUNCTION_STATIC(Entity__tostring)
 
 LUA_FUNCTION_STATIC(Entity__index)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	LUA->GetMetaTable(1);
 	LUA->Push(2);
@@ -42,7 +42,7 @@ LUA_FUNCTION_STATIC(Entity__index)
 
 LUA_FUNCTION_STATIC(Entity__newindex)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	// ToDo: Add Entity->GetLuaObject
 
@@ -51,8 +51,8 @@ LUA_FUNCTION_STATIC(Entity__newindex)
 
 LUA_FUNCTION_STATIC(Entity__eq)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
+	LUA->CheckType(2, Type::Entity);
 
 	LUA->PushBool(Get_Entity(1) == Get_Entity(2));
 	return 1;
@@ -60,7 +60,7 @@ LUA_FUNCTION_STATIC(Entity__eq)
 
 LUA_FUNCTION_STATIC(Entity__concat)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	// ToDo
 
@@ -69,7 +69,7 @@ LUA_FUNCTION_STATIC(Entity__concat)
 
 LUA_FUNCTION_STATIC(Entity_IsValid)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	LUA->PushBool(Get_Entity(1) != NULL);
 
@@ -78,7 +78,7 @@ LUA_FUNCTION_STATIC(Entity_IsValid)
 
 LUA_FUNCTION_STATIC(Entity_IsWorld)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	LUA->PushBool(ent->IsWorld());
@@ -88,7 +88,7 @@ LUA_FUNCTION_STATIC(Entity_IsWorld)
 
 LUA_FUNCTION_STATIC(Entity_GetPos)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 #ifndef CLIENT_DLL
@@ -101,7 +101,7 @@ LUA_FUNCTION_STATIC(Entity_GetPos)
 
 LUA_FUNCTION_STATIC(Entity_GetNetworkOrigin)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Push_Vector(new Vector(ent->GetAbsOrigin()));
@@ -111,8 +111,8 @@ LUA_FUNCTION_STATIC(Entity_GetNetworkOrigin)
 
 LUA_FUNCTION_STATIC(Entity_SetNetworkOrigin)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Entity);
+	LUA->CheckType(2, Type::Vector);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Vector* vec = Get_Vector(2);
@@ -123,8 +123,8 @@ LUA_FUNCTION_STATIC(Entity_SetNetworkOrigin)
 
 LUA_FUNCTION_STATIC(Entity_SetPos)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Entity);
+	LUA->CheckType(2, Type::Vector);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Vector* vec = Get_Vector(2);
@@ -138,7 +138,7 @@ LUA_FUNCTION_STATIC(Entity_SetPos)
 
 LUA_FUNCTION_STATIC(Entity_EntIndex)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	LUA->PushNumber(ent->entindex());
@@ -148,9 +148,9 @@ LUA_FUNCTION_STATIC(Entity_EntIndex)
 
 LUA_FUNCTION_STATIC(Entity_SetAttachment)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Entity);
-	LUA->CheckType(3, GarrysMod::Lua::Type::Number);
+	LUA->CheckType(1, Type::Entity);
+	LUA->CheckType(2, Type::Entity);
+	LUA->CheckType(3, Type::Number);
 
 	CBaseEntity* ent1 = Get_ValidEntity(1);
 	CBaseEntity* ent2 = Get_ValidEntity(2);
@@ -161,8 +161,8 @@ LUA_FUNCTION_STATIC(Entity_SetAttachment)
 
 LUA_FUNCTION_STATIC(Entity_SetParent)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
+	LUA->CheckType(2, Type::Entity);
 
 	CBaseEntity* ent1 = Get_ValidEntity(1);
 	CBaseEntity* ent2 = Get_ValidEntity(2);
@@ -173,8 +173,8 @@ LUA_FUNCTION_STATIC(Entity_SetParent)
 
 LUA_FUNCTION_STATIC(Entity_FollowBone)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
+	LUA->CheckType(2, Type::Entity);
 
 	CBaseEntity* ent1 = Get_ValidEntity(1);
 	CBaseEntity* ent2 = Get_ValidEntity(2);
@@ -186,7 +186,7 @@ LUA_FUNCTION_STATIC(Entity_FollowBone)
 
 LUA_FUNCTION_STATIC(Entity_GetParent)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 #ifndef CLIENT_DLL
@@ -200,7 +200,7 @@ LUA_FUNCTION_STATIC(Entity_GetParent)
 
 LUA_FUNCTION_STATIC(Entity_GetChildren)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	int idx = 0;
@@ -225,7 +225,7 @@ LUA_FUNCTION_STATIC(Entity_GetChildren)
 
 LUA_FUNCTION_STATIC(Entity_SetBodygroup)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	int bodygroup = LUA->CheckNumber(2);
@@ -239,7 +239,7 @@ LUA_FUNCTION_STATIC(Entity_SetBodygroup)
 
 LUA_FUNCTION_STATIC(Entity_GetBodygroup)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	int id = LUA->CheckNumber(2);
@@ -255,7 +255,7 @@ LUA_FUNCTION_STATIC(Entity_GetBodygroup)
 
 LUA_FUNCTION_STATIC(Entity_Health)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	LUA->PushNumber(ent->GetHealth());
@@ -265,7 +265,7 @@ LUA_FUNCTION_STATIC(Entity_Health)
 
 LUA_FUNCTION_STATIC(Entity_SetHealth)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	int hp = LUA->CheckNumber(2);
@@ -276,7 +276,7 @@ LUA_FUNCTION_STATIC(Entity_SetHealth)
 
 LUA_FUNCTION_STATIC(Entity_GetClass)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	LUA->PushString(ent->GetClassname());
@@ -286,7 +286,7 @@ LUA_FUNCTION_STATIC(Entity_GetClass)
 
 LUA_FUNCTION_STATIC(Entity_GetBaseVelocity)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Push_Vector(new Vector(ent->GetBaseVelocity()));
@@ -296,7 +296,7 @@ LUA_FUNCTION_STATIC(Entity_GetBaseVelocity)
 
 LUA_FUNCTION_STATIC(Entity_GetAbsVelocity)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Push_Vector(new Vector(ent->GetAbsVelocity()));
@@ -306,8 +306,8 @@ LUA_FUNCTION_STATIC(Entity_GetAbsVelocity)
 
 LUA_FUNCTION_STATIC(Entity_SetAbsVelocity)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Entity);
+	LUA->CheckType(2, Type::Vector);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Vector* vec = Get_Vector(2);
@@ -319,7 +319,7 @@ LUA_FUNCTION_STATIC(Entity_SetAbsVelocity)
 
 LUA_FUNCTION_STATIC(Entity_GetVelocity)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 #ifndef CLIENT_DLL
@@ -332,7 +332,7 @@ LUA_FUNCTION_STATIC(Entity_GetVelocity)
 
 LUA_FUNCTION_STATIC(Entity_GetForward)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Vector* vec = new Vector();
@@ -344,7 +344,7 @@ LUA_FUNCTION_STATIC(Entity_GetForward)
 
 LUA_FUNCTION_STATIC(Entity_GetRight)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Vector* vec = new Vector();
@@ -356,7 +356,7 @@ LUA_FUNCTION_STATIC(Entity_GetRight)
 
 LUA_FUNCTION_STATIC(Entity_GetUp)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Vector* vec = new Vector();
@@ -368,7 +368,7 @@ LUA_FUNCTION_STATIC(Entity_GetUp)
 
 LUA_FUNCTION_STATIC(Entity_SetModel)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	const char* mdl = LUA->CheckString(2);
@@ -381,7 +381,7 @@ LUA_FUNCTION_STATIC(Entity_SetModel)
 
 LUA_FUNCTION_STATIC(Entity_SetModelName)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	const char* mdl = LUA->CheckString(2);
@@ -394,7 +394,7 @@ LUA_FUNCTION_STATIC(Entity_SetModelName)
 
 LUA_FUNCTION_STATIC(Entity_GetModel)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 #ifndef CLIENT_DLL // ToDo: Fix it later.
@@ -408,8 +408,8 @@ LUA_FUNCTION_STATIC(Entity_GetModel)
 
 LUA_FUNCTION_STATIC(Entity_SetOwner)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
+	LUA->CheckType(2, Type::Entity);
 
 	CBaseEntity* ent1 = Get_ValidEntity(1);
 	CBaseEntity* ent2 = Get_ValidEntity(2);
@@ -420,7 +420,7 @@ LUA_FUNCTION_STATIC(Entity_SetOwner)
 
 LUA_FUNCTION_STATIC(Entity_GetOwner)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Push_Entity(ent->GetOwnerEntity());
@@ -430,7 +430,7 @@ LUA_FUNCTION_STATIC(Entity_GetOwner)
 
 LUA_FUNCTION_STATIC(Entity_GetGroundEntity)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Push_Entity(ent->GetGroundEntity());
@@ -440,7 +440,7 @@ LUA_FUNCTION_STATIC(Entity_GetGroundEntity)
 
 LUA_FUNCTION_STATIC(Entity_GetMoveType)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	LUA->PushNumber(ent->GetMoveType());
@@ -450,7 +450,7 @@ LUA_FUNCTION_STATIC(Entity_GetMoveType)
 
 LUA_FUNCTION_STATIC(Entity_GetMoveCollide)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	LUA->PushNumber(ent->GetMoveCollide());
@@ -460,7 +460,7 @@ LUA_FUNCTION_STATIC(Entity_GetMoveCollide)
 
 LUA_FUNCTION_STATIC(Entity_GetSolid)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	LUA->PushNumber(ent->GetSolid());
@@ -470,7 +470,7 @@ LUA_FUNCTION_STATIC(Entity_GetSolid)
 
 LUA_FUNCTION_STATIC(Entity_GetCollisionGroup)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	LUA->PushNumber(ent->GetCollisionGroup());
@@ -480,7 +480,7 @@ LUA_FUNCTION_STATIC(Entity_GetCollisionGroup)
 
 LUA_FUNCTION_STATIC(Entity_WaterLevel)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	LUA->PushNumber(ent->GetWaterLevel());
@@ -490,7 +490,7 @@ LUA_FUNCTION_STATIC(Entity_WaterLevel)
 
 LUA_FUNCTION_STATIC(Entity_GetMaxHealth)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	LUA->PushNumber(ent->GetMaxHealth());
@@ -500,7 +500,7 @@ LUA_FUNCTION_STATIC(Entity_GetMaxHealth)
 
 LUA_FUNCTION_STATIC(Entity_EyePos)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Push_Vector(new Vector(ent->EyePosition()));
@@ -510,11 +510,11 @@ LUA_FUNCTION_STATIC(Entity_EyePos)
 
 LUA_FUNCTION_STATIC(Entity_PhysicsInitShadow)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
-	bool allowPhysicsMovement = LUA->IsType(2, GarrysMod::Lua::Type::Bool) ? LUA->GetBool(2) : true;
-	bool allowPhysicsRotation = LUA->IsType(3, GarrysMod::Lua::Type::Bool) ? LUA->GetBool(3) : true;
+	bool allowPhysicsMovement = LUA->IsType(2, Type::Bool) ? LUA->GetBool(2) : true;
+	bool allowPhysicsRotation = LUA->IsType(3, Type::Bool) ? LUA->GetBool(3) : true;
 
 	if (ent->VPhysicsInitShadow(allowPhysicsMovement, allowPhysicsRotation) != NULL) {
 		LUA->PushBool(true);
@@ -527,11 +527,11 @@ LUA_FUNCTION_STATIC(Entity_PhysicsInitShadow)
 
 LUA_FUNCTION_STATIC(Entity_MakePhysicsObjectAShadow)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
-	bool allowPhysicsMovement = LUA->IsType(2, GarrysMod::Lua::Type::Bool) ? LUA->GetBool(2) : true;
-	bool allowPhysicsRotation = LUA->IsType(3, GarrysMod::Lua::Type::Bool) ? LUA->GetBool(3) : true;
+	bool allowPhysicsMovement = LUA->IsType(2, Type::Bool) ? LUA->GetBool(2) : true;
+	bool allowPhysicsRotation = LUA->IsType(3, Type::Bool) ? LUA->GetBool(3) : true;
 
 #ifndef CLIENT_DLL
 	ent->CalcAbsolutePosition();
@@ -548,7 +548,7 @@ LUA_FUNCTION_STATIC(Entity_MakePhysicsObjectAShadow)
 
 LUA_FUNCTION_STATIC(Entity_PhysicsInit)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	int solidType = LUA->CheckNumber(2);
@@ -560,7 +560,7 @@ LUA_FUNCTION_STATIC(Entity_PhysicsInit)
 
 LUA_FUNCTION_STATIC(Entity_PhysicsInitStatic)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	int solidType = LUA->CheckNumber(2);
@@ -576,7 +576,7 @@ LUA_FUNCTION_STATIC(Entity_PhysicsInitStatic)
 
 LUA_FUNCTION_STATIC(Entity_PhysicsDestroy)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	ent->VPhysicsDestroyObject();
@@ -586,9 +586,9 @@ LUA_FUNCTION_STATIC(Entity_PhysicsDestroy)
 
 LUA_FUNCTION_STATIC(Entity_SetCollisionBounds)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(3, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Entity);
+	LUA->CheckType(2, Type::Vector);
+	LUA->CheckType(3, Type::Vector);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Vector* mins = Get_Vector(2);
@@ -600,9 +600,9 @@ LUA_FUNCTION_STATIC(Entity_SetCollisionBounds)
 
 LUA_FUNCTION_STATIC(Entity_SetSurroundingBounds)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(3, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Entity);
+	LUA->CheckType(2, Type::Vector);
+	LUA->CheckType(3, Type::Vector);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Vector* mins = Get_Vector(2);
@@ -618,7 +618,7 @@ LUA_FUNCTION_STATIC(Entity_SetSurroundingBounds)
 
 LUA_FUNCTION_STATIC(Entity_SetSurroundingBoundsType)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	int bounds = LUA->CheckNumber(2); 
@@ -633,7 +633,7 @@ LUA_FUNCTION_STATIC(Entity_SetSurroundingBoundsType)
 
 LUA_FUNCTION_STATIC(Entity_GetSurroundingBounds)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 
@@ -654,7 +654,7 @@ LUA_FUNCTION_STATIC(Entity_GetSurroundingBounds)
 
 LUA_FUNCTION_STATIC(Entity_DrawShadow)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	int shouldDraw = LUA->GetBool(2);
@@ -669,7 +669,7 @@ LUA_FUNCTION_STATIC(Entity_DrawShadow)
 
 LUA_FUNCTION_STATIC(Entity_NextThink)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	double think = LUA->CheckNumber(2);
@@ -681,7 +681,7 @@ LUA_FUNCTION_STATIC(Entity_NextThink)
 
 LUA_FUNCTION_STATIC(Entity_GetPhysicsObjectCount)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 
@@ -693,7 +693,7 @@ LUA_FUNCTION_STATIC(Entity_GetPhysicsObjectCount)
 
 LUA_FUNCTION_STATIC(Entity_SetSolid)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	int solidType = LUA->CheckNumber(2);
@@ -705,7 +705,7 @@ LUA_FUNCTION_STATIC(Entity_SetSolid)
 
 LUA_FUNCTION_STATIC(Entity_SetRenderMode)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	int renderType = LUA->CheckNumber(2);
@@ -717,7 +717,7 @@ LUA_FUNCTION_STATIC(Entity_SetRenderMode)
 
 LUA_FUNCTION_STATIC(Entity_Remove)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	ent->Remove();
@@ -727,7 +727,7 @@ LUA_FUNCTION_STATIC(Entity_Remove)
 
 LUA_FUNCTION_STATIC(Entity_SetNotSolid)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	bool isNotSolid = LUA->GetBool(2);
@@ -743,7 +743,7 @@ LUA_FUNCTION_STATIC(Entity_SetNotSolid)
 
 LUA_FUNCTION_STATIC(Entity_SetMoveType)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	int moveType = LUA->CheckNumber(2);
@@ -755,7 +755,7 @@ LUA_FUNCTION_STATIC(Entity_SetMoveType)
 
 LUA_FUNCTION_STATIC(Entity_Activate)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	ent->Activate();
@@ -765,8 +765,8 @@ LUA_FUNCTION_STATIC(Entity_Activate)
 
 LUA_FUNCTION_STATIC(Entity_WorldToLocal)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
+	LUA->CheckType(2, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Vector* vec = Get_Vector(2);
@@ -788,8 +788,8 @@ LUA_FUNCTION_STATIC(Entity_WorldToLocal)
 
 LUA_FUNCTION_STATIC(Entity_LocalToWorld)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
+	LUA->CheckType(2, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Vector* vec = Get_Vector(2);
@@ -811,7 +811,7 @@ LUA_FUNCTION_STATIC(Entity_LocalToWorld)
 
 LUA_FUNCTION_STATIC(Entity_Spawn)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	ent->Spawn();
@@ -821,7 +821,7 @@ LUA_FUNCTION_STATIC(Entity_Spawn)
 
 LUA_FUNCTION_STATIC(Entity_GetEyeAngles)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Entity);
+	LUA->CheckType(1, Type::Entity);
 
 	CBaseEntity* ent = Get_ValidEntity(1);
 	Push_Angle(new QAngle(ent->EyeAngles()));
@@ -864,12 +864,12 @@ void Push_Entity(CBaseEntity* ent)
 
 void Entity_Class()
 {
-	g_Lua->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+	g_Lua->PushSpecial(SPECIAL_GLOB);
 		g_Lua->PushCFunction(Global_Entity);
 		g_Lua->SetField(-2, "Entity");
 	g_Lua->Pop(1);
 
-	g_Lua->CreateMetaTableType("Entity", GarrysMod::Lua::Type::Entity);
+	g_Lua->CreateMetaTableType("Entity", Type::Entity);
 		g_Lua->PushCFunction(Entity__index); // Gmod uses this format -> Angle____gc, Angle__Forward and so on.
 		g_Lua->SetField(-2, "__index");
 
@@ -1243,4 +1243,4 @@ void Entity_Class()
 		//g_Lua->SetField(-2, "GetBodygroupByName");
 }
 
-CLuaClass entity_class( "Entity", GarrysMod::Lua::Type::Entity, Entity_Class );
+CLuaClass entity_class( "Entity", Type::Entity, Entity_Class );

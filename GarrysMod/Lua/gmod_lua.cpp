@@ -5,10 +5,10 @@
 #include "cbase.h"
 #include "gmod_lua.h"
 #include "garrysmod.h"
-#include "GarrysMod/Lua/LuaInterface.h"
+#include "ILuaInterface.h"
 #include "CLuaManager.h"
 #include "Externals.h"
-#include "GarrysMod/Lua/LuaObject.h"
+#include "ILuaObject.h"
 #include "Lua/CLuaClass.h"
 #include "tier0/icommandline.h"
 
@@ -22,7 +22,7 @@ void CLuaManager::Startup() // ToDo: use definitions late for Client / Server st
 	g_Lua->Init(g_LuaCallback, false);
 	g_Lua->SetPathID(LUA_PATH);
 
-	GarrysMod::Lua::ILuaObject* global = g_Lua->Global();
+	ILuaObject* global = g_Lua->Global();
 	g_Lua->PushNumber(get->Version());
 	g_Lua->SetMember(global, "VERSION");
 
@@ -141,7 +141,7 @@ void CC_LuaRun( const CCommand &args )
 
 	Msg("> %s...\n", args.ArgS());
  
-	auto interface = LuaShared()->GetLuaInterface(GarrysMod::Lua::State::SERVER);
+	auto interface = LuaShared()->GetLuaInterface(State::SERVER);
 	if (!interface) {
 		Warning("Failed to find Server ILuaInterface!");
 	} else {

@@ -1,8 +1,7 @@
 #ifndef LUA_CLASS_H
 #define LUA_CLASS_H
 
-#include "GarrysMod/Lua/LuaObject.h"
-#include "GarrysMod/Lua/LuaInterface.h"
+#include "ILuaInterface.h"
 #include "mathlib/vector.h"
 #include <vector>
 #include "Bootil/Bootil.h"
@@ -10,7 +9,7 @@
 #include <filesystem.h>
 
 class CBaseEntity;
-class CLuaObject : public GarrysMod::Lua::ILuaObject
+class CLuaObject : public ILuaObject
 {
 public:
 	virtual void Set( ILuaObject *obj );
@@ -28,7 +27,7 @@ public:
 	virtual void SetMember( const char *name, float val );
 	virtual void SetMember( const char *name, bool val );
 	virtual void SetMember( const char *name, const char *val );
-	virtual void SetMember( const char *name, GarrysMod::Lua::CFunc f );
+	virtual void SetMember( const char *name, CFunc f );
 
 	virtual bool GetMemberBool( const char *name, bool b = true );
 	virtual int GetMemberInt( const char *name, int i = 0 );
@@ -60,7 +59,7 @@ public:
 	virtual void SetMember( float fKey, float val );
 	virtual void SetMember( float fKey, bool val );
 	virtual void SetMember( float fKey, const char *val );
-	virtual void SetMember( float fKey, GarrysMod::Lua::CFunc f );
+	virtual void SetMember( float fKey, CFunc f );
 
 	virtual const char *GetMemberStr( float name, const char *s = "" );
 
@@ -138,12 +137,12 @@ public:
 
 	virtual void SetMemberPhysObject( const char *, IPhysicsObject * );
 public:
-	void Init(GarrysMod::Lua::ILuaBase*);
+	void Init(ILuaInterface*);
 protected:
 	bool m_bUserData;
 	int m_iLUA_TYPE;
 	int m_reference;
-	GarrysMod::Lua::ILuaBase* m_pLua;
+	ILuaInterface* m_pLua;
 };
 
 #define CLuaFunc GarrysMod::Lua::CFunc
@@ -169,7 +168,7 @@ private:
 	int m_iReference = -1;
 };
 
-extern void InitLuaClasses(GarrysMod::Lua::ILuaInterface* LUA);
+extern void InitLuaClasses(ILuaInterface* LUA);
 
 class CLuaLibrary // Not how Gmod does it but I want it to work for now.
 {
@@ -182,7 +181,7 @@ private:
 	const char* m_strName;
 	std::vector<CLuaClassFunc> m_pFuncs;
 };
-extern void InitLuaLibraries(GarrysMod::Lua::ILuaInterface* LUA);
+extern void InitLuaLibraries(ILuaInterface* LUA);
 
 // Lua classes. Fix this later. ToDo: Rename classes to LC_Vector, LC_Angle and so on.
 extern CLuaClass angle_class;

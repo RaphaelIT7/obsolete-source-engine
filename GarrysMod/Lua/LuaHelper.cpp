@@ -2,7 +2,7 @@
 #include "LuaHelper.h"
 #include "CLuaClass.h"
 
-bool LuaHelper::PushFunction( GarrysMod::Lua::ILuaInterface* LUA, const char* library, const char* function )
+bool LuaHelper::PushFunction( ILuaInterface* LUA, const char* library, const char* function )
 {
 	if ( !LUA )
 		return false;
@@ -25,7 +25,7 @@ bool LuaHelper::PushFunction( GarrysMod::Lua::ILuaInterface* LUA, const char* li
 	return false;
 }
 
-void LuaHelper::CallOnLuaErrorHook( GarrysMod::Lua::ILuaGameCallback::CLuaError* error, const char* unknown, unsigned long long wsid )
+void LuaHelper::CallOnLuaErrorHook( CLuaError* error, const char* unknown, unsigned long long wsid )
 {
 	// ToDo
 }

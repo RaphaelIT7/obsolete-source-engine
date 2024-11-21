@@ -7,7 +7,7 @@
 
 LUA_FUNCTION_STATIC( RecipientFilter__gc )
 {
-	if ( !LUA->IsType( 1, GarrysMod::Lua::Type::RecipientFilter ) )
+	if ( !LUA->IsType( 1, Type::RecipientFilter ) )
 		return 0;
 
 	// ToDo
@@ -84,7 +84,7 @@ LUA_FUNCTION_STATIC( RecipientFilter_AddPlayers )
 
 	switch ( LUA->GetType(2) )
 	{
-		case GarrysMod::Lua::Type::RecipientFilter:
+		case Type::RecipientFilter:
 			{
 				CRecipientFilter* pFilter2 = Get_CRecipientFilter( 2 );
 				if ( !pFilter2 )
@@ -99,13 +99,13 @@ LUA_FUNCTION_STATIC( RecipientFilter_AddPlayers )
 
 				break;
 			}
-		case GarrysMod::Lua::Type::Table:
+		case Type::Table:
 			{
 				LUA->Push( 2 );
 				LUA->PushNumber( 1 );
 				LUA->RawGet( -1 );
 				int i = 1;
-				while ( !LUA->IsType( -1, GarrysMod::Lua::Type::Nil ) )
+				while ( !LUA->IsType( -1, Type::Nil ) )
 				{
 					CBaseEntity* pEnt = Get_Entity( -1 );
 					if ( pEnt->IsPlayer() )
@@ -248,7 +248,7 @@ LUA_FUNCTION_STATIC( RecipientFilter_RemovePlayers )
 
 	switch ( LUA->GetType(2) )
 	{
-		case GarrysMod::Lua::Type::RecipientFilter:
+		case Type::RecipientFilter:
 			{
 				CRecipientFilter* pFilter2 = Get_CRecipientFilter( 2 );
 				if ( !pFilter2 )
@@ -263,13 +263,13 @@ LUA_FUNCTION_STATIC( RecipientFilter_RemovePlayers )
 
 				break;
 			}
-		case GarrysMod::Lua::Type::Table:
+		case Type::Table:
 			{
 				LUA->Push( 2 );
 				LUA->PushNumber( 1 );
 				LUA->RawGet( -1 );
 				int i = 1;
-				while ( !LUA->IsType( -1, GarrysMod::Lua::Type::Nil ) )
+				while ( !LUA->IsType( -1, Type::Nil ) )
 				{
 					CBaseEntity* pEnt = Get_Entity( -1 );
 					if ( pEnt->IsPlayer() )
@@ -343,12 +343,12 @@ void Push_CRecipientFilter( CRecipientFilter* filter )
 
 void RecipientFilter_Class()
 {
-	g_Lua->PushSpecial( GarrysMod::Lua::SPECIAL_GLOB );
+	g_Lua->PushSpecial( SPECIAL_GLOB );
 		g_Lua->PushCFunction( Global_RecipientFilter );
 		g_Lua->SetField( -2, "RecipientFilter" );
 	g_Lua->Pop( 1 );
 
-	g_Lua->CreateMetaTableType( "CRecipientFilter", GarrysMod::Lua::Type::RecipientFilter );
+	g_Lua->CreateMetaTableType( "CRecipientFilter", Type::RecipientFilter );
 		g_Lua->PushCFunction( RecipientFilter__gc );
 		g_Lua->SetField( -2, "__gc" );
 		
@@ -404,4 +404,4 @@ void RecipientFilter_Class()
 		g_Lua->SetField( -2, "RemoveRecipientsNotOnTeam" );
 }
 
-CLuaClass recipientfilter_class( "CRecipientFilter", GarrysMod::Lua::Type::RecipientFilter, RecipientFilter_Class );
+CLuaClass recipientfilter_class( "CRecipientFilter", Type::RecipientFilter, RecipientFilter_Class );

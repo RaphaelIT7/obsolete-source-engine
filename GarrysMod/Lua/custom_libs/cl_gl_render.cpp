@@ -17,7 +17,7 @@ LUA_FUNCTION_STATIC( render_RedownloadAllLightmaps )
 
 void Render_Library()
 {
-	g_Lua->PushSpecial( GarrysMod::Lua::SPECIAL_GLOB );
+	g_Lua->PushSpecial( SPECIAL_GLOB );
 		g_Lua->CreateTable();
 			g_Lua->PushCFunction( render_RedownloadAllLightmaps );
 			g_Lua->SetField( -2, "RedownloadAllLightmaps");

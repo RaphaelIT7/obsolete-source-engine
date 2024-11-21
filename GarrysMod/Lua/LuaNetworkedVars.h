@@ -1,6 +1,6 @@
 #ifndef LUANETWORKEDVAR_H
 #define LUANETWORKEDVAR_H
-#include "GarrysMod/Lua/LuaObject.h"
+#include "ILuaObject.h"
 #include "CLuaClass.h"
 
 #ifdef GAME_DLL
@@ -15,9 +15,9 @@ struct LuaNetworkedVar_t // This is Gmod's current version
 	int m_iNetworkStringID = -1;
 };
 
-struct LuaNetworkedEntity_t // ToDo: Get Gmod's current version
+struct LuaNetworkedEntity_t
 {
-	EHANDLE m_pHandle; // This seems to be wrong. But why :/
+	EHANDLE m_pHandle;
 	CUtlRBTree<CUtlMap<char const*, LuaNetworkedVar_t, unsigned short>::Node_t, unsigned short, CUtlMap<char const*, LuaNetworkedVar_t, unsigned short>::CKeyLess, CUtlMemory<UtlRBTreeNode_t<CUtlMap<char const*, LuaNetworkedVar_t, unsigned short>::Node_t, unsigned short>, unsigned short>> m_pVars;
 };
 
@@ -35,8 +35,8 @@ public:
 #endif
 	LuaNetworkedVar_t& FindEntityVar( EHANDLE& handle, const char* var, bool unknown );
 	void PushNetworkedVar( EHANDLE& handle, const char* var );
-	void SetNetworkedVar( EHANDLE& handle, const char* var, GarrysMod::Lua::ILuaObject* obj );
-	void SetNetworkedVarProxy( EHANDLE& handle, const char* var, GarrysMod::Lua::ILuaObject* obj );
+	void SetNetworkedVar( EHANDLE& handle, const char* var, ILuaObject* obj );
+	void SetNetworkedVarProxy( EHANDLE& handle, const char* var, ILuaObject* obj );
 #ifndef CLIENT_DLL
 	void PlayerInsert( CBasePlayer* ply );
 #endif

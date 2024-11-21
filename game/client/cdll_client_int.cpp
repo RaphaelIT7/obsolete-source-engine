@@ -2730,9 +2730,6 @@ void CHLClient::GMOD_ReceiveServerMessage( bf_read* pBF, int )
 	int iType = pBF->ReadBitLong(4, false);
 	switch(iType)
 	{
-		case 1: // Used for now by ClearModelPrecache logic.
-			garrysmod.OnClearModelPrecache(pBF);
-			break;
 		default:
 			break;
 	}

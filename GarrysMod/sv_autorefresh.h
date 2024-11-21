@@ -1,4 +1,4 @@
-#include "GarrysMod/Lua/LuaShared.h"
+#include "ILuaShared.h"
 #include "Bootil/Bootil.h"
 #include "Externals.h"
 
@@ -7,7 +7,7 @@ namespace GarrysMod::AutoRefresh
 	static Bootil::File::ChangeMonitor g_ChangeMonitor;
 	extern void EntityFilename( const std::string& fileName );
 	extern std::string ConvertLuaFilename( const std::string& fileName );
-	extern void FindRootFile_( const std::string& fileName, CUtlVector<GarrysMod::Lua::LuaFile*> vec ); // ::File -> LuaFile
+	extern void FindRootFile_( const std::string& fileName, CUtlVector<LuaFile*> vec ); // ::File -> LuaFile
 	extern void HandleLuaFileChange( const std::string& fileName );
 
 	extern void Init();

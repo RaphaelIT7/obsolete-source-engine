@@ -6,7 +6,7 @@
 
 LUA_FUNCTION_STATIC(Vector__gc)
 {
-	if (!LUA->IsType(1, GarrysMod::Lua::Type::Vector))
+	if (!LUA->IsType(1, Type::Vector))
 		return 0;
 
 	return 0;
@@ -14,7 +14,7 @@ LUA_FUNCTION_STATIC(Vector__gc)
 
 LUA_FUNCTION_STATIC(Vector__tostring)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 
 	Vector* vec = Get_Vector(1);
 	char szBuf[64] = {};
@@ -25,7 +25,7 @@ LUA_FUNCTION_STATIC(Vector__tostring)
 
 LUA_FUNCTION_STATIC(Vector__index)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 
 	const char* key = LUA->GetString(2);
 	if (key != NULL) 
@@ -52,7 +52,7 @@ LUA_FUNCTION_STATIC(Vector__index)
 
 LUA_FUNCTION_STATIC(Vector__newindex)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 
 	const char* key = LUA->GetString(2);
 	if (key == NULL)
@@ -72,8 +72,8 @@ LUA_FUNCTION_STATIC(Vector__newindex)
 
 LUA_FUNCTION_STATIC(Vector__eq)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
+	LUA->CheckType(2, Type::Vector);
 
 	LUA->PushBool(Get_Vector(1) == Get_Vector(2));
 
@@ -82,8 +82,8 @@ LUA_FUNCTION_STATIC(Vector__eq)
 
 LUA_FUNCTION_STATIC(Vector__add)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
+	LUA->CheckType(2, Type::Vector);
 
 	Vector* vec1 = Get_Vector(1);
 	Vector* vec2 = Get_Vector(2);
@@ -95,8 +95,8 @@ LUA_FUNCTION_STATIC(Vector__add)
 
 LUA_FUNCTION_STATIC(Vector__sub)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
+	LUA->CheckType(2, Type::Vector);
 
 	Vector* vec1 = Get_Vector(1);
 	Vector* vec2 = Get_Vector(2);
@@ -109,7 +109,7 @@ LUA_FUNCTION_STATIC(Vector__sub)
 
 LUA_FUNCTION_STATIC(Vector__unm)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 
 	Vector* vec = Get_Vector(1);
 	Push_Vector(new Vector(-vec->x, -vec->y, -vec->z));
@@ -119,16 +119,16 @@ LUA_FUNCTION_STATIC(Vector__unm)
 
 LUA_FUNCTION_STATIC(Vector__mul)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 
 	Vector* vec1 = Get_Vector(1);
 
-	if (LUA->IsType(2, GarrysMod::Lua::Type::Number)) {
+	if (LUA->IsType(2, Type::Number)) {
 		int num = LUA->GetNumber(2);
 
 		Push_Vector(new Vector(vec1->x * num, vec1->y * num, vec1->z * num));
 	} else {
-		LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+		LUA->CheckType(2, Type::Vector);
 
 		Vector* vec2 = Get_Vector(2);
 		Push_Vector(new Vector(vec1->x * vec2->x, vec1->y * vec2->y, vec1->z * vec2->z));
@@ -139,15 +139,15 @@ LUA_FUNCTION_STATIC(Vector__mul)
 
 LUA_FUNCTION_STATIC(Vector__div)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 
 	Vector* vec1 = Get_Vector(1);
-	if (LUA->IsType(2, GarrysMod::Lua::Type::Number)) {
+	if (LUA->IsType(2, Type::Number)) {
 		int num = LUA->GetNumber(2);
 
 		Push_Vector(new Vector(vec1->x / num, vec1->y / num, vec1->z / num));
 	} else {
-		LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+		LUA->CheckType(2, Type::Vector);
 		Vector* vec2 = Get_Vector(2);
 
 		Push_Vector(new Vector(vec1->x / vec2->x, vec1->y / vec2->y, vec1->z / vec2->z));
@@ -158,8 +158,8 @@ LUA_FUNCTION_STATIC(Vector__div)
 
 LUA_FUNCTION(Vector_Add)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
+	LUA->CheckType(2, Type::Vector);
 
 	Vector* vec1 = Get_Vector(1);
 	Vector* vec2 = Get_Vector(2);
@@ -173,7 +173,7 @@ LUA_FUNCTION(Vector_Add)
 
 LUA_FUNCTION(Vector_Length)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 
 	Vector* vec = Get_Vector(1);
 	LUA->PushNumber(Vector(vec->x, vec->y, vec->z).Length());
@@ -183,8 +183,8 @@ LUA_FUNCTION(Vector_Length)
 
 LUA_FUNCTION(Vector_Sub)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
+	LUA->CheckType(2, Type::Vector);
 
 	Vector* vec1 = Get_Vector(1);
 	Vector* vec2 = Get_Vector(2);
@@ -198,17 +198,17 @@ LUA_FUNCTION(Vector_Sub)
 
 LUA_FUNCTION(Vector_Mul) // Undocumented: Second arg can be a Vector?
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 
 	Vector* vec1 = Get_Vector(1);
-	if (LUA->IsType(2, GarrysMod::Lua::Type::Number)) {
+	if (LUA->IsType(2, Type::Number)) {
 		int num = LUA->GetNumber(2);
 
 		vec1->x *= num;
 		vec1->z *= num;
 		vec1->x *= num;
 	} else {
-		LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+		LUA->CheckType(2, Type::Vector);
 		Vector* vec2 = Get_Vector(2);
 
 		vec1->x *= vec2->x;
@@ -221,17 +221,17 @@ LUA_FUNCTION(Vector_Mul) // Undocumented: Second arg can be a Vector?
 
 LUA_FUNCTION(Vector_Div) // Undocumented: Second arg can be a Vector?
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 
 	Vector* vec1 = Get_Vector(1);
-	if (LUA->IsType(2, GarrysMod::Lua::Type::Number)) {
+	if (LUA->IsType(2, Type::Number)) {
 		int num = LUA->GetNumber(2);
 
 		vec1->x /= num;
 		vec1->z /= num;
 		vec1->x /= num;
 	} else {
-		LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+		LUA->CheckType(1, Type::Vector);
 		Vector* vec2 = Get_Vector(2);
 
 		vec1->x /= vec2->x;
@@ -244,7 +244,7 @@ LUA_FUNCTION(Vector_Div) // Undocumented: Second arg can be a Vector?
 
 LUA_FUNCTION(Vector_Normalize)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 	Vector* vec = Get_Vector(1);
 	
 	Vector vvec = Vector(vec->x, vec->y, vec->z);
@@ -259,7 +259,7 @@ LUA_FUNCTION(Vector_Normalize)
 
 LUA_FUNCTION(Vector_GetNormal)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 	Vector* vec = Get_Vector(1);
 	
 	Vector* new_vec = new Vector(vec->x, vec->y, vec->z);
@@ -272,8 +272,8 @@ LUA_FUNCTION(Vector_GetNormal)
 
 LUA_FUNCTION(Vector_Dot)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
+	LUA->CheckType(2, Type::Vector);
 
 	Vector* vec1 = Get_Vector(1);
 	Vector* vec2 = Get_Vector(2);
@@ -285,8 +285,8 @@ LUA_FUNCTION(Vector_Dot)
 
 LUA_FUNCTION(Vector_Cross)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
+	LUA->CheckType(2, Type::Vector);
 
 	Vector* a = Get_Vector(1);
 	Vector* b = Get_Vector(2);
@@ -298,8 +298,8 @@ LUA_FUNCTION(Vector_Cross)
 
 LUA_FUNCTION(Vector_Distance)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
+	LUA->CheckType(2, Type::Vector);
 
 	Vector* vec1 = Get_Vector(1);
 	Vector* vec2 = Get_Vector(2);
@@ -311,7 +311,7 @@ LUA_FUNCTION(Vector_Distance)
 
 LUA_FUNCTION(Vector_Angle)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 
 	Vector* vec = Get_Vector(1);
 
@@ -324,8 +324,8 @@ LUA_FUNCTION(Vector_Angle)
 
 LUA_FUNCTION(Vector_AngleEx)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
+	LUA->CheckType(2, Type::Vector);
 
 	Vector* vec1 = Get_Vector(1);
 	Vector* vec2 = Get_Vector(2);
@@ -339,8 +339,8 @@ LUA_FUNCTION(Vector_AngleEx)
 
 LUA_FUNCTION(Vector_Rotate)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Vector);
+	LUA->CheckType(2, Type::Angle);
 
 	Vector* vec = Get_Vector(1);
 	QAngle* ang = Get_Angle(2);
@@ -360,7 +360,7 @@ LUA_FUNCTION(Vector_Rotate)
 
 LUA_FUNCTION(Vector_Length2D)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 	Vector* vec = Get_Vector(1);
 
 	LUA->PushNumber(Vector(vec->x, vec->y, vec->z).Length2D());
@@ -370,7 +370,7 @@ LUA_FUNCTION(Vector_Length2D)
 
 LUA_FUNCTION(Vector_LengthSqr)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 	Vector* vec = Get_Vector(1);
 
 	LUA->PushNumber(Vector(vec->x, vec->y, vec->z).LengthSqr());
@@ -380,7 +380,7 @@ LUA_FUNCTION(Vector_LengthSqr)
 
 LUA_FUNCTION(Vector_Length2DSqr)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 	Vector* vec = Get_Vector(1);
 
 	LUA->PushNumber(Vector(vec->x, vec->y, vec->z).Length2DSqr());
@@ -390,8 +390,8 @@ LUA_FUNCTION(Vector_Length2DSqr)
 
 LUA_FUNCTION(Vector_DistToSqr)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
+	LUA->CheckType(2, Type::Vector);
 	Vector* vec1 = Get_Vector(1);
 	Vector* vec2 = Get_Vector(2);
 
@@ -402,9 +402,9 @@ LUA_FUNCTION(Vector_DistToSqr)
 
 LUA_FUNCTION(Vector_WithinAABox)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(3, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
+	LUA->CheckType(2, Type::Vector);
+	LUA->CheckType(3, Type::Vector);
 	Vector* vec1 = Get_Vector(1);
 	Vector* vec2 = Get_Vector(2);
 	Vector* vec3 = Get_Vector(3);
@@ -416,7 +416,7 @@ LUA_FUNCTION(Vector_WithinAABox)
 
 LUA_FUNCTION(Vector_IsZero)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 	Vector* vec = Get_Vector(1);
 
 	LUA->PushBool(vec->x == 0 && vec->y == 0 && vec->z == 0);
@@ -426,8 +426,8 @@ LUA_FUNCTION(Vector_IsZero)
 
 LUA_FUNCTION(Vector_IsEqualTol)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
+	LUA->CheckType(2, Type::Vector);
 	Vector* vec1 = Get_Vector(1);
 	Vector* vec2 = Get_Vector(2);
 	double tolerance = LUA->CheckNumber(3);
@@ -443,7 +443,7 @@ LUA_FUNCTION(Vector_IsEqualTol)
 
 LUA_FUNCTION(Vector_Zero)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 	Vector* vec = Get_Vector(1);
 
 	vec->x = 0;
@@ -455,8 +455,8 @@ LUA_FUNCTION(Vector_Zero)
 
 LUA_FUNCTION(Vector_Set)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
+	LUA->CheckType(2, Type::Vector);
 	Vector* vec1 = Get_Vector(1);
 	Vector* vec2 = Get_Vector(2);
 
@@ -469,7 +469,7 @@ LUA_FUNCTION(Vector_Set)
 
 LUA_FUNCTION(Vector_Unpack)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 	Vector* vec = Get_Vector(1);
 
 	LUA->PushNumber(vec->x);
@@ -481,7 +481,7 @@ LUA_FUNCTION(Vector_Unpack)
 
 LUA_FUNCTION(Vector_SetUnpacked)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 	Vector* vec = Get_Vector(1);
 	double x = LUA->CheckNumber(2);
 	double y = LUA->CheckNumber(3);
@@ -496,7 +496,7 @@ LUA_FUNCTION(Vector_SetUnpacked)
 
 LUA_FUNCTION(Vector_ToTable)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 	Vector* vec = Get_Vector(1);
 
 	LUA->CreateTable();
@@ -514,7 +514,7 @@ LUA_FUNCTION(Vector_ToTable)
 
 LUA_FUNCTION(Vector_Random)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 	Vector* vec = Get_Vector(1);
 	int min = LUA->CheckNumber(2);
 	int max = LUA->CheckNumber(3);
@@ -528,7 +528,7 @@ LUA_FUNCTION(Vector_Random)
 
 LUA_FUNCTION(Vector_Negate)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 	Vector* vec = Get_Vector(1);
 
 	vec->x = -vec->x;
@@ -540,7 +540,7 @@ LUA_FUNCTION(Vector_Negate)
 
 LUA_FUNCTION(Vector_GetNegated)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+	LUA->CheckType(1, Type::Vector);
 	Vector* vec = Get_Vector(1);
 
 	Vector* new_vec = new Vector(-vec->x, -vec->y, -vec->z);
@@ -618,7 +618,7 @@ void Push_Vector(const Vector* vec)
 
 void Vector_Class()
 {
-	g_Lua->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+	g_Lua->PushSpecial(SPECIAL_GLOB);
 		g_Lua->PushCFunction(Global_Vector);
 		g_Lua->SetField(-2, "Vector");
 
@@ -629,7 +629,7 @@ void Vector_Class()
 		g_Lua->SetField(-2, "OrderVectors");
 	g_Lua->Pop(1);
 
-	g_Lua->CreateMetaTableType("Vector", GarrysMod::Lua::Type::Vector);
+	g_Lua->CreateMetaTableType("Vector", Type::Vector);
 		g_Lua->PushCFunction(Vector__gc); // Gmod uses this format -> Vector____gc, Vector__Forward and so on.
 		g_Lua->SetField(-2, "__gc");
 
@@ -752,4 +752,4 @@ void Vector_Class()
 		g_Lua->SetField(-2, "GetNegated");
 }
 
-CLuaClass vector_class("Vector", GarrysMod::Lua::Type::Vector, Vector_Class);
+CLuaClass vector_class("Vector", Type::Vector, Vector_Class);

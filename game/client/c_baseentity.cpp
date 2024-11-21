@@ -6611,7 +6611,7 @@ void CBaseEntity::ClearLuaData()
 {
 }
 
-GarrysMod::Lua::ILuaObject* CBaseEntity::GetLuaTable() 
+ILuaObject* CBaseEntity::GetLuaTable() 
 {
 	return m_pLuaTable;
 }
@@ -6621,7 +6621,7 @@ void* CBaseEntity::GetLuaEntity()
 	return nullptr;
 }
 
-void CBaseEntity::SetLuaTable( GarrysMod::Lua::ILuaObject* obj ) 
+void CBaseEntity::SetLuaTable( ILuaObject* obj ) 
 {
 	m_pLuaTable = obj;
 }

@@ -57,7 +57,7 @@ LUA_FUNCTION_STATIC( umsg_Start ) // Redo it later on to better match gmod's ver
 	CRecipientFilter* filter = NULL;
 	switch( LUA->GetType( 2 ) )
 	{
-		case GarrysMod::Lua::Type::Entity:
+		case Type::Entity:
 			{
 				CBaseEntity* pEnt = Get_Entity( 1 ); // Use Get_Player later on. Also if we got it, Use it inside the CRecipientFilter class.
 				if ( pEnt->IsPlayer() )
@@ -68,7 +68,7 @@ LUA_FUNCTION_STATIC( umsg_Start ) // Redo it later on to better match gmod's ver
 				}
 				break;
 			}
-		case GarrysMod::Lua::Type::RecipientFilter:
+		case Type::RecipientFilter:
 			{
 				CRecipientFilter* pFilter = Get_CRecipientFilter( 1 );
 				if ( pFilter )
@@ -217,7 +217,7 @@ LUA_FUNCTION_STATIC( umsg_Entity )
 
 void umsg_Library()
 {
-	g_Lua->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+	g_Lua->PushSpecial(SPECIAL_GLOB);
 		g_Lua->CreateTable();
 			g_Lua->PushCFunction( umsg_Start );
 			g_Lua->SetField( -2, "Start" );

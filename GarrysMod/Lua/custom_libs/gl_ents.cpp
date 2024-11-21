@@ -130,7 +130,7 @@ LUA_FUNCTION_STATIC(ents_GetEdictCount)
 
 void Ents_Library()
 {
-	g_Lua->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+	g_Lua->PushSpecial(SPECIAL_GLOB);
 		g_Lua->CreateTable();
 			g_Lua->PushCFunction(ents_Create);
 			g_Lua->SetField(-2, "Create");

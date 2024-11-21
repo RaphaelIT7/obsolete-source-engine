@@ -177,7 +177,7 @@ void Push_ConVar(const ConVar* var)
 
 void ConVar_Class()
 {
-	g_Lua->CreateMetaTableType("ConVar", GarrysMod::Lua::Type::ConVar);
+	g_Lua->CreateMetaTableType("ConVar", Type::ConVar);
 		g_Lua->PushCFunction(ConVar__tostring);
 		g_Lua->SetField(-2, "__tostring");
 
@@ -230,4 +230,4 @@ void ConVar_Class()
 		g_Lua->SetField(-2, "SetString");
 }
 
-CLuaClass LC_ConVar("ConVar", GarrysMod::Lua::Type::ConVar, ConVar_Class);
+CLuaClass LC_ConVar("ConVar", Type::ConVar, ConVar_Class);

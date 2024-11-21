@@ -6,7 +6,7 @@
 
 LUA_FUNCTION_STATIC(Angle__gc)
 {
-	if (!LUA->IsType(1, GarrysMod::Lua::Type::Angle))
+	if (!LUA->IsType(1, Type::Angle))
 		return 0;
 
 	// ToDo: Free angle object.
@@ -16,7 +16,7 @@ LUA_FUNCTION_STATIC(Angle__gc)
 
 LUA_FUNCTION_STATIC(Angle__tostring)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 
 	QAngle* ang = Get_Angle(1);
 	char szBuf[64] = {};
@@ -27,7 +27,7 @@ LUA_FUNCTION_STATIC(Angle__tostring)
 
 LUA_FUNCTION_STATIC(Angle__index)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 
 	const char* key = LUA->GetString(2);
 	if (key != NULL) 
@@ -54,7 +54,7 @@ LUA_FUNCTION_STATIC(Angle__index)
 
 LUA_FUNCTION_STATIC(Angle__newindex)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 
 	const char* key = LUA->GetString(2);
 	if (key == NULL)
@@ -74,8 +74,8 @@ LUA_FUNCTION_STATIC(Angle__newindex)
 
 LUA_FUNCTION_STATIC(Angle__eq)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
+	LUA->CheckType(2, Type::Angle);
 
 	LUA->PushBool(Get_Angle(1) == Get_Angle(2));
 	return 1;
@@ -83,8 +83,8 @@ LUA_FUNCTION_STATIC(Angle__eq)
 
 LUA_FUNCTION_STATIC(Angle__add)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
+	LUA->CheckType(2, Type::Angle);
 
 	QAngle* ang1 = Get_Angle(1);
 	QAngle* ang2 = Get_Angle(2);
@@ -96,8 +96,8 @@ LUA_FUNCTION_STATIC(Angle__add)
 
 LUA_FUNCTION_STATIC(Angle__sub)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
+	LUA->CheckType(2, Type::Angle);
 
 	QAngle* ang1 = Get_Angle(1);
 	QAngle* ang2 = Get_Angle(2);
@@ -109,7 +109,7 @@ LUA_FUNCTION_STATIC(Angle__sub)
 
 LUA_FUNCTION_STATIC(Angle__unm)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 
 	QAngle* ang = Get_Angle(1);
 	Push_Angle(new QAngle(-ang->x, -ang->y, -ang->z));
@@ -119,7 +119,7 @@ LUA_FUNCTION_STATIC(Angle__unm)
 
 LUA_FUNCTION_STATIC(Angle__mul)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 
 	QAngle* ang = Get_Angle(1);
 	int num = LUA->CheckNumber(2);
@@ -130,7 +130,7 @@ LUA_FUNCTION_STATIC(Angle__mul)
 
 LUA_FUNCTION_STATIC(Angle__div)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 
 	QAngle* ang = Get_Angle(1);
 	int num = LUA->CheckNumber(2);
@@ -141,8 +141,8 @@ LUA_FUNCTION_STATIC(Angle__div)
 
 LUA_FUNCTION_STATIC(Angle_Add)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
+	LUA->CheckType(2, Type::Angle);
 
 	QAngle* ang1 = Get_Angle(1);
 	QAngle* ang2 = Get_Angle(2);
@@ -156,8 +156,8 @@ LUA_FUNCTION_STATIC(Angle_Add)
 
 LUA_FUNCTION_STATIC(Angle_Sub)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
+	LUA->CheckType(2, Type::Angle);
 
 	QAngle* ang1 = Get_Angle(1);
 	QAngle* ang2 = Get_Angle(2);
@@ -171,7 +171,7 @@ LUA_FUNCTION_STATIC(Angle_Sub)
 
 LUA_FUNCTION_STATIC(Angle_Mul)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 
 	QAngle* ang = Get_Angle(1);
 	int num = LUA->CheckNumber(2);
@@ -184,7 +184,7 @@ LUA_FUNCTION_STATIC(Angle_Mul)
 
 LUA_FUNCTION_STATIC(Angle_Div)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 
 	QAngle* ang = Get_Angle(1);
 	int num = LUA->CheckNumber(2);
@@ -197,7 +197,7 @@ LUA_FUNCTION_STATIC(Angle_Div)
 
 LUA_FUNCTION_STATIC(Angle_Forward)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 	QAngle* ang = Get_Angle(1);
 
 	Vector* forward = new Vector();
@@ -210,7 +210,7 @@ LUA_FUNCTION_STATIC(Angle_Forward)
 
 LUA_FUNCTION_STATIC(Angle_Right)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 	QAngle* ang = Get_Angle(1);
 
 	Vector* right = new Vector();
@@ -223,7 +223,7 @@ LUA_FUNCTION_STATIC(Angle_Right)
 
 LUA_FUNCTION_STATIC(Angle_Up)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 
 	QAngle* ang = Get_Angle(1);
 
@@ -237,8 +237,8 @@ LUA_FUNCTION_STATIC(Angle_Up)
 
 LUA_FUNCTION_STATIC(Angle_RotateAroundAxis) // Verify this. Probably shit.
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
+	LUA->CheckType(2, Type::Angle);
 
     QAngle* ang = Get_Angle(1);
     Vector* vec = Get_Vector(2);
@@ -270,7 +270,7 @@ LUA_FUNCTION_STATIC(Angle_RotateAroundAxis) // Verify this. Probably shit.
 
 LUA_FUNCTION_STATIC(Angle_Normalize)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 	QAngle* ang = Get_Angle(1);
 
 	ang->x = AngleNormalize(ang->x);
@@ -282,8 +282,8 @@ LUA_FUNCTION_STATIC(Angle_Normalize)
 
 LUA_FUNCTION_STATIC(Angle_Set)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
+	LUA->CheckType(2, Type::Angle);
 
 	QAngle* ang1 = Get_Angle(1);
 	QAngle* ang2 = Get_Angle(2);
@@ -297,7 +297,7 @@ LUA_FUNCTION_STATIC(Angle_Set)
 
 LUA_FUNCTION_STATIC(Angle_Zero)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 	QAngle* ang = Get_Angle(1);
 
 	ang->x = 0;
@@ -309,7 +309,7 @@ LUA_FUNCTION_STATIC(Angle_Zero)
 
 LUA_FUNCTION_STATIC(Angle_IsZero)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 	QAngle* ang = Get_Angle(1);
 
 	LUA->PushBool(ang->x == 0 && ang->y == 0 && ang->z == 0);
@@ -319,7 +319,7 @@ LUA_FUNCTION_STATIC(Angle_IsZero)
 
 LUA_FUNCTION_STATIC(Angle_Unpack)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 	QAngle* ang = Get_Angle(1);
 
 	LUA->PushNumber(ang->x);
@@ -331,11 +331,11 @@ LUA_FUNCTION_STATIC(Angle_Unpack)
 
 LUA_FUNCTION_STATIC(Angle_Random)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 	QAngle* ang = Get_Angle(1);
 
-	int min = LUA->IsType(2, GarrysMod::Lua::Type::Number) ? LUA->GetNumber(2) : -360;
-	int max = LUA->IsType(3, GarrysMod::Lua::Type::Number) ? LUA->GetNumber(3) : 360;
+	int min = LUA->IsType(2, Type::Number) ? LUA->GetNumber(2) : -360;
+	int max = LUA->IsType(3, Type::Number) ? LUA->GetNumber(3) : 360;
 
 	ang->x = std::rand() % max + min;
 	ang->y = std::rand() % max + min;
@@ -346,7 +346,7 @@ LUA_FUNCTION_STATIC(Angle_Random)
 
 LUA_FUNCTION_STATIC(Angle_SetUnpacked)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
 
 	QAngle* ang = Get_Angle(1);
 	double x = LUA->CheckNumber(2);
@@ -362,8 +362,8 @@ LUA_FUNCTION_STATIC(Angle_SetUnpacked)
 
 LUA_FUNCTION_STATIC(Angle_IsEqualTol)
 {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Angle);
-	LUA->CheckType(2, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(1, Type::Angle);
+	LUA->CheckType(2, Type::Angle);
 
 	QAngle* ang1 = Get_Angle(1);
 	QAngle* ang2 = Get_Angle(2);
@@ -391,8 +391,8 @@ LUA_FUNCTION_STATIC(Global_Angle)
 
 LUA_FUNCTION_STATIC(Global_LerpAngle)
 {
-	LUA->CheckType(2, GarrysMod::Lua::Type::Angle);
-	LUA->CheckType(3, GarrysMod::Lua::Type::Angle);
+	LUA->CheckType(2, Type::Angle);
+	LUA->CheckType(3, Type::Angle);
 
 	double delta = LUA->GetNumber(1);
 	QAngle* start = Get_Angle(2);
@@ -416,7 +416,7 @@ void Push_Angle(const QAngle* ang)
 
 void Angle_Class()
 {
-	g_Lua->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+	g_Lua->PushSpecial(SPECIAL_GLOB);
 		g_Lua->PushCFunction(Global_Angle);
 		g_Lua->SetField(-2, "Angle");
 
@@ -424,7 +424,7 @@ void Angle_Class()
 		g_Lua->SetField(-2, "LerpAngle");
 	g_Lua->Pop(1);
 
-	g_Lua->CreateMetaTableType("Angle", GarrysMod::Lua::Type::Angle);
+	g_Lua->CreateMetaTableType("Angle", Type::Angle);
 		g_Lua->PushCFunction(Angle__gc); // Gmod uses this format -> Angle____gc, Angle__Forward and so on.
 		g_Lua->SetField(-2, "__gc");
 
@@ -502,4 +502,4 @@ void Angle_Class()
 		g_Lua->SetField(-2, "IsEqualTol");
 }
 
-CLuaClass angle_class("Angle", GarrysMod::Lua::Type::Angle, Angle_Class);
+CLuaClass angle_class("Angle", Type::Angle, Angle_Class);

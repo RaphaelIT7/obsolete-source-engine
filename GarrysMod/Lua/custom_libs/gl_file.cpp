@@ -28,7 +28,7 @@ namespace Lua
 
 	LUA_FUNCTION_STATIC( File__gc )
 	{
-		if ( !LUA->IsType( 1, GarrysMod::Lua::Type::File ) );
+		if ( !LUA->IsType( 1, Type::File ) );
 			return 0;
 
 		// Close the file?
@@ -345,7 +345,7 @@ namespace Lua
 
 	void File_Class(  )// Raphael: There is an undocumented bug in the g_pFullFileSystem, where all Read functions would fail if the mode is not "r" or "rb"
 	{
-		g_Lua->CreateMetaTableType(  "File", GarrysMod::Lua::Type::File  );
+		g_Lua->CreateMetaTableType( "File", Type::File );
 			g_Lua->PushCFunction( File__gc );
 			g_Lua->SetField( -2, "__gc" );
 
@@ -436,7 +436,7 @@ namespace Lua
 			g_Lua->PushCFunction( File_WriteUShort );
 			g_Lua->SetField( -2, "WriteUShort" );
 	}
-	CLuaClass LC_File( "File", GarrysMod::Lua::Type::File, File_Class );
+	CLuaClass LC_File( "File", Type::File, File_Class );
 }
 
 namespace GarrysMod::Lua::Libraries::File
@@ -490,7 +490,7 @@ LUA_FUNCTION_STATIC( file_AsyncRead )
 {
 	const char* fileName = LUA->CheckString( 1 );
 	const char* pathID = LUA->CheckString( 2 );
-	LUA->CheckType( 3, GarrysMod::Lua::Type::Function );
+	LUA->CheckType( 3, Type::Function );
 	LUA->Push( 3 );
 	int reference = LUA->ReferenceCreate(  );
 	bool sync = LUA->GetBool( 4 );
@@ -678,7 +678,7 @@ LUA_FUNCTION_STATIC( file_Time )
 
 void File_Library(  ) // NOTE: Most of the functions are not the same like in Gmod. This is completly based off my lua-threaded implementation.
 {
-	g_Lua->PushSpecial( GarrysMod::Lua::SPECIAL_GLOB );
+	g_Lua->PushSpecial( SPECIAL_GLOB );
 		g_Lua->CreateTable( );
 			g_Lua->PushCFunction( file_AsyncRead );
 			g_Lua->SetField( -2, "AsyncRead" );

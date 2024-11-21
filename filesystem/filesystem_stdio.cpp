@@ -31,9 +31,9 @@
 
 #include <GarrysMod/IGet.h>
 #include <GarrysMod/IMenuSystem.h>
-#include <GarrysMod/Lua/LuaShared.h>
-#include <GarrysMod/Lua/LuaInterface.h>
-#include <GarrysMod/Lua/LuaConVars.h>
+#include <ILuaShared.h>
+#include <ILuaInterface.h>
+#include <ILuaConVars.h>
 #include <GarrysMod/IAddonDownloadNotify.h>
 #include "tier1/KeyValues.h"
 
@@ -2528,14 +2528,14 @@ void Language2::TellLuaLanguageChanged( const char* language )
 	if (!get)
 		return;
 
-	GarrysMod::Lua::ILuaShared* shared = (GarrysMod::Lua::ILuaShared*)get->LuaShared();
-	GarrysMod::Lua::ILuaInterface* LUA = shared->GetLuaInterface( GarrysMod::Lua::State::MENU );
+	ILuaShared* shared = (ILuaShared*)get->LuaShared();
+	ILuaInterface* LUA = shared->GetLuaInterface( State::MENU );
 
 	if ( LUA )
 	{
-		LUA->PushSpecial( GarrysMod::Lua::SPECIAL_GLOB );
+		LUA->PushSpecial( SPECIAL_GLOB );
 			LUA->GetField( -1, "LanguageChanged" );
-			if ( LUA->IsType(-1, GarrysMod::Lua::Type::Function ) )
+			if ( LUA->IsType(-1, Type::Function ) )
 			{
 				LUA->PushString( language );
 				LUA->Call( 1, 0 );

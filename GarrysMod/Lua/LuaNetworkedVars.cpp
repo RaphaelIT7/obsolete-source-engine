@@ -24,16 +24,16 @@ void RecieveNetworkedVarMsg( bf_read &msg )
 	bool bInvalid = false;
 	switch( iType )
 	{
-		//case GarrysMod::Lua::Type::Nil:
+		//case Type::Nil:
 		//	g_Lua->PushNil();
 		//	break;
-		case GarrysMod::Lua::Type::Bool:
+		case Type::Bool:
 			g_Lua->PushBool( msg.ReadOneBit() );
 			break;
-		case GarrysMod::Lua::Type::Number:
+		case Type::Number:
 			g_Lua->PushNumber( msg.ReadFloat() );
 			break;
-		case GarrysMod::Lua::Type::String:
+		case Type::String:
 			{
 				char* str = new char[255];
 				if ( msg.ReadString( str, 255 ) )
@@ -42,20 +42,20 @@ void RecieveNetworkedVarMsg( bf_read &msg )
 				delete[] str;
 			}
 			break;
-		case GarrysMod::Lua::Type::Entity:
+		case Type::Entity:
 			{
 				EHANDLE pEntHandle = EHANDLE( msg.ReadLong() );
 				Push_Entity( pEntHandle.Get() );
 			}
 			break;
-		case GarrysMod::Lua::Type::Vector:
+		case Type::Vector:
 			{
 				Vector* vec = new Vector;
 				msg.ReadBitVec3Coord( *vec );
 				Push_Vector( vec );
 			}
 			break;
-		case GarrysMod::Lua::Type::Angle:
+		case Type::Angle:
 			{
 				QAngle* ang = new QAngle;
 				msg.ReadBitAngles( *ang );
@@ -117,27 +117,27 @@ void CLuaNetworkedVars::UpdateEntityVar( LuaNetworkedEntity_t& ent, LuaNetworked
 
 			switch( var.m_pLuaValue.GetType() )
 			{
-			//case GarrysMod::Lua::Type::Nil:
+			//case Type::Nil:
 			//	break;
-			case GarrysMod::Lua::Type::Bool:
+			case Type::Bool:
 				MessageWriteBool( var.m_pLuaValue.GetBool() );
 				break;
-			case GarrysMod::Lua::Type::Number:
+			case Type::Number:
 				MessageWriteFloat( var.m_pLuaValue.GetFloat() );
 				break;
-			case GarrysMod::Lua::Type::String:
+			case Type::String:
 				MessageWriteString( var.m_pLuaValue.GetString() );
 				break;
-			case GarrysMod::Lua::Type::Entity:
+			case Type::Entity:
 				{
 					CBaseHandle* handle = (CBaseHandle*)var.m_pLuaValue.GetUserData();
 					MessageWriteEHandle( ( handle ? gEntList.GetBaseEntity( *handle ) : NULL ) );
 				}
 				break;
-			case GarrysMod::Lua::Type::Vector:
+			case Type::Vector:
 				MessageWriteVec3Coord( *var.m_pLuaValue.GetVector() );
 				break;
-			case GarrysMod::Lua::Type::Angle:
+			case Type::Angle:
 				MessageWriteAngles( *var.m_pLuaValue.GetAngle() );
 				break;
 			default:
@@ -166,12 +166,12 @@ void CLuaNetworkedVars::PushNetworkedVar( EHANDLE& handle, const char* var )
 
 }
 
-void CLuaNetworkedVars::SetNetworkedVar( EHANDLE& handle, const char* var, GarrysMod::Lua::ILuaObject* obj )
+void CLuaNetworkedVars::SetNetworkedVar( EHANDLE& handle, const char* var, ILuaObject* obj )
 {
 
 }
 
-void CLuaNetworkedVars::SetNetworkedVarProxy( EHANDLE& handle, const char* var, GarrysMod::Lua::ILuaObject* obj )
+void CLuaNetworkedVars::SetNetworkedVarProxy( EHANDLE& handle, const char* var, ILuaObject* obj )
 {
 
 }

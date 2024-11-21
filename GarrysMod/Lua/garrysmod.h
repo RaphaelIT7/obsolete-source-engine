@@ -1,16 +1,17 @@
 #pragma once
 
-#include <GarrysMod/Lua/LuaShared.h>
+#include <ILuaShared.h>
 #include <GarrysMod/IGarrysMod.h>
 #include <steam/isteamnetworking.h>
 #ifdef CLIENT_DLL
 class CBaseEntity;
+#include <iviewrender.h>
 #else
 #include "player.h"
 #endif
 #include <steam/isteamfriends.h>
 
-extern GarrysMod::Lua::ILuaShared* LuaShared();
+extern ILuaShared* LuaShared();
 
 class CGarrysMod : public IGarrysMod
 {
