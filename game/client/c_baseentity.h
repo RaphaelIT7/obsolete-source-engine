@@ -1709,6 +1709,9 @@ protected:
 
 private:
 	bool	m_bOldShouldDraw;
+
+public:
+	virtual void					OnModelChange( int oldModelIndex, int newModelIndex ) {};
 };
 
 EXTERN_RECV_TABLE(DT_BaseEntity);
