@@ -9,6 +9,7 @@
 #include "vertexlitgeneric_dx9_helper.h"
 #include "skin_dx9_helper.h"
 
+#define BUILD_GMOD
 #include "VertexLit_and_unlit_Generic_vs20.inc"
 #include "VertexLit_and_unlit_Generic_bump_vs20.inc"
 
@@ -224,6 +225,37 @@ void InitParamsVertexLitGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** para
 
 	InitIntParam( info.m_nDepthBlend, params, 0 );
 	InitFloatParam( info.m_nDepthBlendScale, params, 50.0f );
+
+#ifdef BUILD_GMOD
+	InitIntParam( info.m_nTreeSway, params, 0 );
+	InitFloatParam( info.m_nTreeSwayHeight, params, 1000.0f );
+	InitFloatParam( info.m_nTreeSwayStartHeight, params, 0.1f );
+	InitFloatParam( info.m_nTreeSwayRadius, params, 300.0f );
+	InitFloatParam( info.m_nTreeSwayStartRadius, params, 0.2f );
+	InitFloatParam( info.m_nTreeSwaySpeed, params, 1.0f );
+	InitFloatParam( info.m_nTreeSwaySpeedHighWindMultiplier, params, 2.0f );
+	InitFloatParam( info.m_nTreeSwayStrength, params, 10.0f );
+	InitFloatParam( info.m_nTreeSwayScrumbleSpeed, params, 5.0f );
+	InitFloatParam( info.m_nTreeSwayScrumbleStrength, params, 10.0f );
+	InitFloatParam( info.m_nTreeSwayScrumbleFrequency, params, 12.0f );
+	InitFloatParam( info.m_nTreeSwayFalloffExp, params, 1.5f );
+	InitFloatParam( info.m_nTreeSwayScrumbleFalloffExp, params, 1.0f );
+	InitFloatParam( info.m_nTreeSwaySpeedLerpStart, params, 3.0f );
+	InitFloatParam( info.m_nTreeSwaySpeedLerpEnd, params, 6.0f );
+	
+	InitIntParam( info.m_nTreeSwayStatic, params, 0 );
+
+	if ( info.m_nEnvMapLightScale != -1 )
+		InitFloatParam( info.m_nEnvMapLightScale, params, 0.0f );
+
+	if( ( info.m_nEnvMapFresnelMinMaxExp != -1 ) && !params[info.m_nEnvMapFresnelMinMaxExp]->IsDefined() )
+	{
+		params[info.m_nEnvMapFresnelMinMaxExp]->SetVecValue( 0.0f, 1.0f, 2.0f, 0.0f );
+	}
+
+	InitIntParam( info.m_nNoTint, params, 0 );
+	InitIntParam( info.m_nAllowDiffuseModulation, params, 1 );
+#endif
 }
 
 
@@ -433,12 +465,23 @@ static void DrawVertexLitGeneric_DX9_Internal( CBaseVSShader *pShader, IMaterial
 	bool bHasVertexAlpha = bVertexLitGeneric ? false : IS_FLAG_SET( MATERIAL_VAR_VERTEXALPHA );
 /*^*/ // 	printf("\t\t[%d] bHasVertexColor\n",(int)bHasVertexColor);
 /*^*/ // 	printf("\t\t[%d] bHasVertexAlpha\n",(int)bHasVertexAlpha);
+
+#ifdef BUILD_GMOD
+	bool bTreeSway = ( GetIntParam( info.m_nTreeSway, params, 0 ) != 0 );
+	int nTreeSwayMode = GetIntParam( info.m_nTreeSway, params, 0 );
+	nTreeSwayMode = clamp( nTreeSwayMode, 0, 2 );
+#endif
 	
 	if ( pShader->IsSnapshotting() || (! pContextData ) || ( pContextData->m_bMaterialVarsChanged ) )
 	{
 /*^*/ // 	printf("\t\t[1] snapshotting=%d  pContextData=%08x  pContextData->m_bMaterialVarsChanged=%d \n",(int)pShader->IsSnapshotting(), (int)pContextData, pContextData ? (int)pContextData->m_bMaterialVarsChanged : -1 );
+#ifdef BUILD_GMOD
+		bool bSeamlessBase = IsBoolSet( info.m_nSeamlessBase, params ) && !bTreeSway;
+		bool bSeamlessDetail = IsBoolSet( info.m_nSeamlessDetail, params ) && !bTreeSway;
+#else
 		bool bSeamlessBase = IsBoolSet( info.m_nSeamlessBase, params );
 		bool bSeamlessDetail = IsBoolSet( info.m_nSeamlessDetail, params );
+#endif
 		bool bDistanceAlpha = IsBoolSet( info.m_nDistanceAlpha, params );
 		bool bHasSelfIllum = (!bHasFlashlight || IsX360() ) && IS_FLAG_SET( MATERIAL_VAR_SELFILLUM );
 		bool bHasEnvmapMask = (!bHasFlashlight || IsX360() ) && info.m_nEnvmapMask != -1 && params[info.m_nEnvmapMask]->IsTexture();
