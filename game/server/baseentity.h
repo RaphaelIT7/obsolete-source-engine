@@ -33,6 +33,7 @@ class IEntitySaveUtils;
 class CRecipientFilter;
 class CStudioHdr;
 class ILuaObject;
+class ILuaInterface;
 
 // Matching the high level concept is significantly better than other criteria
 // FIXME:  Could do this in the script file by making it required and bumping up weighting there instead...
@@ -1883,12 +1884,18 @@ private:
 	virtual INextBot *GetNextBot();*/
 
 protected:
-	char m_OverrideMaterial[255];
-	bool offset4;
-	void* offset1[133];
-	//bool m_GMOD_bool[32];
-	//void* offset2[8];
-	int offset2[14];
+	char m_strOverrideMaterial[255];
+	bool _offset1;
+	char m_strRealClassName[256];
+	int _offset2[3];
+	float m_fCreationTime;
+	int m_iMapCreatedID;
+	const char* m_SubMaterials[32];
+	int m_SubMaterialIndex[32]; // This is the index for the string in the networkstring stringtable -> util.NetworkIDToString(i) == m_SubMaterials[i]
+	void* offset3[9];
+	ILuaInterface* m_GMOD_LuaInterface; // A pointer to g_Lua?
+	ILuaObject* m_GMOD_LuaTable; // The Lua table
+	ILuaObject* m_GMOD_LuaObject; // A reference to the lua object -> Player object, Entity object etc
 	bool m_GMOD_bool[32];
 	float m_GMOD_float[32];
 	int m_GMOD_int[32];
@@ -1896,13 +1903,9 @@ protected:
 	QAngle m_GMOD_QAngle[32];
 	EHANDLE m_GMOD_EHANDLE[32];
 	char m_GMOD_String[4][512];
+	unsigned char _offset4;
 	int m_iCreationID;
-	int m_iMapCreatedID;
-	
-	// Anything below is unknown.
-	int m_iGModPlayerFlags;
-	IGMODDataTable* m_GMOD_DataTable;
-	ILuaObject* m_GMOD_Table;
+	int _offset5[26];
 #endif
 };
 
