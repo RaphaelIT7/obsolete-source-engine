@@ -9,6 +9,10 @@ BasedOnStyle: Google
 # 'int>>' if the file already contains at least one such instance.)
 Standard: Cpp11
 
+UseTab: Always
+IndentWidth: 4
+TabWidth: 4
+
 # Includes order matters
 SortIncludes: false
 

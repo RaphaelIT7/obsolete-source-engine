@@ -2567,7 +2567,8 @@ IMaterial *CMaterialSystem::CreateMaterial( const char *pMaterialName, KeyValues
 //-----------------------------------------------------------------------------
 // Finds or creates a procedural material
 //-----------------------------------------------------------------------------
-IMaterial *CMaterialSystem::FindProceduralMaterial( const char *pMaterialName, const char *pTextureGroupName, KeyValues *pVMTKeyValues )
+#ifdef BUILD_GMOD
+IMaterial *CMaterialSystem::FindProceduralMaterial( const char *pMaterialName, const char *pTextureGroupName, KeyValues *pVMTKeyValues = NULL )
 {
 	// We need lower-case symbols for this to work
 	intp nLen = Q_strlen( pMaterialName ) + 1;
@@ -2578,19 +2579,38 @@ IMaterial *CMaterialSystem::FindProceduralMaterial( const char *pMaterialName, c
 
 	// 'true' causes the search to find procedural materials
 	IMaterialInternal *pMaterial = m_MaterialDict.FindMaterial( pTemp, true );
-	if ( pMaterial )
-	{
-		pVMTKeyValues->deleteThis();
+	// March: There is a use case for finding a procedural material without creating it
+	// So if pVMTKeyValues == null, don't create a new one, just return error material if it doesnt exist
+	if (pVMTKeyValues != NULL) {
+		if ( pMaterial )
+		{
+			pVMTKeyValues->deleteThis();
+		}
+		else
+		{
+			pMaterial = IMaterialInternal::CreateMaterial( pMaterialName, pTextureGroupName, pVMTKeyValues );
+			AddMaterialToMaterialList( static_cast<IMaterialInternal*>( pMaterial ) );
+		}
+		return pMaterial->GetQueueFriendlyVersion();
 	}
-	else
-	{
-		pMaterial = IMaterialInternal::CreateMaterial( pMaterialName, pTextureGroupName, pVMTKeyValues );
-		AddMaterialToMaterialList( static_cast<IMaterialInternal*>( pMaterial ) );
+	else{
+		if (pMaterial == NULL){ return this->GMOD_GetErrorMaterial(); }
+		return pMaterial->GetQueueFriendlyVersion();
+	}
+}
+#else
+IMaterial *CMaterialSystem::FindProceduralMaterial( const char *pMaterialName, const char *pTextureGroupName, KeyValues *pVMTKeyValues ){
+	IMaterialInternal *pMaterial = m_MaterialDict.FindMaterial(pTemp, true);
+	if (pMaterial) {
+		pVMTKeyValues->deleteThis();
+	} else {
+		pMaterial = IMaterialInternal::CreateMaterial(
+			pMaterialName, pTextureGroupName, pVMTKeyValues);
+		AddMaterialToMaterialList(static_cast<IMaterialInternal*>(pMaterial));
 	}
 
 	return pMaterial->GetQueueFriendlyVersion();
-}
-
+#endif
 
 //-----------------------------------------------------------------------------
 // Search by name

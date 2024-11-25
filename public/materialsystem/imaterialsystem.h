@@ -1044,7 +1044,7 @@ public:
 	virtual void				RemoveModeChangeCallBack( ModeChangeCallbackFunc_t func ) = 0;
 
 	// Finds or create a procedural material.
-	virtual IMaterial *			FindProceduralMaterial( const char *pMaterialName, const char *pTextureGroupName, KeyValues *pVMTKeyValues ) = 0;
+	virtual IMaterial *			FindProceduralMaterial( const char *pMaterialName, const char *pTextureGroupName, KeyValues *pVMTKeyValues = NULL) = 0;
 
 	virtual ImageFormat			GetNullTextureFormat() = 0;
 

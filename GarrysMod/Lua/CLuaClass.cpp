@@ -1145,6 +1145,8 @@ void InitLuaClasses(ILuaInterface* LUA)
 	vector_class.InitClass();
 	Lua::LC_File.InitClass();
 	LC_ConVar.InitClass();
+	material_class.InitClass();
+	texture_class.InitClass();
 
 #ifndef MENUSYSTEM
 	entity_class.InitClass();

@@ -7,6 +7,7 @@
 #include "Bootil/Bootil.h"
 #include <list>
 #include <filesystem.h>
+#include <materialsystem/itexture.h>
 
 class CBaseEntity;
 class CLuaObject : public ILuaObject
@@ -187,6 +188,8 @@ extern void InitLuaLibraries(ILuaInterface* LUA);
 extern CLuaClass angle_class;
 extern CLuaClass vector_class;
 extern CLuaClass entity_class;
+extern CLuaClass texture_class;
+extern CLuaClass material_class;
 extern CLuaClass recipientfilter_class;
 extern CLuaClass LC_bf_read;
 extern CLuaClass LC_ConVar;
@@ -219,6 +222,13 @@ extern void Push_Angle(const QAngle* ang);
 extern Vector* Get_Vector(int index);
 // Pushes the given Vector and deletes it when it's unused!
 extern void Push_Vector(const Vector* vec);
+
+extern ITexture* Get_Texture(int index);
+extern void Push_Texture(const ITexture *vec);
+
+extern IMaterial *Get_Material(int index);
+extern void Push_Material(const IMaterial *vec);
+
 
 #ifndef MENUSYSTEM
 extern CBaseEntity* Get_Entity(int index);

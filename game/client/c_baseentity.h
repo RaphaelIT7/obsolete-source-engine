@@ -1567,7 +1567,9 @@ private:
 	unsigned char					m_MoveCollide;
 	unsigned char					m_iParentAttachment; // 0 if we're relative to the parent's absorigin and absangles.
 	unsigned char					m_iOldParentAttachment;
-
+#ifdef BUILD_GMOD
+	char                            m_OverrideMaterial[255];
+#endif
 	unsigned char					m_nWaterLevel;
 	unsigned char					m_nWaterType;
 	// For client/server entities, true if the entity goes outside the PVS.
@@ -1575,7 +1577,6 @@ private:
 	bool							m_bDormant;
 	// Prediction system
 	bool							m_bPredictable;
-
 
 	// Hierarchy
 	CHandle<C_BaseEntity>			m_pMoveParent;
