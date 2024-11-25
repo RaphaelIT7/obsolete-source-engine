@@ -100,6 +100,11 @@ struct lua_State
                 return FUNC##__Imp( LUA );                          \
             }                                                       \
             static int FUNC##__Imp( ILuaInterface* LUA )
+
+		/// Temporary macro to compact down Lua type-metamethods.
+		#define LUA_PUSH_METATABLE_FUNCTION(lua, func, name)        \
+			lua->PushCFunction(func);                               \
+			lua->SetField(-2, name);
     #endif
 #endif
 

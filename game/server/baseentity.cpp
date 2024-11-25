@@ -287,6 +287,7 @@ IMPLEMENT_SERVERCLASS_ST_NOBASE( CBaseEntity, DT_BaseEntity )
 	SendPropEHandle (SENDINFO(m_hEffectEntity)),
 	SendPropEHandle (SENDINFO_NAME(m_hMoveParent, moveparent)),
 	SendPropInt		(SENDINFO(m_iParentAttachment), NUM_PARENTATTACHMENT_BITS, SPROP_UNSIGNED),
+	SendPropString  (SENDINFO(m_OverrideMaterial)),
 
 	SendPropInt		(SENDINFO_NAME( m_MoveType, movetype ), MOVETYPE_MAX_BITS, SPROP_UNSIGNED ),
 	SendPropInt		(SENDINFO_NAME( m_MoveCollide, movecollide ), MOVECOLLIDE_MAX_BITS, SPROP_UNSIGNED ),
@@ -637,6 +638,13 @@ void CBaseEntity::SetClassname( const char *className )
 	// Another Note: GMod has SetMaterialOverride and SetSubMaterialOverride which also add a NetworkString.
 #endif
 }
+
+#ifdef BUILD_GMOD
+const char *CBaseEntity::GetMaterialOverride() { return m_OverrideMaterial.Get(); }
+void CBaseEntity::SetMaterialOverride(const char *strMaterial) {
+	Q_strncpy(m_OverrideMaterial.GetForModify(), strMaterial, 255);
+}
+#endif
 
 void CBaseEntity::SetModelIndex( int index )
 {

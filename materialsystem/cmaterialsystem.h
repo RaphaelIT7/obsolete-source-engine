@@ -393,7 +393,7 @@ public:
 	IMaterial *								FindMaterial( const char *materialName, const char *pTextureGroupName, bool complain = true, const char *pComplainPrefix = NULL );
 	virtual IMaterial *						FindMaterialEx( char const* pMaterialName, const char *pTextureGroupName, int nContext, bool complain = true, const char *pComplainPrefix = NULL );
 	bool									IsMaterialLoaded( const char *materialName );
-	virtual IMaterial *						FindProceduralMaterial( const char *pMaterialName, const char *pTextureGroupName, KeyValues *pVMTKeyValues );
+	virtual IMaterial *						FindProceduralMaterial( const char *pMaterialName, const char *pTextureGroupName, KeyValues *pVMTKeyValues = NULL );
 	const char *							GetForcedTextureLoadPathID() { return m_pForcedTextureLoadPathID; }
 	
 	void									SetAsyncTextureLoadCache( void* h );

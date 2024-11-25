@@ -1,0 +1,9 @@
+"lang"
+{
+	"Language" "English"
+
+	"Tokens"
+	{
+		"GMOD_Physgun"		"Physics Gun"
+	}
+}
