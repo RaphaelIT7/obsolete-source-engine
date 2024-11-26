@@ -818,6 +818,18 @@ LUA_FUNCTION_STATIC(Entity_Spawn)
 
 	return 0;
 }
+LUA_FUNCTION_STATIC(Entity_SetMaterial) {
+	LUA->CheckType(1, Type::Entity);
+	LUA->CheckType(2, Type::String);
+
+	CBaseEntity* ent = Get_ValidEntity(1);
+	const char* mat = LUA->GetString(2);
+
+	ent->SetMaterialOverride(mat);
+
+	return 0;
+}
+
 
 LUA_FUNCTION_STATIC(Entity_GetEyeAngles)
 {
@@ -1182,8 +1194,8 @@ void Entity_Class()
 		g_Lua->PushCFunction(Entity_Spawn);
 		g_Lua->SetField(-2, "Spawn");
 
-		//g_Lua->PushCFunction(Entity_SetMaterial);
-		//g_Lua->SetField(-2, "SetMaterial");
+		g_Lua->PushCFunction(Entity_SetMaterial);
+		g_Lua->SetField(-2, "SetMaterial");
 
 		//g_Lua->PushCFunction(Entity_GetMaterial);
 		//g_Lua->SetField(-2, "GetMaterial");

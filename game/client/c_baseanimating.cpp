@@ -3495,7 +3495,24 @@ int C_BaseAnimating::InternalDrawModel( int flags )
 		}
 	}
 
+	// Override the material if applicable
+#ifdef BUILD_GMOD
+	bool willOverride = GetMaterialOverride()[0] != NULL;
+	if (willOverride) {
+		IMaterial *mat;
+		mat = g_pMaterialSystem->FindMaterial(GetMaterialOverride(), TEXTURE_GROUP_MODEL);
+		if(mat->IsErrorMaterial()) mat = g_pMaterialSystem->FindProceduralMaterial(GetMaterialOverride(), TEXTURE_GROUP_OTHER, NULL);
+		modelrender->ForcedMaterialOverride(mat);
+	}
+#endif
+
 	DoInternalDrawModel( pInfo, ( bMarkAsDrawn && ( pInfo->flags & STUDIO_RENDER ) ) ? &state : NULL, pBoneToWorld );
+
+#ifdef BUILD_GMOD
+	if (willOverride) {
+		modelrender->ForcedMaterialOverride(NULL);
+	}
+#endif
 
 	OnPostInternalDrawModel( pInfo );
 
