@@ -46,6 +46,15 @@ List of currently verified working dlls:
 * Open `<GAME_NAME>_<ARCH>.sln`.
 * Build.
 
+## Build info
+
+* all build files are placed into a game folder that will be in the same root directory in which you saved this repository.  
+![image](https://github.com/user-attachments/assets/410ff650-3731-4e50-b628-e4d8ee78a352)
+
+* You need to copy all HL2 files into the game folder as a base.  
+* You also need to copy the files from the `__dependencies` folder into the game/bin folder.  
+* Run the `patch_game_content_readme.bat` from the `__content` folder to let it link all files properly.  
+* Build the project now and do whatever you want  
 
 ## How to debug
 
