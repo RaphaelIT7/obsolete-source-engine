@@ -463,6 +463,9 @@ BEGIN_RECV_TABLE_NOBASE(C_BaseEntity, DT_BaseEntity)
 	RecvPropEHandle( RECVINFO(m_hEffectEntity) ),
 	RecvPropInt( RECVINFO_NAME(m_hNetworkMoveParent, moveparent), 0, RecvProxy_IntToMoveParent ),
 	RecvPropInt( RECVINFO( m_iParentAttachment ) ),
+#ifdef BUILD_GMOD
+	RecvPropString( RECVINFO(m_OverrideMaterial )),
+#endif
 
 	RecvPropInt( "movetype", 0, SIZEOF_IGNORE, 0, RecvProxy_MoveType ),
 	RecvPropInt( "movecollide", 0, SIZEOF_IGNORE, 0, RecvProxy_MoveCollide ),
@@ -6489,7 +6492,13 @@ bool CBaseEntity::IsARagdoll()
 
 void CBaseEntity::SetMaterialOverride( const char* strMaterial ) 
 {
+	if (strMaterial == NULL) {
+		Q_memset(m_OverrideMaterial, 0, sizeof(m_OverrideMaterial));
+	} else {
+		Q_strncpy(m_OverrideMaterial, strMaterial, sizeof(m_OverrideMaterial));
+	}
 }
+
 
 void CBaseEntity::SetMaterialOverridePointer( IMaterial* pMaterial ) 
 {
@@ -6500,9 +6509,8 @@ IMaterial* CBaseEntity::GetMaterialOverridePointer()
 	return nullptr;
 }
 
-const char* CBaseEntity::GetMaterialOverride() 
-{
-	return nullptr;
+const char* CBaseEntity::GetMaterialOverride() { 
+	return m_OverrideMaterial; 
 }
 
 void CBaseEntity::StartMaterialOverride() 

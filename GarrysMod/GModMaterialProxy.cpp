@@ -27,10 +27,14 @@ void GarrysMod::MaterialProxy::CallBind( C_BaseEntity* ent )
 
 	if (LuaHelper::PushFunction( g_Lua, "matproxy", "Call" ))
 	{
+		// I tried 
 		g_Lua->PushString( m_strName.c_str() );
-		// Push_IMaterial();
-		// Push_Entity( ent );
-		// ToDo
+		Push_Material(m_pMaterial);
+		Push_Entity(ent);
+
+		if(g_Lua->CallFunctionProtected(3, 0, 0) == 0){
+			
+		}
 	}
 }
 
