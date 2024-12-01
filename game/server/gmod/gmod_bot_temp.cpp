@@ -223,7 +223,7 @@ void Bot_Think( CGMOD_Player *pBot )
 
 
 	// Create some random values
-	if ( pBot->IsAlive() && (pBot->GetSolid() == SOLID_BBOX) )
+	if ( pBot->IsAlive() && (pBot->GetSolid() == SOLID_BBOX) && !bot_zombie.GetBool() )
 	{
 		trace_t trace;
 
