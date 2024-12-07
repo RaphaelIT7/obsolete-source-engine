@@ -2554,7 +2554,7 @@ void CWeaponPhysCannon::CheckForTarget( void )
 
 	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
 
-	if ( pOwner == NULL )
+	if ( pOwner == NULL || pOwner->IsBot() )
 		return;
 
 	if ( m_bActive )
