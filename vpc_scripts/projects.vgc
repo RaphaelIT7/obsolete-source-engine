@@ -456,10 +456,10 @@ $Project "hl_sdk_hl2mp"
 	"game\server\hl_sdk_hl2mp.vpc" [$WINDOWS]
 }
 
-$Project "ifm"
-{
-	"tools\ifm\ifm.vpc" [$WINDOWS]
-}
+//$Project "ifm"
+//{
+//	"tools\ifm\ifm.vpc" [$WINDOWS]
+//}
 
 $Project "ihvtest1"
 {
@@ -517,15 +517,15 @@ $Project "localresource"
 	"shell\localresource\localresource.vpc" [$WINDOWS]
 }
 
-$Project "lxVsDmxIO_Modo302"
-{
-	"sdktools/modo/lxVsDmxIO/lxVsDmxIO_modo302.vpc" [$WINDOWS]
-}
+//$Project "lxVsDmxIO_Modo302"
+//{
+//	"sdktools/modo/lxVsDmxIO/lxVsDmxIO_modo302.vpc" [$WINDOWS]
+//}
 
-$Project "lua"
-{
-	"lua\lua.vpc" [$WINDOWS]
-}
+//$Project "lua"
+//{
+//	"lua\lua.vpc" [$WINDOWS]
+//}
 
 $Project "lzma"
 {
@@ -642,10 +642,10 @@ $Project "nvtristriplib"
 	"utils\nvtristriplib\nvtristriplib.vpc" [$WINDOWS]
 }
 
-$Project "p4lib"
-{
-	"p4lib\p4lib.vpc" [$WINDOWS]
-}
+//$Project "p4lib"
+//{
+//	"p4lib\p4lib.vpc" [$WINDOWS]
+//}
 
 $Project "mdllib"
 {
@@ -688,15 +688,15 @@ $Project "pfm2tgas"
 	"utils\pfm2tgas\pfm2tgas.vpc" [$WINDOWS]
 }
 
-$Project "phonemeextractor"
-{
-	"utils\phonemeextractor\phonemeextractor.vpc" [$WINDOWS]
-}
+//$Project "phonemeextractor"
+//{
+//	"utils\phonemeextractor\phonemeextractor.vpc" [$WINDOWS]
+//}
 
-$Project "phonemeextractor_ims"
-{
-	"utils\phonemeextractor\phonemeextractor_ims.vpc" [$WINDOWS]
-}
+//$Project "phonemeextractor_ims"
+//{
+//	"utils\phonemeextractor\phonemeextractor_ims.vpc" [$WINDOWS]
+//}
 
 $Project "printbones"
 {
@@ -1143,35 +1143,35 @@ $Project "video_services"
 	"video\video_services.vpc" [$WINDOWS||$POSIX]
 }
 
-$Project "valvemaya_maya2009"
-{
-	"sdktools\maya\valveMaya\valveMaya_Maya2009.vpc" [$WINDOWS]
-}
+//$Project "valvemaya_maya2009"
+//{
+//	"sdktools\maya\valveMaya\valveMaya_Maya2009.vpc" [$WINDOWS]
+//}
 
-$Project "valvemaya_maya2010"
-{
-	"sdktools\maya\valvemaya\valvemaya_maya2010.vpc" [$WINDOWS]
-}
+//$Project "valvemaya_maya2010"
+//{
+//	"sdktools\maya\valvemaya\valvemaya_maya2010.vpc" [$WINDOWS]
+//}
 
-$Project "valvemaya_maya2011"
-{
-	"sdktools\maya\valvemaya\valvemaya_maya2011.vpc" [$WINDOWS]
-}
+//$Project "valvemaya_maya2011"
+//{
+//	"sdktools\maya\valvemaya\valvemaya_maya2011.vpc" [$WINDOWS]
+//}
 
-$Project "valvemaya_maya2012"
-{
-	"sdktools\maya\valvemaya\valvemaya_maya2012.vpc" [$WINDOWS]
-}
+//$Project "valvemaya_maya2012"
+//{
+//	"sdktools\maya\valvemaya\valvemaya_maya2012.vpc" [$WINDOWS]
+//}
 
-$Project "valvemaya_maya2013"
-{
-	"sdktools\maya\valvemaya\valvemaya_maya2013.vpc" [$WINDOWS]
-}
+//$Project "valvemaya_maya2013"
+//{
+//	"sdktools\maya\valvemaya\valvemaya_maya2013.vpc" [$WINDOWS]
+//}
 
-$Project "valvepython_python2.5"
-{
-	"sdktools\python\valvePython\valvePython_python2.5.vpc" [$WINDOWS]
-}
+//$Project "valvepython_python2.5"
+//{
+//	"sdktools\python\valvePython\valvePython_python2.5.vpc" [$WINDOWS]
+//}
 
 $Project "vaudio_miles"
 {
@@ -1328,10 +1328,10 @@ $Project "voice_tweak"
 	"utils\voice_tweak\voice_tweak.vpc" [$WINDOWS]
 }
 
-$Project "vp_python2.5"
-{
-	"sdktools\python\vp\vp_python2.5.vpc" [$WINDOWS]
-}
+//$Project "vp_python2.5"
+//{
+//	"sdktools\python\vp\vp_python2.5.vpc" [$WINDOWS]
+//}
 
 $Project "vp4"
 {
@@ -1374,7 +1374,7 @@ $Project "vs_python2.5"
 	"sdktools\python\vs\vs_python2.5.vpc" [$WINDOWS]
 }
 
-$Project "vsblendeditor_maya2009"
+/*$Project "vsblendeditor_maya2009"
 {
 	"sdktools\maya\vsblendeditor\vsblendeditor_maya2009.vpc"	[$WINDOWS]
 }
@@ -1457,7 +1457,7 @@ $Project "vsmdlio_maya2012"
 $Project "vsmdlio_maya2013"
 {
 	"sdktools\maya\vsmdlio\vsmdlio_maya2013.vpc"	[$WINDOWS]
-}
+}*/
 
 $Project "coroutine_osx"
 {
@@ -1469,7 +1469,7 @@ $Project "vstdlib"
 	"vstdlib\vstdlib.vpc"		[$WINDOWS||$POSIX]
 }
 
-$Project "vstutils_maya2009"
+/*$Project "vstutils_maya2009"
 {
 	"sdktools\maya\vstutils\vstutils_maya2009.vpc"	[$WINDOWS]
 }
@@ -1562,7 +1562,7 @@ $Project "vstoverlap_maya2011"
 $Project "vstoverlap_maya2012"
 {
 	"sdktools\maya\vstoverlap\vstoverlap_maya2012.vpc"	[$WINDOWS]
-}
+}*/
 
 $Project "vtaexp"
 {
