@@ -219,6 +219,11 @@ extern QAngle* Get_Angle(int index);
 // Pushes the given QAngle and deletes it when it's unused!
 extern void Push_Angle(const QAngle* ang);
 
+// Pushes the given QAngle and deletes it when it's unused!
+class ConVar;
+extern void Push_ConVar(const ConVar* convar);
+
+
 extern Vector* Get_Vector(int index);
 // Pushes the given Vector and deletes it when it's unused!
 extern void Push_Vector(const Vector* vec);
