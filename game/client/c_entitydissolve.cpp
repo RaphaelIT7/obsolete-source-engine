@@ -377,17 +377,17 @@ void C_EntityDissolve::DoSparks( mstudiohitboxset_t *set, matrix3x4_t *hitboxbon
 		return;
 
 	double dt = m_flStartTime + m_flFadeOutStart - gpGlobals->curtime;
-	dt = clamp( dt, 0.0f, m_flFadeOutStart );
+	dt = clamp( dt, 0.0f, (float)m_flFadeOutStart );
 	
 	float flNextTime;
 	if (m_nDissolveType == ENTITY_DISSOLVE_ELECTRICAL)
 	{
-		flNextTime = SimpleSplineRemapVal( dt, 0.0f, m_flFadeOutStart, 2.0f * TICK_INTERVAL, 0.4f );
+		flNextTime = SimpleSplineRemapVal( dt, 0.0f, (float)m_flFadeOutStart, 2.0f * TICK_INTERVAL, 0.4f );
 	}
 	else
 	{
 		// m_nDissolveType == ENTITY_DISSOLVE_ELECTRICAL_LIGHT);
-		flNextTime = SimpleSplineRemapVal( dt, 0.0f, m_flFadeOutStart, 0.3f, 1.0f );
+		flNextTime = SimpleSplineRemapVal( dt, 0.0f, (float)m_flFadeOutStart, 0.3f, 1.0f );
 	}
 
 	m_flNextSparkTime = gpGlobals->curtime + flNextTime;
@@ -631,7 +631,7 @@ int C_EntityDissolve::DrawModel( int flags )
 	// Skew the particles in front or in back of their targets
 	vecSkew = CurrentViewForward() * ( 8.0f - ( ( 1.0f - fadePerc ) * 32.0f ) );
 
-	float spriteScale = ( ( gpGlobals->curtime - m_flStartTime ) / m_flFadeOutLength );
+	float spriteScale = ( (float)( gpGlobals->curtime - m_flStartTime ) / m_flFadeOutLength );
 	spriteScale = clamp( spriteScale, 0.75f, 1.0f );
 
 	// Cache off this material reference

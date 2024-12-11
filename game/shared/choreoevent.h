@@ -370,11 +370,11 @@ public:
 	void			SetParameters3( const char *target );
 	const char		*GetParameters3( void );
 
-	void			SetStartTime( float starttime );
-	float			GetStartTime( void ) const;
+	void			SetStartTime( double starttime );
+	double			GetStartTime( void ) const;
 
-	void			SetEndTime( float endtime );
-	float			GetEndTime( void );
+	void			SetEndTime( double endtime );
+	double			GetEndTime( void );
 
 	float			GetDuration( void ) override;
 
@@ -624,10 +624,10 @@ private:
 	ChoreoStr_t		m_Parameters3;
 
 	// Event start time
-	float			m_flStartTime;
+	double			m_flStartTime;
 
 	// Event end time ( -1.0f means no ending, just leading edge triggered )
-	float			m_flEndTime;
+	double			m_flEndTime;
 
 	// Duration of underlying gesture sequence
 	float			m_flGestureSequenceDuration;

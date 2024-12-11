@@ -42,7 +42,7 @@ extern const objectparams_t g_PhysDefaultObjectParams;
 
 #define ENERGY_VOLUME_SCALE		(1.0f / 15500.0f)
 
-#define FLUID_TIME_MAX					2.0f // keep track of last time hitting fluid for up to 2 seconds 
+#define FLUID_TIME_MAX					2.0 // keep track of last time hitting fluid for up to 2 seconds 
 
 // VPHYSICS object game-specific flags
 #define FVPHYSICS_DMG_SLICE				0x0001		// does slice damage, not just blunt damage
@@ -66,8 +66,8 @@ struct friction_t
 {
 	CSoundPatch	*patch;
 	CBaseEntity	*pObject;
-	float		flLastUpdateTime;
-	float		flLastEffectTime;
+	double		flLastUpdateTime;
+	double		flLastEffectTime;
 };
 
 enum
@@ -88,7 +88,7 @@ struct touchevent_t
 struct fluidevent_t
 {
 	EHANDLE			hEntity;
-	float			impactTime;
+	double			impactTime;
 };
 
 void PhysFrictionSound( CBaseEntity *pEntity, IPhysicsObject *pObject, float energy, int surfaceProps, int surfacePropsHit );

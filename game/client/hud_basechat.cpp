@@ -292,7 +292,7 @@ void CBaseHudChatLine::PerformFadeout( void )
 	}
 	else if ( curtime <= m_flExpireTime && curtime > m_flExpireTime - CHATLINE_FADE_TIME )
 	{
-		float frac = ( m_flExpireTime - curtime ) / CHATLINE_FADE_TIME;
+		float frac = (float)( m_flExpireTime - curtime ) / CHATLINE_FADE_TIME;
 
 		int alpha = frac * 255;
 		alpha = clamp( alpha, 0, 255 );

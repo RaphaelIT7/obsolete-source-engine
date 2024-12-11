@@ -146,8 +146,8 @@ public:
 		}
 		int		m_nTokenIndex;
 		int		m_nLastEmitTick;
-		float	m_flLastEmitTime;
-		float	m_flInterval;
+		double	m_flLastEmitTime;
+		double	m_flInterval;
 	};
 
 private:
@@ -197,8 +197,8 @@ private:
 	int			m_nCurrentHeight;
 	float		m_flGoalAlpha;
 	float		m_flCurrentAlpha;
-	float		m_flGoalHeightStartTime;
-	float		m_flGoalHeightFinishTime;
+	double		m_flGoalHeightStartTime;
+	double		m_flGoalHeightFinishTime;
 
 	CPanelAnimationVar( float, m_flBackgroundAlpha, "BgAlpha", "192" );
 	CPanelAnimationVar( float, m_flGrowTime, "GrowTime", "0.25" );

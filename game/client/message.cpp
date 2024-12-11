@@ -47,7 +47,7 @@ const int maxHUDMessages = 16;
 struct message_parms_t
 {
 	client_textmessage_t	*pMessage;
-	float	time;
+	double	time;
 	int x, y;
 	int	totalWidth, totalHeight;
 	int width;
@@ -105,7 +105,7 @@ public:
 	int YPosition( float y, int height );
 
 	void MessageAdd( const char *pName );
-	void MessageDrawScan( client_textmessage_t *pMessage, float time );
+	void MessageDrawScan( client_textmessage_t *pMessage, double time );
 	void MessageScanStart( void );
 	void MessageScanNextChar( void );
 	void Reset( void ) override;
@@ -133,9 +133,9 @@ private:
 
 
 	client_textmessage_t		*m_pMessages[maxHUDMessages];
-	float						m_startTime[maxHUDMessages];
+	double						m_startTime[maxHUDMessages];
 	message_parms_t				m_parms;
-	float						m_gameTitleTime;
+	double						m_gameTitleTime;
 	client_textmessage_t		*m_pGameTitle;
 	bool						m_bHaveMessage;
 
@@ -460,7 +460,7 @@ void CHudMessage::MessageScanStart( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CHudMessage::MessageDrawScan( client_textmessage_t *pMessage, float time )
+void CHudMessage::MessageDrawScan( client_textmessage_t *pMessage, double time )
 {
 	int i, j, length, width;
 	const wchar_t *pText;
@@ -617,7 +617,7 @@ void CHudMessage::Paint()
 
 	if ( m_gameTitleTime > 0 )
 	{
-		float localTime = gpGlobals->curtime - m_gameTitleTime;
+		double localTime = gpGlobals->curtime - m_gameTitleTime;
 		float brightness;
 
 		// Maybe timer isn't set yet
@@ -685,7 +685,7 @@ void CHudMessage::Paint()
 
 			if ( gpGlobals->curtime <= endTime )
 			{
-				float messageTime = gpGlobals->curtime - m_startTime[i];
+				double messageTime = gpGlobals->curtime - m_startTime[i];
 
 				// Draw the message
 				// effect 0 is fade in/fade out

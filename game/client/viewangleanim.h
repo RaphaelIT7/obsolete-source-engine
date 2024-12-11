@@ -27,7 +27,7 @@ public:
 	QAngle m_vecAngles;
 
 	// time position of this keyframe
-	float m_flTime;	
+	double m_flTime;	
 
 	int m_iFlags;
 };

@@ -99,8 +99,8 @@ protected:
 public:
 	
 	int		m_iPhysicsMode;		// should always be PHYSICS_MULTIPLAYER_CLIENTSIDE
-	float	m_flTouchDelta;		// Amount of time that must pass before another touch function can be called
-	float 	m_fDeathTime;		// Point at which this object self destructs.  
+	double	m_flTouchDelta;		// Amount of time that must pass before another touch function can be called
+	double 	m_fDeathTime;		// Point at which this object self destructs.  
 								// The default of -1 indicates the object shouldn't destruct.
 
 // properties from serverclass CPhysicsProp

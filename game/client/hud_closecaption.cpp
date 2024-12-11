@@ -65,8 +65,8 @@ public:
 	void	SetPos( int x, int y );
 	void	GetPos( int& x, int &y ) const;
 
-	void	SetFadeStart( float flTime );
-	float	GetFadeStart( void ) const;
+	void	SetFadeStart( double flTime );
+	double	GetFadeStart( void ) const;
 
 	void	SetBold( bool bold );
 	bool	GetBold() const;
@@ -104,7 +104,7 @@ private:
 	int				m_nY;
 	int				m_nWidth;
 	int				m_nHeight;
-	float			m_flFadeStartTime;
+	double			m_flFadeStartTime;
 
 	bool			m_bBold;
 	bool			m_bItalic;
@@ -163,12 +163,12 @@ void CCloseCaptionWorkUnit::GetPos( int& x, int &y ) const
 	y = m_nY;
 }
 
-void CCloseCaptionWorkUnit::SetFadeStart( float flTime )
+void CCloseCaptionWorkUnit::SetFadeStart( double flTime )
 {
 	m_flFadeStartTime = flTime;
 }
 
-float CCloseCaptionWorkUnit::GetFadeStart( void ) const
+double CCloseCaptionWorkUnit::GetFadeStart( void ) const
 {
 	return m_flFadeStartTime;
 }
@@ -1054,7 +1054,7 @@ void CHudCloseCaption::Paint( void )
 		growingDown = togo < 0.0f ? true : false;
 
 		float dt = m_flGoalHeightFinishTime - m_flGoalHeightStartTime;
-		float frac = ( gpGlobals->curtime - m_flGoalHeightStartTime ) / dt;
+		float frac = (float)( gpGlobals->curtime - m_flGoalHeightStartTime ) / dt;
 		frac = clamp( frac, 0.0f, 1.0f );
 		int newHeight = m_nCurrentHeight + (int)( frac * togo );
 		m_nCurrentHeight = newHeight;

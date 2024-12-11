@@ -1564,12 +1564,12 @@ void CPhysicsEnvironment::ResetSimulationClock()
 	SeedRandomGenerators();
 }
 
-float CPhysicsEnvironment::GetSimulationTimestep( void ) const
+double CPhysicsEnvironment::GetSimulationTimestep( void ) const
 {
 	return m_pPhysEnv->get_delta_PSI_time();
 }
 
-void CPhysicsEnvironment::SetSimulationTimestep( float timestep )
+void CPhysicsEnvironment::SetSimulationTimestep( double timestep )
 {
 	m_pPhysEnv->set_delta_PSI_time( timestep );
 }

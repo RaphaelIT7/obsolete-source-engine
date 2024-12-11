@@ -328,7 +328,7 @@ void CViewAngleAnimation::ClientThink()
 
 	// previous frame is m_KeyFrames[i-1];
 	// next frame is m_KeyFrames[i];
-	float flFraction = ( flCurrentTime - flTime ) / ( m_KeyFrames[i]->m_flTime );
+	float flFraction = (float)(( flCurrentTime - flTime ) / ( m_KeyFrames[i]->m_flTime ));
 
 	Vector v0, v1, v2, v3;
 

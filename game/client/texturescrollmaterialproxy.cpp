@@ -83,8 +83,8 @@ void CTextureScrollMaterialProxy::OnBind( void *pC_BaseEntity )
 
 	float sOffset, tOffset;
 	
-	sOffset = gpGlobals->curtime * cos( angle * ( M_PI_F / 180.0f ) ) * rate;
-	tOffset = gpGlobals->curtime * sin( angle * ( M_PI_F / 180.0f ) ) * rate;
+	sOffset = (float)(gpGlobals->curtime * cos( angle * ( M_PI_F / 180.0f ) ) * rate);
+	tOffset = (float)(gpGlobals->curtime * sin( angle * ( M_PI_F / 180.0f ) ) * rate);
 
 	// make sure that we are positive
 	if( sOffset < 0.0f )

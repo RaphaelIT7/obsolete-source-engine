@@ -68,7 +68,7 @@ private:
 	int				m_nSelectedItem;
 	bool			m_bMenuTakesInput;
 
-	float			m_flSelectionTime;
+	double			m_flSelectionTime;
 
 	CPanelAnimationVar( float, m_flOpenCloseTime, "OpenCloseTime", "1" );
 

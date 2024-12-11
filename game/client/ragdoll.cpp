@@ -287,7 +287,7 @@ void CRagdoll::CheckSettleStationaryRagdoll()
 	// Msg( "%d [%p] Settling\n", gpGlobals->tickcount, this );
 
 	// It has stopped moving, see if it
-	float dt = gpGlobals->curtime - m_flLastOriginChangeTime;
+	double dt = gpGlobals->curtime - m_flLastOriginChangeTime;
 	if ( dt < ragdoll_sleepaftertime.GetFloat() )
 		return;
 
@@ -413,7 +413,7 @@ private:
 	CNetworkVar( float, m_flBlendWeight );
 	float m_flBlendWeightCurrent;
 	CNetworkVar( int, m_nOverlaySequence );
-	float m_flLastBoneChangeTime;
+	double m_flLastBoneChangeTime;
 };
 
 
@@ -775,7 +775,7 @@ public:
 	Vector		m_attachmentPointRagdollSpace;
 	int			m_ragdollAttachedObjectIndex;
 	int			m_boneIndexAttached;
-	float		m_parentTime;
+	double		m_parentTime;
 	bool		m_bHasParent;
 private:
 	C_ServerRagdollAttached( const C_ServerRagdollAttached & );

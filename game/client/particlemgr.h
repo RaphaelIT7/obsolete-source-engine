@@ -781,7 +781,7 @@ public:
 
 
 // Helper functions to abstract out the particle testbed app.
-float	Helper_GetTime();
+double	Helper_GetTime();
 float	Helper_GetFrameTime();
 float	Helper_RandomFloat( float minVal, float maxVal );
 int		Helper_RandomInt( int minVal, int maxVal );

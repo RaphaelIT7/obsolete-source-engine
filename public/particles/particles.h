@@ -1275,7 +1275,7 @@ public:
 	int m_nActiveParticles;			// # of active particles
 	float m_flDt;
 	float m_flPreviousDt;
-	float m_flNextSleepTime;								// time to go to sleep if not drawn
+	double m_flNextSleepTime;								// time to go to sleep if not drawn
 
 	CUtlReference< CParticleSystemDefinition > m_pDef;
 	int m_nAllocatedParticles;

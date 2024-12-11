@@ -665,8 +665,8 @@ void C_SceneEntity::DispatchStartSpeak( CChoreoScene *scene, C_BaseFlex *actor, 
 	{
 		CSingleUserRecipientFilter filter( C_BasePlayer::GetLocalPlayer() );
 
-		float time_in_past = m_flCurrentTime - event->GetStartTime() ;
-		float soundtime = gpGlobals->curtime - time_in_past;
+		double time_in_past = m_flCurrentTime - event->GetStartTime() ;
+		double soundtime = gpGlobals->curtime - time_in_past;
 
 		EmitSound_t es;
 		es.m_nChannel = CHAN_VOICE;

@@ -596,13 +596,13 @@ void SpewInterpolatedVar( CInterpolatedVar< Vector > *pVar )
 
 void SpewInterpolatedVar( CInterpolatedVar< Vector > *pVar, float flNow, float flInterpAmount, bool bSpewAllEntries = true )
 {
-	float target = flNow - flInterpAmount;
+	double target = flNow - flInterpAmount;
 
 	Msg( "--------------------------------------------------\n" );
 	int i = pVar->GetHead();
 	Vector v0(0, 0, 0);
 	CApparentVelocity<Vector> apparent(v0);
-	float newtime = 999999.0f;
+	double newtime = 999999.0f;
 	Vector newVec( 0, 0, 0 );
 	bool bSpew = true;
 
@@ -617,13 +617,13 @@ void SpewInterpolatedVar( CInterpolatedVar< Vector > *pVar, float flNow, float f
 		{
 			Vector o;
 			pVar->DebugInterpolate( &o, flNow );
-			bool bInterp = newtime != 999999.0f;
+			bool bInterp = newtime != 999999.0;
 			float frac = 0.0f;
 			char desc[ 32 ];
 
 			if ( bInterp )
 			{
-				frac = ( target - changetime ) / ( newtime - changetime );
+				frac = (float)(( target - changetime ) / ( newtime - changetime ));
 				Q_snprintf( desc, sizeof( desc ), "interpolated [%.2f]", frac );
 			}
 			else
@@ -636,7 +636,7 @@ void SpewInterpolatedVar( CInterpolatedVar< Vector > *pVar, float flNow, float f
 
 				if ( changetime != oldtertime )
 				{
-					frac = ( target - changetime ) / ( changetime - oldtertime );
+					frac = (float)(( target - changetime ) / ( changetime - oldtertime ));
 				}
 
 				Q_snprintf( desc, sizeof( desc ), "extrapolated [%.2f]", frac );
@@ -654,7 +654,7 @@ void SpewInterpolatedVar( CInterpolatedVar< Vector > *pVar, float flNow, float f
 			}
 		}
 
-		float vel = apparent.AddSample( changetime, *pVal );
+		float vel = apparent.AddSample( (float)changetime, *pVal );
 		if ( bSpewAllEntries )
 		{
 			Msg( "    %6.6f: (%.2f %.2f %.2f), vel: %.2f [dt %.1f]\n", changetime, VectorExpand( *pVal ), vel, newtime == 999999.0f ? 0.0f : 1000.0f * ( newtime - changetime ) );

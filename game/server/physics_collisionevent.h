@@ -130,7 +130,7 @@ private:
 	void UpdateRemoveObjects();
 	void AddTouchEvent( CBaseEntity *pEntity0, CBaseEntity *pEntity1, int touchType, const Vector &point, const Vector &normal );
 	penetrateevent_t &FindOrAddPenetrateEvent( CBaseEntity *pEntity0, CBaseEntity *pEntity1 );
-	float DeltaTimeSinceLastFluid( CBaseEntity *pEntity );
+	double DeltaTimeSinceLastFluid( CBaseEntity *pEntity );
 
 	void RestoreDamageInflictorState( IPhysicsObject *pInflictor );
 	void RestoreDamageInflictorState( int inflictorStateIndex, float velocityBlend );

@@ -1071,8 +1071,8 @@ void CCollisionEvent::FluidStartTouch( IPhysicsObject *pObject, IPhysicsFluidCon
 	pEntity->AddEFlags( EFL_TOUCHING_FLUID );
 	pEntity->OnEntityEvent( ENTITY_EVENT_WATER_TOUCH, (void*)static_cast<intp>(pFluid->GetContents()) );
 
-	float timeSinceLastCollision = DeltaTimeSinceLastFluid( pEntity );
-	if ( timeSinceLastCollision < 0.5f )
+	double timeSinceLastCollision = DeltaTimeSinceLastFluid( pEntity );
+	if ( timeSinceLastCollision < 0.5 )
 		return;
 
 	// UNDONE: Use this for splash logic instead?
@@ -1118,8 +1118,8 @@ void CCollisionEvent::FluidEndTouch( IPhysicsObject *pObject, IPhysicsFluidContr
 	if ( !pEntity )
 		return;
 
-	float timeSinceLastCollision = DeltaTimeSinceLastFluid( pEntity );
-	if ( timeSinceLastCollision >= 0.5f )
+	double timeSinceLastCollision = DeltaTimeSinceLastFluid( pEntity );
+	if ( timeSinceLastCollision >= 0.5 )
 	{
 		PhysicsSplash( pFluid, pObject, pEntity );
 	}
@@ -2065,7 +2065,7 @@ void CCollisionEvent::UpdateFluidEvents( void )
 }
 
 
-float CCollisionEvent::DeltaTimeSinceLastFluid( CBaseEntity *pEntity )
+double CCollisionEvent::DeltaTimeSinceLastFluid( CBaseEntity *pEntity )
 {
 	for ( int i = m_fluidEvents.Count()-1; i >= 0; --i )
 	{

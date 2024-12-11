@@ -60,7 +60,7 @@ public:
 	virtual void ObjectEnterTrigger( IPhysicsObject *pTrigger, IPhysicsObject *pObject ) {}
 	virtual void ObjectLeaveTrigger( IPhysicsObject *pTrigger, IPhysicsObject *pObject ) {}
 
-	float	DeltaTimeSinceLastFluid( CBaseEntity *pEntity );
+	double	DeltaTimeSinceLastFluid( CBaseEntity *pEntity );
 	void	FrameUpdate( void );
 
 	void	UpdateFluidEvents( void );
@@ -907,9 +907,9 @@ void CCollisionEvent::UpdateFluidEvents( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *pEntity - 
-// Output : float
+// Output : double
 //-----------------------------------------------------------------------------
-float CCollisionEvent::DeltaTimeSinceLastFluid( CBaseEntity *pEntity )
+double CCollisionEvent::DeltaTimeSinceLastFluid( CBaseEntity *pEntity )
 {
 	for ( int i = m_fluidEvents.Count()-1; i >= 0; --i )
 	{
@@ -940,9 +940,9 @@ void CCollisionEvent::FluidStartTouch( IPhysicsObject *pObject, IPhysicsFluidCon
 	
 	if ( pEntity )
 	{
-		float timeSinceLastCollision = DeltaTimeSinceLastFluid( pEntity );
+		double timeSinceLastCollision = DeltaTimeSinceLastFluid( pEntity );
 		
-		if ( timeSinceLastCollision < 0.5f )
+		if ( timeSinceLastCollision < 0.5 )
 			return;
 
 		PhysicsSplash( pFluid, pObject, pEntity );

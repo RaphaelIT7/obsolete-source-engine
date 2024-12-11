@@ -63,7 +63,7 @@ private:
 	float	m_fMinSlideTime;
 	float	m_fMaxSlideTime;
 
-	float	m_NextSlideTime;
+	double	m_NextSlideTime;
 
 	int		m_iCycleType;
 	bool	m_bNoListRepeats;

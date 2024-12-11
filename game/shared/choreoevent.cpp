@@ -1476,10 +1476,10 @@ const char *CChoreoEvent::GetDescription( void )
 // Purpose: 
 // Input  : starttime - 
 //-----------------------------------------------------------------------------
-void CChoreoEvent::SetStartTime( float starttime )
+void CChoreoEvent::SetStartTime( double starttime )
 {
 	m_flStartTime = starttime;
-	if ( m_flEndTime != -1.0f ) //-V1051
+	if ( m_flEndTime != -1.0 ) //-V1051
 	{
 		if ( m_flEndTime < m_flStartTime )
 		{
@@ -1492,7 +1492,7 @@ void CChoreoEvent::SetStartTime( float starttime )
 // Purpose: 
 // Output : float
 //-----------------------------------------------------------------------------
-float CChoreoEvent::GetStartTime( ) const
+double CChoreoEvent::GetStartTime( ) const
 {
 	return m_flStartTime;
 }
@@ -1501,13 +1501,13 @@ float CChoreoEvent::GetStartTime( ) const
 // Purpose: 
 // Input  : endtime - 
 //-----------------------------------------------------------------------------
-void CChoreoEvent::SetEndTime( float endtime  )
+void CChoreoEvent::SetEndTime( double endtime  )
 {
 	bool changed = m_flEndTime != endtime;
 
 	m_flEndTime = endtime;
 
-	if ( endtime != -1.0f )
+	if ( endtime != -1.0 )
 	{
 		if ( m_flEndTime < m_flStartTime )
 		{
@@ -1526,7 +1526,7 @@ void CChoreoEvent::SetEndTime( float endtime  )
 // Purpose: 
 // Output : float
 //-----------------------------------------------------------------------------
-float CChoreoEvent::GetEndTime( )
+double CChoreoEvent::GetEndTime( )
 {
 	return m_flEndTime;
 }

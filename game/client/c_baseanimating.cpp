@@ -6158,7 +6158,7 @@ void C_BaseAnimating::UpdateModelScale()
 	Assert( dt > 0.0f );
 
 	double frac = ( gpGlobals->curtime - mvs->m_flModelScaleStartTime ) / dt;
-	frac = clamp( frac, 0.0f, 1.0f );
+	frac = clamp( frac, 0.0, 1.0 );
 
 	if ( gpGlobals->curtime >= mvs->m_flModelScaleFinishTime )
 	{

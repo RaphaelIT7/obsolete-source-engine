@@ -58,7 +58,7 @@ void TE_BeamEntPoint( IRecipientFilter& filter, float delay,
 {
 	beams->CreateBeamEntPoint( nStartEntity, pStart, nEndEntity, pEnd, 
 		modelindex, haloindex, 0.0f, life,  width, endWidth, fadeLength, amplitude,
-		a, 0.1 * (float)speed, startframe, 0.1f * (float)framerate, r, g, b );
+		a, 0.1f * (float)speed, startframe, 0.1f * (float)framerate, r, g, b );
 }
 
 //-----------------------------------------------------------------------------

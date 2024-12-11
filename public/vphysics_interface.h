@@ -609,8 +609,8 @@ public:
 
 	// Manage the timestep (period) of the simulator.  The main functions are all integrated with
 	// this period as dt.
-	virtual float			GetSimulationTimestep() const = 0;
-	virtual void			SetSimulationTimestep( float timestep ) = 0;
+	virtual double			GetSimulationTimestep() const = 0;
+	virtual void			SetSimulationTimestep( double timestep ) = 0;
 
 	// returns the current simulation clock's value.  This is an absolute time.
 	virtual double			GetSimulationTime() const = 0;

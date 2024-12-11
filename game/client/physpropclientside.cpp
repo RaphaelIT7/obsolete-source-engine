@@ -414,7 +414,7 @@ void C_PhysPropClientside::ClientThink( void )
 
 	// fade out 
 
-	float alpha = (m_fDeathTime - gpGlobals->curtime)/FADEOUT_TIME;
+	float alpha = (float)(m_fDeathTime - gpGlobals->curtime)/FADEOUT_TIME;
 
 	SetRenderMode( kRenderTransTexture );
 

@@ -1133,7 +1133,7 @@ void CInterpolatedVarArrayBase<Type, IS_ARRAY>::GetDerivative_SmoothVelocity( Ty
 
 		// Now ramp it to zero after cl_extrapolate_amount..
 		double flDestTime = currentTime - m_InterpolationAmount;
-		float diff = flDestTime - history[info.newer].changetime;
+		float diff = (float)(flDestTime - history[info.newer].changetime);
 		diff = clamp( diff, 0.f, cl_extrapolate_amount.GetFloat() * 2 );
 		if ( diff > cl_extrapolate_amount.GetFloat() )
 		{

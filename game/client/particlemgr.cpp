@@ -1725,7 +1725,7 @@ static ConVar particle_sim_alt_cores( "particle_sim_alt_cores", "2" );
 
 void CParticleMgr::BuildParticleSimList( CUtlVector< ParticleSimListEntry_t > &list )
 {
-	float flNow = g_pParticleSystemMgr->GetLastSimulationTime();
+	double flNow = g_pParticleSystemMgr->GetLastSimulationTime();
 	for( CNewParticleEffect *pNewEffect=m_NewEffects.m_pHead; pNewEffect;
 		pNewEffect=pNewEffect->m_pNext )
 	{
@@ -2136,7 +2136,7 @@ void CParticleMgr::SetDirectionalLightInfo( const CParticleLightInfo &info )
 
 // ------------------------------------------------------------------------------------ //
 // ------------------------------------------------------------------------------------ //
-float Helper_GetTime()
+double Helper_GetTime()
 {
 #if defined( PARTICLEPROTOTYPE_APP )
 	static bool bStarted = false;
@@ -2153,7 +2153,7 @@ float Helper_GetTime()
 	CCycleCount elapsed;
 	CCycleCount::Sub( curCount, startTimer, elapsed );
 
-	return (float)elapsed.GetSeconds();
+	return elapsed.GetSeconds();
 #else
 	return gpGlobals->curtime;
 #endif

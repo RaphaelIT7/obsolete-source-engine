@@ -400,7 +400,7 @@ void CSineProxy::OnBind( void *pC_BaseEntity )
 {
 	Assert( m_pResult );
 
-	float flValue;
+	double flValue;
 	float flSineTimeOffset = m_SineTimeOffset.GetFloat();
 	float flSineMax = m_SineMax.GetFloat();
 	float flSineMin = m_SineMin.GetFloat();
@@ -612,7 +612,7 @@ void CLinearRampProxy::OnBind( void *pC_BaseEntity )
 {
 	Assert( m_pResult );
 
-	float flValue;
+	double flValue;
 	
 	// get a value in [0,1]
 	flValue = m_Rate.GetFloat() * gpGlobals->curtime + m_InitialValue.GetFloat();	

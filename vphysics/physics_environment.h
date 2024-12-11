@@ -63,8 +63,8 @@ public:
 	void DestroyConstraintGroup( IPhysicsConstraintGroup *pGroup ) override;
 
 	void			Simulate( float deltaTime ) override;
-	float			GetSimulationTimestep() const override;
-	void			SetSimulationTimestep( float timestep ) override;
+	double			GetSimulationTimestep() const override;
+	void			SetSimulationTimestep( double timestep ) override;
 	double			GetSimulationTime() const override;
 	double			GetNextFrameTime() const override;
 	bool			IsInSimulation() const override;
