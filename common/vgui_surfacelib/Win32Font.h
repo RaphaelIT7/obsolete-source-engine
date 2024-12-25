@@ -86,6 +86,12 @@ private:
 
 protected:
 	CUtlSymbol		m_szName;
+	bool			m_bValid;
+
+	void SetName( CUtlSymbol szName ) {
+		m_szName = szName;
+		m_bValid = m_szName.IsValid() && m_szName.String()[0];
+	}
 
 	short			m_iTall;
 	unsigned short	m_iWeight;

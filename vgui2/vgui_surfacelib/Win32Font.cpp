@@ -34,7 +34,7 @@ CWin32Font::CWin32Font() : m_ExtendedABCWidthsCache(256, 0, &ExtendedABCWidthsCa
 	m_hDIB = NULL;
 	m_pBuf = NULL;
 
-	m_szName = UTL_INVAL_SYMBOL;
+	SetName( UTL_INVAL_SYMBOL );
 
 	m_iTall = 0;
 	m_iWeight = 0;
@@ -91,7 +91,7 @@ int CALLBACK FontEnumProc(
 bool CWin32Font::Create(const char *windowsFontName, int tall, int weight, int blur, int scanlines, int flags)
 {
 	// setup font properties
-	m_szName = windowsFontName;
+	SetName( windowsFontName );
 	m_iTall = tall;
 	m_iWeight = weight;
 	m_iFlags = flags;
@@ -113,7 +113,7 @@ bool CWin32Font::Create(const char *windowsFontName, int tall, int weight, int b
 	{
 		// use any font that contains the japanese charset
 		charset = SHIFTJIS_CHARSET;
-		m_szName = "Tahoma";
+		SetName( "Tahoma" );
 	}
 
 	// create our windows device context
@@ -131,7 +131,7 @@ bool CWin32Font::Create(const char *windowsFontName, int tall, int weight, int b
 	if (!bFontFound)
 	{
 		// needs to go to a fallback
-		m_szName = UTL_INVAL_SYMBOL;
+		SetName( UTL_INVAL_SYMBOL );
 		return false;
 	}
 
@@ -161,7 +161,7 @@ bool CWin32Font::Create(const char *windowsFontName, int tall, int weight, int b
 	memset( &tm, 0, sizeof( tm ) );
 	if ( !GetTextMetrics(m_hDC, &tm) )
 	{
-		m_szName = UTL_INVAL_SYMBOL;
+		SetName( UTL_INVAL_SYMBOL );
 		return false;
 	}
 
@@ -404,10 +404,7 @@ bool CWin32Font::IsEqualTo(const char *windowsFontName, int tall, int weight, in
 //-----------------------------------------------------------------------------
 bool CWin32Font::IsValid()
 {
-	if ( m_szName.IsValid() && m_szName.String()[0] )
-		return true;
-
-	return false;
+	return m_bValid;
 }
 
 //-----------------------------------------------------------------------------
