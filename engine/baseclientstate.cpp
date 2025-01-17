@@ -1345,7 +1345,7 @@ bool CBaseClientState::ProcessCreateStringTable( SVC_CreateStringTable *msg )
 #ifndef SHARED_NET_STRING_TABLES
 
 	CNetworkStringTable *table = (CNetworkStringTable*)
-		m_StringTableContainer->CreateStringTableEx( msg->m_szTableName, msg->m_nMaxEntries, msg->m_nUserDataSize, msg->m_nUserDataSizeBits, msg->m_bIsFilenames );
+		m_StringTableContainer->CreateStringTableEx( msg->m_szTableName, 1 << msg->m_nEntryBits, msg->m_nUserDataSize, msg->m_nUserDataSizeBits, msg->m_bIsFilenames );
 
 	Assert ( table );
 

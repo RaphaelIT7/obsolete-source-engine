@@ -1249,9 +1249,8 @@ bool SVC_CreateStringTable::WriteToBuffer( bf_write &buffer )
 	*/
 
 	buffer.WriteString( m_szTableName );
-	buffer.WriteWord( m_nMaxEntries );
-	int encodeBits = Q_log2( m_nMaxEntries );
-	buffer.WriteUBitLong( m_nNumEntries, encodeBits+1 );
+	buffer.WriteUBitLong( m_nEntryBits, 5 ); // 5 bits because more than 30 bits already hit the integer limit.
+	buffer.WriteUBitLong( m_nNumEntries, m_nEntryBits+1 ); // +1 because m_nNumEntries might go over 1 << m_nEntryBits by 1 entry.
 	buffer.WriteVarInt32( m_nLength ); // length in bits
 
 	buffer.WriteOneBit( m_bUserDataFixedSize ? 1 : 0 );
@@ -1283,9 +1282,8 @@ bool SVC_CreateStringTable::ReadFromBuffer( bf_read &buffer )
 
 	m_szTableName = m_szTableNameBuffer;
 	buffer.ReadString( m_szTableNameBuffer, sizeof(m_szTableNameBuffer) );
-	m_nMaxEntries = buffer.ReadWord();
-	int encodeBits = Q_log2( m_nMaxEntries );
-	m_nNumEntries = buffer.ReadUBitLong( encodeBits+1 );
+	m_nEntryBits = buffer.ReadUBitLong( 5 );
+	m_nNumEntries = buffer.ReadUBitLong( m_nEntryBits+1 );
 	if ( m_NetChannel->GetProtocolVersion() > PROTOCOL_VERSION_23 )
 		m_nLength = buffer.ReadVarInt32();
 	else

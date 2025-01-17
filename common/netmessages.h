@@ -478,7 +478,7 @@ public:
 public:	
 	
 	const char	*m_szTableName;
-	int			m_nMaxEntries;
+	int			m_nEntryBits;
 	int			m_nNumEntries;
 	bool		m_bUserDataFixedSize;
 	int			m_nUserDataSize;

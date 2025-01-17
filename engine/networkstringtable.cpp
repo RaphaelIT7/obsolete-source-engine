@@ -1284,7 +1284,7 @@ bool CNetworkStringTable::WriteBaselines( SVC_CreateStringTable &msg, char *msg_
 
 	msg.m_bIsFilenames          = m_bIsFilenames;
 	msg.m_szTableName			= GetTableName();
-	msg.m_nMaxEntries			= GetMaxStrings();
+	msg.m_nEntryBits			= GetEntryBits();
 	msg.m_nNumEntries			= GetNumStrings();
 	msg.m_bUserDataFixedSize	= IsUserDataFixedSize();
 	msg.m_nUserDataSize			= GetUserDataSize();
