@@ -2253,9 +2253,9 @@ void CBaseServer::WriteTempEntities( CBaseClient *client, CFrameSnapshot *pCurre
 {
 	VPROF_BUDGET( "CBaseServer::WriteTempEntities", VPROF_BUDGETGROUP_OTHER_NETWORKING );
 
-	ALIGN4 char data[NET_MAX_PAYLOAD] ALIGN4_POST;
+	ALIGN4 char* data = new char[NET_MAX_PAYLOAD] ALIGN4_POST;
 	SVC_TempEntities msg;
-	msg.m_DataOut.StartWriting( data, sizeof(data) );
+	msg.m_DataOut.StartWriting( data, NET_MAX_PAYLOAD );
 	bf_write &buffer = msg.m_DataOut; // shortcut
 	
 	CFrameSnapshot *pSnapshot;
@@ -2302,7 +2302,10 @@ void CBaseServer::WriteTempEntities( CBaseClient *client, CFrameSnapshot *pCurre
 	}
 
 	if ( sorted.Count() <= 0 )
+	{
+		delete[] data;
 		return;
+	}
 
 	for ( int i = sorted.FirstInorder(); 
 		i != sorted.InvalidIndex(); 
@@ -2384,6 +2387,7 @@ void CBaseServer::WriteTempEntities( CBaseClient *client, CFrameSnapshot *pCurre
 	// set num entries
 	msg.m_nNumEntries = sorted.Count();
 	msg.WriteToBuffer( buf );
+	delete[] data;
 }
 
 void CBaseServer::SetMaxClients( int number )

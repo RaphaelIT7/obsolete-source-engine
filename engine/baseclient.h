@@ -278,10 +278,10 @@ public:
 
 	enum
 	{
-		SNAPSHOT_SCRATCH_BUFFER_SIZE = 160000,
+		SNAPSHOT_SCRATCH_BUFFER_SIZE = 16000000,
 	};
 
-	unsigned int		m_SnapshotScratchBuffer[ SNAPSHOT_SCRATCH_BUFFER_SIZE / 4 ];
+	unsigned int		m_SnapshotScratchBuffer[ SNAPSHOT_SCRATCH_BUFFER_SIZE ];
 
 private:
 	void				StartTrace( bf_write &msg );

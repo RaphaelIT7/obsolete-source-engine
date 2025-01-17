@@ -437,10 +437,10 @@ void CGameServer::Clear( void )
 }
 
 // Limited between 4 and 15 bits. Why 15 bits? because going above it would require net compact changes like changing the INVALID_INDEX definition & change the SVC_CreateStringTable to network m_nMaxEntries as a unsigned int instead of a word, also why does it write m_nMaxEntries and not the entry bits?
-static ConVar sv_precache_modelbits( "sv_precache_modelbits", "12", 0, "number of bits to use for the modelprecache stringtable", true, 4, true, 15 );
-static ConVar sv_precache_generalbits( "sv_precache_generalbits", "9", 0, "number of bits to use for the generalprecache stringtable", true, 4, true, 15 );
-static ConVar sv_precache_soundbits( "sv_precache_soundbits", "14", 0, "number of bits to use for the soundprecache stringtable", true, 4, true, 15 );
-static ConVar sv_precache_decalbits( "sv_precache_decalbits", "9", 0, "number of bits to use for the decalprecache stringtable", true, 4, true, 15 );
+static ConVar sv_precache_modelbits( "sv_precache_modelbits", "12", 0, "number of bits to use for the modelprecache stringtable", true, 4, true, 18 );
+static ConVar sv_precache_generalbits( "sv_precache_generalbits", "9", 0, "number of bits to use for the generalprecache stringtable", true, 4, true, 18 );
+static ConVar sv_precache_soundbits( "sv_precache_soundbits", "14", 0, "number of bits to use for the soundprecache stringtable", true, 4, true, 18 );
+static ConVar sv_precache_decalbits( "sv_precache_decalbits", "9", 0, "number of bits to use for the decalprecache stringtable", true, 4, true, 18 );
 
 //-----------------------------------------------------------------------------
 // Purpose: Create any client/server string tables needed internally by the engine
@@ -2175,11 +2175,12 @@ void SV_CreateBaseline (void)
 	g_GameEventManager.ReloadEventDefinitions();
 
 	SVC_GameEventList gameevents;
-	char data[NET_MAX_PAYLOAD];
-	gameevents.m_DataOut.StartWriting( data, sizeof(data) );
+	char* data = new char[NET_MAX_PAYLOAD];
+	gameevents.m_DataOut.StartWriting( data, NET_MAX_PAYLOAD );
 
 	g_GameEventManager.WriteEventList( &gameevents );
 	gameevents.WriteToBuffer( sv.m_Signon );
+	delete[] data;
 }
 
 //-----------------------------------------------------------------------------

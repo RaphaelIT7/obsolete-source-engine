@@ -2452,6 +2452,7 @@ FileHandle_t CBaseFileSystem::OpenForRead( const char *pFileNameT, const char *p
 		}
 	}
 
+	// Second pass without native.
 	for ( openInfo.m_pSearchPath = iter.GetFirst(); openInfo.m_pSearchPath != NULL; openInfo.m_pSearchPath = iter.GetNext() )
 	{
 		FileHandle_t filehandle = FindFileInSearchPath( openInfo, false );
