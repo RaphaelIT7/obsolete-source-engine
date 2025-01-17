@@ -180,6 +180,7 @@ extern vgui::IInputInternal *g_InputInternal;
 
 #ifdef BUILD_GMOD
 #include "Lua/gmod_lua.h"
+#include <stringtable_bits.h>
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -1982,6 +1983,8 @@ void CHLClient::InstallStringTableCallback( const char *tableName )
 	}
 
 	GarrysMod::StringTable::Install( tableName );
+
+	CL_SetupNetworkStringTableBits( networkstringtable, tableName );
 #endif
 
 	InstallStringTableCallback_GameRules();

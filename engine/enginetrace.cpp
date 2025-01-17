@@ -317,7 +317,7 @@ public:
 		model_t* pModel = (model_t*)pCollide->GetCollisionModel();
 		if ( pModel && pModel->type == mod_brush )
 		{
-			Assert( pCollide->GetCollisionModelIndex() < MAX_MODELS && pCollide->GetCollisionModelIndex() >= 0 );
+			Assert( pCollide->GetCollisionModelIndex() < g_nMaxModels && pCollide->GetCollisionModelIndex() >= 0 );
 			int nHeadNode = GetModelHeadNode( pCollide );
 			int contents = CM_TransformedPointContents( vPos, nHeadNode, 
 				pCollide->GetCollisionOrigin(), pCollide->GetCollisionAngles() );
@@ -352,7 +352,7 @@ private:
 	static int GetModelHeadNode( ICollideable *pCollide )
 	{
 		int modelindex = pCollide->GetCollisionModelIndex();
-		if(modelindex >= MAX_MODELS || modelindex < 0)
+		if(modelindex >= g_nMaxModels || modelindex < 0)
 			return -1;
 
 		model_t *pModel = (model_t*)pCollide->GetCollisionModel();

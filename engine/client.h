@@ -242,10 +242,10 @@ public:
 	INetworkStringTable *m_pDownloadableFileTable;
 	INetworkStringTable *m_pDynamicModelsTable;
 	
-	CPrecacheItem		model_precache[ MAX_MODELS ];
-	CPrecacheItem		generic_precache[ MAX_GENERIC ];
-	CPrecacheItem		sound_precache[ MAX_SOUNDS ];
-	CPrecacheItem		decal_precache[ MAX_BASE_DECALS ];
+	CPrecacheItem		*model_precache;
+	CPrecacheItem		*generic_precache;
+	CPrecacheItem		*sound_precache;
+	CPrecacheItem		*decal_precache;
 
 	WaitForResourcesHandle_t m_hWaitForResourcesHandle;
 	bool m_bUpdateSteamResources;

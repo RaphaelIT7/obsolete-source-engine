@@ -1346,6 +1346,12 @@ $Project
 				$File	"$SRCDIR\GarrysMod\Lua\custom_types\lua_weapon.cpp"
 			}
 		}
+
+		$Folder	"Common"
+		{
+			$File	"$SRCDIR\common\stringtable_bits.h"
+			$File	"$SRCDIR\common\stringtable_bits.cpp"
+		}
 	}
 	
 	$Folder	"Link Libraries"

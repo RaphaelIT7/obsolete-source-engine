@@ -16,7 +16,7 @@
 #include "soundflags.h"
 #include "coordsize.h"
 #include "mathlib/vector.h"
-
+#include "stringtable_bits.h"
 
 #define WRITE_DELTA_UINT( name, length )	\
 	if ( name == delta->name )		\
@@ -176,7 +176,7 @@ struct SoundInfo_t
 			}
 		}
 
-		WRITE_DELTA_UINT( nSoundNum, MAX_SOUND_INDEX_BITS );
+		WRITE_DELTA_UINT( nSoundNum, g_nMaxSoundIndexBits );
 
 		WRITE_DELTA_UINT( nFlags, SND_FLAG_BITS_ENCODE );
 
@@ -279,7 +279,7 @@ struct SoundInfo_t
 
 		if ( nProtoVersion > 22 )
 		{	
-			READ_DELTA_UINT( nSoundNum, MAX_SOUND_INDEX_BITS );
+			READ_DELTA_UINT( nSoundNum, g_nMaxSoundIndexBits );
 		}
 		else
 		{

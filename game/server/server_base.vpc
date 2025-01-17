@@ -1105,4 +1105,10 @@ $Project
 		$Lib 	bootil
 		$ImpLibexternal steam_api  [!$NO_STEAM]
 	}
+
+	$Folder	"Common"
+	{
+		$File	"$SRCDIR\common\stringtable_bits.h"
+		$File	"$SRCDIR\common\stringtable_bits.cpp"
+	}
 }

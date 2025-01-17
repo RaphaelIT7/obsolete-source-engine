@@ -1737,7 +1737,7 @@ public:
 
 	virtual void ResetModelPrecache() OVERRIDE
 	{
-		for (int i=0; i<MAX_MODELS; ++i)
+		for (int i=0; i<g_nMaxModels; ++i)
 		{
 			sv.model_precache[i].SetModel(NULL);
 		}

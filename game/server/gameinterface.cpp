@@ -94,6 +94,7 @@
 #ifdef BUILD_GMOD
 #include "gmod_networkvars.h"
 #include "gmod_stringtable.h"
+#include "stringtable_bits.h"
 #endif
 
 
@@ -1497,6 +1498,8 @@ void CServerGameDLL::CreateNetworkStringTables( void )
 	NetworkVarNames::Create();
 
 	// DataPack()->Initialize();
+
+	SV_SetupNetworkStringTableBits(); // Allow server.dll to use g_nMaxModels and such. (g_nMaxSoundIndexBits used by soundinfo.h)
 #endif
 }
 

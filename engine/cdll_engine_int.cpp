@@ -2349,7 +2349,7 @@ bool CEngineClient::IsDedicatedServer()
 
 void CEngineClient::ResetModelPrecache()
 {
-	for (int i=0; i<MAX_MODELS; ++i)
+	for (int i=0; i<g_nMaxModels; ++i)
 	{
 		cl.model_precache[i].SetModel(NULL);
 	}

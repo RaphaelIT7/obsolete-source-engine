@@ -22,14 +22,4 @@
 
 #define	ON_EPSILON		0.1			// point on plane side epsilon
 
-
-// Resource counts;
-#define MAX_MODEL_INDEX_BITS	12   // sent as a short
-#define	MAX_MODELS				(1<<MAX_MODEL_INDEX_BITS)
-
-#define MAX_GENERIC_INDEX_BITS	9
-#define MAX_GENERIC				(1<<MAX_GENERIC_INDEX_BITS)
-#define MAX_DECAL_INDEX_BITS	9
-#define MAX_BASE_DECALS			(1<<MAX_DECAL_INDEX_BITS)
-
 #endif // QLIMITS_H

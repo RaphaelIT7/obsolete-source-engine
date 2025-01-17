@@ -777,7 +777,7 @@ vcollide_t *CModelInfo::GetVCollide( int modelIndex )
 	// Second model( index 1 ) is the world, then brushes/submodels, then players, etc.
 	// So, we must subtract 1 from the model index to map modelindex to CM_ index
 	// in cmodels, 0 is the world, then brushes, etc.
-	if ( modelIndex < MAX_MODELS )
+	if ( modelIndex < g_nMaxModels )
 	{
 		const model_t *pModel = GetModel( modelIndex );
 		if ( pModel )

@@ -409,10 +409,38 @@ void CGameServer::Clear( void )
 
 	m_TempEntities.Purge();
 
+	if ( model_precache )
+	{
+		delete[] model_precache;
+		model_precache = NULL;
+	}
+
+	if ( generic_precache )
+	{
+		delete[] generic_precache;
+		generic_precache = NULL;
+	}
+
+	if ( sound_precache )
+	{
+		delete[] sound_precache;
+		sound_precache = NULL;
+	}
+
+	if ( decal_precache )
+	{
+		delete[] decal_precache;
+		decal_precache = NULL;
+	}
+
 	CBaseServer::Clear();
 }
 
-
+// Limited between 4 and 15 bits. Why 15 bits? because going above it would require net compact changes like changing the INVALID_INDEX definition & change the SVC_CreateStringTable to network m_nMaxEntries as a unsigned int instead of a word, also why does it write m_nMaxEntries and not the entry bits?
+static ConVar sv_precache_modelbits( "sv_precache_modelbits", "12", 0, "number of bits to use for the modelprecache stringtable", true, 4, true, 15 );
+static ConVar sv_precache_generalbits( "sv_precache_generalbits", "9", 0, "number of bits to use for the generalprecache stringtable", true, 4, true, 15 );
+static ConVar sv_precache_soundbits( "sv_precache_soundbits", "14", 0, "number of bits to use for the soundprecache stringtable", true, 4, true, 15 );
+static ConVar sv_precache_decalbits( "sv_precache_decalbits", "9", 0, "number of bits to use for the decalprecache stringtable", true, 4, true, 15 );
 
 //-----------------------------------------------------------------------------
 // Purpose: Create any client/server string tables needed internally by the engine
@@ -420,6 +448,25 @@ void CGameServer::Clear( void )
 void CGameServer::CreateEngineStringTables( void )
 {
 	int i,j;
+
+	SV_SetupNetworkStringTableBits();
+
+	if ( model_precache )
+		delete[] model_precache;
+
+	if ( generic_precache )
+		delete[] generic_precache;
+
+	if ( decal_precache )
+		delete[] decal_precache;
+
+	if ( sound_precache )
+		delete[] sound_precache;
+
+	model_precache = new CPrecacheItem[ g_nMaxModels ];
+	generic_precache = new CPrecacheItem[ g_nMaxGenerics ];
+	decal_precache = new CPrecacheItem[ g_nMaxPrecacheDecals ];
+	sound_precache = new CPrecacheItem[ g_nMaxSounds ];
 
 	m_StringTables->SetTick( m_nTickCount ); // set first tick
 
@@ -451,28 +498,28 @@ void CGameServer::CreateEngineStringTables( void )
 
 	m_pModelPrecacheTable = m_StringTables->CreateStringTableEx( 
 		szModelPrecacheTablename, 
-		MAX_MODELS,
+		g_nMaxModels,
 		sizeof ( CPrecacheUserData ),
 		PRECACHE_USER_DATA_NUMBITS,
 		bUseFilenameTables );
 
 	m_pGenericPrecacheTable = m_StringTables->CreateStringTableEx(
 		szGenericPrecacheTablename,
-		MAX_GENERIC,
+		g_nMaxGenerics,
 		sizeof ( CPrecacheUserData ),
 		PRECACHE_USER_DATA_NUMBITS,
 		bUseFilenameTables );
 
 	m_pSoundPrecacheTable = m_StringTables->CreateStringTableEx(
 		szSoundPrecacheTablename,
-		MAX_SOUNDS,
+		g_nMaxSounds,
 		sizeof ( CPrecacheUserData ),
 		PRECACHE_USER_DATA_NUMBITS,
 		bUseFilenameTables );
 
 	m_pDecalPrecacheTable = m_StringTables->CreateStringTableEx(
 		szDecalPrecacheTablename,
-		MAX_BASE_DECALS,
+		g_nMaxGenerics,
 		sizeof ( CPrecacheUserData ),
 		PRECACHE_USER_DATA_NUMBITS,
 		bUseFilenameTables );

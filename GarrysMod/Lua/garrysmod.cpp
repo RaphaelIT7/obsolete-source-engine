@@ -15,7 +15,7 @@
 #include "GModMaterialProxyFactory.h"
 #include "CLuaClass.h"
 #include "sv_autorefresh.h"
-#include <qlimits.h>
+#include "stringtable_bits.h"
 #include <unordered_map>
 #ifdef CLIENT_DLL
 #include "networkstringtable_clientdll.h"
@@ -318,13 +318,13 @@ void PostFullUpdateCallback( INetworkStringTable* modelprecache )
 
 void CGarrysMod::OnClearModelPrecache( bf_read* pBF ) // Called before stringtable & modelindex updates are received
 {
-	int iEntires = pBF->GetNumBitsLeft() / MAX_MODEL_INDEX_BITS / 2;
+	int iEntires = pBF->GetNumBitsLeft() / g_nMaxModelIndexBits / 2;
 
 	INetworkStringTable* modelprecache = networkstringtable->FindTable( "modelprecache" );
 	for ( int i=0; i<iEntires; ++i )
 	{
-		int oldIndex = pBF->ReadUBitLong( MAX_MODEL_INDEX_BITS );
-		int newIndex = pBF->ReadUBitLong( MAX_MODEL_INDEX_BITS );
+		int oldIndex = pBF->ReadUBitLong( g_nMaxModelIndexBits );
+		int newIndex = pBF->ReadUBitLong( g_nMaxModelIndexBits );
 		pNewIndexes[ oldIndex ] = newIndex;
 		if ( oldIndex != newIndex )
 			DevMsg( 2, "[OnClearModelPrecache]: New Index: %i -> %i (%s)\n", oldIndex, newIndex, modelprecache->GetString( oldIndex ) );
@@ -414,14 +414,15 @@ void CGarrysMod::ClearModelPrecache()
 	//physics->DestroyAllCollisionSets(); // CollisionSets use the model index.... (Unsure if it's safe to just destroy all)
 
 	bf_write pBF;
-	char strData[ 1 << (MAX_MODEL_INDEX_BITS + 2) ]; // Should always be big enouth in the case that the stringtable is huge.
-	pBF.StartWriting( strData, sizeof( strData ) );
+	int size = 1 << (g_nMaxModelIndexBits + 2);
+	char* strData = new char[ size ]; // Should always be big enouth in the case that the stringtable is huge.
+	pBF.StartWriting( strData, size );
 	pBF.WriteUBitLong( 1, 4 ); // Write GMOD Net message type or so... idk
 
 	for ( const auto&[oldIndex, newIndex] : pNewIndexes )
 	{
-		pBF.WriteUBitLong( oldIndex, MAX_MODEL_INDEX_BITS );
-		pBF.WriteUBitLong( newIndex, MAX_MODEL_INDEX_BITS );
+		pBF.WriteUBitLong( oldIndex, g_nMaxModelIndexBits );
+		pBF.WriteUBitLong( newIndex, g_nMaxModelIndexBits );
 	}
 
 	CRecipientFilter filter;

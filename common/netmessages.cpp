@@ -14,6 +14,7 @@
 #include "../engine/dt.h"
 #include "tier0/vprof.h"
 #include "convar.h"
+#include "stringtable_bits.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -815,7 +816,7 @@ bool SVC_BSPDecal::WriteToBuffer( bf_write &buffer )
 {
 	buffer.WriteUBitLong( GetType(), NETMSG_TYPE_BITS );
 	buffer.WriteBitVec3Coord( m_Pos );
-	buffer.WriteUBitLong( m_nDecalTextureIndex, MAX_DECAL_INDEX_BITS );
+	buffer.WriteUBitLong( m_nDecalTextureIndex, g_nMaxDecalIndexBits );
 
 	if ( m_nEntityIndex != 0)
 	{
@@ -837,7 +838,7 @@ bool SVC_BSPDecal::ReadFromBuffer( bf_read &buffer )
 	VPROF( "SVC_BSPDecal::ReadFromBuffer" );
 
 	buffer.ReadBitVec3Coord( m_Pos );
-	m_nDecalTextureIndex = buffer.ReadUBitLong( MAX_DECAL_INDEX_BITS );
+	m_nDecalTextureIndex = buffer.ReadUBitLong( g_nMaxDecalIndexBits );
 
 	if ( buffer.ReadOneBit() != 0 )
 	{
@@ -1382,7 +1383,7 @@ bool SVC_Prefetch::WriteToBuffer( bf_write &buffer )
 
 	// Don't write type until we have more thanone
 	// buffer.WriteUBitLong( m_fType, 1 );
-	buffer.WriteUBitLong( m_nSoundIndex, MAX_SOUND_INDEX_BITS );
+	buffer.WriteUBitLong( m_nSoundIndex, g_nMaxSoundIndexBits );
 	return !buffer.IsOverflowed();
 }
 
@@ -1393,7 +1394,7 @@ bool SVC_Prefetch::ReadFromBuffer( bf_read &buffer )
 	m_fType = SOUND; // buffer.ReadUBitLong( 1 );
 	if( m_pMessageHandler->GetDemoProtocolVersion() > 22 )
 	{
-		m_nSoundIndex = buffer.ReadUBitLong( MAX_SOUND_INDEX_BITS );
+		m_nSoundIndex = buffer.ReadUBitLong( g_nMaxSoundIndexBits );
 	}
 	else
 	{
