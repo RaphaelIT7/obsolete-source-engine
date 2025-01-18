@@ -217,4 +217,9 @@ $Project "replay"
 		$ImpLib	"$LIBCOMMON/curl"	  [$OSXALL]
 	}
 	
+	$Folder	"Common"
+	{
+		$File	"$SRCDIR\common\stringtable_bits.h"
+		$File	"$SRCDIR\common\stringtable_bits.cpp"
+	}
 }

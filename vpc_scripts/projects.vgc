@@ -733,15 +733,15 @@ $Project "raytrace"
 	"raytrace\raytrace.vpc" [$WINDOWS||$POSIX]
 }
 
-$Project "replay"
-{
-	"replay\replay.vpc" [$WINDOWS||$POSIX]
-}
+//$Project "replay"
+//{
+//	"replay\replay.vpc" [$WINDOWS||$POSIX]
+//}
 
-$Project "replay_common"
-{
-	"replay\common\replay_common.vpc" [$WINDOWS||$POSIX]
-}
+//$Project "replay_common"
+//{
+//	"replay\common\replay_common.vpc" [$WINDOWS||$POSIX]
+//}
 
 $Project "res2c"
 {
