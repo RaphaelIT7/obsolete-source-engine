@@ -6,4 +6,5 @@
 .slnitems
 LICENSE
 README.md
+SECURITY.md
 CMakeLists.txt
