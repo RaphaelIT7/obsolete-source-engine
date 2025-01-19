@@ -121,10 +121,8 @@ protected:
 	int						m_nEntryBits;
 	int						m_nTickCount;
 	int						m_nLastChangedTick;
-	// Renetworks the entire stringtable so try to minimize full updates.
-	// ToDo: Add functionality to remove single strings from the stringtable and improve the networking.
-	// NOTE: Gmod itself has already some logic that works for renetworking the stringtable when strings are deleted, so this isn't really needed,
-	//		 but the callback would still be required, maybe add a callback that is called after a stringtable was updated just like where the m_fullupdateFunc is called.
+	// Renetworks the entire stringtable in cases where most likely the entire content changed, quite expensive.
+	// ToDo: Add functionality to remove single strings from the stringtable.
 	int						m_nLastFullChangedTick;
 
 	bool					m_bChangeHistoryEnabled : 1;

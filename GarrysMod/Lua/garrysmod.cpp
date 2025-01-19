@@ -357,7 +357,7 @@ void CGarrysMod::ClearModelPrecache()
 	engine->PrecacheModel( "" ); // Engine...
 	engine->PrecacheModel( strWorldModel.c_str() ); // Precache world since CWorld::Precache doesn't do this :<
 
-	for ( int i=1; i<iWorldBushCount; ++i ) // NOTE: My engine version also precaches world bushes, but I don't think gmod does this, so this could probably be removed?
+	for ( int i=1; i<iWorldBushCount; ++i )
 	{
 		char localmodel[5]; // inline model names "*1", "*2" etc
 		Q_snprintf( localmodel, sizeof( localmodel ), "*%i", i );
