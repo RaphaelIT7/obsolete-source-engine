@@ -21,7 +21,7 @@
 // Flow control bytes per second limits
 #define MAX_RATE		(1024*1024)				
 #define MIN_RATE		1000
-#define DEFAULT_RATE	800000
+#define DEFAULT_RATE	80000
 
 #define SIGNON_TIME_OUT				300.0f  // signon disconnect timeout
 
@@ -52,9 +52,9 @@
 // NETWORKING INFO
 
 // This is the packet payload without any header bytes (which are attached for actual sending)
-#define	NET_MAX_PAYLOAD				2880000	// largest message we can send in bytes
+#define	NET_MAX_PAYLOAD				288000	// largest message we can send in bytes
 #define	NET_MAX_PAYLOAD_V23			96000	// largest message we can send in bytes
-#define NET_MAX_PAYLOAD_BITS_V23	24		// 2^NET_MAX_PAYLOAD_BITS > NET_MAX_PAYLOAD
+#define NET_MAX_PAYLOAD_BITS_V23	17		// 2^NET_MAX_PAYLOAD_BITS > NET_MAX_PAYLOAD
 // This is just the client_t->netchan.datagram buffer size (shouldn't ever need to be huge)
 #define NET_MAX_DATAGRAM_PAYLOAD	4000	// = maximum unreliable payload size
 

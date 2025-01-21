@@ -425,8 +425,8 @@ void CHLTVClient::SendSnapshot( CClientFrame * pFrame )
 {
 	VPROF_BUDGET( "CHLTVClient::SendSnapshot", "HLTV" );
 
-	ALIGN4 byte		*buf = new byte[NET_MAX_PAYLOAD] ALIGN4_POST;
-	bf_write	msg( "CHLTVClient::SendSnapshot", buf, NET_MAX_PAYLOAD );
+	ALIGN4 byte		buf[NET_MAX_PAYLOAD] ALIGN4_POST;
+	bf_write	msg( "CHLTVClient::SendSnapshot", buf, sizeof(buf) );
 
 	// if we send a full snapshot (no delta-compression) before, wait until client
 	// received and acknowledge that update. don't spam client with full updates
@@ -435,7 +435,6 @@ void CHLTVClient::SendSnapshot( CClientFrame * pFrame )
 	{
 		// never send the same snapshot twice
 		m_NetChannel->Transmit();	
-		delete[] buf;
 		return;
 	}
 
@@ -444,7 +443,6 @@ void CHLTVClient::SendSnapshot( CClientFrame * pFrame )
 		// just continue transmitting reliable data
 		Assert( !m_bFakePlayer );	// Should never happen
 		m_NetChannel->Transmit();	
-		delete[] buf;
 		return;
 	}
 
@@ -492,7 +490,6 @@ void CHLTVClient::SendSnapshot( CClientFrame * pFrame )
 		{
 			// if this is a reliable snapshot, drop the client
 			Disconnect( "ERROR! Reliable snapshot overflow." );
-			delete[] buf;
 			return;
 		}
 		else
@@ -511,7 +508,6 @@ void CHLTVClient::SendSnapshot( CClientFrame * pFrame )
 	if ( m_bFakePlayer )
 	{
 		m_nDeltaTick = pFrame->tick_count;
-		delete[] buf;
 		return;
 	}
 
@@ -538,6 +534,4 @@ void CHLTVClient::SendSnapshot( CClientFrame * pFrame )
 	{
 		Disconnect( "ERROR! Couldn't send snapshot." );
 	}
-
-	delete[] buf;
 }

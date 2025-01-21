@@ -1879,7 +1879,7 @@ void CHLTVServer::ReadCompleteDemoFile()
 {
 	int			tick = 0;
 	byte		cmd = dem_signon;
-	char		*buffer = new char[NET_MAX_PAYLOAD];
+	char		buffer[NET_MAX_PAYLOAD];
 	netpacket_t	demoPacket;
 
 	// setup demo packet data buffer
@@ -1898,7 +1898,6 @@ void CHLTVServer::ReadCompleteDemoFile()
 			break;
 		case dem_stop:
 			// MOTODO we finished reading the file
-			delete[] buffer;
 			return ;
 		case dem_consolecmd:
 			{
@@ -1968,7 +1967,7 @@ void CHLTVServer::ReadCompleteDemoFile()
 				m_DemoFile.ReadCmdInfo( m_LastCmdInfo );	// MOTODO must be stored somewhere
 				m_DemoFile.ReadSequenceInfo( inseq, outseqack );
 
-				int length = m_DemoFile.ReadRawData( buffer, NET_MAX_PAYLOAD );
+				int length = m_DemoFile.ReadRawData( buffer, sizeof(buffer) );
 
 				if ( length > 0 )
 				{
@@ -1984,8 +1983,6 @@ void CHLTVServer::ReadCompleteDemoFile()
 			break;
 		}
 	}
-
-	delete[] buffer;
 }
 
 int	CHLTVServer::GetChallengeType ( netadr_t &adr )

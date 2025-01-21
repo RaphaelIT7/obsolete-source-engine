@@ -1576,7 +1576,7 @@ A 0 length will still generate a packet and deal with the reliable messages.
 */
 int CNetChan::SendDatagram(bf_write *datagram)
 {
-	ALIGN4 byte		*send_buf = new byte[ NET_MAX_MESSAGE ] ALIGN4_POST;
+	ALIGN4 byte		send_buf[ NET_MAX_MESSAGE ] ALIGN4_POST;
 
 #ifndef NO_VCR
 	if ( vcr_verbose.GetInt() && datagram && datagram->GetNumBytesWritten() > 0 )
@@ -1597,7 +1597,6 @@ int CNetChan::SendDatagram(bf_write *datagram)
 	// check, if fake client, then fake send also
 	if ( remote_address.GetType() == NA_NULL )	
 	{
-		delete[] send_buf;
 		// this is a demo channel, fake sending all data
 		m_fClearTime = 0.0;		// no bandwidth delay
 		m_nChokedPackets = 0;	// Reset choke state
@@ -1612,7 +1611,6 @@ int CNetChan::SendDatagram(bf_write *datagram)
 
 	if ( m_StreamReliable.IsOverflowed() )
 	{
-		delete[] send_buf;
 		ConMsg ("%s:send reliable stream overflow\n" ,remote_address.ToString());
 		return 0;
 	}
@@ -1622,7 +1620,7 @@ int CNetChan::SendDatagram(bf_write *datagram)
 		m_StreamReliable.Reset();
 	}
 
-	bf_write send( "CNetChan_TransmitBits->send", send_buf, NET_MAX_MESSAGE );
+	bf_write send( "CNetChan_TransmitBits->send", send_buf, sizeof(send_buf) );
 
 	// Prepare the packet header
 	// build packet flags
@@ -1829,7 +1827,6 @@ int CNetChan::SendDatagram(bf_write *datagram)
 	
 	m_nChokedPackets = 0;
 	m_nOutSequenceNr++;
-	delete[] send_buf;
 
 	return m_nOutSequenceNr-1; // return send seq nr
 }

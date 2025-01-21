@@ -174,7 +174,7 @@ public:
 	int Insert( const char *pString )
 	{
 		return m_Lookup.Insert( pString );
- 	}
+	}
 
 	int Find( const char *pString )
 	{
@@ -1328,7 +1328,7 @@ void CNetworkStringTableContainer::AllowCreation( bool state )
 bool  CNetworkStringTableContainer::Lock( bool bLock )
 {
 	bool oldLock = m_bLocked;
-	bLock = false;
+
 	m_bLocked = bLock;
 
 	// Determine if an update is needed
@@ -1562,7 +1562,7 @@ void CNetworkStringTableContainer::WriteUpdateMessage( CBaseClient *client, int 
 {
 	VPROF_BUDGET( "CNetworkStringTableContainer::WriteUpdateMessage", VPROF_BUDGETGROUP_OTHER_NETWORKING );
 
-	char* buffer = new char[NET_MAX_PAYLOAD];
+	char buffer[NET_MAX_PAYLOAD];
 
 	// Determine if an update is needed
 	for ( int i = 0; i < m_Tables.Count(); i++ )
@@ -1591,7 +1591,6 @@ void CNetworkStringTableContainer::WriteUpdateMessage( CBaseClient *client, int 
 			client->TraceNetworkData( buf, "StringTable %s", table->GetTableName() );
 		}
 	}
-	delete[] buffer;
 }
 
 //-----------------------------------------------------------------------------

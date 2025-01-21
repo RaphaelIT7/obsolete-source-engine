@@ -812,13 +812,12 @@ void CGameClient::WriteGameSounds( bf_write &buf )
 	if ( m_Sounds.Count() <= 0 )
 		return;
 
-	char* data = new char[NET_MAX_PAYLOAD];
+	char data[NET_MAX_PAYLOAD];
 	SVC_Sounds msg;
-	msg.m_DataOut.StartWriting( data, NET_MAX_PAYLOAD );
+	msg.m_DataOut.StartWriting( data, sizeof(data) );
 	
 	int nSoundCount = FillSoundsMessage( msg );
 	msg.WriteToBuffer( buf );
-	delete[] data;
 
 	if ( IsTracing() )
 	{

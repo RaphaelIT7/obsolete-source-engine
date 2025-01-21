@@ -14,7 +14,7 @@
 typedef int TABLEID;
 
 #define INVALID_STRING_TABLE -1
-const unsigned int INVALID_STRING_INDEX = (unsigned int)-1;
+const unsigned short INVALID_STRING_INDEX = (unsigned short )-1;
 
 // table index is sent in log2(MAX_TABLES) bits
 #define MAX_TABLES	32  // Table id is 4 bits
