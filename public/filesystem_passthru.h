@@ -46,10 +46,10 @@ public:
 	int				Write( void const* pInput, int size, FileHandle_t file ) override							{ return m_pBaseFileSystemPassThru->Write( pInput, size, file ); }
 	FileHandle_t	Open( const char *pFileName, const char *pOptions, const char *pathID ) override			{ return m_pBaseFileSystemPassThru->Open( pFileName, pOptions, pathID ); }
 	void			Close( FileHandle_t file ) override															{ m_pBaseFileSystemPassThru->Close( file ); }
-	void			Seek( FileHandle_t file, int pos, FileSystemSeek_t seekType ) override						{ m_pBaseFileSystemPassThru->Seek( file, pos, seekType ); }
-	unsigned int	Tell( FileHandle_t file ) override															{ return m_pBaseFileSystemPassThru->Tell( file ); }
-	unsigned int	Size( FileHandle_t file ) override															{ return m_pBaseFileSystemPassThru->Size( file ); }
-	unsigned int	Size( const char *pFileName, const char *pPathID ) override									{ return m_pBaseFileSystemPassThru->Size( pFileName, pPathID ); }
+	void			Seek( FileHandle_t file, long long pos, FileSystemSeek_t seekType ) override				{ m_pBaseFileSystemPassThru->Seek( file, pos, seekType ); }
+	unsigned long long	Tell( FileHandle_t file ) override															{ return m_pBaseFileSystemPassThru->Tell( file ); }
+	unsigned long long	Size( FileHandle_t file ) override															{ return m_pBaseFileSystemPassThru->Size( file ); }
+	unsigned long long	Size( const char *pFileName, const char *pPathID ) override									{ return m_pBaseFileSystemPassThru->Size( pFileName, pPathID ); }
 	void			Flush( FileHandle_t file ) override															{ m_pBaseFileSystemPassThru->Flush( file ); }
 	bool			Precache( const char *pFileName, const char *pPathID ) override								{ return m_pBaseFileSystemPassThru->Precache( pFileName, pPathID ); }
 	bool			FileExists( const char *pFileName, const char *pPathID ) override							{ return m_pBaseFileSystemPassThru->FileExists( pFileName, pPathID ); }

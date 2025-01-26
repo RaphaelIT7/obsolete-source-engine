@@ -692,10 +692,12 @@ void CShaderDeviceMgrBase::LoadConfig( KeyValues *pKeyValues, KeyValues *pConfig
 static unsigned long GetRam()
 {
 	MemoryInformation info;
+#ifndef BUILD_GMOD
 	if ( GetMemoryInformation( &info ) )
 	{
 		return info.m_nPhysicalRamMbTotal;
 	}
+#endif
 
 	Plat_DebugString( "GetRam failed" );
 	return 0;

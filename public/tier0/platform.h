@@ -1012,8 +1012,10 @@ struct MemoryInformation
 	}
 };
 
+#ifndef BUILD_GMOD
 // Returns true if the passed in MemoryInformation structure was filled out, otherwise false.
 PLATFORM_INTERFACE bool GetMemoryInformation( MemoryInformation *pOutMemoryInfo );
+#endif
 
 PLATFORM_INTERFACE float GetCPUUsage();
 
