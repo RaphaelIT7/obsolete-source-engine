@@ -21,6 +21,12 @@ LUA_FUNCTION_STATIC( global_FrameTime )
 	return 1;
 }
 
+LUA_FUNCTION_STATIC( global_SysTime )
+{
+	LUA->PushNumber(Plat_FloatTime());
+	return 1;
+}
+
 void Global_Library()
 {
 	g_Lua->PushSpecial( SPECIAL_GLOB );

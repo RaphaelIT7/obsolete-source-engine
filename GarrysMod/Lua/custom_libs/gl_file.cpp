@@ -45,6 +45,14 @@ namespace Lua
 		return 1;
 	}
 
+	LUA_FUNCTION_STATIC( File__index )
+	{
+		if (!LUA->FindOnObjectsMetaTable(1, 2))
+			LUA->PushNil();
+
+		return 1;
+	}
+
 	LUA_FUNCTION_STATIC( File_Close )
 	{
 		Lua_File* file = ( Lua_File* )LC_File.Get( 1 );
@@ -351,6 +359,9 @@ namespace Lua
 
 			g_Lua->PushCFunction( File__tostring );
 			g_Lua->SetField( -2, "__tostring" );
+
+			g_Lua->PushCFunction( File__index );
+			g_Lua->SetField( -2, "__index" );
 
 			g_Lua->PushCFunction( File_Close );
 			g_Lua->SetField( -2, "Close" );
