@@ -2941,6 +2941,7 @@ void CL_InstallAndInvokeClientStringTableCallbacks()
 	// install hooks
 	int numTables = cl.m_StringTableContainer->GetNumTables();
 
+	double lastRender = Plat_FloatTime();
 	for ( int i =0; i<numTables; i++)
 	{
 		// iterate through server tables
@@ -2967,6 +2968,13 @@ void CL_InstallAndInvokeClientStringTableCallbacks()
 			int userDataSize;
 			const void *pUserData = pTable->GetStringUserData( j, &userDataSize );
 			(*pNewFunction)( NULL, pTable, j, pTable->GetString( j ), pUserData );
+
+			if (Plat_FloatTime() > (lastRender + 0.05)) // Limits rendering or else we would spent too much time rendering if there are like 10k entires.
+			{
+				extern void V_RenderVGuiOnly();
+				V_RenderVGuiOnly();
+				lastRender = Plat_FloatTime();
+			}
 		}
 	}
 }
