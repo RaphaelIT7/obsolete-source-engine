@@ -999,6 +999,7 @@ private:
 
 	// Model instance data
 	CUtlLinkedList< ModelInstance_t, ModelInstanceHandle_t > m_ModelInstances; 
+	CThreadFastMutex m_ModelInstancesMutex;
 
 	// current active model
 	studiohdr_t *m_pStudioHdr;
@@ -4327,6 +4328,8 @@ void RestoreAllStaticPropColorData( void )
 ModelInstanceHandle_t CModelRender::CreateInstance( IClientRenderable *pRenderable, LightCacheHandle_t *pCache )
 {
 	Assert( pRenderable );
+
+	AUTO_LOCK( m_ModelInstancesMutex );
 
 	// ensure all components are available
 	model_t *pModel = (model_t*)pRenderable->GetModel();

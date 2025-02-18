@@ -46,6 +46,7 @@
 #include "generichash.h"
 #include "tier2/renderutils.h"
 #include "ipooledvballocator.h"
+#include "vstdlib/jobthread.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -1809,6 +1810,11 @@ bool CStaticPropMgr::PropHasBakedLightingDisabled( IHandleEntity *pHandleEntity 
 	return ( (prop.Flags() & STATIC_PROP_NO_PER_VERTEX_LIGHTING ) != 0 );
 }
 
+static void Threaded_CStaticProp_PrecacheLighting(CStaticProp*& prop)
+{
+	prop->PrecacheLighting();
+}
+
 //-----------------------------------------------------------------------------
 // Compute static lighting
 //-----------------------------------------------------------------------------
@@ -1848,14 +1854,18 @@ void CStaticPropMgr::PrecacheLighting()
 		modelrender->SetupColorMeshes( numVerts );
 	}
 
+	CUtlVector<CStaticProp*> props;
 	int i = m_StaticProps.Count();
 	while ( --i >= 0 )
 	{
 		MDLCACHE_CRITICAL_SECTION_( g_pMDLCache );
 		if ( !m_StaticProps[i].ShouldDraw() )
 			continue;
-		m_StaticProps[i].PrecacheLighting();
+
+		props.AddToTail(&m_StaticProps[i]);
 	}
+
+	ParallelProcess("CStaticProp::ThreadedPrecacheLighting", props.Base(), props.Count(), &Threaded_CStaticProp_PrecacheLighting);
 
 	COM_TimestampedLog( "CStaticPropMgr::PrecacheLighting - end");
 }
