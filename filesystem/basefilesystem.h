@@ -243,10 +243,10 @@ public:
 	FileHandle_t		Open( const char *pFileName, const char *pOptions, const char *pathID ) override;
 	FileHandle_t		OpenEx( const char *pFileName, const char *pOptions, unsigned flags = 0, const char *pathID = 0, char **ppszResolvedFilename = NULL ) override;
 	void				Close( FileHandle_t ) override;
-	void				Seek( FileHandle_t file, int pos, FileSystemSeek_t method ) override;
-	unsigned int		Tell( FileHandle_t file ) override;
-	unsigned int		Size( FileHandle_t file ) override;
-	unsigned int		Size( const char *pFileName, const char *pPathID ) override;
+	void					Seek( FileHandle_t file, long long pos, FileSystemSeek_t method ) override;
+	unsigned long long		Tell( FileHandle_t file ) override;
+	unsigned long long		Size( FileHandle_t file ) override;
+	unsigned long long		Size( const char *pFileName, const char *pPathID ) override;
 
 	void				SetBufferSize( FileHandle_t file, unsigned nBytes ) override;
 	bool				IsOk( FileHandle_t file ) override;

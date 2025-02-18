@@ -1829,7 +1829,7 @@ void NET_ProcessListen(int sock)
 	}
 }
 
-struct TSLIST_NODE_ALIGN NetScratchBuffer_t : CAlignedNewDelete<TSLIST_NODE_ALIGNMENT, TSLNodeBase_t>
+struct TSLIST_NODE_ALIGN NetScratchBuffer_t
 {
 	byte data[NET_MAX_MESSAGE];
 };

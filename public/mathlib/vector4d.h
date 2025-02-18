@@ -169,7 +169,7 @@ const inline Vector4D vec4_invalid( FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX );
 // SSE optimized routines
 //-----------------------------------------------------------------------------
 // dimhotepus: Fix aligned alloc.
-class alignas(16) Vector4DAligned : public CAlignedNewDelete<16, Vector4D>
+class alignas(16) Vector4DAligned : public Vector4D
 {
 public:
 	Vector4DAligned() = default;

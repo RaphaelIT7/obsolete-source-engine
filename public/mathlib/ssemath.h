@@ -51,7 +51,7 @@ using FLTX4 = const fltx4 &;
 // (for use when writing out fltx4's as SIGNED
 // ints).
 // dimhotepus: Fix aligned alloc.
-struct alignas(16) intx4 : public CAlignedNewDelete<16> 
+struct alignas(16) intx4
 {
 	int32 m_i32[4];
 
@@ -1705,7 +1705,7 @@ FORCEINLINE void XM_CALLCONV ConvertStoreAsIntsSIMD(intx4 * RESTRICT pDest, Dire
 /// class FourVectors stores 4 independent vectors for use in SIMD processing. These vectors are
 /// stored in the format x x x x y y y y z z z z so that they can be efficiently SIMD-accelerated.
 // dimhotepus: Fix aligned alloc.
-class alignas(16) FourVectors : public CAlignedNewDelete<16>
+class alignas(16) FourVectors
 {
 public:
 	fltx4 x, y, z;

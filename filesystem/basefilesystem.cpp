@@ -2636,7 +2636,7 @@ void CBaseFileSystem::Close( FileHandle_t file )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CBaseFileSystem::Seek( FileHandle_t file, int pos, FileSystemSeek_t whence )
+void CBaseFileSystem::Seek( FileHandle_t file, long long pos, FileSystemSeek_t whence )
 {
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s (pos=%d, whence=%d)", __FUNCTION__, pos, whence );
 
@@ -2656,7 +2656,7 @@ void CBaseFileSystem::Seek( FileHandle_t file, int pos, FileSystemSeek_t whence 
 // Input  : file - 
 // Output : unsigned int
 //-----------------------------------------------------------------------------
-unsigned int CBaseFileSystem::Tell( FileHandle_t file )
+unsigned long long CBaseFileSystem::Tell( FileHandle_t file )
 {
 	VPROF_BUDGET( "CBaseFileSystem::Tell", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 
@@ -2676,7 +2676,7 @@ unsigned int CBaseFileSystem::Tell( FileHandle_t file )
 // Input  : file - 
 // Output : unsigned int
 //-----------------------------------------------------------------------------
-unsigned int CBaseFileSystem::Size( FileHandle_t file )
+unsigned long long CBaseFileSystem::Size( FileHandle_t file )
 {
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s", __FUNCTION__ );
 
@@ -2697,7 +2697,7 @@ unsigned int CBaseFileSystem::Size( FileHandle_t file )
 // Input  : file - 
 // Output : unsigned int
 //-----------------------------------------------------------------------------
-unsigned int CBaseFileSystem::Size( const char* pFileName, const char *pPathID )
+unsigned long long CBaseFileSystem::Size( const char* pFileName, const char *pPathID )
 {
 	VPROF_BUDGET( "CBaseFileSystem::Size", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 	CHECK_DOUBLE_SLASHES( pFileName );

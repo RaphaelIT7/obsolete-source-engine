@@ -45,7 +45,7 @@ inline void ServiceJobAndRelease( CJob *pJob, intp iThread = -1 )
 
 //-----------------------------------------------------------------------------
 
-class alignas(16) CJobQueue final : CAlignedNewDelete<16>
+class alignas(16) CJobQueue final
 {
 public:
 	CJobQueue() :
@@ -181,7 +181,7 @@ private:
 //
 //-----------------------------------------------------------------------------
 // dimhotepus: Fix aligned alloc.
-class CThreadPool : public CAlignedNewDelete<16, CRefCounted1<IThreadPool, CRefCountServiceMT>>
+class CThreadPool : public CRefCounted1<IThreadPool, CRefCountServiceMT>
 {
 public:
 	CThreadPool();
@@ -327,7 +327,7 @@ public:
 
 //-----------------------------------------------------------------------------
 // dimhotepus: Fix aligned alloc.
-class CJobThread final : public CAlignedNewDelete<16, CWorkerThread>
+class CJobThread final : public CWorkerThread
 {
 public:
 	CJobThread( CThreadPool *pOwner, intp iThread ) : 

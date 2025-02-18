@@ -75,7 +75,7 @@ const int DECALCACHE_ENTRY_COUNT = 1024;
 const int INVALID_CACHE_ENTRY = 0xFFFF;
 
 // dimhotepus: Fix aligned alloc.
-class alignas(16) CDecalVertCache : public CAlignedNewDelete<16>
+class alignas(16) CDecalVertCache
 {
 	enum decalindex_ordinal
 	{

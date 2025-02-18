@@ -240,7 +240,7 @@ FORCEINLINE void XM_CALLCONV NetworkVarConstruct( Vector &v ) { v.Zero(); }
 //=========================================================
 // 4D Short Vector (aligned on 8-byte boundary)
 //=========================================================
-class ALIGN8 ShortVector : CAlignedNewDelete<8>
+class ALIGN8 ShortVector
 {
 public:
 	short x, y, z, w;
@@ -438,7 +438,7 @@ public:
 // Here's where we add all those lovely SSE optimized routines
 //-----------------------------------------------------------------------------
 // dimhotepus: Fix aligned alloc.
-class alignas(16) VectorAligned : public CAlignedNewDelete<16, Vector>
+class alignas(16) VectorAligned : public Vector
 {
 public:
 	inline VectorAligned() = default;
@@ -1879,7 +1879,7 @@ inline bool XM_CALLCONV QuaternionsAreEqual( const Quaternion& src1, const Quate
 // Here's where we add all those lovely SSE optimized routines
 //-----------------------------------------------------------------------------
 // dimhotepus: Fix aligned alloc.
-class alignas(16) QuaternionAligned : public CAlignedNewDelete<16, Quaternion>
+class alignas(16) QuaternionAligned : public Quaternion
 {
 public:
 	inline QuaternionAligned() = default;
