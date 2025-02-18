@@ -128,6 +128,7 @@ CActiveChannels g_ActiveChannels;
 static double g_LastSoundFrame = 0.0f;		// last full frame of sound
 static double g_LastMixTime = 0.0f;			// last time we did mixing
 static float g_EstFrameTime = 0.1f;			// estimated frame time running average
+static CThreadMutex g_pSoundPoolMutex;  // Mutex to resolve threading issues
 
 // x360 override to fade out game music when the user is playing music through the dashboard
 static float g_DashboardMusicMixValue = 1.0f;
@@ -372,6 +373,7 @@ void CSfxTable::OnNameChanged( const char *pName )
 //-----------------------------------------------------------------------------
 const char *CSfxTable::getname()
 {
+	AUTO_LOCK( g_pSoundPoolMutex );
 	if ( s_Sounds.InvalidIndex() != m_namePoolIndex )
 	{
 		char* pString = tmpstr512();
@@ -389,10 +391,12 @@ const char *CSfxTable::getname()
 
 FileNameHandle_t CSfxTable::GetFileNameHandle()
 {
+	AUTO_LOCK( g_pSoundPoolMutex );
 	if ( s_Sounds.InvalidIndex() != m_namePoolIndex )
 	{
 		return s_Sounds.Key( m_namePoolIndex );
 	}
+
 	return NULL;
 }
 
@@ -497,6 +501,7 @@ public:
 	{
 		bool bSpew = ( g_pQueuedLoader->GetSpewDetail() & LOADER_DETAIL_PURGES ) != 0;
 
+		AUTO_LOCK( g_pSoundPoolMutex );
 		for ( int i = s_Sounds.FirstInorder(); i != s_Sounds.InvalidIndex(); i = s_Sounds.NextInorder( i ) )
 		{
 			// the master sound table grows forever
@@ -538,6 +543,7 @@ public:
 	{
 		bool bSpew = ( g_pQueuedLoader->GetSpewDetail() & LOADER_DETAIL_PURGES ) != 0;
 
+		AUTO_LOCK( g_pSoundPoolMutex );
 		for ( int i = s_Sounds.FirstInorder(); i != s_Sounds.InvalidIndex(); i = s_Sounds.NextInorder( i ) )
 		{
 			// the master sound table grows forever
@@ -799,6 +805,8 @@ bool S_IsInitted()
 //-----------------------------------------------------------------------------
 CSfxTable *S_FindName( const char *szName, int *pfInCache )
 {
+	AUTO_LOCK( g_pSoundPoolMutex );
+
 	CSfxTable	*sfx = NULL;
 
 	if ( !szName )
@@ -1005,6 +1013,8 @@ void S_ReloadFilesInList( IFileList *pFilesToReload )
 	
 
 	CUtlVector< CSfxTable * > processed;
+
+	AUTO_LOCK( g_pSoundPoolMutex );
 
 	int iLast = s_Sounds.LastInorder();
 	for ( int i = s_Sounds.FirstInorder(); i != iLast; i = s_Sounds.NextInorder( i ) )
@@ -6644,6 +6654,8 @@ void S_SoundList()
 	CSfxTable		*sfx;
 	CAudioSource	*pSource;
 	int				size, total;
+
+	AUTO_LOCK( g_pSoundPoolMutex );
 
 	total = 0;
 	for ( auto i = s_Sounds.FirstInorder(); i != s_Sounds.InvalidIndex(); i = s_Sounds.NextInorder( i ) )

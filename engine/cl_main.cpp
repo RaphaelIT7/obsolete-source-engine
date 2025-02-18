@@ -75,6 +75,7 @@
 #endif
 
 #include "igame.h"
+#include <vstdlib/jobthread.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -2935,6 +2936,30 @@ void CL_HookClientStringTables()
 		cl.HookClientStringTable( pTable->GetTableName() );
 	}
 }
+
+struct StringTableCallback {
+	pfnStringChanged callbackFunc;
+	void *object;
+	INetworkStringTable *stringTable;
+	int stringNumber;
+	char const *newString;
+	void const *newData;
+	const char* tableName;
+};
+
+static void Threaded_StringTableCallback(StringTableCallback*& data)
+{
+	data->callbackFunc(data->object, data->stringTable, data->stringNumber, data->newString, data->newData);
+
+	if (ThreadInMainThread())
+	{
+		extern void V_RenderVGuiOnly();
+		V_RenderVGuiOnly();
+	}
+
+	delete data;
+}
+
 // Installs the all, and invokes cb for all existing items
 void CL_InstallAndInvokeClientStringTableCallbacks()
 {
@@ -2952,8 +2977,9 @@ void CL_InstallAndInvokeClientStringTableCallbacks()
 			continue;
 
 		pfnStringChanged pOldFunction = pTable->GetCallback();
+		const char* pTableName = pTable->GetTableName();
 
-		cl.InstallStringTableCallback( pTable->GetTableName() );
+		cl.InstallStringTableCallback( pTableName );
 
 		pfnStringChanged pNewFunction = pTable->GetCallback();
 		if ( !pNewFunction )
@@ -2963,11 +2989,21 @@ void CL_InstallAndInvokeClientStringTableCallbacks()
 		if ( pNewFunction == pOldFunction )
 			continue;
 
+		CUtlVector<StringTableCallback*> entries;
 		for ( int j = 0; j < pTable->GetNumStrings(); ++j )
 		{
 			int userDataSize;
 			const void *pUserData = pTable->GetStringUserData( j, &userDataSize );
-			(*pNewFunction)( NULL, pTable, j, pTable->GetString( j ), pUserData );
+			StringTableCallback* data = new StringTableCallback;
+			data->callbackFunc = pNewFunction;
+			data->object = NULL;
+			data->stringTable = pTable;
+			data->stringNumber = j;
+			data->newString = pTable->GetString( j );
+			data->newData = pUserData;
+			data->tableName = pTableName;
+
+			entries.AddToTail(data);
 
 			if (Plat_FloatTime() > (lastRender + 0.05)) // Limits rendering or else we would spent too much time rendering if there are like 10k entires.
 			{
@@ -2976,6 +3012,8 @@ void CL_InstallAndInvokeClientStringTableCallbacks()
 				lastRender = Plat_FloatTime();
 			}
 		}
+
+		ParallelProcess("Threaded_StringTableCallback", entries.Base(), entries.Count(), Threaded_StringTableCallback);
 	}
 }
 

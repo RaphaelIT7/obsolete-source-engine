@@ -57,6 +57,7 @@
 #include "ifilelist.h"
 #include "tier0/icommandline.h"
 #include "tier0/vprof.h"
+#include "unordered_map"
 
 // NOTE: This must be the last file included!!!
 #include "tier0/memdbgon.h"
@@ -173,7 +174,6 @@ enum InternalTextureFlags
 	TEXTUREFLAGSINTERNAL_TEMPRENDERTARGET	= 0x00000080, // 360: should only allocate texture bits upon first resolve, destroy at level end
 };
 
-static int  GetThreadId();
 static bool SLoadTextureBitsFromFile( IVTFTexture **ppOutVtfTexture, FileHandle_t hFile, unsigned int nFlags, TextureLODControlSettings_t* pInOutCachedFileLodSettings, int nDesiredDimensionLimit, unsigned short* pOutStreamedMips, const char* pName, const char* pCacheFileName, TexDimensions_t* pOptOutMappingDims = NULL, TexDimensions_t* pOptOutActualDims = NULL, TexDimensions_t* pOptOutAllocatedDims = NULL, unsigned int* pOptOutStripFlags = NULL );
 static int  ComputeActualMipCount( const TexDimensions_t& actualDims, unsigned int nFlags );
 static int  ComputeMipSkipCount( const char* pName, const TexDimensions_t& mappingDims, bool bIgnorePicmip, IVTFTexture *pOptVTFTexture, unsigned int nFlags, int nDesiredDimensionLimit, unsigned short* pOutStreamedMips, TextureLODControlSettings_t* pInOutCachedFileLodSettings, TexDimensions_t* pOptOutActualDims, TexDimensions_t* pOptOutAllocatedDims, unsigned int* pOptOutStripFlags  );
@@ -856,20 +856,15 @@ void CReferenceToHandleTexture::DeleteIfUnreferenced()
 //DEFINE_FIXEDSIZE_ALLOCATOR( CTexture, 1024, true );
 
 
-//-----------------------------------------------------------------------------
-// Static instance of VTF texture
-//-----------------------------------------------------------------------------
-#define MAX_RENDER_THREADS 4
-
 // For safety's sake, we allow any of the threads that intersect with rendering
 // to have their own state vars. In practice, we expect only the matqueue thread 
 // and the main thread to ever hit s_pVTFTexture. 
-static IVTFTexture *s_pVTFTexture[ MAX_RENDER_THREADS ] = { NULL };
+static std::unordered_map<ThreadId_t, IVTFTexture*> s_pVTFTexture;
 
 // We only expect that the main thread or the matqueue thread to actually touch 
 // these, but we still need a NULL and size of 0 for the other threads. 
-static void *s_pOptimalReadBuffer[ MAX_RENDER_THREADS ] = { NULL };
-static int s_nOptimalReadBufferSize[ MAX_RENDER_THREADS ] = { 0 };
+static std::unordered_map<ThreadId_t, void*> s_pOptimalReadBuffer;
+static std::unordered_map<ThreadId_t, int> s_nOptimalReadBufferSize;
 
 //-----------------------------------------------------------------------------
 // Class factory methods
@@ -1157,13 +1152,11 @@ void CTexture::ReleaseMemory()
 
 IVTFTexture *CTexture::GetScratchVTFTexture( )
 {
-	[[maybe_unused]] const bool cbThreadInMatQueue = ( MaterialSystem()->GetRenderThreadId() == ThreadGetCurrentId() );
-	Assert( cbThreadInMatQueue || ThreadInMainThread() );
+	ThreadId_t ti = GetCurrentThreadId();
 
-	const int ti = GetThreadId();
-
-	if ( !s_pVTFTexture[ ti ] )
+	if ( s_pVTFTexture.find(ti) == s_pVTFTexture.end() )
 		s_pVTFTexture[ ti ] = CreateVTFTexture();
+
 	return s_pVTFTexture[ ti ];
 }
 
@@ -1171,8 +1164,6 @@ void CTexture::ReleaseScratchVTFTexture( IVTFTexture* tex )
 {
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s", __FUNCTION__ );
 
-	[[maybe_unused]] const bool cbThreadInMatQueue = ( MaterialSystem()->GetRenderThreadId() == ThreadGetCurrentId() );
-	Assert( cbThreadInMatQueue || ThreadInMainThread() );
 	Assert( m_pStreamingVTF == NULL || ThreadInMainThread() );	// Can only manipulate m_pStreamingVTF to release safely in main thread.
 
 	if ( m_pStreamingVTF )
@@ -4161,33 +4152,6 @@ void CTextureStreamingJob::OnAsyncFindComplete( ITexture* pTex, void* pExtraArgs
 }
 
 // ------------------------------------------------------------------------------------------------
-int GetThreadId()
-{
-	TM_ZONE_DEFAULT( TELEMETRY_LEVEL0 );
-
-	// Turns the current thread into a 0-based index for use in accessing statics in this file.
-	int retVal = INT_MAX;
-	if ( ThreadInMainThread() )
-		retVal = 0;
-	else if ( MaterialSystem()->GetRenderThreadId() == ThreadGetCurrentId() )
-		retVal = 1;
-#ifndef BUILD_GMOD
-	else if ( TextureManager()->ThreadInAsyncLoadThread() )
-		retVal = 2;
-	else if ( TextureManager()->ThreadInAsyncReadThread() )
-		retVal = 3;
-#endif
-	else
-	{
-		STAGING_ONLY_EXEC( AssertAlways( !"Unexpected thread in GetThreadId, need to debug this--crash is next. Tell McJohn." ) );
-		DebuggerBreakIfDebugging_StagingOnly();
-	}
-	
-	Assert( retVal < MAX_RENDER_THREADS );
-	return retVal;
-}
-
-// ------------------------------------------------------------------------------------------------
 bool SLoadTextureBitsFromFile( IVTFTexture **ppOutVtfTexture, FileHandle_t hFile, unsigned int nFlags, 
 							   TextureLODControlSettings_t* pInOutCachedFileLodSettings, 
 							   int nDesiredDimensionLimit, unsigned short* pOutStreamedMips, 
@@ -4562,11 +4526,6 @@ int ComputeMipSkipCount( const char* pName, const TexDimensions_t& mappingDims, 
 //-----------------------------------------------------------------------------
 int GetOptimalReadBuffer( CUtlBuffer* pOutOptimalBuffer, FileHandle_t hFile, int nSize )
 {
-	// NOTE! NOTE! NOTE! If you are making changes to this function, be aware that it has threading
-	// NOTE! NOTE! NOTE! implications. It can be called synchronously by the Main thread, 
-	// NOTE! NOTE! NOTE! or by the streaming texture code!
-	Assert( GetThreadId() < MAX_RENDER_THREADS );
-
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s (%d bytes)", __FUNCTION__, nSize );
 	Assert( pOutOptimalBuffer != NULL );
 
@@ -4575,7 +4534,7 @@ int GetOptimalReadBuffer( CUtlBuffer* pOutOptimalBuffer, FileHandle_t hFile, int
 	nSize = max( nSize, minSize );
 	int nBytesOptimalRead = g_pFullFileSystem->GetOptimalReadSize( hFile, nSize );
 
-	const int ti = GetThreadId();
+	const int ti = GetCurrentThreadId();
 
 	if ( nBytesOptimalRead > s_nOptimalReadBufferSize[ ti ] )
 	{
@@ -4601,14 +4560,9 @@ int GetOptimalReadBuffer( CUtlBuffer* pOutOptimalBuffer, FileHandle_t hFile, int
 //-----------------------------------------------------------------------------
 void FreeOptimalReadBuffer( int nMaxSize )
 {
-	// NOTE! NOTE! NOTE! If you are making changes to this function, be aware that it has threading
-	// NOTE! NOTE! NOTE! implications. It can be called synchronously by the Main thread, 
-	// NOTE! NOTE! NOTE! or by the streaming texture code!
-	Assert( GetThreadId() < MAX_RENDER_THREADS );
-
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s", __FUNCTION__ );
 
-	const int ti = GetThreadId();
+	const int ti = GetCurrentThreadId();
 
 	if ( s_pOptimalReadBuffer[ ti ] && s_nOptimalReadBufferSize[ ti ] >= nMaxSize )
 	{

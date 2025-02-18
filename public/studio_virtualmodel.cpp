@@ -38,11 +38,13 @@ inline bool HasLookupTable()
 	return g_ModelLookupIndex >= 0 ? true : false;
 }
 
+static CThreadFastMutex g_pSeqTableLock;
 inline CUtlDict<short,short> *GetSeqTable()
 {
 	return &g_ModelLookup[g_ModelLookupIndex].seqTable;
 }
 
+static CThreadFastMutex g_pAnimTableLock;
 inline CUtlDict<short,short> *GetAnimTable()
 {
 	return &g_ModelLookup[g_ModelLookupIndex].animTable;
@@ -142,6 +144,7 @@ void virtualmodel_t::AppendModels( int group, const studiohdr_t *pStudioHdr )
 void virtualmodel_t::AppendSequences( int group, const studiohdr_t *pStudioHdr )
 {
 	AUTO_LOCK( m_Lock );
+	AUTO_LOCK( g_pSeqTableLock );
 	intp numCheck = m_seq.Count();
 
 	intp j, k;
@@ -232,6 +235,7 @@ void virtualmodel_t::UpdateAutoplaySequences( const studiohdr_t *pStudioHdr )
 void virtualmodel_t::AppendAnimations( int group, const studiohdr_t *pStudioHdr )
 {
 	AUTO_LOCK( m_Lock );
+	AUTO_LOCK( g_pAnimTableLock );
 	int numCheck = m_anim.Count();
 
 	CUtlVector< virtualgeneric_t > anim;
