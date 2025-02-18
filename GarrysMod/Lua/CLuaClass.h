@@ -228,6 +228,8 @@ extern Vector* Get_Vector(int index);
 // Pushes the given Vector and deletes it when it's unused!
 extern void Push_Vector(const Vector* vec);
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 extern ITexture* Get_Texture(int index);
 extern void Push_Texture(const ITexture *vec);
 
@@ -235,6 +237,21 @@ extern IMaterial *Get_Material(int index);
 extern void Push_Material(const IMaterial *vec);
 
 
+=======
+=======
+>>>>>>> Stashed changes
+class ITexture;
+extern ITexture* Get_Texture(int index);
+extern void Push_Texture(const ITexture *vec);
+
+class IMaterial;
+extern IMaterial *Get_Material(int index);
+extern void Push_Material(const IMaterial *vec);
+
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 #ifndef MENUSYSTEM
 extern CBaseEntity* Get_Entity(int index);
 extern void Push_Entity(CBaseEntity* ent);

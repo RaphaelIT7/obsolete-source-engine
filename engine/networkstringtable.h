@@ -16,6 +16,7 @@
 #include <utldict.h>
 #include <utlbuffer.h>
 #include "tier1/bitbuf.h"
+#include <unordered_set>
 
 class SVC_CreateStringTable;
 class CBaseClient;
@@ -33,6 +34,7 @@ public:
 	virtual int Find( const char *pString ) = 0;
 	virtual CNetworkStringTableItem	&Element( int index ) = 0;
 	virtual const CNetworkStringTableItem &Element( int index ) const = 0;
+	virtual void Remove( const char *pString ) = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -66,6 +68,18 @@ public:
 	int				FindStringIndex( char const *string );
 
 	void			SetStringChangedCallback( void *object, pfnStringChanged changeFunc );
+<<<<<<< Updated upstream
+=======
+	void			SetFullUpdateCallback( pfnFullUpdateCallback changeFunc );
+
+	// Destroy string table
+	void			DeleteAllStrings( bool bReNetwork = false );
+	// Deletes the given string. It creates a hole that is REQUIRED to be filled directly afterwards using AddString!
+	void			DeleteString( int stringNumber );
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
 	bool			HasFileNameStrings() const;
 	bool			IsUserDataFixedSize() const;
@@ -139,6 +153,11 @@ protected:
 
 	INetworkStringDict		*m_pItems;
 	INetworkStringDict		*m_pItemsClientSide;	 // For m_bAllowClientSideAddString, these items are non-networked and are referenced by a negative string index!!!
+	
+	// its a unordered_set to speed up lookup, as with a vector we would have to loop through it to verify that a index wasn't already deleted.
+	// NOTE: It stores all indexes that were deleted which get networked to the client for proper deletion.
+	std::unordered_set<int>	m_nItemDeletions;
+	std::unordered_set<int>	m_nItemReplacements; // Contains string that REQUIRE to be replaced because their NOT the last string/would create a hole.
 };
 
 //-----------------------------------------------------------------------------

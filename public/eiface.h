@@ -436,7 +436,15 @@ public:
 	virtual bool GMOD_ShouldUpdateVoiceMasks() = 0;
 	virtual bool NET_IsHostLocal( const char* unknwon ) = 0;
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 	virtual void *GetReplay() const = 0;
+=======
+=======
+>>>>>>> Stashed changes
+	virtual IServer* GetServer() const = 0;
+	virtual void ResetModelPrecache() = 0;
+>>>>>>> Stashed changes
 #else
 	// Get sv.GetTime()
 	virtual float GetServerTime() const = 0;

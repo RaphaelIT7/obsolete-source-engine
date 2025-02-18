@@ -1910,18 +1910,18 @@ void CGameServer::SendClientMessages ( bool bSendSnapshots )
 			// must be run on the main thread due to un-threadsafe global state access.
 			// It will replace anything that it does process with a NULL pointer.
 			ParallelProcess( "SV_ParallelSendSnapshot", pReceivingClients, receivingClientCount, &SV_ParallelSendSnapshot );
-		}
-		
-		for (int i = 0; i < receivingClientCount; ++i)
-		{
-			CGameClient *pClient = pReceivingClients[i];
-			if ( !pClient )
-				continue;
-			CClientFrame *pFrame = pClient->GetSendFrame();
-			if ( !pFrame )
-				continue;
-			pClient->SendSnapshot( pFrame );
-			pClient->UpdateSendState();
+		} else {
+			for (int i = 0; i < receivingClientCount; ++i)
+			{
+				CGameClient *pClient = pReceivingClients[i];
+				if ( !pClient )
+					continue;
+				CClientFrame *pFrame = pClient->GetSendFrame();
+				if ( !pFrame )
+					continue;
+				pClient->SendSnapshot( pFrame );
+				pClient->UpdateSendState();
+			}
 		}
 	
 		pSnapshot->ReleaseReference();

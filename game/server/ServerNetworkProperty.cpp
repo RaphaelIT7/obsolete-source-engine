@@ -81,7 +81,6 @@ void CServerNetworkProperty::AttachEdict( edict_t *pRequiredEdict )
 	{
 		pRequiredEdict = engine->CreateEdict();
 	}
-
 	m_pPev = pRequiredEdict;
 	m_pPev->SetEdict( GetBaseEntity(), true );
 }

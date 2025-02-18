@@ -1344,8 +1344,22 @@ bool CBaseClientState::ProcessCreateStringTable( SVC_CreateStringTable *msg )
 
 #ifndef SHARED_NET_STRING_TABLES
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 	CNetworkStringTable *table = (CNetworkStringTable*)
 		m_StringTableContainer->CreateStringTableEx( msg->m_szTableName, msg->m_nMaxEntries, msg->m_nUserDataSize, msg->m_nUserDataSizeBits, msg->m_bIsFilenames );
+=======
+=======
+>>>>>>> Stashed changes
+	CNetworkStringTable *table = (CNetworkStringTable*)m_StringTableContainer->FindTable( msg->m_szTableName );
+	if ( table )
+		table->DeleteAllStrings();
+	else
+		table = (CNetworkStringTable*)m_StringTableContainer->CreateStringTableEx( msg->m_szTableName, 1 << msg->m_nEntryBits, msg->m_nUserDataSize, msg->m_nUserDataSizeBits, msg->m_bIsFilenames );
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
 	Assert ( table );
 

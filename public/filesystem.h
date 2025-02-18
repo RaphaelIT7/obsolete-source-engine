@@ -513,7 +513,11 @@ public:
 	virtual void			Close( FileHandle_t file ) = 0;
 
 
+<<<<<<< Updated upstream
 	virtual void				Seek( FileHandle_t file, long long pos, FileSystemSeek_t seekType ) = 0;
+=======
+	virtual void			Seek( FileHandle_t file, long long pos, FileSystemSeek_t seekType ) = 0;
+>>>>>>> Stashed changes
 	virtual unsigned long long	Tell( FileHandle_t file ) = 0;
 	virtual unsigned long long	Size( FileHandle_t file ) = 0;
 	virtual unsigned long long	Size( const char *pFileName, const char *pPathID = nullptr ) = 0;

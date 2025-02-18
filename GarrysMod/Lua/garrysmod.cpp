@@ -21,6 +21,17 @@
 #else
 #include "networkstringtable_gamedll.h"
 #endif
+<<<<<<< Updated upstream
+=======
+#include "Externals.h"
+#include "iserver.h"
+#include <netmessages.h>
+#include "../../engine/net.h"
+#include "../../engine/common.h"
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
 ILuaShared* LuaShared()
 {
@@ -283,4 +294,102 @@ void dumpstringtables_newCmd( const CCommand &args )
 ConCommand dumpstringtables_new( "cl_dumpstringtables_new", dumpstringtables_newCmd, "", 0 );
 #else
 ConCommand dumpstringtables_new( "dumpstringtables_new", dumpstringtables_newCmd, "", 0 );
+
+void stringtable_test( const CCommand &args )
+{
+	if ( args.ArgC() > 0 )
+	{
+		INetworkStringTable* test = networkstringtable->FindTable("test");
+		if (!test)
+			test = networkstringtable->CreateStringTable("test", 1 << 32);
+
+		test->AddString(true, "Hello World");
+		test->AddString(true, "Hello World2");
+		test->AddString(true, "Hello World3");
+	}
+}
+
+ConCommand stringtable_cmd( "stringtable_test", stringtable_test, "", 0 );
+
+void stringtable2_test( const CCommand &args )
+{
+	if ( args.ArgC() > 0 )
+	{
+		INetworkStringTable* test = networkstringtable->FindTable("test");
+		if (!test)
+			test = networkstringtable->CreateStringTable("test", 1 << 32);
+
+		test->DeleteString(1);
+		if ( Q_stricmp(args.Arg( 1 ), "nuke") != 0 )
+			test->AddString(true, "Hello World but Changed");
+	}
+}
+
+ConCommand stringtable2_cmd( "stringtable2_test", stringtable2_test, "", 0 );
+
+SVC_CreateStringTable::SVC_CreateStringTable()
+{
+
+}
+
+bool SVC_CreateStringTable::WriteToBuffer( bf_write &buffer )
+{
+	buffer.WriteUBitLong( GetType(), NETMSG_TYPE_BITS );
+	m_nLength = 0;//m_DataOut.GetNumBitsWritten();
+
+	/*
+	JASON: this code is no longer needed; the ':' is prepended to the table name at table creation time.
+	if ( m_bIsFilenames )
+	{
+		// identifies a table that hosts filenames
+		buffer.WriteByte( ':' );
+	}
+	*/
+
+	buffer.WriteString( m_szTableName );
+	buffer.WriteUBitLong( m_nEntryBits, 5 ); // 5 bits because more than 30 bits already hit the integer limit.
+	buffer.WriteUBitLong( m_nNumEntries, m_nEntryBits+1 ); // +1 because m_nNumEntries might go over 1 << m_nEntryBits by 1 entry.
+	buffer.WriteVarInt32( m_nLength ); // length in bits
+
+	buffer.WriteOneBit( m_bUserDataFixedSize ? 1 : 0 );
+	if ( m_bUserDataFixedSize )
+	{
+		buffer.WriteUBitLong( m_nUserDataSize, 12 );
+		buffer.WriteUBitLong( m_nUserDataSizeBits, 4 );
+	}
+	
+	buffer.WriteOneBit( m_bDataCompressed ? 1 : 0 );
+	return buffer.WriteBits( m_DataOut.GetData(), m_nLength );
+}
+
+bool SVC_CreateStringTable::ReadFromBuffer( bf_read &buffer )
+{
+	return 1;
+}
+
+static char s_text[1024];
+const char *SVC_CreateStringTable::ToString(void) const
+{
+	Q_snprintf(s_text, sizeof(s_text), "%s: table %s, entries %i, bytes %i userdatasize %i userdatabits %i", 
+		GetName(), m_szTableName, m_nNumEntries, Bits2Bytes(m_nLength), m_nUserDataSize, m_nUserDataSizeBits );
+	return s_text;
+}
+
+void stringtable3_test( const CCommand &args )
+{
+	if ( args.ArgC() > 0 )
+	{
+		SVC_CreateStringTable test;
+		test.m_szTableName = "test";
+		test.m_nEntryBits = 1 << 15;
+		test.m_nNumEntries = 0;
+		test.m_bUserDataFixedSize = false;
+		test.m_nLength = 0;
+		test.m_bDataCompressed = false;
+
+		engine->GetServer()->BroadcastMessage(test);
+	}
+}
+
+ConCommand stringtable3_cmd( "stringtable3_test", stringtable3_test, "", 0 );
 #endif

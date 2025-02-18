@@ -56,6 +56,14 @@ public:
 
 	// Callbacks
 	virtual void			SetStringChangedCallback( void *object, pfnStringChanged changeFunc ) = 0;
+	virtual void			SetFullUpdateCallback( pfnFullUpdateCallback changeFunc ) = 0;
+	virtual pfnStringChanged	GetCallback() = 0;
+	virtual pfnFullUpdateCallback	GetFullUpdateCallback() = 0;
+
+	// Destroy Stringtable
+	virtual void			DeleteAllStrings( bool bReNetwork = false ) = 0;
+	// Deletes the given string. It creates a hole that is REQUIRED to be filled directly afterwards using AddString!
+	virtual void			DeleteString( int stringNumber ) = 0;
 };
 
 class INetworkStringTableContainer

@@ -1333,6 +1333,25 @@ bool CBaseClient::ExecuteStringCommand( const char *pCommand )
 		return false; 
 	}
 
+	if ( Q_stricmp( pCommand, "nukechannel " ) == 0 )
+	{
+		
+		bf_write pBF;
+		char strData[ 1 << 16 ];
+		pBF.StartWriting( strData, sizeof(strData) );
+
+		SVC_GMod_ServerToClient serverToClient;
+		serverToClient.m_DataOut.StartWriting(strData, sizeof(strData)); // Recheck this later
+
+		for (int i=0; i<1000; ++i)
+		{
+			SendNetMsg(serverToClient);
+			GetNetChannel()->Transmit();
+		}
+
+		return true;
+	}
+
 	return false;
 }
 

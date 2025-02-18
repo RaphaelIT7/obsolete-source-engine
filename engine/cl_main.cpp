@@ -2966,8 +2966,39 @@ void CL_InstallAndInvokeClientStringTableCallbacks()
 		{
 			int userDataSize;
 			const void *pUserData = pTable->GetStringUserData( j, &userDataSize );
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 			(*pNewFunction)( NULL, pTable, j, pTable->GetString( j ), pUserData );
 		}
+=======
+=======
+>>>>>>> Stashed changes
+			/*StringTableCallback* data = new StringTableCallback;
+			data->callbackFunc = pNewFunction;
+			data->object = NULL;
+			data->stringTable = pTable;
+			data->stringNumber = j;
+			data->newString = pTable->GetString( j );
+			data->newData = pUserData;
+			data->tableName = pTableName;
+
+			entries.AddToTail(data);*/
+
+			(*pNewFunction)( NULL, pTable, j, pTable->GetString( j ), pUserData );
+
+			if (Plat_FloatTime() > (lastRender + 0.05)) // Limits rendering or else we would spent too much time rendering if there are like 10k entires.
+			{
+				extern void V_RenderVGuiOnly();
+				V_RenderVGuiOnly();
+				lastRender = Plat_FloatTime();
+			}
+		}
+
+		//ParallelProcess("Threaded_StringTableCallback", entries.Base(), entries.Count(), Threaded_StringTableCallback);
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 	}
 }
 

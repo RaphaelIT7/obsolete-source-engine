@@ -134,6 +134,13 @@ public:
 		return m_Items.Element( index );
 	}
 
+	void Remove( const char *pString )
+	{
+		FileNameHandle_t fnHandle = g_pFileSystem->FindFileName( pString );
+		if ( fnHandle )
+			m_Items.Remove( fnHandle );
+	}
+
 private:
 	CUtlMap< FileNameHandle_t, CNetworkStringTableItem > m_Items;
 };
@@ -190,6 +197,11 @@ public:
 	const CNetworkStringTableItem &Element( int index ) const
 	{
 		return m_Lookup.Element( index );
+	}
+
+	void Remove( const char *pString )
+	{
+		m_Lookup.Remove( pString );
 	}
 
 private:
@@ -349,6 +361,60 @@ void CNetworkStringTable::DeleteAllStrings( void )
 	}
 }
 
+void CNetworkStringTable::DeleteString( int stringNumber )
+{
+	const char* pString = GetString( stringNumber );
+	if ( !pString )
+		return;
+
+	m_pItems->Remove( pString );
+
+	if ( m_pItemsClientSide )
+		m_pItemsClientSide->Remove( pString );
+
+	if ( (stringNumber-1) == GetNumStrings() )
+	{
+		// Marked for deletion, sent in next update.
+		auto it = m_nItemDeletions.find( stringNumber );
+		if ( it == m_nItemDeletions.end() )
+			m_nItemDeletions.insert( stringNumber );
+	} else {
+		// Marked for replacement, sent in next update.
+		auto it = m_nItemReplacements.find( stringNumber );
+		if ( it == m_nItemReplacements.end() )
+			m_nItemReplacements.insert( stringNumber );
+	}
+
+	m_nLastChangedTick = m_nTickCount; // Mark as changed
+}
+
+void CNetworkStringTable::DeleteString( int stringNumber )
+{
+	const char* pString = GetString( stringNumber );
+	if ( !pString )
+		return;
+
+	m_pItems->Remove( pString );
+
+	if ( m_pItemsClientSide )
+		m_pItemsClientSide->Remove( pString );
+
+	if ( (stringNumber-1) == GetNumStrings() )
+	{
+		// Marked for deletion, sent in next update.
+		auto it = m_nItemDeletions.find( stringNumber );
+		if ( it == m_nItemDeletions.end() )
+			m_nItemDeletions.insert( stringNumber );
+	} else {
+		// Marked for replacement, sent in next update.
+		auto it = m_nItemReplacements.find( stringNumber );
+		if ( it == m_nItemReplacements.end() )
+			m_nItemReplacements.insert( stringNumber );
+	}
+
+	m_nLastChangedTick = m_nTickCount; // Mark as changed
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : i - 
@@ -484,18 +550,46 @@ void CNetworkStringTable::UpdateMirrorTable( int tick_ack  )
 			pUserData = NULL;
 		}
 
+		auto pIterator = m_nItemDeletions.find( i );
+		bool bDeleted = pIterator != m_nItemDeletions.end();
+
 		// Check if we are updating an old entry or adding a new one
-		if ( i < m_pMirrorTable->GetNumStrings() )
+		if ( !bDeleted && i < m_pMirrorTable->GetNumStrings() )
 		{
 			m_pMirrorTable->SetStringUserData( i, nBytes, pUserData );
 		}
 		else
 		{
+			if ( bDeleted )
+				m_pMirrorTable->DeleteString( *pIterator ); // *pIterator = stored entryIndex
+
 			// Grow the table (entryindex must be the next empty slot)
 			Assert( i == m_pMirrorTable->GetNumStrings() );
 			char const *pName = m_pItems->String( i );
 			m_pMirrorTable->AddString( true, pName, nBytes, pUserData );
 		}
+
+		if ( bDeleted )
+			m_nItemDeletions.erase( pIterator );
+<<<<<<< Updated upstream
+=======
+	}
+
+	if ( m_nItemDeletions.size() != 0 ) // Everything should have been erased. if not, someone didn't fill the index!
+	{
+		for ( int entryIndex : m_nItemDeletions )
+			Warning( "empty stringtable index %i!\n", entryIndex ); // Allows for easier debugging
+
+		Host_Error( "Stringtable \"%s\" contains one or multiple empty indexes! (%i)\n", m_pszTableName, m_nItemDeletions.size() );
+>>>>>>> Stashed changes
+	}
+
+	if ( m_nItemDeletions.size() != 0 ) // Everything should have been erased. if not, someone didn't fill the index!
+	{
+		for ( int entryIndex : m_nItemDeletions )
+			Warning( "empty stringtable index %i!\n", entryIndex ); // Allows for easier debugging
+
+		Host_Error( "Stringtable \"%s\" contains one or multiple empty indexes! (%i)\n", m_pszTableName, m_nItemDeletions.size() );
 	}
 }
 
@@ -581,6 +675,17 @@ int CNetworkStringTable::WriteUpdate( CBaseClient *client, bf_write &buf, int ti
 			buf.WriteOneBit( 0 );
 		}
 
+		auto pIterator = m_nItemDeletions.find( i );
+		bool bDeleted = pIterator != m_nItemDeletions.end();
+		if ( bDeleted )
+		{
+			buf.WriteOneBit( 1 );
+			m_nItemDeletions.erase( pIterator );
+		} else {
+			buf.WriteOneBit( 0 );
+		}
+
+
 		// limit string history to 32 entries
 		if ( history.Count() > 31 )
 		{
@@ -600,6 +705,22 @@ int CNetworkStringTable::WriteUpdate( CBaseClient *client, bf_write &buf, int ti
 			int nBits = buf.GetNumBitsWritten() - nStartBit;
 			client->TraceNetworkMsg( nBits, " [%s] %d:%s ", GetTableName(), i, GetString( i ) );
 		}
+	}
+
+	if ( m_nItemDeletions.size() != 0 ) // Everything should have been erased. if not, someone didn't fill the index!
+	{
+		for ( int entryIndex : m_nItemDeletions )
+			Warning( "empty stringtable index %i!\n", entryIndex ); // Allows for easier debugging
+<<<<<<< Updated upstream
+=======
+
+		Host_Error( "Stringtable \"%s\" contains one or multiple empty indexes! (%i)\n", m_pszTableName, m_nItemDeletions.size() );
+	}
+
+	ETWMark2I( GetTableName(), entriesUpdated, buf.GetNumBitsWritten() - nTableStartBit );
+>>>>>>> Stashed changes
+
+		Host_Error( "Stringtable \"%s\" contains one or multiple empty indexes! (%i)\n", m_pszTableName, m_nItemDeletions.size() );
 	}
 
 	ETWMark2I( GetTableName(), entriesUpdated, buf.GetNumBitsWritten() - nTableStartBit );
@@ -691,8 +812,10 @@ void CNetworkStringTable::ParseUpdate( bf_read &buf, int entries )
 			pUserData = tempbuf;
 		}
 
+		bool bDeleted = buf.ReadOneBit();
+
 		// Check if we are updating an old entry or adding a new one
-		if ( entryIndex < GetNumStrings() )
+		if ( !bDeleted && entryIndex < GetNumStrings() )
 		{
 			SetStringUserData( entryIndex, nBytes, pUserData );
 #ifdef _DEBUG
@@ -705,8 +828,11 @@ void CNetworkStringTable::ParseUpdate( bf_read &buf, int entries )
 		}
 		else
 		{
+			if ( bDeleted )
+				DeleteString( entryIndex );
+
 			// Grow the table (entryindex must be the next empty slot)
-			Assert( (entryIndex == GetNumStrings()) && (pEntry != NULL) );
+			Assert( (bDeleted || entryIndex == GetNumStrings()) && (pEntry != NULL) );
 				
 			if ( pEntry == NULL )
 			{
@@ -959,7 +1085,7 @@ const char *CNetworkStringTable::GetString( int stringNumber )
 		stringNumber = -stringNumber;
 	}
 
-	Assert( dict->IsValidIndex( stringNumber ) );
+	//Assert( dict->IsValidIndex( stringNumber ) );
 
 	if ( dict->IsValidIndex( stringNumber ) )
 	{
@@ -1172,9 +1298,14 @@ const void *CNetworkStringTable::GetStringUserData( int stringNumber, int *lengt
 		stringNumber = -stringNumber;
 	}
 
+	if ( !dict->IsValidIndex( stringNumber ) )
+	{
+		*length = 0;
+		return NULL;
+	}
+
 	CNetworkStringTableItem *p;
 
-	Assert( dict->IsValidIndex( stringNumber ) );
 	p = &dict->Element( stringNumber );
 	Assert( p );
 	return p->GetUserData( length );

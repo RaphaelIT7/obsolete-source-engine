@@ -1723,10 +1723,20 @@ public:
 		return ::NET_IsHostLocal(pHostName);
 	}
 
-	virtual void *GetReplay() const
+	virtual IServer* GetServer() const
 	{
-		// ToDo
-		return NULL;
+		return (IServer*)&sv;
+<<<<<<< Updated upstream
+=======
+	}
+
+	virtual void ResetModelPrecache() OVERRIDE
+	{
+		for (int i=0; i<g_nMaxModels; ++i)
+		{
+			sv.model_precache[i].SetModel(NULL);
+		}
+>>>>>>> Stashed changes
 	}
 #else
 	virtual float GetServerTime() const OVERRIDE
