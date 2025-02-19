@@ -822,6 +822,7 @@ public:
 	void							PreEntityPacketReceived( int commands_acknowledged );
 	void							PostEntityPacketReceived( void );
 	bool							PostNetworkDataReceived( int commands_acknowledged );
+	virtual bool					PredictionErrorShouldResetLatchedForAllPredictables( void ) { return true; } //legacy behavior is that any prediction error causes all predictables to reset latched
 	bool							GetPredictionEligible( void ) const;
 	void							SetPredictionEligible( bool canpredict );
 
@@ -1157,6 +1158,9 @@ public:
 	void	SetCreateTime( float flCreateTime )					{ m_flCreateTime = flCreateTime; }
 
 	int		GetCreationTick() const;
+
+	virtual void ClientAdjustStartSoundParams( EmitSound_t &params ) {}
+	virtual void ClientAdjustStartSoundParams( StartSoundParams_t& params ) {}
 
 #ifdef _DEBUG
 	void FunctionCheck( void *pFunction, const char *name );

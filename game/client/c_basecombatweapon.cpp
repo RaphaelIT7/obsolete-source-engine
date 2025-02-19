@@ -555,3 +555,20 @@ void C_BaseCombatWeapon::GetToolRecordingState( KeyValues *msg )
 		SetModelIndex( nModelIndex );
 	}
 }
+
+bool C_BaseCombatWeapon::PredictionErrorShouldResetLatchedForAllPredictables( void )
+{
+#ifdef HL2MP
+	// misyl: Although I have tried to fix many of the pred errors in HL2MP.
+	// Still many remain, and many things remain unpredictable without a rewrite of the weapon code.
+	//
+	// As a workaround, if this weapon is not tangible (ie. has an owner/in inventory).
+	// Don't reset every latched var for every predictable ever if we have a pred error on a weapon.
+	//
+	// This might be useful for other games as well, but needs wider testing there.
+	if ( GetOwner() )
+		return false;
+#endif
+
+	return BaseClass::PredictionErrorShouldResetLatchedForAllPredictables();
+}

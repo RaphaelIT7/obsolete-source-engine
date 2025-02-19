@@ -42,6 +42,17 @@ public:
 	}
 #endif
 
+	virtual bool PredictionErrorShouldResetLatchedForAllPredictables( void ) OVERRIDE
+	{
+#ifdef HL2MP
+		// misyl: If viewmodel mispred's on HL2MP don't reset all the player's variables.
+		return false;
+#else
+		// Not changing this behaviour for other games without testing. They also don't have the same issues.
+		return BaseClass::PredictionErrorShouldResetLatchedForAllPredictables();
+#endif
+	}
+
 private:
 	
 #if defined( CLIENT_DLL )
@@ -49,6 +60,7 @@ private:
 	// This is used to lag the angles.
 	CInterpolatedVar<QAngle> m_LagAnglesHistory;
 	QAngle m_vLagAngles;
+	Vector	m_vPredictedOffset;
 
 	CPredictedViewModel( const CPredictedViewModel & ); // not defined, not accessible
 
