@@ -26,6 +26,7 @@ public:
 	virtual void ResourceThink( void );
 	virtual void UpdatePlayerData( void );
 	virtual int  UpdateTransmitState( void );
+	virtual int  GetTeam( int iIndex );
 
 protected:
 	virtual void UpdateConnectedPlayer( int iIndex, CBasePlayer *pPlayer );

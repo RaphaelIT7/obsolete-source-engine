@@ -165,3 +165,19 @@ void CPlayerResource::UpdateDisconnectedPlayer( int iIndex )
 	m_iAccountID.Set( iIndex, 0 );
 	m_bValid.Set( iIndex, 0 );
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CPlayerResource::GetTeam( int iIndex )
+{
+	if ( iIndex < 1 || iIndex > MAX_PLAYERS )
+	{
+		Assert( false );
+		return 0;
+	}
+	else
+	{
+		return m_iTeam[iIndex];
+	}
+}
