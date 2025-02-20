@@ -2155,6 +2155,18 @@ void CBaseCombatCharacter::Weapon_Equip( CBaseCombatWeapon *pWeapon )
 
 	// Pass the lighting origin over to the weapon if we have one
 	pWeapon->SetLightingOriginRelative( GetLightingOriginRelative() );
+
+	if ( IsPlayer() )
+	{
+		IGameEvent *event = gameeventmanager->CreateEvent( "weapon_equipped" );
+		if ( event )
+		{
+			event->SetString( "class", pWeapon->GetClassname() );
+			event->SetInt( "entindex", pWeapon->entindex() );
+			event->SetInt( "owner_entindex", entindex() );
+			gameeventmanager->FireEvent( event );
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -2982,6 +2994,18 @@ int CBaseCombatCharacter::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSo
 	}
 
 	m_iAmmo.Set( iAmmoIndex, m_iAmmo[iAmmoIndex] + iAdd );
+
+	if ( IsPlayer() )
+	{
+		IGameEvent *event = gameeventmanager->CreateEvent( "ammo_pickup" );
+		if ( event )
+		{
+			event->SetInt( "ammo_index", iAmmoIndex );
+			event->SetInt( "amount", iAdd );
+			event->SetInt( "total", m_iAmmo[ iAmmoIndex ] );
+			gameeventmanager->FireEvent( event );
+		}
+	}
 
 	return iAdd;
 }
