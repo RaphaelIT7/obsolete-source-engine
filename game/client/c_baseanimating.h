@@ -468,6 +468,8 @@ protected:
 
 	virtual bool					CalcAttachments();
 
+	virtual bool					ShouldFlipViewModel();
+
 private:
 	// This method should return true if the bones have changed + SetupBones needs to be called
 	virtual float					LastBoneChangedTime() { return FLT_MAX; }

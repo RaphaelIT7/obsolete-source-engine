@@ -1585,7 +1585,7 @@ void C_BaseAnimating::BuildTransformations( CStudioHdr *hdr, Vector *pos, Quater
 				}
 
 				// do jiggle physics
-				m_pJiggleBones->BuildJiggleTransformations( i, gpGlobals->realtime, jiggleInfo, goalMX, GetBoneForWrite( i ) );
+				m_pJiggleBones->BuildJiggleTransformations( i, gpGlobals->realtime, jiggleInfo, goalMX, GetBoneForWrite( i ), ShouldFlipViewModel() );
 
 			}
 			else if (hdr->boneParent(i) == -1) 
@@ -2095,6 +2095,18 @@ bool C_BaseAnimating::CalcAttachments()
 
 	// Make sure m_CachedBones is valid.
 	return SetupBones( NULL, -1, BONE_USED_BY_ATTACHMENT, gpGlobals->curtime );
+}
+
+bool C_BaseAnimating::ShouldFlipViewModel()
+{
+	if ( GetMoveParent() )
+	{
+		C_BaseAnimating *pParent = GetMoveParent()->GetBaseAnimating();
+		if ( pParent && pParent->ShouldFlipViewModel() )
+			return true;
+	}
+
+	return false;
 }
 
 //-----------------------------------------------------------------------------
