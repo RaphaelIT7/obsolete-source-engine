@@ -207,8 +207,19 @@ public:
 
 };
 
+//-----------------------------------------------------------------------------
+// ParticlesCheckFloat
+//-----------------------------------------------------------------------------
 
+#ifdef DBGFLAG_ASSERT
 
+// Validates floating point values.  Only to be used from within Assert().
+FORCEINLINE bool ParticlesCheckFloat( const float f );
+FORCEINLINE bool ParticlesCheckFloat( const Vector& v );
+FORCEINLINE bool ParticlesCheckFloat( const matrix3x4_t& v );
+FORCEINLINE bool ParticlesCheckFloat( const Quaternion& v );
+
+#endif
 
 //-----------------------------------------------------------------------------
 // Interface to allow the particle system to call back into the client
@@ -974,19 +985,19 @@ struct CParticleVisibilityData
 
 struct CParticleControlPoint
 {
-	Vector m_Position;
-	Vector m_PrevPosition;
+	Vector m_Position = vec3_origin;
+	Vector m_PrevPosition = vec3_origin;
 
 	// orientation
-	Vector m_ForwardVector;
-	Vector m_UpVector;
-	Vector m_RightVector;
+	Vector m_ForwardVector = vec3_origin;
+	Vector m_UpVector = vec3_origin;
+	Vector m_RightVector = vec3_origin;
 
 	// reference to entity or whatever this control point comes from
-	void *m_pObject;
+	void *m_pObject = nullptr;
 
 	// parent for hierarchies
-	int m_nParent;
+	int m_nParent = 0;
 };
 
 

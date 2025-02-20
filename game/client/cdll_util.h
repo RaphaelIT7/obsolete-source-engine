@@ -39,7 +39,7 @@ typedef CGameTrace trace_t;
 namespace vgui
 {
 	// dimhotepus: x86-64 port. unsigned long -> uintp
-	typedef uintp HFont;
+	typedef uint32 HFont;
 };
 
 
@@ -178,5 +178,10 @@ int UTIL_GetMapKeyCount( const char *pszCustomKey );
 
 // Returns true if the user has loaded any maps, false otherwise.
 bool UTIL_HasLoadedAnyMap();
+
+// Performs a near-miss check of pEntity against the local player.
+// Plays pszNearMissSound in their ears and returns true when a near-
+// miss is detected.
+bool UTIL_BPerformNearMiss( const CBaseEntity* pEntity, const char* pszNearMissSound, float flNearMissDistanceThreshold );
 
 #endif // !UTIL_H

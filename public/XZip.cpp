@@ -109,6 +109,7 @@
 #endif
 
 #include <time.h>
+#define I_SHOULD_NOT_BE_USING_XZIP
 #include "zip/XZip.h"
 
 #ifdef OSX

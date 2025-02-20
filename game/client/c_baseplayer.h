@@ -392,8 +392,10 @@ public:
 #if defined USES_ECON_ITEMS
 	// Wearables
 	virtual void			UpdateWearables();
+	const C_EconWearable	*GetWearable( int i ) const { return m_hMyWearables[i]; }
 	C_EconWearable			*GetWearable( int i ) { return m_hMyWearables[i]; }
 	int						GetNumWearables( void ) { return m_hMyWearables.Count(); }
+	int						GetNumWearables( void ) const { return m_hMyWearables.Count(); }
 #endif
 
 	bool					HasFiredWeapon( void ) { return m_bFiredWeapon; }

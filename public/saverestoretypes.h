@@ -102,7 +102,7 @@ struct levellist_t
 
 struct EHandlePlaceholder_t // Engine does some of the game writing (alas, probably shouldn't), but can't see ehandle.h
 {
-	unsigned long i;
+	uint32 i;
 };
 
 //-------------------------------------
@@ -513,16 +513,6 @@ inline const char *CSaveRestoreSegment::StringFromSymbol( int token )
 #if !defined( _rotr ) && (defined( COMPILER_GCC ) || defined( COMPILER_CLANG ))
 #include <x86intrin.h>
 #endif
-
-// dimhotepus: clang now support _rotr
-//#ifdef COMPILER_CLANG
-//static __inline__ unsigned int __attribute__((__always_inline__, __nodebug__))
-//_rotr(unsigned int _Value, int _Shift) {
-//	_Shift &= 0x1f;
-//	return _Shift ? (_Value >> _Shift) | (_Value << (32 - _Shift)) : _Value;
-//}
-//#endif
-
 
 inline unsigned int CSaveRestoreSegment::HashString( const char *pszToken )
 {

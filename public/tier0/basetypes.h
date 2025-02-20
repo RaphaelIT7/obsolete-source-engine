@@ -133,12 +133,6 @@ template< typename T >
 
 #endif
 
-#ifndef FALSE
-#define FALSE 0
-#define TRUE (!FALSE)
-#endif
-
-
 #ifndef DONT_DEFINE_BOOL // Needed for Cocoa stuff to compile.
 using BOOL = int;
 #endif
@@ -160,6 +154,16 @@ using ucs2 = wchar_t; // under windows wchar_t is ucs2
 using ucs2 = unsigned short;
 #endif
 
+
+#ifndef FALSE
+#define FALSE 0
+#define TRUE (!FALSE)
+#endif
+
+#ifdef POSIX
+#include <stdint.h>
+#endif
+
 enum ThreeState_t
 {
 	TRS_FALSE,
@@ -173,8 +177,15 @@ using vec_t = float;
 #define fpmin __builtin_fminf
 #define fpmax __builtin_fmaxf
 #elif !defined(_X360)
-#define fpmin min
-#define fpmax max
+static inline float fpmin( float a, float b )
+{
+	return a > b  ? b : a;
+}
+
+static inline float fpmax( float a, float b )
+{
+	return a >= b ? a : b;
+}
 #endif
 
 
@@ -183,18 +194,18 @@ using vec_t = float;
 // This assumes the ANSI/IEEE 754-1985 standard
 //-----------------------------------------------------------------------------
 // dimhotepus: Fix UB reintrepret casts.
-//[[deprecated("UB in reinterpret cast. Use non-ref overload.")]] inline unsigned& FloatBits( vec_t& f )
+//[[deprecated("UB in reinterpret cast. Use non-ref overload.")]] inline unsigned int& FloatBits( vec_t& f )
 //{
-//	static_assert(alignof(vec_t) == alignof(unsigned));
-//	static_assert(sizeof(f) == sizeof(unsigned));
-//	return *reinterpret_cast<unsigned*>(&f);
+//	static_assert(alignof(vec_t) == alignof(unsigned int));
+//	static_assert(sizeof(f) == sizeof(unsigned int));
+//	return *reinterpret_cast<unsigned int*>(&f);
 //}
 //
-//[[deprecated("UB in reinterpret cast. Use non-ref overload.")]] inline unsigned const& FloatBits( vec_t const& f )
+//[[deprecated("UB in reinterpret cast. Use non-ref overload.")]] inline unsigned int const& FloatBits( vec_t const& f )
 //{
-//	static_assert(alignof(vec_t) == alignof(unsigned));
-//	static_assert(sizeof(f) == sizeof(unsigned));
-//	return *reinterpret_cast<unsigned const*>(&f);
+//	static_assert(alignof(vec_t) == alignof(unsigned int));
+//	static_assert(sizeof(f) == sizeof(unsigned int));
+//	return *reinterpret_cast<unsigned int const*>(&f);
 //}
 
 [[nodiscard]] inline unsigned FloatBits( vec_t f )
@@ -205,7 +216,7 @@ using vec_t = float;
 	return r;
 }
 
-[[nodiscard]] inline vec_t BitsToFloat( unsigned i )
+[[nodiscard]] inline vec_t BitsToFloat( unsigned int i )
 {
 	vec_t r;
 	static_assert(sizeof(r) == sizeof(i));
@@ -234,7 +245,7 @@ using vec_t = float;
 	return !IsNaN(f);
 }
 
-[[nodiscard]] inline unsigned FloatAbsBits( vec_t f )
+[[nodiscard]] inline unsigned int FloatAbsBits( vec_t f )
 {
 	return FloatBits(f) & 0x7FFFFFFFu; //-V112
 }

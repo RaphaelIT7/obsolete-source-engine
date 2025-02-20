@@ -58,6 +58,7 @@ public:
 	short	m_nSurfaceProp;
 
 	// Some TF2 specific things
+	// misyl: Not a material! This is a model index most of the time!
 	// dimhotepus: Comment unused.
 	// intp		m_nMaterial;
 	int		m_nDamageType;
