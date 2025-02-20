@@ -592,7 +592,25 @@ void CSpectatorGUI::ShowPanel(bool bShow)
 {
 	if ( bShow && !IsVisible() )
 	{
-		InvalidateLayout( true, true );
+		// Josh: Someone made this InvalidateLayout with reloadScheme = true
+		// every time when adding SteamController support, when it should only
+		// have done this if the state changes, because otherwise whenever
+		// you died, it recreates all elements.
+		// Which is a problem because:
+		// 1) This is incredibly slow!!
+		// 2) CItemModelPanels have a child of themselves,
+		//    so each time we invalidated, we would make a new one entirely
+		//    and keep making them, over and over again every time
+		//    causing a chain of hundreds of children, causing immense lag on death
+		//    and each time they'd all reload their scheme, and add a new one! Argh!
+		// So let's only invalidate this if switch from using a Vapourous Controller <-> not.
+		const bool bWasSteamController = g_pInputSystem->IsSteamControllerActive();
+
+		if ( m_iWasSteamController == -1 || !!m_iWasSteamController != bWasSteamController )
+		{
+			InvalidateLayout( true, true );
+			m_iWasSteamController = bWasSteamController ? 1 : 0;
+		}
 		m_bSpecScoreboard = false;
 	}
 

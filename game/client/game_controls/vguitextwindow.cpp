@@ -109,6 +109,8 @@ CTextWindow::CTextWindow(IViewPort *pViewPort) : Frame(NULL, PANEL_INFO	)
 	m_pOK->SetCommand("okay");
 	m_pTextMessage->SetMultiline( true );
 	m_nContentType = TYPE_TEXT;
+
+	Reset();
 }
 
 //-----------------------------------------------------------------------------
@@ -120,7 +122,7 @@ void CTextWindow::ApplySchemeSettings( IScheme *pScheme )
 
 	LoadControlSettings("Resource/UI/TextWindow.res");
 
-	Reset();
+	Update();
 }
 
 //-----------------------------------------------------------------------------

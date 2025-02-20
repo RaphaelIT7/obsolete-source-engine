@@ -100,6 +100,8 @@ protected:
 	// bool m_bHelpShown;
 	// bool m_bInsetVisible;
 	bool m_bSpecScoreboard;
+
+	int m_iWasSteamController = -1;
 };
 
 

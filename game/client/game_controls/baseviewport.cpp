@@ -161,6 +161,9 @@ CBaseViewport::CBaseViewport() : vgui::EditablePanel( NULL, "CBaseViewport")
 	gViewPortInterface = this;
 	m_bInitialized = false;
 
+	if ( gViewPortInterface == this )
+		gViewPortInterface = NULL;
+
 	m_GameuiFuncs = NULL;
 	m_GameEventManager = NULL;
 	SetKeyBoardInputEnabled( false );
@@ -750,7 +753,7 @@ void CBaseViewport::ReloadScheme(const char *fromFile)
 
 int CBaseViewport::GetDeathMessageStartHeight( void )
 {
-	return YRES(2);
+	return YRES(16);
 }
 
 void CBaseViewport::Paint()

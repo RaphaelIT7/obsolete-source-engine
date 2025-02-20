@@ -18,6 +18,10 @@
 #include "tf_hud_freezepanel.h"
 #include "tf_hud_objectivestatus.h"
 
+#ifdef TF_CLIENT_DLL
+#include "tf_gamerules.h"
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

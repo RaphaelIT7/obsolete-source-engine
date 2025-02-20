@@ -249,8 +249,8 @@ void CPDumpPanel::Paint()
 	// Now output the strings
 	int x[5];
 	x[0] = 20;
-	int columnwidth = 375;
-	int numcols = ScreenWidth() / columnwidth;
+	int columnwidth = 640;
+	int numcols = GetWide() / columnwidth;
 	int i;
 
 	numcols = clamp( numcols, 1, 5 );
@@ -339,7 +339,7 @@ void CPDumpPanel::Paint()
 
 		y += fonttall;
 
-		if ( y >= ScreenHeight() - fonttall - 60 )
+		if ( y >= GetTall() - fonttall - 60 )
 		{
 			y = starty;
 			col++;
@@ -359,8 +359,8 @@ void CPDumpPanel::Paint()
 
 
 	// Draw a legend now
-	int xpos = ScreenWidth() - textSizeWide - 5;
-	y = ScreenHeight() - 7 * fonttall - 80;
+	int xpos = GetWide() - textSizeWide - 5;
+	y = GetTall() - 7 * fonttall - 80;
 
 	// Not networked, no differences
 	PredictionDumpColor( false, false, false, false, r, g, b, a );

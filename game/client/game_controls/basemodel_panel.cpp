@@ -63,6 +63,13 @@ void CBaseModelPanel::ApplySettings( KeyValues *inResourceData )
 	// Do we allow full manipulation on these panels.
 	m_bAllowFullManipulation = inResourceData->GetBool( "allow_manip", false );
 
+	// Continued velocity after the user releases the mouse after a manipulation
+	m_bUseVelocity = inResourceData->GetBool( "continued_velocity", true );
+	// Don't use velocity if full manipulation is on.  It breaks.
+	m_bUseVelocity &= !m_bAllowFullManipulation;
+	m_flYawVelocityDecay  = inResourceData->GetFloat( "yaw_velocity_decay", 12.f );
+	m_flPitchVelocityDecay  = inResourceData->GetFloat( "pitch_velocity_decay", 12.f );
+
 	// Parse our resource file and apply all necessary updates to the MDL.
  	for ( KeyValues *pData = inResourceData->GetFirstSubKey() ; pData != NULL ; pData = pData->GetNextKey() )
  	{
@@ -415,6 +422,28 @@ void CBaseModelPanel::OnTick()
 	BaseClass::OnTick();
 }
 
+void CBaseModelPanel::OnThink()
+{
+	BaseClass::OnThink();
+
+	float flDt = 0.f;
+	if ( m_flLastThink != 0.f )
+	{
+		flDt = Plat_FloatTime() - m_flLastThink;
+	}
+	m_flLastThink = Plat_FloatTime();
+
+	if ( !m_bMousePressed && m_bUseVelocity )
+	{
+		RotateYaw( m_flYawVelocity );
+		RotatePitch( m_flPitchVelocity );
+
+		// Decay
+		m_flYawVelocity *= 1.f - Clamp( m_flYawVelocityDecay * flDt, 0.f, 1.f );
+		m_flPitchVelocity *= 1.f - Clamp( m_flPitchVelocityDecay * flDt, 0.f, 1.f );
+	}
+}
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 void CBaseModelPanel::OnKeyCodePressed ( vgui::KeyCode code )
@@ -525,6 +554,7 @@ void CBaseModelPanel::OnCursorMoved( int x, int y )
 
 			// Apply the delta and rotate the player.
 			RotateYaw( flDelta );
+			m_flYawVelocity = flDelta;
 		}
 
 		if ( m_bAllowPitch )
@@ -535,6 +565,7 @@ void CBaseModelPanel::OnCursorMoved( int x, int y )
 
 			// Apply the delta and rotate the player.
 			RotatePitch( flDelta );
+			m_flPitchVelocity = flDelta;
 		}
 	}
 }

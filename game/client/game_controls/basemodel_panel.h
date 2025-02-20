@@ -166,6 +166,7 @@ public:
 	void ApplySettings( KeyValues *inResourceData ) override;
 	void PerformLayout() override;
 	void OnTick() override;
+	virtual void OnThink() OVERRIDE;
 
 	// Animation.
 	int FindDefaultAnim( void );
@@ -179,8 +180,10 @@ public:
 	void OnMouseReleased( vgui::MouseCode code ) override;
 	void OnCursorMoved( int x, int y ) override;
 	void OnMouseWheeled( int delta ) override;
+	bool		 BIsBeingManipulated() const { return m_bMousePressed; }
 
 	studiohdr_t* GetStudioHdr( void ) { return m_RootMDL.m_MDL.GetStudioHdr(); }
+	CStudioHdr* GetStudioHdrFull( void ) { return m_RootMDL.m_pStudioHdr; }
 	void SetBody( unsigned int nBody ) { m_RootMDL.m_MDL.m_nBody = nBody; }
 
 	void		RotateYaw( float flDelta );
@@ -221,6 +224,12 @@ protected:
 	bool			m_bAllowFullManipulation;
 	bool			m_bApplyManipulators;
 	bool			m_bForcedCameraPosition;
+	float			m_flYawVelocity = 0.f;
+	float			m_flPitchVelocity = 0.f;
+	float			m_flYawVelocityDecay = 0.9f;
+	float			m_flPitchVelocityDecay = 0.9f;
+	bool			m_bUseVelocity = true;
+	float			m_flLastThink = 0.f;
 
 	int m_nActiveSequence;
 	float m_flActiveSequenceDuration;

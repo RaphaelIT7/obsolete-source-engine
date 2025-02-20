@@ -779,7 +779,7 @@ void CLCD::ParseIconMappings( KeyValues *kv )
 #else
 		hIcon = 0;
 #endif
-		info.m_handle = (void *)hIcon;
+		info.m_handle = (void *)(intp)hIcon;
 		m_Icons.Insert( name, info );
 	}
 }

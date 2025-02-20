@@ -278,15 +278,17 @@ void CClientScoreBoardDialog::Update( void )
 	m_pPlayerList->GetContentSize(wide, tall);
 	tall += GetAdditionalHeight();
 	wide = GetWide();
-	if (m_iDesiredHeight < tall)
-	{
-		SetSize(wide, tall);
-		m_pPlayerList->SetSize(wide, tall);
-	}
-	else
-	{
-		SetSize(wide, m_iDesiredHeight);
-		m_pPlayerList->SetSize(wide, m_iDesiredHeight);
+	if ( m_bAllowGrowth )
+		if ( m_iDesiredHeight < tall )
+		{
+			SetSize( wide, tall );
+			m_pPlayerList->SetSize( wide, tall );
+		}
+		else
+		{
+			SetSize( wide, m_iDesiredHeight );
+			m_pPlayerList->SetSize( wide, m_iDesiredHeight );
+		}
 	}
 
 	MoveToCenterOfScreen();
@@ -506,7 +508,8 @@ void CClientScoreBoardDialog::UpdatePlayerAvatar( int playerIndex, KeyValues *kv
 				{
 					CAvatarImage *pImage = new CAvatarImage();
 					pImage->SetAvatarSteamID( steamIDForPlayer );
-					pImage->SetAvatarSize( 32, 32 );	// Deliberately non scaling
+					int nSize = QuickPropScale( 16 );
+					pImage->SetAvatarSize( nSize, nSize );
 					iImageIndex = m_pImageList->AddImage( pImage );
 
 					m_mapAvatarsToImageList.Insert( steamIDForPlayer, iImageIndex );
