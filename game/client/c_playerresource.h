@@ -56,6 +56,8 @@ public : // IGameResources interface
 	virtual void ClientThink();
 	virtual	void	OnDataChanged(DataUpdateType_t updateType);
 
+	virtual int		GetUserID( int index );
+
 	uint32 GetAccountID( int iIndex );
 	bool IsValid( int iIndex );
 
@@ -75,6 +77,7 @@ protected:
 	Color	m_Colors[MAX_TEAMS];
 	uint32	m_iAccountID[MAX_PLAYERS_ARRAY_SAFE];
 	bool	m_bValid[MAX_PLAYERS_ARRAY_SAFE];
+	int		m_iUserID[MAX_PLAYERS_ARRAY_SAFE];
 	string_t m_szUnconnectedName;
 };
 

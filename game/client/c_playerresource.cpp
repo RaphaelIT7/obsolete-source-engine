@@ -28,6 +28,7 @@ IMPLEMENT_CLIENTCLASS_DT_NOBASE(C_PlayerResource, DT_PlayerResource, CPlayerReso
 	RecvPropArray3( RECVINFO_ARRAY(m_iHealth), RecvPropInt( RECVINFO(m_iHealth[0]))),
 	RecvPropArray3( RECVINFO_ARRAY(m_iAccountID), RecvPropInt( RECVINFO(m_iAccountID[0]))),
 	RecvPropArray3( RECVINFO_ARRAY(m_bValid), RecvPropInt( RECVINFO(m_bValid[0]))),
+	RecvPropArray3( RECVINFO_ARRAY( m_iUserID ), RecvPropInt( RECVINFO( m_iUserID[0] ) ) ),
 END_RECV_TABLE()
 
 BEGIN_PREDICTION_DATA( C_PlayerResource )
@@ -42,6 +43,7 @@ BEGIN_PREDICTION_DATA( C_PlayerResource )
 	DEFINE_PRED_ARRAY( m_iHealth, FIELD_INTEGER, MAX_PLAYERS_ARRAY_SAFE, FTYPEDESC_PRIVATE ),
 	DEFINE_PRED_ARRAY( m_iAccountID, FIELD_INTEGER, MAX_PLAYERS_ARRAY_SAFE, FTYPEDESC_PRIVATE ),
 	DEFINE_PRED_ARRAY( m_bValid, FIELD_BOOLEAN, MAX_PLAYERS_ARRAY_SAFE, FTYPEDESC_PRIVATE ),
+	DEFINE_PRED_ARRAY( m_iUserID, FIELD_INTEGER, MAX_PLAYERS_ARRAY_SAFE, FTYPEDESC_PRIVATE ),
 
 END_PREDICTION_DATA()	
 
@@ -64,6 +66,7 @@ C_PlayerResource::C_PlayerResource()
 	memset( m_iHealth, 0, sizeof( m_iHealth ) );
 	memset( m_iAccountID, 0, sizeof( m_iAccountID ) );
 	memset( m_bValid, 0, sizeof( m_bValid ) );
+	memset( m_iUserID, 0, sizeof( m_iUserID ) );
 	m_szUnconnectedName = 0;
 	
 	for ( int i=0; i<MAX_TEAMS; i++ )
@@ -368,4 +371,18 @@ bool C_PlayerResource::IsValid( int iIndex )
 		return false;
 
 	return m_bValid[iIndex];
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int C_PlayerResource::GetUserID( int iIndex )
+{
+	if ( ( iIndex < 0 ) || ( iIndex >= ARRAYSIZE( m_iUserID ) ) )
+		return 0;
+
+	if ( !IsConnected( iIndex ) )
+		return 0;
+
+	return m_iUserID[iIndex];
 }

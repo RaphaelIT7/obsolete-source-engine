@@ -25,6 +25,7 @@ IMPLEMENT_SERVERCLASS_ST_NOBASE(CPlayerResource, DT_PlayerResource)
 	SendPropArray3( SENDINFO_ARRAY3(m_iHealth), SendPropInt( SENDINFO_ARRAY(m_iHealth), -1, SPROP_VARINT | SPROP_UNSIGNED ) ),
 	SendPropArray3( SENDINFO_ARRAY3(m_iAccountID), SendPropInt( SENDINFO_ARRAY(m_iAccountID), 32, SPROP_UNSIGNED ) ),
 	SendPropArray3( SENDINFO_ARRAY3(m_bValid), SendPropInt( SENDINFO_ARRAY(m_bValid), 1, SPROP_UNSIGNED ) ),
+	SendPropArray3( SENDINFO_ARRAY3( m_iUserID ), SendPropInt( SENDINFO_ARRAY( m_iUserID ) ) ),
 END_SEND_TABLE()
 
 BEGIN_DATADESC( CPlayerResource )
@@ -75,6 +76,7 @@ void CPlayerResource::Init( int iIndex )
 	m_iHealth.Set( iIndex, 0 );
 	m_iAccountID.Set( iIndex, 0 );
 	m_bValid.Set( iIndex, 0 );
+	m_iUserID.Set( iIndex, 0 );
 }
 
 //-----------------------------------------------------------------------------
@@ -153,6 +155,7 @@ void CPlayerResource::UpdateConnectedPlayer( int iIndex, CBasePlayer *pPlayer )
 	pPlayer->GetSteamID( &steamID );
 	m_iAccountID.Set( iIndex, steamID.GetAccountID() );
 #endif
+	m_iUserID.Set( iIndex, pPlayer->GetUserID() );
 }
 
 
@@ -164,6 +167,7 @@ void CPlayerResource::UpdateDisconnectedPlayer( int iIndex )
 	m_bConnected.Set( iIndex, 0 );
 	m_iAccountID.Set( iIndex, 0 );
 	m_bValid.Set( iIndex, 0 );
+	m_iUserID.Set( iIndex, 0 );
 }
 
 //-----------------------------------------------------------------------------
