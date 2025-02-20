@@ -5657,6 +5657,16 @@ bool CBasePlayer::GetInVehicle( IServerVehicle *pVehicle, int nRole )
 
 	OnVehicleStart();
 
+	if ( IsPlayer() )
+	{
+		IGameEvent *event = gameeventmanager->CreateEvent( "enter_vehicle" );
+		if ( event )
+		{
+			event->SetInt( "vehicle", pVehicle->GetVehicleEnt()->entindex() );
+			gameeventmanager->FireEvent( event );
+		}
+	}
+
 	return true;
 }
 
@@ -5730,6 +5740,16 @@ void CBasePlayer::LeaveVehicle( const Vector &vecExitPoint, const QAngle &vecExi
 
 	// Just cut all of the rumble effects. 
 	RumbleEffect( RUMBLE_STOP_ALL, 0, RUMBLE_FLAGS_NONE );
+
+	if ( IsPlayer() )
+	{
+		IGameEvent *event = gameeventmanager->CreateEvent( "leave_vehicle" );
+		if ( event )
+		{
+			event->SetInt( "vehicle", pVehicle->GetVehicleEnt()->entindex() );
+			gameeventmanager->FireEvent( event );
+		}
+	}
 }
 
 

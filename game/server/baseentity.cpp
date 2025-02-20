@@ -1389,6 +1389,18 @@ int CBaseEntity::TakeHealth( float flHealth, int bitsDamageType )
 	if (m_iHealth > iMax)
 		m_iHealth = iMax;
 
+	if ( m_iHealth > oldHealth && IsPlayer() )
+	{
+		IGameEvent *event = gameeventmanager->CreateEvent( "take_health" );
+		if ( event )
+		{
+			event->SetInt( "amount", m_iHealth - oldHealth );
+			event->SetInt( "total", m_iHealth );
+			event->SetInt( "entindex", entindex());			
+			gameeventmanager->FireEvent( event );
+		}
+	}
+
 	return m_iHealth - oldHealth;
 }
 
