@@ -1097,13 +1097,8 @@ void CTempEnts::BreakModel( const Vector &pos, const QAngle &angles, const Vecto
 	}
 }
 
-void CTempEnts::PhysicsProp( int modelindex, int skin, const Vector& pos, const QAngle &angles, const Vector& vel, int physFlags, int physEffects )
+void CTempEnts::PhysicsProp( int modelindex, int skin, const Vector& pos, const QAngle& angles, const Vector& vel, int physFlags, int physEffects )
 {
-	C_PhysPropClientside *pEntity = C_PhysPropClientside::CreateNew();
-	
-	if ( !pEntity )
-		return;
-
 	const model_t *model = modelinfo->GetModel( modelindex );
 
 	if ( !model )
@@ -1112,6 +1107,19 @@ void CTempEnts::PhysicsProp( int modelindex, int skin, const Vector& pos, const 
 		return;
 	}
 
+	PhysicsProp( model, skin, pos, angles, vel, physFlags, physEffects, modelindex );
+}
+
+C_PhysPropClientside *CTempEnts::PhysicsProp( const model_t *model, int skin, const Vector& pos, const QAngle &angles, const Vector& vel, int physFlags, int physEffects, int modelindex )
+{
+	C_PhysPropClientside *pEntity = C_PhysPropClientside::CreateNew();
+	
+	if ( !pEntity )
+		return NULL;
+
+	if ( !model )
+		return NULL;
+
 	pEntity->SetModelName( modelinfo->GetModelName(model) );
 	pEntity->m_nSkin = skin;
 	pEntity->SetAbsOrigin( pos );
@@ -1119,10 +1127,32 @@ void CTempEnts::PhysicsProp( int modelindex, int skin, const Vector& pos, const 
 	pEntity->SetPhysicsMode( PHYSICS_MULTIPLAYER_CLIENTSIDE );
 	pEntity->SetEffects( physEffects );
 
+	if ( physFlags & 1 )
+	{
+		if ( modelindex >= 0 )
+			pEntity->SetModelIndex( modelindex );
+
+		// We are not calling initialize on this entity here, so we need to manually set some of the required values otherwise set in initialize.
+		pEntity->SetCollisionGroup( COLLISION_GROUP_PUSHAWAY );
+		pEntity->SetAbsVelocity( vel );
+		const model_t *mod = pEntity->GetModel();
+		if ( mod )
+		{
+			Vector mins, maxs;
+			modelinfo->GetModelBounds( mod, mins, maxs );
+			pEntity->SetCollisionBounds( mins, maxs );
+		}
+
+		pEntity->Spawn();
+		pEntity->SetHealth( 0 );
+		pEntity->Break();
+		return pEntity;
+	}
+
 	if ( !pEntity->Initialize() )
 	{
 		pEntity->Release();
-		return;
+		return NULL;
 	}
 
 	IPhysicsObject *pPhysicsObject = pEntity->VPhysicsGetObject();
@@ -1135,7 +1165,7 @@ void CTempEnts::PhysicsProp( int modelindex, int skin, const Vector& pos, const 
 	{
 		// failed to create a physics object
 		pEntity->Release();
-		return;
+		return NULL;
 	}
 
 	if ( physFlags & 1 )
@@ -1143,6 +1173,8 @@ void CTempEnts::PhysicsProp( int modelindex, int skin, const Vector& pos, const 
 		pEntity->SetHealth( 0 );
 		pEntity->Break();
 	}
+
+	return pEntity;
 }
 
 //-----------------------------------------------------------------------------
