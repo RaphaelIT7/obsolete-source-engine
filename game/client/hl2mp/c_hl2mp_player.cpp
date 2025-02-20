@@ -20,11 +20,34 @@
 #undef CHL2MP_Player	
 #endif
 
+// misyl: Can be set to Msg if you want some info for debugging prediction
+#define MsgPredTest(...)
+#define MsgPredTest2(...)
+
+ConVar sv_infinite_aux_power( "sv_infinite_aux_power", "0", FCVAR_CHEAT | FCVAR_REPLICATED );
+
 LINK_ENTITY_TO_CLASS( player, C_HL2MP_Player );
 
-IMPLEMENT_CLIENTCLASS_DT(C_HL2MP_Player, DT_HL2MP_Player, CHL2MP_Player)
+// specific to the local player
+BEGIN_RECV_TABLE_NOBASE( C_HL2MP_Player, DT_HL2MPLocalPlayerExclusive )
+	RecvPropVectorXY( RECVINFO_NAME( m_vecNetworkOrigin, m_vecOrigin ) ),
+	RecvPropFloat( RECVINFO_NAME( m_vecNetworkOrigin[2], m_vecOrigin[2] ) ),
+
 	RecvPropFloat( RECVINFO( m_angEyeAngles[0] ) ),
 	RecvPropFloat( RECVINFO( m_angEyeAngles[1] ) ),
+END_RECV_TABLE()
+
+// all players except the local player
+BEGIN_RECV_TABLE_NOBASE( C_HL2MP_Player, DT_HL2MPNonLocalPlayerExclusive )
+	RecvPropVectorXY( RECVINFO_NAME( m_vecNetworkOrigin, m_vecOrigin ) ),
+	RecvPropFloat( RECVINFO_NAME( m_vecNetworkOrigin[2], m_vecOrigin[2] ) ),
+	RecvPropFloat( RECVINFO( m_angEyeAngles[0] ) ),
+	RecvPropFloat( RECVINFO( m_angEyeAngles[1] ) ),
+END_RECV_TABLE()
+
+IMPLEMENT_CLIENTCLASS_DT(C_HL2MP_Player, DT_HL2MP_Player, CHL2MP_Player)
+	RecvPropDataTable( "hl2mplocaldata", 0, 0, &REFERENCE_RECV_TABLE( DT_HL2MPLocalPlayerExclusive ) ),
+	RecvPropDataTable( "hl2mpnonlocaldata", 0, 0, &REFERENCE_RECV_TABLE( DT_HL2MPNonLocalPlayerExclusive ) ),
 	RecvPropEHandle( RECVINFO( m_hRagdoll ) ),
 	RecvPropInt( RECVINFO( m_iSpawnInterpCounter ) ),
 	RecvPropInt( RECVINFO( m_iPlayerSoundType) ),
@@ -34,16 +57,46 @@ END_RECV_TABLE()
 
 BEGIN_PREDICTION_DATA( C_HL2MP_Player )
 	DEFINE_PRED_FIELD( m_fIsWalking, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+
+	// misyl: Ammo is server side entities in HL2MP. Not catastrophic to error about.
+	// Just let the server stomp all over us.
+	//
+	// There is 1 instance in which is can be a runaway pred error, and that is if you have eg. ar2
+	// with just altfire ammo, and get new ammo and we force reload. But the additional pred error sorts that out itself
+	// without this for every pickup which is 1000% more common.
+	DEFINE_PRED_ARRAY( m_iAmmo, FIELD_INTEGER, MAX_AMMO_TYPES, FTYPEDESC_INSENDTABLE | FTYPEDESC_OVERRIDE | FTYPEDESC_NOERRORCHECK ),
 END_PREDICTION_DATA()
 
-#define	HL2_WALK_SPEED 150
-#define	HL2_NORM_SPEED 190
-#define	HL2_SPRINT_SPEED 320
+ConVar hl2_walkspeed( "hl2_walkspeed", "150", FCVAR_REPLICATED );
+ConVar hl2_normspeed( "hl2_normspeed", "190", FCVAR_REPLICATED );
+ConVar hl2_sprintspeed( "hl2_sprintspeed", "320", FCVAR_REPLICATED );
+
+#define	HL2_WALK_SPEED hl2_walkspeed.GetFloat()
+#define	HL2_NORM_SPEED hl2_normspeed.GetFloat()
+#define	HL2_SPRINT_SPEED hl2_sprintspeed.GetFloat()
 
 static ConVar cl_playermodel( "cl_playermodel", "none", FCVAR_USERINFO | FCVAR_ARCHIVE | FCVAR_SERVER_CAN_EXECUTE, "Default Player Model");
 static ConVar cl_defaultweapon( "cl_defaultweapon", "weapon_physcannon", FCVAR_USERINFO | FCVAR_ARCHIVE, "Default Spawn Weapon");
 
 void SpawnBlood (Vector vecSpot, const Vector &vecDir, int bloodColor, float flDamage);
+
+//
+// SUIT POWER DEVICES
+//
+#define SUITPOWER_CHARGE_RATE	12.5											// 100 units in 8 seconds
+
+#ifdef HL2MP
+	CSuitPowerDevice SuitDeviceSprint( bits_SUIT_DEVICE_SPRINT, 25.0f );				// 100 units in 4 seconds
+#else
+	CSuitPowerDevice SuitDeviceSprint( bits_SUIT_DEVICE_SPRINT, 12.5f );				// 100 units in 8 seconds
+#endif
+
+#ifdef HL2_EPISODIC
+	CSuitPowerDevice SuitDeviceFlashlight( bits_SUIT_DEVICE_FLASHLIGHT, 1.111 );	// 100 units in 90 second
+#else
+	CSuitPowerDevice SuitDeviceFlashlight( bits_SUIT_DEVICE_FLASHLIGHT, 2.222 );	// 100 units in 45 second
+#endif
+CSuitPowerDevice SuitDeviceBreather( bits_SUIT_DEVICE_BREATHER, 6.7f );		// 100 units in 15 seconds (plus three padded seconds)
 
 C_HL2MP_Player::C_HL2MP_Player() : m_PlayerAnimState( this ), m_iv_angEyeAngles( "C_HL2MP_Player::m_iv_angEyeAngles" )
 {
@@ -58,6 +111,8 @@ C_HL2MP_Player::C_HL2MP_Player() : m_PlayerAnimState( this ), m_iv_angEyeAngles(
 	m_blinkTimer.Invalidate();
 
 	m_pFlashlightBeam = NULL;
+
+	SuitPower_Initialize();
 }
 
 C_HL2MP_Player::~C_HL2MP_Player( void )
@@ -327,16 +382,6 @@ void C_HL2MP_Player::PreThink( void )
 	SetLocalAngles( vTempAngles );
 
 	BaseClass::PreThink();
-
-	HandleSpeedChanges();
-
-	if ( m_HL2Local.m_flSuitPower <= 0.0f )
-	{
-		if( IsSprinting() )
-		{
-			StopSprinting();
-		}
-	}
 }
 
 const QAngle &C_HL2MP_Player::EyeAngles()
@@ -349,6 +394,40 @@ const QAngle &C_HL2MP_Player::EyeAngles()
 	{
 		return m_angEyeAngles;
 	}
+}
+
+			if( SuitPower_IsDeviceActive(SuitDeviceSprint) )
+			{
+				if( CloseEnough(fabs(GetAbsVelocity().x), 0.0f) && CloseEnough(fabs(GetAbsVelocity().y), 0.0f) )
+				{
+					if ( CloseEnough( m_HL2Local.m_flSuitPowerLoad, SuitDeviceSprint.GetDeviceDrainRate() ) )
+					{
+						flPowerLoad = 0.0f;
+					}
+					else
+					{
+						// If player's not moving, don't drain sprint juice.
+						flPowerLoad -= SuitDeviceSprint.GetDeviceDrainRate();
+					}
+				}
+			}
+		}
+
+		if( SuitPower_IsDeviceActive(SuitDeviceFlashlight) )
+		{
+			//float factor;
+
+			//factor = 1.0f / m_flFlashlightPowerDrainScale;
+
+			float factor = 1.0f;
+
+			flPowerLoad -= ( SuitDeviceFlashlight.GetDeviceDrainRate() * (1.0f - factor) );
+		}
+
+		SuitPower_Drain( flPowerLoad * gpGlobals->frametime );
+
+	}
+	MsgPredTest2( "[Client %d] m_HL2Local.m_flSuitPower: %f m_fIsSprinting: %d\n", gpGlobals->tickcount, m_HL2Local.m_flSuitPower, m_fIsSprinting ? 1 : 0 );
 }
 
 //-----------------------------------------------------------------------------
@@ -564,83 +643,101 @@ bool C_HL2MP_Player::CanSprint( void )
 	return ( (!m_Local.m_bDucked && !m_Local.m_bDucking) && (GetWaterLevel() != 3) );
 }
 
+extern ConVar sv_maxspeed;
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-void C_HL2MP_Player::StartSprinting( void )
+void C_HL2MP_Player::HandleSpeedChanges( CMoveData *mv )
 {
-	if( m_HL2Local.m_flSuitPower < 10 )
+	int nChangedButtons = mv->m_nButtons ^ mv->m_nOldButtons;
+
+	bool bJustPressedSpeed = !!( nChangedButtons & IN_SPEED );
+
+	const bool bWantSprint = ( CanSprint() && IsSuitEquipped() && ( mv->m_nButtons & IN_SPEED ) );
+	const bool bWantsToChangeSprinting = ( m_HL2Local.m_bNewSprinting != bWantSprint ) && ( nChangedButtons & IN_SPEED ) != 0;
+
+	bool bSprinting = m_HL2Local.m_bNewSprinting;
+	if ( bWantsToChangeSprinting )
 	{
-		// Don't sprint unless there's a reasonable
-		// amount of suit power.
-		CPASAttenuationFilter filter( this );
-		filter.UsePredictionRules();
-		EmitSound( filter, entindex(), "HL2Player.SprintNoPower" );
-		return;
-	}
-
-	CPASAttenuationFilter filter( this );
-	filter.UsePredictionRules();
-	EmitSound( filter, entindex(), "HL2Player.SprintStart" );
-
-	SetMaxSpeed( HL2_SPRINT_SPEED );
-	m_fIsSprinting = true;
-}
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-void C_HL2MP_Player::StopSprinting( void )
-{
-	SetMaxSpeed( HL2_NORM_SPEED );
-	m_fIsSprinting = false;
-}
-
-void C_HL2MP_Player::HandleSpeedChanges( void )
-{
-	int buttonsChanged = m_afButtonPressed | m_afButtonReleased;
-
-	if( buttonsChanged & IN_SPEED )
-	{
-		// The state of the sprint/run button has changed.
-		if ( IsSuitEquipped() )
+		if ( bWantSprint )
 		{
-			if ( !(m_afButtonPressed & IN_SPEED)  && IsSprinting() )
+			if ( m_HL2Local.m_flSuitPower < 10.0f )
 			{
-				StopSprinting();
+				if ( bJustPressedSpeed )
+				{
+					CPASAttenuationFilter filter( this );
+					filter.UsePredictionRules();
+					EmitSound( filter, entindex(), "HL2Player.SprintNoPower" );
+				}
 			}
-			else if ( (m_afButtonPressed & IN_SPEED) && !IsSprinting() )
+			else
 			{
-				if ( CanSprint() )
-				{
-					StartSprinting();
-				}
-				else
-				{
-					// Reset key, so it will be activated post whatever is suppressing it.
-					m_nButtons &= ~IN_SPEED;
-				}
+				bSprinting = true;
 			}
 		}
-	}
-	else if( buttonsChanged & IN_WALK )
-	{
-		if ( IsSuitEquipped() )
+		else
 		{
-			// The state of the WALK button has changed. 
-			if( IsWalking() && !(m_afButtonPressed & IN_WALK) )
-			{
-				StopWalking();
-			}
-			else if( !IsWalking() && !IsSprinting() && (m_afButtonPressed & IN_WALK) && !(m_nButtons & IN_DUCK) )
-			{
-				StartWalking();
-			}
+			bSprinting = false;
 		}
 	}
 
-	if ( IsSuitEquipped() && m_fIsWalking && !(m_nButtons & IN_WALK)  ) 
-		StopWalking();
+	if ( m_HL2Local.m_flSuitPower < 0.01 )
+	{
+		bSprinting = false;
+	}
+
+	bool bWantWalking;
+
+	if ( IsSuitEquipped() )
+	{
+		bWantWalking = ( mv->m_nButtons & IN_WALK ) && !bSprinting && !( mv->m_nButtons & IN_DUCK );
+	}
+	else
+	{
+		bWantWalking = true;
+	}
+
+	if ( bWantWalking )
+	{
+		bSprinting = false;
+	}
+
+	m_HL2Local.m_bNewSprinting = bSprinting;
+
+	if ( bSprinting )
+	{
+		if ( bJustPressedSpeed )
+		{
+			CPASAttenuationFilter filter( this );
+			filter.UsePredictionRules();
+			EmitSound( filter, entindex(), "HL2Player.SprintStart" );
+		}
+		mv->m_flClientMaxSpeed = HL2_SPRINT_SPEED;
+	}
+	else if ( bWantWalking )
+	{
+		mv->m_flClientMaxSpeed = HL2_WALK_SPEED;
+	}
+	else
+	{
+		mv->m_flClientMaxSpeed = HL2_NORM_SPEED;
+	}
+
+	mv->m_flMaxSpeed = sv_maxspeed.GetFloat();
+}
+
+void C_HL2MP_Player::ReduceTimers( CMoveData* mv )
+{
+	bool bSprinting = mv->m_flClientMaxSpeed == HL2_SPRINT_SPEED;
+
+	if ( bSprinting )
+	{
+		SuitPower_AddDevice( SuitDeviceSprint );
+	}
+	else
+	{
+		SuitPower_RemoveDevice( SuitDeviceSprint );
+	}
+
+	SuitPower_Update();
 }
 
 //-----------------------------------------------------------------------------
@@ -985,4 +1082,9 @@ void C_HL2MP_Player::PostThink( void )
 
 	// Store the eye angles pitch so the client can compute its animation state correctly.
 	m_angEyeAngles = EyeAngles();
+
+	if ( GetFlags() & FL_DUCKING )
+	{
+		SetCollisionBounds( VEC_CROUCH_TRACE_MIN, VEC_CROUCH_TRACE_MAX );
+	}
 }
