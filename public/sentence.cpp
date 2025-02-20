@@ -178,7 +178,7 @@ void CWordTag::SetWord( const char *word )
 	if ( !word || !word[ 0 ] )
 		return;
 
-	size_t len = strlen( word ) + 1;
+	size_t len = V_strlen( word ) + 1;
 	m_pszWord = new char[ len ];
 	Assert( m_pszWord );
 	Q_strncpy( m_pszWord, word, len );

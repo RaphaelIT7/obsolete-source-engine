@@ -258,7 +258,7 @@ void CRegistry::WriteString( const char *key, const char *value )
 		return;
 	}
 
-	dwSize = (DWORD)( strlen( value ) + 1 );
+	dwSize = (DWORD)( V_strlen( value ) + 1 );
 
 	VCRHook_RegSetValueEx(
 		m_hKey,		// handle to key

@@ -19,7 +19,7 @@ char* AllocateStringHelper2( const char *pFormat, va_list marker )
 	_vsnprintf( str, sizeof( str ), pFormat, marker );
 	str[ std::size(str) - 1 ] = 0;
 	
-	size_t len = strlen( str ) + 1;
+	size_t len = V_strlen( str ) + 1;
 	char *pRet = new char[len];
 	memcpy( pRet, str, len );
 
