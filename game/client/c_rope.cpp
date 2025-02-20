@@ -649,11 +649,14 @@ bool CRopeManager::IsHolidayLightMode( void )
 	}
 
 #ifdef TF_CLIENT_DLL
-	if ( TFGameRules() && TFGameRules()->IsPowerupMode() )
+	if ( TFGameRules() )
 	{
 		// We don't want to draw the lights for the grapple.
 		// They get left behind for a while and look bad.
-		return false;
+		if ( TFGameRules()->IsPowerupMode() || !TFGameRules()->GetRopesHolidayLightsAllowed() )
+		{
+			return false;
+		}
 	}
 #endif
 
@@ -1037,6 +1040,7 @@ void C_RopeKeyframe::CPhysicsDelegate::ApplyConstraints( CSimplePhysics::CNode *
 // ------------------------------------------------------------------------------------ //
 // C_RopeKeyframe
 // ------------------------------------------------------------------------------------ //
+int C_RopeKeyframe::s_nLastRopeIndex = 0;
 
 C_RopeKeyframe::C_RopeKeyframe()
 {
@@ -1060,6 +1064,8 @@ C_RopeKeyframe::C_RopeKeyframe()
 	m_flCurScroll = m_flScrollSpeed = 0;
 	m_TextureScale = 4;	// 4:1
 	m_flImpulse.Init();
+
+	m_nRopeIndex = s_nLastRopeIndex++;
 
 	g_Ropes.AddToTail( this );
 }
@@ -1707,8 +1713,9 @@ void C_RopeKeyframe::BuildRope( RopeSegData_t *pSegmentData, const Vector &vCurr
 
 		if ( !bQueued && RopeManager()->IsHolidayLightMode() && r_rope_holiday_light_scale.GetFloat() > 0.0f )
 		{
-			// dimhotepus: Comment unused m_nMaterial.
-			// data.m_nMaterial = reinterpret_cast< intp >( this );
+			// misyl: This used to be janky pointer thing,
+			// now it's some global index thing.
+			// data.m_nMaterial = m_nRopeIndex;
 			data.m_nHitBox = ( iNode << 8 );
 			data.m_flScale = r_rope_holiday_light_scale.GetFloat();
 			data.m_vOrigin = pSegmentData->m_Segments[nSegmentCount].m_vPos;
