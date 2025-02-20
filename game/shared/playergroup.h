@@ -30,13 +30,6 @@ public:
 
 	virtual CSharedObject* GetSharedObject() = 0;
 
-#ifdef GC
-	virtual void SetSenderID( const CSteamID &steamID ) = 0;
-	virtual void SetGroupID( PlayerGroupID_t nGroupID ) = 0;
-	virtual void SetSenderName( const char *szName ) = 0;
-
-	virtual void YldInitFromPlayerGroup( IPlayerGroup *pPlayerGroup ) = 0;
-#endif
 };
 
 class IPlayerGroup
@@ -65,15 +58,6 @@ public:
 
 	virtual bool AllowInvites() const = 0;
 
-#ifdef GC
-	virtual void SetGroupID( PlayerGroupID_t nPartyID ) = 0;
-	virtual void AddMember( const CSteamID &steamID ) = 0;
-	virtual void RemoveMember( const CSteamID &steamID ) = 0;
-
-	virtual void SetLeader( const CSteamID &steamID ) = 0;
-	virtual void AddPendingInvite( const CSteamID &steamID ) = 0;
-	virtual void RemovePendingInvite( const CSteamID &steamID ) = 0;
-#endif
 };
 
 }

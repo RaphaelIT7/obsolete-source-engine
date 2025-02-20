@@ -37,14 +37,6 @@ public:
 
 	virtual GCSDK::CSharedObject* GetSharedObject() { return this; }
 
-#ifdef GC
-	// NOTE: These do not dirty fields
-	virtual void SetSenderID( const CSteamID &steamID ) { Obj().set_sender_id( steamID.ConvertToUint64() ); }
-	virtual void SetGroupID( PlayerGroupID_t nGroupID ) { Obj().set_group_id( nGroupID ); }
-	virtual void SetSenderName( const char *szName ) { Obj().set_sender_name( szName ); }
-
-	virtual void YldInitFromPlayerGroup( IPlayerGroup *pPlayerGroup );
-#endif
 };
 
 }

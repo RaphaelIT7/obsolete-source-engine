@@ -252,9 +252,6 @@ ConVar mp_stalemate_enable( "mp_stalemate_enable", "0", FCVAR_NOTIFY, "Enable/Di
 ConVar mp_match_end_at_timelimit( "mp_match_end_at_timelimit", "0", FCVAR_NOTIFY, "Allow the match to end when mp_timelimit hits instead of waiting for the end of the current round." );
 
 ConVar mp_holiday_nogifts( "mp_holiday_nogifts", "0", FCVAR_NOTIFY, "Set to 1 to prevent holiday gifts from spawning when players are killed." );
-#ifdef STAGING_ONLY
-ConVar mp_state_debug( "mp_state_debug", "0", FCVAR_NOTIFY, "Set to 1 to print developer messages whenever game state changes." );
-#endif // STAGING_ONLY
 
 const char *m_pszRoundStateStrings[] = 
 {
@@ -1333,13 +1330,6 @@ void CTeamplayRoundBasedRules::State_Transition( gamerules_roundstate_t newState
 
 	State_Leave();
 	State_Enter( newState );
-
-#ifdef STAGING_ONLY
-	if ( mp_state_debug.GetBool() )
-	{
-		DevMsg( "\n[STATE] -- %s  (Previous: %s)\n", m_pszRoundStateStrings[(int)newState], m_pszRoundStateStrings[(int)m_prevState]);
-	}
-#endif // STAGING_ONLY
 }	
 
 //-----------------------------------------------------------------------------

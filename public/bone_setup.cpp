@@ -674,12 +674,6 @@ static void CalcLocalHierarchyAnimation(
 	int boneMask
 	)
 {
-#ifdef STAGING_ONLY
-	Assert( iNewParent == -1 || (iNewParent >= 0 && iNewParent < MAXSTUDIOBONES) );
-	Assert( iBone > 0 );
-	Assert( iBone < MAXSTUDIOBONES );
-#endif // STAGING_ONLY
-
 	Vector localPos;
 	Quaternion localQ;
 

@@ -91,10 +91,6 @@ public:
 	float GetTrainDistanceAlongTrack( void ) const;
 	Vector GetNextCheckpointPosition( void ) const;	// return world space location of next checkpoint along the path
 
-#if defined( STAGING_ONLY ) && defined( TF_DLL )
-	void DumpStats( void );
-#endif // STAGING_ONLY && TF_DLL
-
 	float GetTrainProgress() { return m_flTotalProgress; }
 
 private:

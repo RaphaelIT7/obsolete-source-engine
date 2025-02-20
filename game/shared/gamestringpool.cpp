@@ -8,9 +8,7 @@
 #include "cbase.h"
 
 #include "utlhashtable.h"
-#ifndef GC
 #include "igamesystem.h"
-#endif
 #include "gamestringpool.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -19,21 +17,13 @@
 //-----------------------------------------------------------------------------
 // Purpose: The actual storage for pooled per-level strings
 //-----------------------------------------------------------------------------
-#ifdef GC
-class CGameStringPool
-#else
-class CGameStringPool : public CBaseGameSystem
-#endif
+class CGameStringPool : public CStringPool,	public CBaseGameSystem
 {
 	virtual char const *Name() { return "CGameStringPool"; }
 	virtual void LevelShutdownPostEntity() { FreeAll(); }
 
 	void FreeAll()
 	{
-#if 0 && _DEBUG
-		m_Strings.DbgCheckIntegrity();
-		m_KeyLookupCache.DbgCheckIntegrity();
-#endif
 		m_Strings.Purge();
 		m_KeyLookupCache.Purge();
 	}
@@ -91,7 +81,6 @@ public:
 
 static CGameStringPool g_GameStringPool;
 
-#ifndef GC
 //-----------------------------------------------------------------------------
 // String system accessor
 //-----------------------------------------------------------------------------
@@ -99,8 +88,6 @@ IGameSystem *GameStringSystem()
 {
 	return &g_GameStringPool;
 }
-#endif
-
 
 //-----------------------------------------------------------------------------
 // Purpose: The public accessor for the level-global pooled strings

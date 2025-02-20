@@ -363,15 +363,6 @@ void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 		}
 	}
 
-	/*
-	// TODO:  We can check whether the player is sending more commands than elapsed real time
-	cmdtimeremaining -= ucmd->msec;
-	if ( cmdtimeremaining < 0 )
-	{
-	//	return;
-	}
-	*/
-
 	g_pGameMovement->StartTrackPredictionErrors( player );
 
 	CommentarySystem_PePlayerRunCommand( player, ucmd );

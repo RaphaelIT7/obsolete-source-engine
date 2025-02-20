@@ -23,13 +23,11 @@ string_t FindPooledString( const char *pszValue );
 
 #define AssertIsValidString( s )	AssertMsg( s == NULL_STRING || s == FindPooledString( STRING(s) ), "Invalid string " #s );
 		 
-#ifndef GC
 //-----------------------------------------------------------------------------
 // String system accessor
 //-----------------------------------------------------------------------------
 class IGameSystem;
 
 IGameSystem *GameStringSystem();
-#endif // #ifndef GC
 
 #endif // GAMESTRINGPOOL_H

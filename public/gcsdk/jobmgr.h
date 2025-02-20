@@ -140,27 +140,6 @@ public:
 	//called by a job that has just been started to place itself on the yield queue instead of running
 	void AddDelayedJobToYieldList( CJob &job );
 
-#ifdef GC
-	// resumes the specified job if it is, in fact, waiting for a SQL query to return
-	bool BResumeSQLJob( JobID_t jobID );
-
-	// yields waiting for a query response
-	bool BYieldingRunQuery( CJob &job, CGCSQLQueryGroup *pQueryGroup, ESchemaCatalog eSchemaCatalog );
-
-	// SQL profiling
-	enum ESQLProfileSort
-	{
-		k_ESQLProfileSortTotalTime,
-		k_ESQLProfileSortTotalCount,
-		k_ESQLProfileSortAvgTime,
-		k_ESQLProfileSortName
-	};
-
-	void StartSQLProfiling();
-	void StopSQLProfiling();
-	void DumpSQLProfile( ESQLProfileSort eSort );
-#endif
-
 	// returns true if we're running any jobs of the specified name
 	// slow to call if lots of jobs are running, should only be used by tests
 	bool BIsJobRunning( const char *pchJobName );
@@ -308,34 +287,6 @@ private:
 	CUtlMap< uintp, JobStatsBucket_t, int > m_mapStatsBucket;
 	CUtlMap<MsgType_t, int, int> m_mapOrphanMessages;
 	CUtlMemory<unsigned char> g_memMainDebugInfo;
-
-#ifdef GC
-	// sql profiling
-	bool m_bSQLProfiling;
-	CFastTimer	m_sqlTimer;
-	
-	struct PendingSQLJob_t
-	{
-		int64 m_nStartMicrosec;
-		int32 m_iBucket;
-	};
-
-	struct SQLProfileBucket_t
-	{
-		int64 m_nTotalMicrosec;
-		uint32 m_unCount;
-	};
-
-	CUtlHashMapLarge<GID_t, PendingSQLJob_t> m_mapSQLQueriesInFlight;
-	CUtlDict<SQLProfileBucket_t> m_dictSQLBuckets;
-
-	struct SQLProfileCtx_t
-	{
-		ESQLProfileSort m_eSort;
-		CUtlDict<SQLProfileBucket_t> *pdictBuckets;
-	};
-	static int SQLProfileSortFunc( void *pCtx, const int *lhs, const int *rhs );
-#endif
 
 #ifdef DEBUG_JOB_LIST
 	// static job debug list

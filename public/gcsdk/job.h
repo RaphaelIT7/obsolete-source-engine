@@ -179,12 +179,6 @@ public:
 	bool BYieldingWaitForMsg( CGCMsgBase *pMsg, MsgType_t eMsg );
 	bool BYieldingWaitForMsg( CProtoBufMsgBase *pMsg, MsgType_t eMsg );
 
-#ifdef GC
-	bool BYieldingWaitForMsg( CGCMsgBase *pMsg, MsgType_t eMsg, const CSteamID &expectedID );
-	bool BYieldingWaitForMsg( CProtoBufMsgBase *pMsg, MsgType_t eMsg, const CSteamID &expectedID );
-	bool BYieldingRunQuery( CGCSQLQueryGroup *pQueryGroup, ESchemaCatalog eSchemaCatalog );
-#endif
-
 	bool BYieldingWaitTimeWithLimit( uint32 cMicrosecondsToSleep, CJobTime &stimeStarted, int64 nMicroSecLimit );
 	bool BYieldingWaitTimeWithLimitRealTime( uint32 cMicrosecondsToSleep, int nSecLimit );
 

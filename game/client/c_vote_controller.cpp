@@ -118,12 +118,6 @@ void C_VoteController::ClientThink()
 	{
 		if ( m_nPotentialVotes > 0 )
 		{
-#ifdef STAGING_ONLY
-			// Currently hard-coded to MAX_VOTE_COUNT options per issue
-			DevMsg( "Votes: Option1 - %d, Option2 - %d, Option3 - %d, Option4 - %d, Option5 - %d\n",
-				m_nVoteOptionCount[0], m_nVoteOptionCount[1], m_nVoteOptionCount[2], m_nVoteOptionCount[3], m_nVoteOptionCount[4] );
-#endif // STAGING_ONLY
-
 			IGameEvent *event = gameeventmanager->CreateEvent( "vote_changed" );
 			if ( event )
 			{

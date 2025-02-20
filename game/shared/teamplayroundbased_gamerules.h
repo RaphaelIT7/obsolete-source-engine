@@ -111,15 +111,6 @@ enum stalemate_reasons_t
 	NUM_STALEMATE_REASONS,
 };
 
-
-#if defined(TF_CLIENT_DLL) || defined(TF_DLL)
-
-#ifdef STAGING_ONLY
-extern ConVar tf_test_match_summary;
-#endif
-
-#endif
-
 //-----------------------------------------------------------------------------
 // Purpose: Per-state data
 //-----------------------------------------------------------------------------
@@ -198,10 +189,6 @@ public:
 
 	virtual int GetWinningTeam( void )
 	{
-//tagES
-#if defined( STAGING_ONLY ) && ( defined(TF_CLIENT_DLL) || defined(TF_DLL) ) 
-		return ( tf_test_match_summary.GetBool() ? TF_TEAM_BLUE : m_iWinningTeam.Get() );
-#endif		
 		return m_iWinningTeam; 
 	}
 	int GetWinReason() { return m_iWinReason; }

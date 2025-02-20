@@ -16,10 +16,6 @@
 #include "mathlib/ssemath.h"
 #include "nav_area.h"
 
-#ifdef STAGING_ONLY
-extern int g_DebugPathfindCounter;
-#endif
-
 
 //-------------------------------------------------------------------------------------------------------------------
 /**
@@ -110,10 +106,6 @@ bool NavAreaBuildPath( CNavArea *startArea, CNavArea *goalArea, const Vector *go
 		*closestArea = startArea;
 	}
 
-#ifdef STAGING_ONLY
-	bool isDebug = ( g_DebugPathfindCounter-- > 0 );
-#endif
-
 	if (startArea == NULL)
 		return false;
 
@@ -157,13 +149,6 @@ bool NavAreaBuildPath( CNavArea *startArea, CNavArea *goalArea, const Vector *go
 	{
 		// get next area to check
 		CNavArea *area = CNavArea::PopOpenList();
-
-#ifdef STAGING_ONLY
-		if ( isDebug )
-		{
-			area->DrawFilled( 0, 255, 0, 128, 30.0f );
-		}
-#endif
 
 		// don't consider blocked areas
 		if ( area->IsBlocked( teamID, ignoreNavBlockers ) )

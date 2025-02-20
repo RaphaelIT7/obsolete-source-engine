@@ -124,9 +124,7 @@ public:
 	bool ShouldPlayAllControlPointRounds( void ){ return m_bPlayAllRounds; }
 	int NumPlayableControlPointRounds( void ); // checks to see if there are any more rounds to play (but doesn't actually "get" one to play)
 
-#ifdef STAGING_ONLY
 	void ListRounds( void );
-#endif
 
 	float GetPartialCapturePointRate( void );
 

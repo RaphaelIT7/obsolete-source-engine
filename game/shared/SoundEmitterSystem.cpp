@@ -38,9 +38,6 @@
 #include "tier0/memdbgon.h"
 
 static ConVar sv_soundemitter_trace( "sv_soundemitter_trace", "0", FCVAR_REPLICATED, "Show all EmitSound calls including their symbolic name and the actual wave file they resolved to\n" );
-#ifdef STAGING_ONLY
-static ConVar sv_snd_filter( "sv_snd_filter", "", FCVAR_REPLICATED, "Filters out all sounds not containing the specified string before being emitted\n" );
-#endif // STAGING_ONLY
 
 extern ISoundEmitterSystemBase *soundemitterbase;
 static ConVar *g_pClosecaption = NULL;
@@ -469,22 +466,6 @@ public:
 		if ( !params.soundname[0] )
 			return;
 
-#ifdef STAGING_ONLY
-		if ( sv_snd_filter.GetString()[ 0 ] && !V_stristr( params.soundname, sv_snd_filter.GetString() ))
-		{
-			return;
-		}
-
-		if ( !Q_strncasecmp( params.soundname, "vo", 2 ) &&
-			!( params.channel == CHAN_STREAM ||
-			   params.channel == CHAN_VOICE  ||
-			   params.channel == CHAN_VOICE2 ) )
-		{
-			DevMsg( "EmitSound:  Voice wave file %s doesn't specify CHAN_VOICE, CHAN_VOICE2 or CHAN_STREAM for sound %s\n",
-				params.soundname, ep.m_pSoundName );
-		}
-#endif // STAGING_ONLY
-
 		// handle SND_CHANGEPITCH/SND_CHANGEVOL and other sound flags.etc.
 		if( ep.m_nFlags & SND_CHANGE_PITCH )
 		{
@@ -565,13 +546,6 @@ public:
 	void EmitSound( IRecipientFilter& filter, int entindex, const EmitSound_t & ep )
 	{
 		VPROF( "CSoundEmitterSystem::EmitSound (calls engine)" );
-
-#ifdef STAGING_ONLY
-		if ( sv_snd_filter.GetString()[ 0 ] && !V_stristr( ep.m_pSoundName, sv_snd_filter.GetString() ))
-		{
-			return;
-		}
-#endif // STAGING_ONLY
 
 		if ( ep.m_pSoundName && 
 			( Q_stristr( ep.m_pSoundName, ".wav" ) || 
@@ -818,13 +792,6 @@ public:
 			return;
 		}
 
-#ifdef STAGING_ONLY
-		if ( sv_snd_filter.GetString()[ 0 ] && !V_stristr( params.soundname, sv_snd_filter.GetString() ))
-		{
-			return;
-		}
-#endif // STAGING_ONLY
-
 		if( iFlags & SND_CHANGE_PITCH )
 		{
 			params.pitch = iPitch;
@@ -935,13 +902,6 @@ public:
 
 	void EmitAmbientSound( int entindex, const Vector &origin, const char *pSample, float volume, soundlevel_t soundlevel, int flags, int pitch, float soundtime /*= 0.0f*/, float *duration /*=NULL*/ )
 	{
-#ifdef STAGING_ONLY
-		if ( sv_snd_filter.GetString()[ 0 ] && !V_stristr( pSample, sv_snd_filter.GetString() ))
-		{
-			return;
-		}
-#endif // STAGING_ONLY
-
 #if !defined( CLIENT_DLL )
 		CUtlVector< Vector > dummyorigins;
 
@@ -1374,13 +1334,6 @@ int SENTENCEG_Lookup(const char *sample)
 
 void UTIL_EmitAmbientSound( int entindex, const Vector &vecOrigin, const char *samp, float vol, soundlevel_t soundlevel, int fFlags, int pitch, float soundtime /*= 0.0f*/, float *duration /*=NULL*/ )
 {
-#ifdef STAGING_ONLY
-	if ( sv_snd_filter.GetString()[ 0 ] && !V_stristr( samp, sv_snd_filter.GetString() ))
-	{
-		return;
-	}
-#endif // STAGING_ONLY
-
 	if (samp && *samp == '!')
 	{
 		int sentenceIndex = SENTENCEG_Lookup(samp);

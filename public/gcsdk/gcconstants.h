@@ -103,40 +103,6 @@ enum EAlertType
 
 const char k_rgchUnknown[] = "Unknown";
 
-#ifdef GC
-//-----------------------------------------------------------------------------
-// SQL constants
-//-----------------------------------------------------------------------------
-
-const int k_cSQLObjectNameMax = 128;			// max length of a SQL identifier (column name, index name, table name ... )
-const int k_cchSQLStatementTextMax = 8192;		// nominal max length of a SQL statement
-const uint32 k_cubRecordMax = 4 * k_nMillion;				// Max size of a single record
-const uint32 k_cubVarFieldMax = 1 * k_nMillion;			// Max size of a variable-length field
-const int k_cMaxCol = 50;
-const uint32 k_cMaxBindParams = 500;				// the largest number of bind parameters allowed in a single query
-const uint32 k_cMaxFreeBindParamBuffers = 2000;		// How many bind param buffers should we leave free before we start deleting some
-const uint32 k_cMaxFreeBindWebAPIBuffers = 32;		// How many WebAPI buffers should we leave free before we start deleting some
-
-// iTable constants
-const int k_iTableNil = -1;		// No table at all
-const int k_iFieldNil = -1;		// No field at all
-
-
-enum EForeignKeyAction
-{
-	k_EForeignKeyActionNoAction	= 0,
-	k_EForeignKeyActionCascade	= 1,
-	k_EForeignKeyActionSetNULL	= 2,
-};
-const char *PchNameFromEForeignKeyAction( EForeignKeyAction eForeignKeyAction );
-EForeignKeyAction EForeignKeyActionFromName( const char *pchName );
-
-const char *PchNameFromEGCSQLType( EGCSQLType eForeignKeyAction );
-
-#ifndef SQLRETURN
-typedef short SQLRETURN;
-#endif // SQLRETURN
-#endif // GC
 
 
 //-----------------------------------------------------------------------------

@@ -13,10 +13,6 @@
 #include "google/protobuf/descriptor.h"
 #include "tier1/KeyValues.h"
 
-#if defined( GC ) && defined( DEBUG )
-#include "gcbase.h"
-#endif
-
 namespace google
 {
 	namespace protobuf
@@ -49,18 +45,6 @@ public:
 	virtual void Validate( CValidator &validator, const char *pchName );
 #endif
 
-#ifdef GC
-	virtual bool BAddToMessage( CUtlBuffer & bufOutput ) const override;
-	virtual bool BAddToMessage( std::string *pBuffer ) const override;
-	virtual bool BAddDestroyToMessage( CUtlBuffer & bufDestroy ) const override;
-	virtual bool BAddDestroyToMessage( std::string *pBuffer ) const override;
-
-	virtual bool BParseFromMemcached( CUtlBuffer & buffer ) override;
-	virtual bool BAddToMemcached( CUtlBuffer & bufOutput ) const override;
-
-	static bool SerializeToBuffer( const ::google::protobuf::Message & msg, CUtlBuffer & bufOutput );
-#endif //GC
-
 	// Static helpers
 	static void Dump( const ::google::protobuf::Message & msg );
 	static KeyValues *CreateKVFromProtoBuf( const ::google::protobuf::Message & msg );
@@ -71,10 +55,6 @@ protected:
 	const ::google::protobuf::Message *GetPObject() const { return const_cast<CProtoBufSharedObjectBase *>(this)->GetPObject(); }
 
 private:
-#ifdef GC
-	static ::google::protobuf::Message *BuildDestroyToMessage( const ::google::protobuf::Message & msg );
-#endif //GC
-
 };
 
 
@@ -88,10 +68,6 @@ class CProtoBufSharedObject : public CProtoBufSharedObjectBase
 public:
 	~CProtoBufSharedObject()
 	{
-#if defined( GC ) && defined( DEBUG )
-		// Ensure this SO is not in any cache, or we have an error. We must provide the type since it is a virutal function otherwise
-		Assert( !GGCBase()->IsSOCached( this, nTypeID ) );
-#endif
 	}
 
 	virtual int GetTypeID() const { return nTypeID; }
@@ -139,10 +115,6 @@ public:
 
 	~CProtoBufSharedObjectWrapper()
 	{
-#if defined( GC ) && defined( DEBUG )
-		// Ensure this SO is not in any cache, or we have an error. We must provide the type since it is a virutal function otherwise
-		Assert( !GGCBase()->IsSOCached( this, nTypeID ) );
-#endif
 	}
 
 	virtual int GetTypeID() const { return nTypeID; }

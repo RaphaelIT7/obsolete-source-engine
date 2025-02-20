@@ -13,11 +13,3 @@
 
 using namespace GCSDK;
 
-#ifdef GC
-void CPartyInvite::YldInitFromPlayerGroup( GCSDK::IPlayerGroup *pPlayerGroup )
-{
-	SetGroupID( pPlayerGroup->GetGroupID() );
-	SetSenderID( pPlayerGroup->GetLeader().ConvertToUint64() );
-	SetSenderName( GGCBase()->YieldingGetPersonaName( pPlayerGroup->GetLeader(), "Unknown Player" ) );
-}
-#endif
