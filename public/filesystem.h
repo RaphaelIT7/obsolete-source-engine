@@ -935,6 +935,12 @@ public:
 	{
 		return GetCaseCorrectFullPath_Ptr( pFullPath, pDest, (int)maxLenInChars );
 	}
+
+	// Whether we are allowed to write anywhere (default) or just to our search paths.
+	// By default, we can write everywhere--but the game client locks us down to writing in specific places, because
+	// remote users can coerce us into writing things down via a clickable URL.
+	virtual void			SetWriteProtectionEnable( bool bEnable ) = 0;
+	virtual bool			GetWriteProtectionEnable() const = 0;
 #else
 	virtual void RemoveSearchPathsByGroup( int ) = 0;
 	virtual void SetGet( IGet * ) = 0;

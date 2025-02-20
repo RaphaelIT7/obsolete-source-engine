@@ -469,6 +469,12 @@ C_BasePlayer::~C_BasePlayer()
 	delete m_pFlashlight;
 }
 
+static float s_flLocalPlayerSpawnTime = -1.0f;
+
+bool ShouldHaveLocalPlayerPickupTimelineEvents()
+{
+	return gpGlobals->curtime >= s_flLocalPlayerSpawnTime + 1.0f;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -495,6 +501,9 @@ void C_BasePlayer::Spawn( void )
 	m_bWasFreezeFraming = false;
 
 	m_bFiredWeapon = false;
+
+	if ( IsLocalPlayer() )
+		s_flLocalPlayerSpawnTime = gpGlobals->curtime;
 }
 
 //-----------------------------------------------------------------------------
@@ -529,7 +538,7 @@ bool C_BasePlayer::IsReplay() const
 CBaseEntity	*C_BasePlayer::GetObserverTarget() const	// returns players target or NULL
 {
 #ifndef _XBOX
-	if ( IsHLTV() )
+	if ( IsHLTV() && HLTVCamera() )
 	{
 		return HLTVCamera()->GetPrimaryTarget();
 	}
@@ -630,7 +639,7 @@ void C_BasePlayer::SetObserverMode ( int iNewMode )
 int C_BasePlayer::GetObserverMode() const 
 { 
 #ifndef _XBOX
-	if ( IsHLTV() )
+	if ( IsHLTV() && HLTVCamera() )
 	{
 		return HLTVCamera()->GetMode();
 	}
@@ -817,6 +826,9 @@ void C_BasePlayer::PostDataUpdate( DataUpdateType_t updateType )
 		{
 			Assert( s_pLocalPlayer == NULL );
 			s_pLocalPlayer = this;
+
+			if ( IsLocalPlayer() )
+				s_flLocalPlayerSpawnTime = gpGlobals->curtime;
 
 			// Reset our sound mixed in case we were in a freeze cam when we
 			// changed level, which would cause the snd_soundmixer to be left modified.

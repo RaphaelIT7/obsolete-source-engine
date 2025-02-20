@@ -258,6 +258,11 @@ SRC_GCC_END_WARNING_OVERRIDE_SCOPE()
 		override { return m_pFileSystemPassThru->CheckVPKFileHash( PackFileID, nPackFileNumber, nFileFraction, md5Value ); }
 	void			NotifyFileUnloaded( const char *pszFilename, const char *pPathId ) override { m_pFileSystemPassThru->NotifyFileUnloaded( pszFilename, pPathId ); }
 
+//#ifndef BUILD_GMOD
+	virtual void			SetWriteProtectionEnable( bool bEnable ) { m_pFileSystemPassThru->SetWriteProtectionEnable( bEnable ); }
+	virtual bool			GetWriteProtectionEnable() const { return m_pFileSystemPassThru->GetWriteProtectionEnable(); }
+//#endif
+
 #ifdef BUILD_GMOD
 	virtual void RemoveSearchPathsByGroup( int group ) OVERRIDE { m_pFileSystemPassThru->RemoveSearchPathsByGroup( group ); }
 	virtual void SetGet( IGet *get ) OVERRIDE { m_pFileSystemPassThru->SetGet( get ); }
