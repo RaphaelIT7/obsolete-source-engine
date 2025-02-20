@@ -224,6 +224,9 @@ private:
 	float		m_flRemainingJoystickSampleTime;
 	float		m_flKeyboardSampleTime;
 
+	int			m_iCaptureWorkaroundLastMouseX;
+	int			m_iCaptureWorkaroundLastMouseY;
+
 	// Flag to restore systemparameters when exiting
 	bool		m_fRestoreSPI;
 	// Original mouse parameters
@@ -273,6 +276,7 @@ private:
 	GameActionSetFlags_t m_GameActionSetFlags;
 
 	bool m_bSteamControllerGameActionsInitialized;
+	bool m_bSteamControllerSeenInput = false;
 
 	class CVerifiedUserCmd
 	{

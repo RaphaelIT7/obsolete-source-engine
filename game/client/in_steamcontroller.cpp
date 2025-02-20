@@ -162,6 +162,13 @@ static ControllerDigitalActionToCommand g_ControllerDigitalGameActions[] =
 	{ "vote_option5", "vote option5", CONTROLLER_ACTION_FLAGS_NEEDS_DEBOUNCE },
 	{ "next_target", "spec_next", CONTROLLER_ACTION_FLAGS_NEEDS_DEBOUNCE },			// In the spectator action set only
 	{ "prev_target", "spec_prev", CONTROLLER_ACTION_FLAGS_NEEDS_DEBOUNCE },			// In the spectator action set only
+	{ "voice_medic", "voicemenu 0 0", CONTROLLER_ACTION_FLAGS_NEEDS_DEBOUNCE },
+	{ "voice_thanks", "voicemenu 0 1", CONTROLLER_ACTION_FLAGS_NEEDS_DEBOUNCE },
+	{ "voice_gogogo", "voicemenu 0 2", CONTROLLER_ACTION_FLAGS_NEEDS_DEBOUNCE },
+	{ "voice_moveup", "voicemenu 0 3", CONTROLLER_ACTION_FLAGS_NEEDS_DEBOUNCE },
+	{ "voice_spy", "voicemenu 1 1", CONTROLLER_ACTION_FLAGS_NEEDS_DEBOUNCE },
+	{ "voice_uberready", "voicemenu 1 7", CONTROLLER_ACTION_FLAGS_NEEDS_DEBOUNCE },
+	{ "voice_help", "voicemenu 2 0", CONTROLLER_ACTION_FLAGS_NEEDS_DEBOUNCE },
 };
 
 struct ControllerDigitalActionState {
@@ -193,7 +200,9 @@ bool CInput::InitializeSteamControllerGameActionSets()
 
 		ControllerDigitalActionState& state = g_ControllerDigitalActionState[i];
 		state.handle = steamcontroller->GetDigitalActionHandle( action );
-		bGotHandle = bGotHandle && ( state.handle != 0 );						// We're only successful if we get *all* the handles.
+		bGotHandle = bGotHandle && ( state.handle != 0 );
+		//if (!state.handle)
+		//	Warning("Failed to initialize action %s\n", action);
 		state.cmd = cmd;
 		state.bState = false;
 		state.bAwaitingDebounce = false;
@@ -202,12 +211,9 @@ bool CInput::InitializeSteamControllerGameActionSets()
 	g_ControllerMoveHandle = steamcontroller->GetAnalogActionHandle( "Move" );
 	g_ControllerCameraHandle = steamcontroller->GetAnalogActionHandle( "Camera" );
 
-	if ( bGotHandle )
-	{
-		m_PreferredGameActionSet = GAME_ACTION_SET_MENUCONTROLS;
-	}
+	m_PreferredGameActionSet = GAME_ACTION_SET_MENUCONTROLS;
 
-	return bGotHandle;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -258,6 +264,12 @@ void CInput::SteamControllerMove( float flFrametime, CUserCmd *cmd )
 		ControllerDigitalActionToCommand& cmdmap = g_ControllerDigitalGameActions[ i ];
 		ControllerDigitalActionState& state = g_ControllerDigitalActionState[ i ];
 		ControllerDigitalActionData_t data = steamcontroller->GetDigitalActionData( controller, state.handle );
+
+		if ( !m_bSteamControllerSeenInput && data.bState )
+		{
+			Msg( "Seen controller input\n" );
+			m_bSteamControllerSeenInput = true;
+		}
 
 		if ( data.bActive )
 		{
@@ -348,6 +360,7 @@ void CInput::SetPreferredGameActionSet( GameActionSet_t action_set )
 		}
 
 		m_PreferredGameActionSet = action_set;
+		g_pInputSystem->ActivateSteamControllerActionSet( m_PreferredGameActionSet );		
 	}
 }
 
@@ -369,8 +382,26 @@ void CInput::SetGameActionSetFlags( GameActionSetFlags_t action_set_flags )
 //-----------------------------------------------------------------------------
 bool CInput::IsSteamControllerActive()
 {
-	// We're only active if the input system thinks we are AND game action sets were also initialized completely
-	return m_bSteamControllerGameActionsInitialized && g_pInputSystem->IsSteamControllerActive();
+	// Not active if we're not initialized, or input system thinks we're inactive
+	bool bActive = m_bSteamControllerGameActionsInitialized && g_pInputSystem->IsSteamControllerActive();
+	if ( !bActive )
+		return false;
+
+	// Otherwise, we're definitely active if we've latched seeing some controller input
+	if ( m_bSteamControllerSeenInput )
+		return true;
+
+	// Haven't seen input yet, so see if input system thinks any controller buttons are pressed
+	for ( int button = (int)ButtonCode_t::STEAMCONTROLLER_FIRST; button <= (int)ButtonCode_t::STEAMCONTROLLER_LAST; button++ )
+	{
+		if ( g_pInputSystem->IsButtonDown( (ButtonCode_t)button ) )
+		{
+			m_bSteamControllerSeenInput = true;
+			break;
+		}
+	}
+
+	return m_bSteamControllerSeenInput;
 }
 
 //-----------------------------------------------------------------------------
@@ -436,7 +467,7 @@ CON_COMMAND( sc_status, "Show Steam Controller status information" )
 			}
 			else
 			{
-				Warning( "Steam Controller considered inactive (no controller connected, or not all action handles initialized).\n" );
+				Warning( "Steam Controller considered inactive (no controller connected, no input observed, not all action handles initialized, or sc_disable set).\n" );
 			}
 
 			auto action_set = ::input->GetPreferredGameActionSet();
