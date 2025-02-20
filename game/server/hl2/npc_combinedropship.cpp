@@ -314,7 +314,7 @@ private:
 	
 	// Misc Vars
 	CHandle<CBaseAnimating>	m_hContainer;
-	EHANDLE		m_hPickupTarget;
+	CHandle<CBaseAnimating>	m_hPickupTarget;
 	int			m_iContainerMoveType;
 	bool		m_bWaitForDropoffInput;
 
@@ -397,8 +397,8 @@ void	CNPC_CombineDropship::PopulatePoseParameters( void )
 		m_poseCargo_Body_Accel  = LookupPoseParameter( "cargo_body_accel" );
 		m_poseCargo_Body_Sway   = LookupPoseParameter( "cargo_body_sway" );
 		// dimhotepus: Container gun now aims at you.
-		//m_poseWeapon_Pitch		= LookupPoseParameter( "weapon_pitch" );
-		//m_poseWeapon_Yaw		= LookupPoseParameter( "weapon_yaw" );
+		//m_poseWeapon_Pitch		= m_hContainer ? m_hContainer->LookupPoseParameter( "weapon_pitch" ) : LookupPoseParameter( "weapon_pitch" );
+		//m_poseWeapon_Yaw		= m_hContainer ? m_hContainer->LookupPoseParameter( "weapon_yaw" ) : LookupPoseParameter( "weapon_yaw" );
 
 		m_sbStaticPoseParamsLoaded = true;
 	}
@@ -861,7 +861,6 @@ CNPC_CombineDropship::~CNPC_CombineDropship(void)
 void CNPC_CombineDropship::Spawn( void )
 {
 	Precache( );
-	SetModel( "models/combine_dropship.mdl" );
 
 #ifdef _XBOX
 	AddEffects( EF_NOSHADOW );
@@ -994,6 +993,10 @@ void CNPC_CombineDropship::Spawn( void )
 	default:
 		break;
 	}
+
+	// moving this after we've created m_hContainer so we can properly setup the
+	// weapon_pitch and weapon_yaw pose parameter indexes in PopulatePoseParameters()
+	SetModel( "models/combine_dropship.mdl" );
 
 	// Setup our bbox
 	if ( m_hContainer )
@@ -1865,8 +1868,15 @@ void CNPC_CombineDropship::InputPickup( inputdata_t &inputdata )
 		return;
 	}
 
+	CBaseAnimating *pTargetAnimating = pTarget->GetBaseAnimating();
+	if ( !pTargetAnimating )
+	{
+		Warning("npc_combinedropship %s with target %s wasn't a CBaseAnimating\n", STRING(GetEntityName()), STRING(iszTargetName) );
+		return;
+	}
+
 	// Start heading to the point
-	m_hPickupTarget = pTarget;
+	m_hPickupTarget = pTargetAnimating;
 
 	m_bHasDroppedOff = false;
 

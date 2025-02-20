@@ -371,7 +371,16 @@ CON_COMMAND_F( mp_forcewin, "Forces team to win", FCVAR_CHEAT )
 		if ( args.ArgC() == 1 )
 		{
 			// if no team specified, use player 1's team
-			iTeam = UTIL_PlayerByIndex( 1 )->GetTeamNumber();	
+			CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
+			if ( pPlayer )
+			{
+				iTeam = pPlayer->GetTeamNumber();
+			}
+			else
+			{
+				Msg( "Unable to determine default team. Usage: mp_forcewin <opt: team#>\n" );
+				return;
+			}
 		}
 		else if ( args.ArgC() == 2 )
 		{
@@ -380,7 +389,7 @@ CON_COMMAND_F( mp_forcewin, "Forces team to win", FCVAR_CHEAT )
 		}
 		else
 		{
-			Msg( "Usage: mp_forcewin <opt: team#>" );
+			Msg( "Usage: mp_forcewin <opt: team#>\n" );
 			return;
 		}
 
@@ -557,7 +566,7 @@ float CTeamplayRoundBasedRules::GetNextRespawnWave( int iTeam, CBasePlayer *pPla
 	// If we are purely checking when the next respawn wave is for this team
 	if ( pPlayer == NULL )
 	{
-		return m_flNextRespawnWave[iTeam];
+		return GetNextRespawnWave(iTeam);
 	}
 
 	// The soonest this player may spawn
@@ -568,7 +577,7 @@ float CTeamplayRoundBasedRules::GetNextRespawnWave( int iTeam, CBasePlayer *pPla
 	}
 
 	// the next scheduled respawn wave time
-	float flNextRespawnTime = m_flNextRespawnWave[iTeam];
+	float flNextRespawnTime = GetNextRespawnWave( iTeam );
 
 	// the length of one respawn wave. We'll check in increments of this
 	float flRespawnWaveMaxLen = GetRespawnWaveMaxLength( iTeam );
@@ -2889,6 +2898,12 @@ void CTeamplayRoundBasedRules::CleanUpMap()
 	// Really remove the entities so we can have access to their slots below.
 	gEntList.CleanupDeleteList();
 
+	// Josh: Purge any template/script fixup name strings or whatever here!
+	// That way we don't run out of memory running the same map forever.
+	// We cannot free instantly due to string dependencies on events
+	// after the entity's death.
+	PurgeDeferredPooledStrings();
+
 	engine->AllowImmediateEdictReuse();
 
 	if ( mp_showcleanedupents.GetInt() & 2 )
@@ -3415,6 +3430,9 @@ CTeamRoundTimer *CTeamplayRoundBasedRules::GetActiveRoundTimer( void )
 //-----------------------------------------------------------------------------
 float CTeamplayRoundBasedRules::GetRespawnWaveMaxLength( int iTeam, bool bScaleWithNumPlayers /* = true */ )
 {
+	if ( iTeam >= MAX_TEAMS )
+		return 0;
+
 	if ( State_Get() != GR_STATE_RND_RUNNING )
 		return 0;
 
