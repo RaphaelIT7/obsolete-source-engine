@@ -42,6 +42,10 @@
 #include "gamestats.h"
 #include "vehicle_base.h"
 
+#ifdef TF_DLL
+#include "nav_mesh/tf_nav_mesh.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -1832,7 +1836,6 @@ BEGIN_DATADESC( CDynamicProp )
 	DEFINE_INPUTFUNC( FIELD_VOID,		"Disable",		InputTurnOff ),
 	DEFINE_INPUTFUNC( FIELD_VOID,		"EnableCollision",	InputEnableCollision ),
 	DEFINE_INPUTFUNC( FIELD_VOID,		"DisableCollision",	InputDisableCollision ),
-	DEFINE_INPUTFUNC( FIELD_FLOAT,		"SetPlaybackRate",	InputSetPlaybackRate ),
 
 	// Outputs
 	DEFINE_OUTPUT( m_pOutputAnimBegun, "OnAnimationBegun" ),
@@ -2246,14 +2249,6 @@ void CDynamicProp::InputSetAnimation( inputdata_t &inputdata )
 void CDynamicProp::InputSetDefaultAnimation( inputdata_t &inputdata )
 {
 	m_iszDefaultAnim = inputdata.value.StringID();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CDynamicProp::InputSetPlaybackRate( inputdata_t &inputdata )
-{
-	SetPlaybackRate( inputdata.value.Float() );
 }
 
 //-----------------------------------------------------------------------------

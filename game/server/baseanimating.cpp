@@ -212,6 +212,9 @@ BEGIN_DATADESC( CBaseAnimating )
 
 	DEFINE_KEYFIELD( m_flModelScale, FIELD_FLOAT, "modelscale" ),
 	DEFINE_INPUTFUNC( FIELD_VECTOR, "SetModelScale", InputSetModelScale ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetModel", InputSetModel ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetCycle", InputSetCycle ),
+	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetPlaybackRate", InputSetPlaybackRate ),
 
 	DEFINE_FIELD( m_fBoneCacheFlags, FIELD_SHORT ),
 
@@ -621,6 +624,58 @@ void CBaseAnimating::InputSetModelScale( inputdata_t &inputdata )
 	SetModelScale( vecScale.x, vecScale.y );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: SetModel input handler
+//-----------------------------------------------------------------------------
+void CBaseAnimating::ScriptSetModel( const char *pszModel )
+{
+	if ( !pszModel || !*pszModel )
+		return;
+
+	const bool bPrecacheAllowed = CBaseEntity::IsPrecacheAllowed();
+	CBaseEntity::SetAllowPrecache( true );
+	{
+		if ( PrecacheModel( pszModel, false ) != -1 )
+		{
+			// Josh:
+			// We need to maintain the current sequence as when changing models
+			// on a nextbot, etc, we want the activity to be able to complete.
+			// Otherwise things get stuck.
+			// So, get the current sequence name, and then look it back up
+			// after.
+			const char *pszCurrentSequence = GetSequenceName( GetSequence() );
+			SetModelName( AllocPooledString( pszModel ) );
+			SetModel( pszModel );
+			int nNewSequence = LookupSequence( pszCurrentSequence );
+			if ( nNewSequence != -1 )
+				SetSequence( nNewSequence );
+		}
+	}
+	CBaseEntity::SetAllowPrecache( bPrecacheAllowed );
+}
+
+void CBaseAnimating::InputSetModel( inputdata_t &inputdata )
+{
+	const char *pszModel = inputdata.value.String();
+	ScriptSetModel( pszModel );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: SetCycle input handler
+//-----------------------------------------------------------------------------
+void CBaseAnimating::InputSetCycle( inputdata_t &inputdata )
+{
+	SetCycle( inputdata.value.Float() );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: SetPlaybackRate input handler
+//-----------------------------------------------------------------------------
+void CBaseAnimating::InputSetPlaybackRate( inputdata_t &inputdata )
+{
+	SetPlaybackRate( inputdata.value.Float() );
+}
+
 
 //=========================================================
 // SelectWeightedSequence
@@ -931,6 +986,17 @@ void CBaseAnimating::SetSequence( int nSequence )
 {
 	Assert( nSequence == 0 || IsDynamicModelLoading() || ( GetModelPtr( ) && ( nSequence < GetModelPtr( )->GetNumSeq() ) && ( GetModelPtr( )->GetNumSeq() < (1 << ANIMATION_SEQUENCE_BITS) ) ) );
 	m_nSequence = nSequence;
+}
+
+//=========================================================
+//=========================================================
+float CBaseAnimating::ScriptGetSequenceDuration( int iSequence )
+{
+	Assert( IsDynamicModelLoading() || GetModelPtr() );
+	if ( IsDynamicModelLoading() )
+		return 0.1f;
+
+	return SequenceDuration( GetModelPtr(), iSequence );
 }
 
 //=========================================================
@@ -2157,6 +2223,12 @@ const char *CBaseAnimating::GetBodygroupName( int iGroup )
 {
 	Assert( IsDynamicModelLoading() || GetModelPtr() );
 	return IsDynamicModelLoading() ? "" : ::GetBodygroupName( GetModelPtr( ), iGroup );
+}
+
+const char *CBaseAnimating::GetBodygroupPartName( int iGroup, int iPart )
+{
+	Assert( IsDynamicModelLoading() || GetModelPtr() );
+	return IsDynamicModelLoading() ? "" : ::GetBodygroupPartName( GetModelPtr( ), iGroup, iPart );
 }
 
 int CBaseAnimating::FindBodygroupByName( const char *name )

@@ -99,6 +99,7 @@ public:
 	inline float SequenceDuration( void ) { return SequenceDuration( m_nSequence ); }
 	float	SequenceDuration( CStudioHdr *pStudioHdr, int iSequence );
 	inline float SequenceDuration( int iSequence ) { return SequenceDuration(GetModelPtr(), iSequence); }
+	float	ScriptGetSequenceDuration( int iSequence );
 	float	GetSequenceCycleRate( CStudioHdr *pStudioHdr, int iSequence );
 	inline float	GetSequenceCycleRate( int iSequence ) { return GetSequenceCycleRate(GetModelPtr(),iSequence); }
 	float	GetLastVisibleCycle( CStudioHdr *pStudioHdr, int iSequence );
@@ -112,6 +113,7 @@ public:
 	int		SelectHeaviestSequence ( Activity activity );
 	int		LookupActivity( const char *label );
 	int		LookupSequence ( const char *label );
+	inline int ScriptLookupSequence( const char *label ) { return LookupSequence( label ); }
 	KeyValues *GetSequenceKeyValues( int iSequence );
 
 	float GetSequenceMoveYaw( int iSequence );
@@ -144,11 +146,13 @@ public:
 
 	int		LookupPoseParameter( CStudioHdr *pStudioHdr, const char *szName );
 	inline int	LookupPoseParameter( const char *szName ) { return LookupPoseParameter(GetModelPtr(), szName); }
+	int ScriptLookupPoseParameter( const char *szName ) { return LookupPoseParameter( szName ); }
 
 	float	SetPoseParameter( CStudioHdr *pStudioHdr, const char *szName, float flValue );
 	inline float SetPoseParameter( const char *szName, float flValue ) { return SetPoseParameter( GetModelPtr(), szName, flValue ); }
 	float	SetPoseParameter( CStudioHdr *pStudioHdr, int iParameter, float flValue );
 	inline float SetPoseParameter( int iParameter, float flValue ) { return SetPoseParameter( GetModelPtr(), iParameter, flValue ); }
+	inline float ScriptSetPoseParameter( int iParameter, float flValue ) { return SetPoseParameter( iParameter, flValue ); }
 
 	float	GetPoseParameter( const char *szName );
 	float	GetPoseParameter( int iParameter );
@@ -197,10 +201,18 @@ public:
 	bool GetAttachment(  const char *szName, Vector &absOrigin, Vector *forward = NULL, Vector *right = NULL, Vector *up = NULL );
 	bool GetAttachment( int iAttachment, Vector &absOrigin, Vector *forward = NULL, Vector *right = NULL, Vector *up = NULL );
 
+	Vector ScriptGetAttachmentOrigin( int iAttachment );
+	QAngle ScriptGetAttachmentAngles( int iAttachment );
+	Vector ScriptGetBoneOrigin( int iBone );
+	QAngle ScriptGetBoneAngles( int iBone );
+
 	void SetBodygroup( int iGroup, int iValue );
 	int GetBodygroup( int iGroup );
+	int GetSkin() const { return m_nSkin; }
+	void SetSkin(int nSkin) { m_nSkin = nSkin; }
 
 	const char *GetBodygroupName( int iGroup );
+	const char *GetBodygroupPartName( int iGroup, int iPart );
 	int FindBodygroupByName( const char *name );
 	int GetBodygroupCount( int iGroup );
 	int GetNumBodyGroups( void );
@@ -266,6 +278,7 @@ public:
 	void				DrawRawSkeleton( matrix3x4_t boneToWorld[], int boneMask, bool noDepthTest = true, float duration = 0.0f, bool monocolor = false );
 
 	void				SetModelScale( float scale, float change_duration = 0.0f );
+	inline void			ScriptSetModelScale( float scale, float change_duration = 0.0f )  { SetModelScale( scale, change_duration ); }
 	float				GetModelScale() const { return m_flModelScale; }
 
 	void				UpdateModelScale();
@@ -341,10 +354,15 @@ private:
 	void InputSetLightingOriginRelative( inputdata_t &inputdata );
 	void InputSetLightingOrigin( inputdata_t &inputdata );
 	void InputSetModelScale( inputdata_t &inputdata );
+	void InputSetModel( inputdata_t &inputdata );
+	void InputSetCycle( inputdata_t &inputdata );
+	void InputSetPlaybackRate( inputdata_t &inputdata );
 
 	bool CanSkipAnimation( void );
 
 public:
+	void ScriptSetModel( const char *pszModel );
+
 	CNetworkVar( int, m_nForceBone );
 	CNetworkVector( m_vecForce );
 

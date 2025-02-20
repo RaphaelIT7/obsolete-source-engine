@@ -33,6 +33,7 @@
 #include "SceneCache.h"
 #include "scripted.h"
 #include "env_debughistory.h"
+#include "team.h"
 
 #ifdef HL2_EPISODIC
 #include "npc_alyx_episodic.h"
@@ -464,6 +465,18 @@ public:
 
 	void					InputScriptPlayerDeath( inputdata_t &inputdata );
 
+	void					InputSetTarget1( inputdata_t &inputdata );
+	void					InputSetTarget2( inputdata_t &inputdata );
+	void					InputSetTarget3( inputdata_t &inputdata );
+	void					InputSetTarget4( inputdata_t &inputdata );
+	void					InputSetTarget5( inputdata_t &inputdata );
+	void					InputSetTarget6( inputdata_t &inputdata );
+	void					InputSetTarget7( inputdata_t &inputdata );
+	void					InputSetTarget8( inputdata_t &inputdata );
+
+	void					AddBroadcastTeamTarget( int nTeamIndex );
+	void					RemoveBroadcastTeamTarget( int nTeamIndex );
+
 // Data
 public:
 	string_t				m_iszSceneFile;
@@ -526,6 +539,7 @@ public:
 	CBaseEntity				*FindNamedTarget( string_t iszTarget, bool bBaseFlexOnly = false );
 	virtual CBaseEntity		*FindNamedEntityClosest( const char *name, CBaseEntity *pActor = NULL, bool bBaseFlexOnly = false, bool bUseClear = false, const char *pszSecondary = NULL );
 
+	bool					ScriptLoadSceneFromString( const char * pszFilename, const char *pszData );
 private:
 
 	CUtlVector< CHandle< CBaseFlex > >		m_hActorList;
@@ -713,6 +727,15 @@ BEGIN_DATADESC( CSceneEntity )
 	DEFINE_KEYFIELD( m_iPlayerDeathBehavior, FIELD_INTEGER, "onplayerdeath" ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "ScriptPlayerDeath", InputScriptPlayerDeath ),
 
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget1", InputSetTarget1 ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget2", InputSetTarget2 ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget3", InputSetTarget3 ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget4", InputSetTarget4 ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget5", InputSetTarget5 ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget6", InputSetTarget6 ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget7", InputSetTarget7 ),
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetTarget8", InputSetTarget8 ),
+
 	// Outputs
 	DEFINE_OUTPUT( m_OnStart, "OnStart"),
 	DEFINE_OUTPUT( m_OnCompletion, "OnCompletion"),
@@ -736,6 +759,7 @@ BEGIN_DATADESC( CSceneEntity )
 END_DATADESC()
 
 const ConVar	*CSceneEntity::m_pcvSndMixahead = NULL;
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -772,6 +796,7 @@ CSceneEntity::CSceneEntity( void )
 		m_pcvSndMixahead	= cvar->FindVar( "snd_mixahead" );
 
 	m_BusyActor			= SCENE_BUSYACTOR_DEFAULT;
+
 }
 
 //-----------------------------------------------------------------------------
@@ -1619,6 +1644,10 @@ bool CSceneEntity::GetSoundNameForPlayer( CChoreoEvent *event, CBasePlayer *play
 	// Copy the sound name
 	CopySoundNameWithModifierToken( buf, event->GetParameters(), buflen, pchToken );
 
+	// If there was a modifier token, don't change the sound based on CC
+	if ( pchToken[0] != 0 )
+		return true;
+
 	bool usingEnglish = true;
 	if ( !IsXbox() )
 	{
@@ -2089,6 +2118,69 @@ void CSceneEntity::InputScriptPlayerDeath( inputdata_t &inputdata )
 	}
 }
 
+void CSceneEntity::InputSetTarget1( inputdata_t &inputdata )
+{
+	m_iszTarget1 = MAKE_STRING( inputdata.value.String() );
+	m_hActorList.Purge();
+	NetworkProp()->NetworkStateForceUpdate();
+	m_hTarget1 = FindNamedTarget( m_iszTarget1, false );
+}
+
+void CSceneEntity::InputSetTarget2( inputdata_t &inputdata )
+{
+	m_iszTarget2 = MAKE_STRING( inputdata.value.String() );
+	m_hActorList.Purge();
+	NetworkProp()->NetworkStateForceUpdate();
+	m_hTarget2 = FindNamedTarget( m_iszTarget2, false );
+}
+
+void CSceneEntity::InputSetTarget3( inputdata_t &inputdata )
+{
+	m_iszTarget3 = MAKE_STRING( inputdata.value.String() );
+	m_hActorList.Purge();
+	NetworkProp()->NetworkStateForceUpdate();
+	m_hTarget3 = FindNamedTarget( m_iszTarget3, false );
+}
+
+void CSceneEntity::InputSetTarget4( inputdata_t &inputdata )
+{
+	m_iszTarget4 = MAKE_STRING( inputdata.value.String() );
+	m_hActorList.Purge();
+	NetworkProp()->NetworkStateForceUpdate();
+	m_hTarget4 = FindNamedTarget( m_iszTarget4, false );
+}
+
+void CSceneEntity::InputSetTarget5( inputdata_t &inputdata )
+{
+	m_iszTarget5 = MAKE_STRING( inputdata.value.String() );
+	m_hActorList.Purge();
+	NetworkProp()->NetworkStateForceUpdate();
+	m_hTarget5 = FindNamedTarget( m_iszTarget5, false );
+}
+
+void CSceneEntity::InputSetTarget6( inputdata_t &inputdata )
+{
+	m_iszTarget6 = MAKE_STRING( inputdata.value.String() );
+	m_hActorList.Purge();
+	NetworkProp()->NetworkStateForceUpdate();
+	m_hTarget6 = FindNamedTarget( m_iszTarget6, false );
+}
+
+void CSceneEntity::InputSetTarget7( inputdata_t &inputdata )
+{
+	m_iszTarget7 = MAKE_STRING( inputdata.value.String() );
+	m_hActorList.Purge();
+	NetworkProp()->NetworkStateForceUpdate();
+	m_hTarget7 = FindNamedTarget( m_iszTarget7, false );
+}
+
+void CSceneEntity::InputSetTarget8( inputdata_t &inputdata )
+{
+	m_iszTarget8 = MAKE_STRING( inputdata.value.String() );
+	m_hActorList.Purge();
+	NetworkProp()->NetworkStateForceUpdate();
+	m_hTarget8 = FindNamedTarget( m_iszTarget8, false );
+}
 
 void CSceneEntity::InputCancelAtNextInterrupt( inputdata_t &inputdata )
 {
@@ -3611,6 +3703,46 @@ private:
 	EHANDLE		m_hEntityFound;
 };
 
+//-----------------------------------------------------------------------------
+// Purpose: vscript - create a scene directly from a buffer containing
+// a vcd description, and load it into the scene entity.
+//-----------------------------------------------------------------------------
+
+bool CSceneEntity::ScriptLoadSceneFromString( const char * pszFilename, const char *pszData )
+{
+	CChoreoScene *pScene = new CChoreoScene( NULL ); 
+	
+	// CSceneTokenProcessor SceneTokenProcessor;
+	// SceneTokenProcessor.SetBuffer( pszData );
+	g_TokenProcessor.SetBuffer( (char *)pszData );
+
+	if ( !pScene->ParseFromBuffer( pszFilename, &g_TokenProcessor ) ) //&SceneTokenProcessor ) )
+		{
+			Warning( "CSceneEntity::LoadSceneFromString: Unable to parse scene data '%s'\n", pszFilename );
+			delete pScene;
+			pScene = NULL;
+		}
+		else
+		{
+			pScene->SetPrintFunc( LocalScene_Printf );
+			pScene->SetEventCallbackInterface( this );
+
+			// precache all sounds for the newly constructed scene
+			PrecacheScene( pScene );
+		}
+
+	if ( pScene != NULL )
+	{
+		// release prior scene if present
+		UnloadScene();
+		m_pScene = pScene;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Finds the entity nearest to both entities, and is clear
@@ -4352,6 +4484,43 @@ void CSceneEntity::SetRecipientFilter( IRecipientFilter *filter )
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Adds a player (by index) to the recipient filter
+//-----------------------------------------------------------------------------
+void CSceneEntity::AddBroadcastTeamTarget( int nTeamIndex )
+{
+	if ( m_pRecipientFilter == NULL )
+	{
+		CRecipientFilter filter;
+		SetRecipientFilter( &filter );
+	}
+
+	CTeam *pTeam = GetGlobalTeam( nTeamIndex );
+	Assert( pTeam );
+	if ( pTeam == NULL )
+		return;
+
+	m_pRecipientFilter->AddRecipientsByTeam( pTeam );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Removes a player (by index) from the recipient filter
+//-----------------------------------------------------------------------------
+void CSceneEntity::RemoveBroadcastTeamTarget( int nTeamIndex )
+{
+	if ( m_pRecipientFilter == NULL )
+	{
+		CRecipientFilter filter;
+		SetRecipientFilter( &filter );
+	}
+
+	CTeam *pTeam = GetGlobalTeam( nTeamIndex );
+	Assert( pTeam );
+	if ( pTeam == NULL )
+		return;
+
+	m_pRecipientFilter->RemoveRecipientsByTeam( pTeam );
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
