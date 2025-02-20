@@ -34,6 +34,8 @@ typedef union
 typedef fltx4 i32x4;
 typedef fltx4 u32x4;
 
+typedef fltx4 bi32x4;
+
 #else
 
 typedef DirectX::XMVECTOR fltx4;

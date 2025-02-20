@@ -249,7 +249,10 @@ struct ikcontextikrule_t
 	Vector		kneeDir;
 	Vector		kneePos;
 
-	ikcontextikrule_t() : szLabel() {}
+	ikcontextikrule_t()
+	{
+		memset( this, 0, sizeof( *this ) );
+	}
 
 	// No copy constructors allowed
 	ikcontextikrule_t(const ikcontextikrule_t&) = delete;

@@ -2378,6 +2378,8 @@ const char *predef_flexcontroller_names[] = {
 	"left_mouth_drop", 
 	NULL };
 
+int predef_flexcontroller_names_count = ARRAYSIZE( predef_flexcontroller_names );
+
 float predef_flexcontroller_values[7][30] = {
 /* 0 */	{ 0.700,0.560,0.650,0.650,0.650,0.585,0.000,0.000,0.400,0.040,0.000,0.000,0.450,0.450,0.000,0.000,0.000,0.750,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.150,1.000,0.000,0.000,0.000 }, 
 /* 1 */	{ 0.450,0.450,0.450,0.450,0.000,0.000,0.000,0.000,0.300,0.300,0.000,0.000,0.250,0.250,0.000,0.000,0.000,0.750,0.750,0.000,0.000,0.000,0.000,0.400,0.400,0.000,1.000,0.000,0.050,0.050 }, 
@@ -2482,7 +2484,7 @@ void CFlexCycler::Think( void )
 				m_flextarget[m_flexnum] = 0;
 			}
 
-			for (i = 0; i < 31 && predef_flexcontroller_names[i]; i++)
+			for (i = 0; i < predef_flexcontroller_names_count  && predef_flexcontroller_names[i]; i++)
 			{
 				m_flexnum = LookupFlex( predef_flexcontroller_names[i] );
 				m_flextarget[m_flexnum] = predef_flexcontroller_values[j][i];

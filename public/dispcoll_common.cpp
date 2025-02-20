@@ -1498,7 +1498,7 @@ CDispCollTree *DispCollTrees_Alloc( int count )
 {
 	CDispCollTree *pTrees = NULL;
 #ifdef ENGINE_DLL
-	pTrees = (CDispCollTree *)Hunk_Alloc( count * sizeof(CDispCollTree), false );
+	pTrees = (CDispCollTree *)Hunk_AllocName( count * sizeof(CDispCollTree), "DispCollTrees_Alloc", false );
 	g_nTrees = count;
 	for ( int i = 0; i < g_nTrees; i++ )
 	{

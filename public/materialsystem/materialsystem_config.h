@@ -34,6 +34,7 @@ enum MaterialSystem_Config_Flags_t
 	MATSYS_VIDCFG_FLAGS_USING_MULTIPLE_WINDOWS      = ( 1 << 15 ),
 	MATSYS_VIDCFG_FLAGS_DISABLE_PHONG               = ( 1 << 16 ),
 	MATSYS_VIDCFG_FLAGS_VR_MODE						= ( 1 << 17 ),
+	MATSYS_VIDCFG_FLAGS_NO_WINDOW_BORDER			= ( 1 << 18 ),
 	MATSYS_VIDCFG_FLAGS_LIGHTMAP_BICUBIC			= ( 1 << 19 ),
 };
 
@@ -47,6 +48,7 @@ struct MaterialSystemHardwareIdentifier_t
 struct MaterialSystem_Config_t
 {
 	bool Windowed() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_WINDOWED ) != 0; }
+	bool NoWindowBorder() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_NO_WINDOW_BORDER ) != 0; }
 	bool Resizing() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_RESIZING ) != 0; }
 #ifdef CSS_PERF_TEST
 	bool WaitForVSync() const { return false; }//( m_Flags & MATSYS_VIDCFG_FLAGS_NO_WAIT_FOR_VSYNC ) == 0; }
@@ -152,6 +154,7 @@ struct MaterialSystem_Config_t
 
 		// video config defaults
 		SetFlag( MATSYS_VIDCFG_FLAGS_WINDOWED, false );
+		SetFlag( MATSYS_VIDCFG_FLAGS_NO_WINDOW_BORDER, false );
 		SetFlag( MATSYS_VIDCFG_FLAGS_RESIZING, false );
 		SetFlag( MATSYS_VIDCFG_FLAGS_NO_WAIT_FOR_VSYNC, true );
 		SetFlag( MATSYS_VIDCFG_FLAGS_STENCIL, false );

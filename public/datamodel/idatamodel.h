@@ -90,19 +90,16 @@ enum DmFileId_t
 //-----------------------------------------------------------------------------
 // Handle to an CDmAttribute
 //-----------------------------------------------------------------------------
-enum DmAttributeHandle_t
+enum DmAttributeHandle_t : intp
 {  
-	DMATTRIBUTE_HANDLE_INVALID = 0xffffffff
+	DMATTRIBUTE_HANDLE_INVALID = (DmAttributeHandle_t)(intp)(~((uintp)(0)))
 };
 
 //-----------------------------------------------------------------------------
 // Handle to an DmAttributeList_t
 //-----------------------------------------------------------------------------
-// dimhotepus: x86-64 int -> intp
-enum DmAttributeReferenceIterator_t : intp
-{  
-	DMATTRIBUTE_REFERENCE_ITERATOR_INVALID = 0
-};
+typedef uintp DmAttributeReferenceIterator_t;
+#define	DMATTRIBUTE_REFERENCE_ITERATOR_INVALID 0
 
 //-----------------------------------------------------------------------------
 // element framework interface

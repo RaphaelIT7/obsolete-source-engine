@@ -19,9 +19,10 @@
 #include "tier2/meshutils.h"
 #include "mathlib/mathlib.h"
 
-#if defined( DX_TO_GL_ABSTRACTION )
-// Swap these so that we do color swapping on 10.6.2, which doesn't have EXT_vertex_array_bgra
-#define	OPENGL_SWAP_COLORS
+#if defined( OSX )
+	// Needed to support older versions of MacOS.
+	// No longer needed on Linux as we have BGRA there.
+	#define OPENGL_SWAP_COLORS
 #endif
 
 //-----------------------------------------------------------------------------
@@ -215,6 +216,17 @@ inline void IncrementFloatPointer( float* &pBufferPointer, int vertexSize )
 	pBufferPointer = reinterpret_cast<float*>( reinterpret_cast<unsigned char*>( pBufferPointer ) + vertexSize );
 }
 
+inline int PackRGBToPlatformColor( int r, int g, int b, int a )
+{
+	#if defined( OPENGL_SWAP_COLORS )
+		int col = r | (g << 8) | (b << 16) | (a << 24);	// r, g, b, a in memory
+	#elif defined( CELL_GCM_SWAP_COLORS )
+		int col = ( r << 24 ) | ( g << 16 ) | ( b << 8 ) | a;
+	#else
+		int col = b | (g << 8) | (r << 16) | (a << 24);
+	#endif
+	return col;
+}
 
 //-----------------------------------------------------------------------------
 // Used in lists of indexed primitives.
@@ -2982,6 +2994,7 @@ public:
 
 	// Fast Index! No need to call advance index, and no random access allowed
 	void FastIndex( unsigned short index );
+	void FastQuad( int index );
 
 	// Fast Vertex! No need to call advance vertex, and no random access allowed. 
 	// WARNING - these are low level functions that are intended only for use
@@ -3539,6 +3552,11 @@ FORCEINLINE void CMeshBuilder::Index( unsigned short idx )
 FORCEINLINE void CMeshBuilder::FastIndex( unsigned short idx )
 {
 	m_IndexBuilder.FastIndex( idx );
+}
+
+FORCEINLINE void CMeshBuilder::FastQuad( int nIndex )
+{
+	m_IndexBuilder.FastQuad( nIndex );
 }
 
 // NOTE: Use this one to get write combining! Much faster than the other version of FastIndex

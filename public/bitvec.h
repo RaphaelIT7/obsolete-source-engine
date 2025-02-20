@@ -269,8 +269,8 @@ public:
 	void	SetDWord(int i, uint32 val);
 
 	CBitVecT<BASE_OPS>&	operator=(const CBitVecT<BASE_OPS> &other)	{ other.CopyTo( this ); return *this; }
-	bool			operator==(const CBitVecT<BASE_OPS> &other)		{ return Compare( other ); }
-	bool			operator!=(const CBitVecT<BASE_OPS> &other)		{ return !operator==( other ); }
+	bool			operator==(const CBitVecT<BASE_OPS> &other) const { return Compare( other ); }
+	bool			operator!=(const CBitVecT<BASE_OPS> &other) const { return !operator==( other ); }
 
 	static void GetOffsetMaskForBit( uint32 bitNum, uint32 *pOffset, uint32 *pMask )	{ *pOffset = BitVec_Int( bitNum ); *pMask = BitVec_Bit( bitNum ); }
 };

@@ -901,14 +901,15 @@ void UTIL_ReplaceKeyBindings( const wchar_t *inbuf, int inbufsizebytes, OUT_Z_BY
 				char binding[64];
 				g_pVGuiLocalize->ConvertUnicodeToANSI( token, binding, sizeof(binding) );
 
-				// Find a Steam Controller mapping, if an action set was specified.
-				const wchar_t* sc_origin = nullptr;
-				if ( actionset != GAME_ACTION_SET_NONE)
+				// Find a Steam Controller mapping, if an action set was specified and steam controller is active.
+				const char* sc_origin = nullptr;
+				if ( actionset != GAME_ACTION_SET_NONE && g_pInputSystem->IsSteamControllerActive() )
 				{
 					auto origin = g_pInputSystem->GetSteamControllerActionOrigin( *binding == '+' ? binding + 1 : binding, actionset );
 					if ( origin != k_EControllerActionOrigin_None )
 					{
-						sc_origin = g_pInputSystem->GetSteamControllerDescriptionForActionOrigin( origin );
+						auto pSteamController = g_pInputSystem->SteamControllerInterface();
+						sc_origin = pSteamController ? pSteamController->GetStringForActionOrigin( origin ) : "";
 					}
 				}
 
@@ -942,10 +943,12 @@ void UTIL_ReplaceKeyBindings( const wchar_t *inbuf, int inbufsizebytes, OUT_Z_BY
 
 				const wchar_t* locName = nullptr;
 
+				CStrAutoEncode sc_origin_encoded( sc_origin );
+
 				// If we got a Steam Controller key description, use that, otherwise use the (possibly localized) key name
 				if ( sc_origin )
 				{
-					locName = sc_origin;
+					locName = sc_origin_encoded.ToWString();
 				}
 				else
 				{
@@ -1314,4 +1317,61 @@ bool UTIL_HasLoadedAnyMap()
 		return false;
 
 	return g_pFullFileSystem->FileExists( szFilename, "MOD" );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Performs a near-miss check of pEntity against the local player.
+//			Plays pszNearMissSound in their ears and returns true when a near-
+//			miss is detected.
+//-----------------------------------------------------------------------------
+bool UTIL_BPerformNearMiss( const CBaseEntity* pEntity, const char* pszNearMissSound, float flNearMissDistanceThreshold )
+{
+	// Check against the local player. If we're near him play a near miss sound.
+	C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
+	if ( !pLocalPlayer || !pLocalPlayer->IsAlive() )
+		return false;
+
+	// Can't hear near miss sounds from friendly arrows.
+	if ( pLocalPlayer->GetTeamNumber() == pEntity->GetTeamNumber() )
+		return false;
+
+	Vector vecPlayerPos = pLocalPlayer->GetAbsOrigin();
+	Vector vecArrowPos = pEntity->GetAbsOrigin(), forward;
+	AngleVectors( pEntity->GetAbsAngles(), &forward );
+	Vector vecArrowDest = pEntity->GetAbsOrigin() + forward * 200.f;
+
+	// If the arrow is moving away from the player just stop checking.
+	float dist1 = vecArrowPos.DistToSqr( vecPlayerPos );
+	float dist2 = vecArrowDest.DistToSqr( vecPlayerPos );
+	if ( dist2 > dist1 )
+	{
+		return true;
+	}
+
+	// Check to see if the arrow is passing near the player.
+	Vector vecClosestPoint;
+	float dist;
+	CalcClosestPointOnLineSegment( vecPlayerPos, vecArrowPos, vecArrowDest, vecClosestPoint, &dist );
+	dist = vecPlayerPos.DistTo( vecClosestPoint );
+	if ( dist > flNearMissDistanceThreshold )
+		return false;
+
+	// The arrow is passing close to the local player.
+
+	// If the arrow is about to hit something, don't play the sound and stop this check.
+	trace_t tr;
+	UTIL_TraceLine( vecArrowPos, vecArrowPos + forward * 400.f, CONTENTS_HITBOX|CONTENTS_MONSTER|CONTENTS_SOLID, pEntity, COLLISION_GROUP_NONE, &tr );
+	if ( tr.DidHit() )
+		return true;
+
+	// We're good for a near miss!
+	float soundlen = 0;
+	EmitSound_t params;
+	params.m_flSoundTime = 0;
+	params.m_pSoundName = pszNearMissSound;
+	params.m_pflSoundDuration = &soundlen;
+	CSingleUserRecipientFilter localFilter( pLocalPlayer );
+	CBaseEntity::EmitSound( localFilter, pLocalPlayer->entindex(), params );
+
+	return true;
 }

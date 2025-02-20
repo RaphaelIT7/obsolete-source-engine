@@ -154,9 +154,20 @@ typedef enum
 	VOTE_FAILED_VOTE_IN_PROGRESS,
 	VOTE_FAILED_KICK_LIMIT_REACHED,
 	VOTE_FAILED_KICK_DENIED_BY_GC,
+	// Special reason - the vote issue itself will handle this request specially -- the vote system shouldn't proceed
+	// with the vote.  Shows no error to user.
+	//
+	// Used by match-based votekicks to send a votekick request to the match system when the user tries to call one --
+	// which then owns starting a proper vote later or telling the user why the match system isn't allowing the
+	// votekick.
+	VOTE_FAILED_REQUEST_HANDLED_BY_ISSUE,
 
 	// TF-specific?
 	VOTE_FAILED_MODIFICATION_ALREADY_ACTIVE,
+
+	VOTE_FAILED_PLAYER_TRANSITIONING,
+
+	VOTE_FAILED_INVALID_ARGUMENT,
 } vote_create_failed_t;
 
 enum
@@ -171,12 +182,16 @@ enum
 
 enum CastVote
 {
-	VOTE_OPTION1,  // Use this for Yes
-	VOTE_OPTION2,  // Use this for No
-	VOTE_OPTION3,
-	VOTE_OPTION4,
-	VOTE_OPTION5,
-	VOTE_UNCAST
+	VOTE_OPTION1 = 0,  // Use this for Yes
+	VOTE_OPTION2 = 1,  // Use this for No
+	VOTE_OPTION3 = 2,
+	VOTE_OPTION4 = 3,
+	VOTE_OPTION5 = 4,
+	VOTE_UNCAST  = 5,
+
+	// Alias yes/no to OPTION1/OPTION2
+	VOTE_YES = 0,
+	VOTE_NO  = 1,
 };
 
 //===================================================================================================================
@@ -201,7 +216,17 @@ enum CastVote
 #define HIDEHUD_INVEHICLE			( 1<<10 )
 #define HIDEHUD_BONUS_PROGRESS		( 1<<11 )	// Hide bonus progress display (for bonus map challenges)
 
+#if defined( TF_DLL ) || defined ( TF_CLIENT_DLL )
+#define HIDEHUD_BUILDING_STATUS		        ( 1<<12 )	// Hide Engineer building status
+#define HIDEHUD_CLOAK_AND_FEIGN             ( 1<<13 )	// Hide item effect meter (cloak, etc)
+#define HIDEHUD_PIPES_AND_CHARGE            ( 1<<14 )	// Hide demo hud
+#define HIDEHUD_METAL                       ( 1<<15 )	// Metal/account hud
+#define HIDEHUD_TARGET_ID                   ( 1<<16 )	// Target ID
+#define HIDEHUD_MATCH_STATUS				( 1<<17 )	// Hide match status
+#define HIDEHUD_BITCOUNT			18
+#else
 #define HIDEHUD_BITCOUNT			12
+#endif
 
 //===================================================================================================================
 // suit usage bits
@@ -619,7 +644,7 @@ enum
 	EFL_DIRTY_ABSANGVELOCITY =	(1<<13),
 	EFL_DIRTY_SURROUNDING_COLLISION_BOUNDS	= (1<<14),
 	EFL_DIRTY_SPATIAL_PARTITION = (1<<15),
-//	UNUSED						= (1<<16),
+	EFL_FORCE_ALLOW_MOVEPARENT	= (1<<16),
 
 	EFL_IN_SKYBOX =				(1<<17),	// This is set if the entity detects that it's in the skybox.
 											// This forces it to pass the "in PVS" for transmission.
@@ -962,5 +987,13 @@ enum
 	MAX_VISION_MODES
 };
 #endif // TF_DLL || TF_CLIENT_DLL
+
+class CPhysCollide;
+struct collidelist_t
+{
+	const CPhysCollide	*pCollide;
+	Vector			origin;
+	QAngle			angles;
+};
 
 #endif // SHAREDDEFS_H

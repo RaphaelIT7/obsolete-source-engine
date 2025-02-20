@@ -55,6 +55,14 @@ public:
 	virtual void AddLineOverlayAlpha(const Vector& origin, const Vector& dest, int r, int g, int b, int a, bool noDepthTest, float duration) = 0;
 	virtual void AddBoxOverlay2( const Vector& origin, const Vector& mins, const Vector& max, QAngle const& orientation, const Color& faceColor, const Color& edgeColor, float duration ) = 0;
 
+	virtual void AddScreenTextOverlay2(float flXPos, float flYPos, int iLine, float flDuration, int r, int g, int b, int a, const char *text) = 0;
+
+	// misyl: compat.
+	// must be a 2 otherwise msvc will dump overloads in the middle of the vtable
+	inline void AddScreenTextOverlay( float flXPos, float flYPos, int iLine, float flDuration, int r, int g, int b, int a, const char* text )
+	{
+		this->AddScreenTextOverlay2( flXPos, flYPos, iLine, flDuration, r, g, b, a, text );
+	}
 private:
 	inline void AddTextOverlay( [[maybe_unused]] const Vector& origin, [[maybe_unused]] int line_offset, [[maybe_unused]] float duration, [[maybe_unused]] int r, [[maybe_unused]] int g, [[maybe_unused]] int b, [[maybe_unused]] int a, [[maybe_unused]] PRINTF_FORMAT_STRING const char *format, ...) {} /* catch improper use of bad interface. Needed because '0' duration can be resolved by compiler to NULL format string (i.e., compiles but calls wrong function) */
 };

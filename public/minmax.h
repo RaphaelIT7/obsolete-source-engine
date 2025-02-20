@@ -17,9 +17,16 @@
 #undef fopen
 #endif
 
-#include <algorithm>
+template <typename T>
+const T& min(const T& a, const T& b)
+{
+    return (b < a) ? b : a;
+}
 
-using std::min;
-using std::max;
+template <typename T>
+const T& max(const T& a, const T& b)
+{
+    return (a < b) ? b : a;
+}
 
 #endif // MINMAX_H
