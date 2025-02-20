@@ -452,6 +452,7 @@ BEGIN_DATADESC( CBasePlayer )
 
 	DEFINE_FIELD( m_nNumCrateHudHints, FIELD_INTEGER ),
 
+	DEFINE_INPUTFUNC( FIELD_STRING, "SetScriptOverlayMaterial", InputSetScriptOverlayMaterial ),
 
 
 	// DEFINE_FIELD( m_nBodyPitchPoseParam, FIELD_INTEGER ),

@@ -407,6 +407,8 @@ protected:
 
 public:
 	int m_StuckLast;
+
+	const char* GetScriptOverlayMaterial() const { return m_Local.m_szScriptOverlayMaterial; }
 	
 	// Data for only the local player
 	CNetworkVarEmbedded( CPlayerLocalData, m_Local );

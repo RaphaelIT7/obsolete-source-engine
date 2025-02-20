@@ -86,6 +86,8 @@ public:
 	CNetworkVarEmbedded( audioparams_t, m_audio );
 
 	CNetworkVar( bool, m_bSlowMovement );
+
+	CNetworkString( m_szScriptOverlayMaterial, MAX_PATH );
 };
 
 EXTERN_SEND_TABLE(DT_Local);

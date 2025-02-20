@@ -936,6 +936,17 @@ CViewRender::CViewRender()
 	m_BaseDrawFlags = 0;
 	m_pActiveRenderer = NULL;
 	m_pCurrentlyDrawingEntity = NULL;
+
+	m_szCurrentScriptMaterialName[0] = '\0';
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Called once per level change
+//-----------------------------------------------------------------------------
+void CViewRender::LevelShutdown( void )
+{
+	m_ScriptOverlayMaterial.Shutdown();
+	m_szCurrentScriptMaterialName[0] = '\0';
 }
 
 
@@ -1220,6 +1231,56 @@ void CViewRender::PerformScreenOverlay( int x, int y, int w, int h )
 		{
 			byte color[4] = { 255, 255, 255, 255 };
 			render->ViewDrawFade( color, m_ScreenOverlayMaterial );
+		}
+	}
+
+	{
+		const char *pszScriptMaterial = nullptr;
+		C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
+		if ( pLocalPlayer )
+			pszScriptMaterial = pLocalPlayer->GetScriptOverlayMaterial();
+
+		if ( pszScriptMaterial && *pszScriptMaterial )
+		{
+			if ( !V_strncmp( m_szCurrentScriptMaterialName, pszScriptMaterial, MAX_PATH ) )
+			{
+				m_ScriptOverlayMaterial.Init( pszScriptMaterial, TEXTURE_GROUP_OTHER, false );
+			}
+
+			V_strncpy( m_szCurrentScriptMaterialName, pszScriptMaterial, MAX_PATH );
+		}
+		else
+		{
+			m_ScriptOverlayMaterial.Shutdown();
+			m_szCurrentScriptMaterialName[0] = '\0';
+		}
+
+		if ( m_ScriptOverlayMaterial )
+		{
+			if ( m_ScriptOverlayMaterial->NeedsFullFrameBufferTexture() )
+			{
+				// FIXME: check with multi/sub-rect renders. Should this be 0,0,w,h instead?
+				DrawScreenEffectMaterial( m_ScriptOverlayMaterial, x, y, w, h );
+			}
+			else if ( m_ScriptOverlayMaterial->NeedsPowerOfTwoFrameBufferTexture() )
+			{
+				// First copy the FB off to the offscreen texture
+				UpdateRefractTexture( x, y, w, h, true );
+
+				// Now draw the entire screen using the material...
+				CMatRenderContextPtr pRenderContext( materials );
+				ITexture *pTexture = GetPowerOfTwoFrameBufferTexture( );
+				int sw = pTexture->GetActualWidth();
+				int sh = pTexture->GetActualHeight();
+				// Note - don't offset by x,y - already done by the viewport.
+				pRenderContext->DrawScreenSpaceRectangle( m_ScriptOverlayMaterial, 0, 0, w, h,
+													 0, 0, sw-1, sh-1, sw, sh );
+			}
+			else
+			{
+				byte color[4] = { 255, 255, 255, 255 };
+				render->ViewDrawFade( color, m_ScriptOverlayMaterial );
+			}
 		}
 	}
 }

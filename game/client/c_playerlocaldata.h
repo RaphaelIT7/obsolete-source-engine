@@ -35,6 +35,8 @@ public:
 		m_flFOVRate = 0;
 		m_bForceLocalPlayerDraw = false;
 		m_bPrevForceLocalPlayerDraw = false;
+
+		m_szScriptOverlayMaterial.GetForModify()[0] = '\0';
 	}
 
 	unsigned char			m_chAreaBits[MAX_AREA_STATE_BYTES];				// Area visibility flags.
@@ -80,6 +82,7 @@ public:
 
 	bool					m_bSlowMovement;
 
+	CNetworkString( m_szScriptOverlayMaterial, MAX_PATH );
 };
 
 #endif // C_PLAYERLOCALDATA_H

@@ -84,6 +84,8 @@ BEGIN_SEND_TABLE_NOBASE( CPlayerLocalData, DT_Local )
 	SendPropInt( SENDINFO_STRUCTELEM( m_audio.soundscapeIndex ), 17, 0 ),
 	SendPropInt( SENDINFO_STRUCTELEM( m_audio.localBits ), NUM_AUDIO_LOCAL_SOUNDS, SPROP_UNSIGNED ),
 	SendPropEHandle( SENDINFO_STRUCTELEM( m_audio.ent ) ),
+
+	SendPropString( SENDINFO( m_szScriptOverlayMaterial ) ),
 END_SEND_TABLE()
 
 BEGIN_SIMPLE_DATADESC( fogplayerparams_t )
@@ -189,6 +191,8 @@ CPlayerLocalData::CPlayerLocalData()
 	m_audio.ent.Set( NULL );
 	m_pOldSkyCamera = NULL;
 	m_bDrawViewmodel = true;
+
+	m_szScriptOverlayMaterial.GetForModify()[0] = '\0';
 }
 
 
