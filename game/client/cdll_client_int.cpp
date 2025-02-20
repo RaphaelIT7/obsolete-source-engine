@@ -346,6 +346,8 @@ static ConVar s_cl_class("cl_class", "default", FCVAR_USERINFO|FCVAR_ARCHIVE, "D
 static ConVar s_cl_load_hl1_content("cl_load_hl1_content", "0", FCVAR_ARCHIVE, "Mount the content from Half-Life: Source if possible");
 #endif
 
+ConVar r_lightmap_bicubic_set( "r_lightmap_bicubic_set", "0", FCVAR_ARCHIVE | FCVAR_HIDDEN, "Hack to get this convar to be re-set on first launch." );
+
 
 // Physics system
 bool g_bLevelInitialized;
@@ -1204,6 +1206,16 @@ void CHLClient::PostInit()
 		}
 	}
 #endif
+
+	if ( !r_lightmap_bicubic_set.GetBool() && materials )
+	{
+		MaterialAdapterInfo_t info{};
+		materials->GetDisplayAdapterInfo( materials->GetCurrentAdapter(), info );
+
+		ConVarRef r_lightmap_bicubic( "r_lightmap_bicubic" );
+		r_lightmap_bicubic.SetValue( info.m_nMaxDXSupportLevel >= 95 || ( info.m_nMaxDXSupportLevel >= 90 && IsLinux() ) );
+		r_lightmap_bicubic_set.SetValue( true );
+	}
 }
 
 //-----------------------------------------------------------------------------
