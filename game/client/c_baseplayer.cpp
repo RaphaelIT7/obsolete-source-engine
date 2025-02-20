@@ -211,7 +211,7 @@ BEGIN_RECV_TABLE_NOBASE( CPlayerLocalData, DT_Local )
 	RecvPropVector( RECVINFO( m_audio.localSound[7] ) ),
 	RecvPropInt( RECVINFO( m_audio.soundscapeIndex ) ),
 	RecvPropInt( RECVINFO( m_audio.localBits ) ),
-	RecvPropEHandle( RECVINFO( m_audio.ent ) ),
+	RecvPropInt( RECVINFO( m_audio.entIndex ) ),
 
 	RecvPropString( RECVINFO( m_szScriptOverlayMaterial ) ),
 END_RECV_TABLE()
@@ -3037,7 +3037,8 @@ void CC_DumpClientSoundscapeData( const CCommand& args )
 	Msg("Client Soundscape data dump:\n");
 	Msg("   Position: %.2f %.2f %.2f\n", pPlayer->GetAbsOrigin().x, pPlayer->GetAbsOrigin().y, pPlayer->GetAbsOrigin().z );
 	Msg("   soundscape index: %d\n", pPlayer->m_Local.m_audio.soundscapeIndex.Get() );
-	Msg("   entity index: %d\n", pPlayer->m_Local.m_audio.ent.Get() ? pPlayer->m_Local.m_audio.ent->entindex() : -1 );
+	Msg("   entity index: %d\n", pPlayer->m_Local.m_audio.entIndex.Get() );
+#if 0
 	if ( pPlayer->m_Local.m_audio.ent.Get() )
 	{
 		Msg("   entity pos: %.2f %.2f %.2f\n", pPlayer->m_Local.m_audio.ent.Get()->GetAbsOrigin().x, pPlayer->m_Local.m_audio.ent.Get()->GetAbsOrigin().y, pPlayer->m_Local.m_audio.ent.Get()->GetAbsOrigin().z );
@@ -3046,6 +3047,7 @@ void CC_DumpClientSoundscapeData( const CCommand& args )
 			Msg("     ENTITY IS DORMANT\n");
 		}
 	}
+#endif
 	bool bFoundOne = false;
 	for ( int i = 0; i < NUM_AUDIO_LOCAL_SOUNDS; i++ )
 	{

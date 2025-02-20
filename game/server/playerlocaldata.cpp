@@ -84,7 +84,7 @@ BEGIN_SEND_TABLE_NOBASE( CPlayerLocalData, DT_Local )
 	SendPropVector( SENDINFO_STRUCTARRAYELEM( m_audio.localSound, 7 ), -1, SPROP_COORD),
 	SendPropInt( SENDINFO_STRUCTELEM( m_audio.soundscapeIndex ), 17, 0 ),
 	SendPropInt( SENDINFO_STRUCTELEM( m_audio.localBits ), NUM_AUDIO_LOCAL_SOUNDS, SPROP_UNSIGNED ),
-	SendPropEHandle( SENDINFO_STRUCTELEM( m_audio.ent ) ),
+	SendPropInt( SENDINFO_STRUCTELEM( m_audio.entIndex ) ),
 
 	SendPropString( SENDINFO( m_szScriptOverlayMaterial ) ),
 END_SEND_TABLE()
@@ -134,7 +134,7 @@ BEGIN_SIMPLE_DATADESC( audioparams_t )
 	DEFINE_AUTO_ARRAY( localSound, FIELD_VECTOR ),
 	DEFINE_FIELD( soundscapeIndex, FIELD_INTEGER ),
 	DEFINE_FIELD( localBits, FIELD_INTEGER ),
-	DEFINE_FIELD( ent, FIELD_EHANDLE ),
+	DEFINE_FIELD( entIndex, FIELD_INTEGER ),
 
 END_DATADESC()
 
@@ -189,7 +189,7 @@ CPlayerLocalData::CPlayerLocalData()
 #endif
 	m_audio.soundscapeIndex = 0;
 	m_audio.localBits = 0;
-	m_audio.ent.Set( NULL );
+	m_audio.entIndex = 0;
 	m_pOldSkyCamera = NULL;
 	m_bDrawViewmodel = true;
 

@@ -117,7 +117,7 @@ struct audioparams_t
 	CNetworkArray( Vector, localSound, NUM_AUDIO_LOCAL_SOUNDS )
 	CNetworkVar( int, soundscapeIndex );	// index of the current soundscape from soundscape.txt
 	CNetworkVar( int, localBits );			// if bits 0,1,2,3 are set then position 0,1,2,3 are valid/used
-	CNetworkHandle( CBaseEntity, ent );		// the entity setting the soundscape
+	CNetworkVar( int, entIndex );			// the entity setting the soundscape
 };
 
 
