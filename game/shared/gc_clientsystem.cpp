@@ -13,6 +13,10 @@
 #endif
 //#include "gcsdk/msgprotobuf.h"
 
+#ifdef TF_CLIENT_DLL
+#include "secure_command_line.h"
+#endif
+
 //
 // TODO: NO_STEAM support!
 //
@@ -37,28 +41,13 @@ CGCClientSystem *GCClientSystem()
 	return s_pCGCGameSpecificClientSystem;
 }
 
-#ifdef STAGING_ONLY
-CON_COMMAND( dump_cache, "Dump the contents of a user's SOCache" )
-{
-	if( args.ArgC() < 2 )
-	{
-		Msg( "Usage: dump_cache <steamID>\n" );
-		return;
-	}
-
-	CSteamID userSteamID( V_atoui64( args[1] ), 1, GetUniverse(), k_EAccountTypeIndividual );
-
-	CGCClientSharedObjectCache* pSOCache = GCClientSystem()->GetSOCache( userSteamID );
-	if ( pSOCache )
-	{
-		pSOCache->Dump();
-	}
-}
-#endif
 
 #ifdef GAME_DLL
 CON_COMMAND( dump_all_caches, "Dump the contents all subsribed SOCaches" )
 {
+	if ( !UTIL_IsCommandIssuedByServerAdmin() )
+		return;
+
 	GCClientSystem()->GetGCClient()->Dump();
 }
 #endif
@@ -66,6 +55,10 @@ CON_COMMAND( dump_all_caches, "Dump the contents all subsribed SOCaches" )
 //-----------------------------------------------------------------------------
 // Purpose: Constructor.
 //-----------------------------------------------------------------------------
+#ifdef _WIN32
+// Old code, stricter compiler
+#pragma warning(disable : 4355) // warning C4355: 'this': used in base member initializer list
+#endif
 CGCClientSystem::CGCClientSystem()
 : CAutoGameSystemPerFrame( "CGCClientSystem" )
 #ifdef CLIENT_DLL
@@ -254,34 +247,8 @@ void CGCClientSystem::InitGC()
 	if ( m_bInittedGC )
 		return;
 
-	// Locate our steam client interface.
-	#ifdef CLIENT_DLL
-		ISteamClient *pSteamClient = SteamClient();
-		HSteamUser hSteamUser = SteamAPI_GetHSteamUser();
-		HSteamPipe hSteamPipe = SteamAPI_GetHSteamPipe();
-	#else
-		ISteamClient *pSteamClient = g_pSteamClientGameServer;
-		HSteamUser hSteamUser = SteamGameServer_GetHSteamUser();
-		HSteamPipe hSteamPipe = SteamGameServer_GetHSteamPipe();
-	#endif
-	if ( pSteamClient == NULL )
-	{
-		Warning( "CGCClientSystem - no ISteamClient interface!\n" );
-		Assert( pSteamClient );
-		return;
-	}
-
-	// Get the SteamGameCoordinator and initialize the GCClient
-	void *pGenericInterface =  pSteamClient->GetISteamGenericInterface( hSteamUser, hSteamPipe, STEAMGAMECOORDINATOR_INTERFACE_VERSION );
-
-	ISteamGameCoordinator *pGameCoordinator = static_cast<ISteamGameCoordinator*>( pGenericInterface );
-	if ( pGameCoordinator )
-	{
-		m_GCClient.BInit( pGameCoordinator );
-
-		// Initialized the GCClient
-		m_bInittedGC = true;
-	}
+	m_GCClient.BInit( nullptr );
+	m_bInittedGC = true;
 }
 
 
@@ -305,7 +272,6 @@ void CGCClientSystem::PreClientUpdate()
 //-----------------------------------------------------------------------------
 void CGCClientSystem::ThinkConnection()
 {
-
 	// Currently logged on?
 	#ifdef CLIENT_DLL	
 		bool bLoggedOn = ClientSteamContext().BLoggedOn();
@@ -322,43 +288,10 @@ void CGCClientSystem::ThinkConnection()
 			// Re-init logon
 			m_bLoggedOn = true;
 
-			// server should automatically send us a HELLO pretty quickly after it detects us logon.  Give it some time to send
-			m_timeLastSendHello = Plat_FloatTime() + 2.0f;
-			Assert( !m_bConnectedToGC );
+			m_timeLastSendHello = -999.9;
 			SetupGC();
 		}
 
-		// Check if we need to send a HELLO message to re-sync connection with the GC
-		Assert( m_bInittedGC );
-		if ( !m_bConnectedToGC )
-		{
-			if ( m_timeLastSendHello < Plat_FloatTime() - k_flClientHelloRetry )
-			{
-				m_timeLastSendHello = Plat_FloatTime();
-
-				#ifdef CLIENT_DLL
-					GCSDK::CProtoBufMsg<CMsgClientHello> msg( k_EMsgGCClientHello );
-					msg.Body().set_version( engine->GetClientVersion() );
-
-					//CGCClientSharedObjectCache *pSOCache = m_GCClient.FindSOCache( ClientSteamContext().GetLocalPlayerSteamID(), false );
-					//if ( pSOCache != NULL && pSOCache->BIsInitialized() )
-					//{
-					//	msg.Body().set_socache_version( pSOCache->GetVersion() );
-					//}
-
-				#else
-					GCSDK::CProtoBufMsg<CMsgServerHello> msg( k_EMsgGCServerHello );
-					msg.Body().set_version( engine->GetServerVersion() );
-
-					//CGCClientSharedObjectCache *pSOCache = m_GCClient.FindSOCache( steamgameserverapicontext->SteamGameServer()->GetSteamID(), false );
-					//if ( pSOCache != NULL && pSOCache->BIsInitialized() )
-					//{
-					//	msg.Body().set_socache_version( pSOCache->GetVersion() );
-					//}
-				#endif
-				BSendMessage( msg );
-			}
-		}
 
 	}
 	else
@@ -366,186 +299,24 @@ void CGCClientSystem::ThinkConnection()
 
 		// We're not logged on.  Clear all connection state flags
 		m_bLoggedOn = false;
-		m_bConnectedToGC = false;
+		SetConnectedToGC( false );
 		m_timeLastSendHello = -999.9;
 	}
 }
 
-#ifdef CLIENT_DLL
-
-void CGCClientSystem::ReceivedClientWelcome( const CMsgClientWelcome &msg )
+void CGCClientSystem::SetConnectedToGC( bool bConnected )
 {
-	m_bConnectedToGC = true;
-	Msg( "Connection to game coordinator established.\n" );
-	
-	IGameEvent *pEvent = gameeventmanager->CreateEvent( "gc_new_session" );
+	m_bConnectedToGC = bConnected;
+	/// XXX(JohnS): If we want server-side gc state events this is the place to add them. Consider if they should be
+	///             networked.
+#ifdef CLIENT_DLL
+	IGameEvent *pEvent = gameeventmanager->CreateEvent( bConnected ? "gc_new_session" : "gc_lost_session" );
 	if ( pEvent )
 	{
 		gameeventmanager->FireEventClientSide( pEvent );
 	}
-
-//	GTFGCClientSystem()->UpdateGCServerInfo();
-//
-//	// Validate version
-//	int engineServerVersion = engine->GetServerVersion();
-//	g_gcServerVersion = (int)msg.Body().version();
-//
-//	// Version checking is enforced if both sides do not report zero as their version
-//	if ( engineServerVersion && g_gcServerVersion && engineServerVersion != g_gcServerVersion )
-//	{
-//		// If we're out of date exit
-//		Msg("Version out of date (GC wants %d, we are %d)!\n", g_gcServerVersion, engine->GetServerVersion() );
-//
-//		// If we hibernating, quit now, otherwise we will quit on hibernation
-//		if ( g_ServerGameDLL.m_bIsHibernating )
-//		{
-//			engine->ServerCommand( "quit\n" );
-//		}
-//	}
-//	else
-//	{
-//		Msg("GC Connection established for server version %d\n", engine->GetServerVersion() );
-//	}
-
+#endif
 }
 
-class CGCClientJobClientWelcome : public GCSDK::CGCClientJob
-{
-public:
-	CGCClientJobClientWelcome( GCSDK::CGCClient *pGCClient ) : GCSDK::CGCClientJob( pGCClient ) { }
-
-	virtual bool BYieldingRunJobFromMsg( IMsgNetPacket *pNetPacket )
-	{
-		CProtoBufMsg<CMsgClientWelcome> msg( pNetPacket );
-		GCClientSystem()->ReceivedClientWelcome( msg.Body() );
-		return true;
-	}
-};
-GC_REG_JOB( GCSDK::CGCClient, CGCClientJobClientWelcome, "CGCClientJobClientWelcome", k_EMsgGCClientWelcome, k_EServerTypeGCClient );
-
-void CGCClientSystem::ReceivedClientGoodbye( const CMsgClientGoodbye &msg )
-{
-	switch ( msg.reason() )
-	{
-		case GCGoodbyeReason_GC_GOING_DOWN:
-			Warning( "The item server is shutting down. Items will be unavailable temporarily.\n" );
-			break;
-
-		case GCGoodbyeReason_NO_SESSION:
-			if ( m_bConnectedToGC )
-			{
-				Warning( "The connection to the item server has been interrupted.  Attempting to re-negotiate connection now.\n" );
-			}
-			break;
-
-		default:
-			Warning( "Received goodbye message from the item server with unknown reason code %d.\n", (int)msg.reason() );
-			break;
-	}
-
-	m_bConnectedToGC = false;
-}
-
-class CGCClientJobClientGoodbye : public GCSDK::CGCClientJob
-{
-public:
-	CGCClientJobClientGoodbye( GCSDK::CGCClient *pGCClient ) : GCSDK::CGCClientJob( pGCClient ) { }
-
-	virtual bool BYieldingRunJobFromMsg( IMsgNetPacket *pNetPacket )
-	{
-		CProtoBufMsg<CMsgClientGoodbye> msg( pNetPacket );
-		GCClientSystem()->ReceivedClientGoodbye( msg.Body() );
-		return true;
-	}
-};
-GC_REG_JOB( GCSDK::CGCClient, CGCClientJobClientGoodbye, "CGCClientJobClientGoodbye", k_EMsgGCClientGoodbye, k_EServerTypeGCClient );
-
-#else
-
-void CGCClientSystem::ReceivedServerWelcome( const CMsgServerWelcome &msg )
-{
-	if ( !m_bConnectedToGC )
-	{
-		m_bConnectedToGC = true;
-		Msg( "Connection to game coordinator established.\n" );
-	}
-
-//	GTFGCClientSystem()->UpdateGCServerInfo();
-//
-//	// Validate version
-//	int engineServerVersion = engine->GetServerVersion();
-//	g_gcServerVersion = (int)msg.Body().version();
-//
-//	// Version checking is enforced if both sides do not report zero as their version
-//	if ( engineServerVersion && g_gcServerVersion && engineServerVersion != g_gcServerVersion )
-//	{
-//		// If we're out of date exit
-//		Msg("Version out of date (GC wants %d, we are %d)!\n", g_gcServerVersion, engine->GetServerVersion() );
-//
-//		// If we hibernating, quit now, otherwise we will quit on hibernation
-//		if ( g_ServerGameDLL.m_bIsHibernating )
-//		{
-//			engine->ServerCommand( "quit\n" );
-//		}
-//	}
-//	else
-//	{
-//		Msg("GC Connection established for server version %d\n", engine->GetServerVersion() );
-//	}
-
-}
-
-class CGCClientJobServerWelcome : public GCSDK::CGCClientJob
-{
-public:
-	CGCClientJobServerWelcome( GCSDK::CGCClient *pGCServer ) : GCSDK::CGCClientJob( pGCServer ) { }
-
-	virtual bool BYieldingRunJobFromMsg( IMsgNetPacket *pNetPacket )
-	{
-		CProtoBufMsg<CMsgServerWelcome> msg( pNetPacket );
-		GCClientSystem()->ReceivedServerWelcome( msg.Body() );
-		return true;
-	}
-};
-GC_REG_JOB( GCSDK::CGCClient, CGCClientJobServerWelcome, "CGCClientJobServerWelcome", k_EMsgGCServerWelcome, k_EServerTypeGCClient );
-
-void CGCClientSystem::ReceivedServerGoodbye( const CMsgServerGoodbye &msg )
-{
-	switch ( msg.reason() )
-	{
-		case GCGoodbyeReason_GC_GOING_DOWN:
-			Warning( "The item server is shutting down. Items will be unavailable temporarily.\n" );
-			break;
-
-		case GCGoodbyeReason_NO_SESSION:
-			if ( m_bConnectedToGC )
-			{
-				Warning( "The connection to the game coordinator has been interrupted.  Attempting to re-negotiate connection now.\n" );
-			}
-			break;
-
-		default:
-			Warning( "Received goodbye message from game coordinator with unknown reason code %d.\n", (int)msg.reason() );
-			break;
-	}
-
-	m_bConnectedToGC = false;
-}
-
-class CGCClientJobServerGoodbye : public GCSDK::CGCClientJob
-{
-public:
-	CGCClientJobServerGoodbye( GCSDK::CGCClient *pGCClient ) : GCSDK::CGCClientJob( pGCClient ) { }
-
-	virtual bool BYieldingRunJobFromMsg( IMsgNetPacket *pNetPacket )
-	{
-		CProtoBufMsg<CMsgServerGoodbye> msg( pNetPacket );
-		GCClientSystem()->ReceivedServerGoodbye( msg.Body() );
-		return true;
-	}
-};
-GC_REG_JOB( GCSDK::CGCClient, CGCClientJobServerGoodbye, "CGCClientJobServerGoodbye", k_EMsgGCServerGoodbye, k_EServerTypeGCClient );
-
-#endif // #ifdef CLIENT_DLL, #else
 
 //-----------------------------------------------------------------------------

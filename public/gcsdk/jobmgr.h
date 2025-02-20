@@ -13,6 +13,7 @@
 
 #include "tier0/fasttimer.h"
 #include "tier1/utlpriorityqueue.h"
+#include "gcsdk_types.h"
 #include "job.h"
 #include "workthreadpool.h"
 class GCConVar;
@@ -280,7 +281,7 @@ private:
 	friend void Job_RegisterJobType( const JobType_t *pJobType );
 
 	JobID_t m_unNextJobID;
-	uint m_unFrameFuncThreadID; // the thread is JobMgr is working in
+	ThreadId_t m_unFrameFuncThreadID; // the thread is JobMgr is working in
 	bool m_bProfiling;
 	bool m_bIsShuttingDown;
 	int m_cErrorsToReport;
