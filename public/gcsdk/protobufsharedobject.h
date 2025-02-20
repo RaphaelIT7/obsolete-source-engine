@@ -109,7 +109,6 @@ public:
 
 	typedef Message_t SchObjectType_t;
 	const static int k_nTypeID = nTypeID;
-
 protected:
 	template< typename T = Message_t >
 		Protected_Message_t<T> MutObj() { return m_msgObject; }
@@ -119,6 +118,8 @@ protected:
 private:
 	Message_t m_msgObject;
 };
+
+
 
 //----------------------------------------------------------------------------
 // Purpose: Template for making a shared object that uses a specific protobuf

@@ -720,7 +720,7 @@ public:
 	virtual void AsyncRemoveFetcher( IAsyncFileFetch *pFetcher ) = 0;
 
 	//------------------------------------
-	// Functions to hold a file open if planning on doing mutiple reads. Use is optional,
+	// Functions to hold a file open if planning on doing multiple reads. Use is optional,
 	// and is taken only as a hint
 	//------------------------------------
 	virtual FSAsyncStatus_t	AsyncBeginRead( const char *pszFile, FSAsyncFile_t *phFile ) = 0;

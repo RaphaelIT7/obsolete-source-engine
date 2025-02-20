@@ -951,7 +951,7 @@ FSReturnCode_t LocateGameInfoFile( const CFSSteamSetupInfo &fsInfo, char (&pOutD
 ShowError:
 	return SetupFileSystemError( true, FS_MISSING_GAMEINFO_FILE, 
 		"Unable to find %s. Solutions:\n\n"
-		"1. Read http://www.valve-erc.com/srcsdk/faq.html#NoGameDir\n"
+		"1. Read https://developer.valvesoftware.com/wiki/Gameinfo.txt\n"
 		"2. Run vconfig to specify which game you're working on.\n"
 		"3. Add -game <path> on the command line where <path> is the directory that %s is in.\n",
 		GAMEINFO_FILENAME, GAMEINFO_FILENAME );

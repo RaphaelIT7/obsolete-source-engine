@@ -37,6 +37,7 @@ public:
 		m_AlreadyHit = ents;
 		m_nMaxHits = nMaxEnts;
 	}
+
 	virtual ~CPushAwayEnumerator() {}
 	
 	// Actual work code

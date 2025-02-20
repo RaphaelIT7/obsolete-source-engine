@@ -75,7 +75,7 @@ class IClientEntity;
 
 // Engine player info, no game related infos here
 // If you change this, change the two byteswap defintions: 
-// cdll_client_int.cpp and cdll_engine_int.cpp
+// cdll_client_int.cpp and host.cpp
 typedef struct player_info_s
 {
 	DECLARE_BYTESWAP_DATADESC();

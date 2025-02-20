@@ -1491,7 +1491,7 @@ BEGIN_DATADESC( CPrecipitation )
 	DEFINE_KEYFIELD( m_nPrecipType, FIELD_INTEGER, "preciptype" ),
 END_DATADESC()
 
-// Just send the normal entity crap
+// Just send the normal entity stuff
 IMPLEMENT_SERVERCLASS_ST( CPrecipitation, DT_Precipitation)
 	SendPropInt( SENDINFO( m_nPrecipType ), Q_log2( NUM_PRECIPITATION_TYPES ) + 1, SPROP_UNSIGNED )
 END_SEND_TABLE()

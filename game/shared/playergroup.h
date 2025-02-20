@@ -2,7 +2,7 @@
 //
 // Purpose:  A group of players stored on the GC.
 //			 Implementation and networking via shared objects is done in game specific derived classes.
-//			
+//
 //=============================================================================
 
 #ifndef PLAYERGROUP_H

@@ -477,7 +477,7 @@ public:
 	virtual int				GetObserverMode( void ); // returns observer mode or OBS_NONE
 	virtual bool			SetObserverTarget(CBaseEntity * target);
 	virtual void			ObserverUse( bool bIsPressed ); // observer pressed use
-	virtual CBaseEntity		*GetObserverTarget( void ); // returns players targer or NULL
+	virtual CBaseEntity		*GetObserverTarget( void ); // returns players target or NULL
 	virtual CBaseEntity		*FindNextObserverTarget( bool bReverse ); // returns next/prev player to follow or NULL
 	virtual int				GetNextObserverSearchStartPoint( bool bReverse ); // Where we should start looping the player list in a FindNextObserverTarget call
 	virtual bool			IsValidObserverTarget(CBaseEntity * target); // true, if player is allowed to see this target

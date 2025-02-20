@@ -1063,7 +1063,7 @@ CBasePlayer *UTIL_PlayerBySteamID( const CSteamID &steamID )
 // Returns NULL if not found or if the provided arg would match multiple players.
 // Currently accepts, in descending priority:
 //  - Formatted SteamID ([U:1:1234])
-//  - SteamID64 (76561197989728462)
+//  - SteamID64 (76561123412341234)
 //  - Legacy SteamID (STEAM_0:1:1234)
 //  - UserID preceded by a pound (#4)
 //  - Partial name match (if unique)

@@ -13,6 +13,12 @@
 #include "globals.h"
 #include "filters.h"
 
+/// XXX(JohnS): This was never fully implemented, and thus func_rotating was broken in TF2 from 2007 - 2018.  Bandwidth
+//              it intended to save is less significant now, but ideally it could be seamlessly clientside (with work -
+//              c_funcrotating is a stub that does nothing).  As few official maps use it at all, favoring it working in
+//              TF2 at all over small bandwidth savings.
+// #define CFUNCROTATING_CLIENTSIDE_SUPPORT
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -67,7 +73,7 @@ bool CFuncWall::CreateVPhysics( void )
 		int contents = modelinfo->GetModelContents( GetModelIndex() );
 		if ( ! (contents & (MASK_SOLID|MASK_PLAYERSOLID|MASK_NPCSOLID)) )
 		{
-			// leave the physics shadow there in case it has crap constrained to it
+			// leave the physics shadow there in case it has stuff constrained to it
 			// but disable collisions with it
 			pPhys->EnableCollisions( false );
 		}

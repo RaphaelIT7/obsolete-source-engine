@@ -1184,7 +1184,7 @@ bool CNavMesh::Save( void ) const
 			ladder->Save( fileBuffer, NavCurrentVersion );
 		}
 	}
-	
+
 	//
 	// Store derived class mesh info
 	//

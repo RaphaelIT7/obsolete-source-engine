@@ -42,7 +42,6 @@ CBaseProjectile::CBaseProjectile()
 {
 #ifdef GAME_DLL
 	m_iDestroyableHitCount = 0;
-
 	m_bCanCollideWithTeammates = false;
 #endif
 	m_hOriginalLauncher = NULL;

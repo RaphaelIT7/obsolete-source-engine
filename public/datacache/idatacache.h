@@ -178,6 +178,9 @@ enum DataCacheAddFlags_t
 abstract_class IDataCacheSection
 {
 public:
+// misyl: Cannot add this without breaking ABI. Sad!
+//	virtual ~IDataCacheSection() {}
+
 	//--------------------------------------------------------
 
 	virtual IDataCache *GetSharedCache() = 0;

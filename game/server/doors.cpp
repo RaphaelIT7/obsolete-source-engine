@@ -1388,7 +1388,7 @@ void CRotDoor::Spawn( void )
 	if ( HasSpawnFlags(SF_DOOR_ROTATE_BACKWARDS) )
 		m_vecMoveAng = m_vecMoveAng * -1;
 	
-	//m_flWait			= 2; who the hell did this? (sjb)
+	//m_flWait			= 2; who did this? (sjb)
 	m_vecAngle1	= GetLocalAngles();
 	m_vecAngle2	= GetLocalAngles() + m_vecMoveAng * m_flMoveDistance;
 

@@ -2089,7 +2089,7 @@ void CFuncTrackTrain::UpdateOrientationAtPathTracks( CPathTrack *pPrev, CPathTra
 	}
 	QAngle angles;
 	VectorAngles( vecFaceDir, angles );
-	// !!!  All of this crap has to be done to make the angles not wrap around, revisit this.
+	// !!!  All of this stuff has to be done to make the angles not wrap around, revisit this.
 	FixupAngles( angles );
 
 	// Wrapped with this bool so we don't affect old trains

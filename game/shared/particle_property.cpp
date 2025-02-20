@@ -372,7 +372,6 @@ void CParticleProperty::StopParticlesNamed( const char *pszEffectName, bool bFor
 	if (!pDef)
 		return;
 
-
 	// If we return from dormancy and are then told to stop emitting,
 	// we should have died while dormant. Remove ourselves immediately.
 	bool bRemoveInstantly = (m_iDormancyChangedAtFrame == gpGlobals->framecount);

@@ -338,8 +338,8 @@ void CPlayerMove::RunCommand ( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	StartCommand( player, ucmd );
 
 	// Set globals appropriately
-	gpGlobals->curtime		=  playerCurTime;
-	gpGlobals->frametime	=  playerFrameTime;
+	gpGlobals->curtime = playerCurTime;
+	gpGlobals->frametime = playerFrameTime;
 
 	// Prevent hacked clients from sending us invalid view angles to try to get leaf server code to crash
 	if ( !ucmd->viewangles.IsValid() || !IsEntityQAngleReasonable(ucmd->viewangles) )

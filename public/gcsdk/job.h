@@ -161,7 +161,7 @@ public:
 	bool BHoldsAnyLocks() const { return m_vecLocks.Count() > 0; }
 	void ReleaseLocks();
 
-	/// If we hold any locks, spew about them and release them.
+	/// If we hold any locks, spew about them and optionally release them.
 	/// This is useful for long running jobs, to make sure they don't leak
 	/// locks that never get cleaned up
 	void ShouldNotHoldAnyLocks();

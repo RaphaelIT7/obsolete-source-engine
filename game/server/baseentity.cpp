@@ -5422,7 +5422,7 @@ public:
 		char *space = Q_strstr( substring, " " );
 		if ( space )
 		{
-			return EntFire_AutoCompleteInput( partial, commands );;
+			return EntFire_AutoCompleteInput( partial, commands );
 		}
 		else
 		{

@@ -550,13 +550,14 @@ void CSentence::ParseEmphasis( CUtlBuffer& buf )
 	}
 }
 
-// This is obsolete, so it doesn't do anything with the data which is parsed.
+// This is obsolete, so it doesn't do anything with the data which is parsed, but is needed to advance the correct
+// amount in the stream.
 void CSentence::ParseCloseCaption( CUtlBuffer& buf )
 {
 	char token[ 4096 ];
 	while ( 1 )
 	{
-		// Format is 
+		// Format is
 		// language_name
 		// {
 		//   PHRASE char streamlength "streambytes" starttime endtime

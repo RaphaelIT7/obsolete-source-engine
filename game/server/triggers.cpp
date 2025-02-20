@@ -3093,7 +3093,7 @@ void CTriggerCamera::Enable( void )
 			{
 				if ( pOtherCamera == this )
 				{
-					// what the hell do you think you are doing?
+					// what do you think you are doing?
 					Warning("Viewcontrol %s was enabled twice in a row!\n", GetDebugName());
 					return;
 				}

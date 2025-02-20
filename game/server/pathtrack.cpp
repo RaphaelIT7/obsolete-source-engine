@@ -32,10 +32,10 @@ BEGIN_DATADESC( CPathTrack )
 	DEFINE_KEYFIELD( m_altName,		FIELD_STRING, "altpath" ),
 	DEFINE_KEYFIELD( m_eOrientationType, FIELD_INTEGER, "orientationtype" ),
 //	DEFINE_FIELD( m_nIterVal,		FIELD_INTEGER ),
-	
+
 	DEFINE_INPUTFUNC( FIELD_VOID, "InPass", InputPass ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "InTeleport",  InputTeleport ),
-	
+
 	DEFINE_INPUTFUNC( FIELD_VOID, "EnableAlternatePath", InputEnableAlternatePath ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "DisableAlternatePath", InputDisableAlternatePath ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "ToggleAlternatePath", InputToggleAlternatePath ),
@@ -95,7 +95,7 @@ void CPathTrack::Activate( void )
 
 
 //-----------------------------------------------------------------------------
-// Connects up the previous + next pointers 
+// Connects up the previous + next pointers
 //-----------------------------------------------------------------------------
 void CPathTrack::Link( void  )
 {
@@ -175,7 +175,7 @@ bool CPathTrack::HasBeenVisited() const
 //-----------------------------------------------------------------------------
 bool CPathTrack::HasAlternathPath() const
 {
-	return ( m_paltpath != NULL ); 
+	return ( m_paltpath != NULL );
 }
 
 
@@ -199,7 +199,7 @@ void CPathTrack::ToggleAlternatePath( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPathTrack::EnableAlternatePath( void )
 {
@@ -210,7 +210,7 @@ void CPathTrack::EnableAlternatePath( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPathTrack::DisableAlternatePath( void )
 {
@@ -221,8 +221,8 @@ void CPathTrack::DisableAlternatePath( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &inputdata - 
+// Purpose:
+// Input  : &inputdata -
 //-----------------------------------------------------------------------------
 void CPathTrack::InputEnableAlternatePath( inputdata_t &inputdata )
 {
@@ -230,8 +230,8 @@ void CPathTrack::InputEnableAlternatePath( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &inputdata - 
+// Purpose:
+// Input  : &inputdata -
 //-----------------------------------------------------------------------------
 void CPathTrack::InputDisableAlternatePath( inputdata_t &inputdata )
 {
@@ -239,8 +239,8 @@ void CPathTrack::InputDisableAlternatePath( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &inputdata - 
+// Purpose:
+// Input  : &inputdata -
 //-----------------------------------------------------------------------------
 void CPathTrack::InputToggleAlternatePath( inputdata_t &inputdata )
 {
@@ -264,7 +264,7 @@ void CPathTrack::TogglePath( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPathTrack::EnablePath( void )
 {
@@ -272,7 +272,7 @@ void CPathTrack::EnablePath( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPathTrack::DisablePath( void )
 {
@@ -280,8 +280,8 @@ void CPathTrack::DisablePath( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &inputdata - 
+// Purpose:
+// Input  : &inputdata -
 //-----------------------------------------------------------------------------
 void CPathTrack::InputEnablePath( inputdata_t &inputdata )
 {
@@ -289,8 +289,8 @@ void CPathTrack::InputEnablePath( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &inputdata - 
+// Purpose:
+// Input  : &inputdata -
 //-----------------------------------------------------------------------------
 void CPathTrack::InputDisablePath( inputdata_t &inputdata )
 {
@@ -298,8 +298,8 @@ void CPathTrack::InputDisablePath( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &inputdata - 
+// Purpose:
+// Input  : &inputdata -
 //-----------------------------------------------------------------------------
 void CPathTrack::InputTogglePath( inputdata_t &inputdata )
 {
@@ -307,7 +307,7 @@ void CPathTrack::InputTogglePath( inputdata_t &inputdata )
 }
 
 
-void CPathTrack::DrawDebugGeometryOverlays() 
+void CPathTrack::DrawDebugGeometryOverlays()
 {
 	// ----------------------------------------------
 	// Draw line to next target is bbox is selected
@@ -526,7 +526,7 @@ TrackOrientationType_t CPathTrack::GetOrientationType()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 QAngle CPathTrack::GetOrientation( bool bForwardDir )
 {
@@ -553,8 +553,8 @@ QAngle CPathTrack::GetOrientation( bool bForwardDir )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pent - 
+// Purpose:
+// Input  : *pent -
 // Output : CPathTrack
 //-----------------------------------------------------------------------------
 CPathTrack *CPathTrack::Instance( edict_t *pent )
@@ -567,7 +567,7 @@ CPathTrack *CPathTrack::Instance( edict_t *pent )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPathTrack::InputPass( inputdata_t &inputdata )
 {
@@ -584,7 +584,7 @@ void CPathTrack::InputPass( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPathTrack::InputTeleport( inputdata_t &inputdata )
 {

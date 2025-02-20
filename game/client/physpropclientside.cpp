@@ -898,7 +898,7 @@ void C_FuncPhysicsRespawnZone::InitializePropsWithin( void )
 		{
 			pProp->SetRespawnZone( this );
 
-			// This is a crappy way to do this
+			// This is a bad way to do this
 			intp iProp = m_PropList.AddToTail();
 			m_PropList[iProp].iszModelName = pProp->GetModelName();
 			m_PropList[iProp].vecOrigin = pProp->GetAbsOrigin();
@@ -962,7 +962,7 @@ void C_FuncPhysicsRespawnZone::RespawnProps( void )
 			if ( !CanMovePropAt( m_PropList[i].vecOrigin, -Vector(32,32,32), Vector(32,32,32) ) )
 				continue;
 
-			// This is a crappy way to do this
+			// This is a bad way to do this
 			C_PhysPropClientside *pEntity = C_PhysPropClientside::CreateNew();
 			if ( pEntity )
 			{

@@ -111,7 +111,7 @@ bool ActivityList_RegisterSharedActivity( const char *pszActivityName, int iActi
 	// They really only matter when you change the list of code controlled activities.  IDs
 	// for content controlled activities never collide because they are generated.
 
-	// technically order isn't dependent, but it's too damn easy to forget to add new ACT_'s to all three lists.
+	// technically order isn't dependent, but it's too easy to forget to add new ACT_'s to all three lists.
 	static int lastActivityIndex = -1;
 	Assert( iActivityIndex < LAST_SHARED_ACTIVITY && (iActivityIndex == lastActivityIndex + 1 || iActivityIndex == 0) );
 	lastActivityIndex = iActivityIndex;

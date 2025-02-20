@@ -1,7 +1,7 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose:  GC based lobby.  Matchmaking assigns players to a lobby
-//			
+//
 //=============================================================================
 
 #ifndef LOBBY_H

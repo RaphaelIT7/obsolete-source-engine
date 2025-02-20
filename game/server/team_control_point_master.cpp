@@ -1262,8 +1262,6 @@ float CTeamControlPointMaster::GetPartialCapturePointRate( void )
 
 #ifdef STAGING_ONLY
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void CTeamControlPointMaster::ListRounds( void )
 {
 	if ( PlayingMiniRounds() )
@@ -1287,8 +1285,6 @@ void CTeamControlPointMaster::ListRounds( void )
 	}
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: 
 //-----------------------------------------------------------------------------	
 void cc_ListRounds( void )
 {
@@ -1301,8 +1297,6 @@ void cc_ListRounds( void )
 
 static ConCommand listrounds( "listrounds", cc_ListRounds, "List the rounds for the current map", FCVAR_CHEAT );
 
-//-----------------------------------------------------------------------------
-// Purpose: 
 //-----------------------------------------------------------------------------	
 void cc_PlayRound( const CCommand& args )
 {

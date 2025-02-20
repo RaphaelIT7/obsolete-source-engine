@@ -18,7 +18,6 @@
 
 #if !defined(_STATIC_LINKED) || defined(GAME_DLL)
 
-
 static CNonModifiedPointerProxy *s_pNonModifiedPointerProxyHead = nullptr;
 
 
