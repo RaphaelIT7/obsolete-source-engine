@@ -154,6 +154,7 @@ BEGIN_SIMPLE_DATADESC( CPlayerLocalData )
 	DEFINE_FIELD( m_bDrawViewmodel, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_bWearingSuit, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_bPoisoned, FIELD_BOOLEAN ),
+	DEFINE_FIELD( m_bForceLocalPlayerDraw, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_flStepSize, FIELD_FLOAT ),
 	DEFINE_FIELD( m_bAllowAutoMovement, FIELD_BOOLEAN ),
 	DEFINE_EMBEDDED( m_skybox3d ),

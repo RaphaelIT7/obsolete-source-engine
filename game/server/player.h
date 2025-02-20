@@ -387,6 +387,15 @@ public:
 	void					ShowViewModel( bool bShow );
 	void					ShowCrosshair( bool bShow );
 
+	void					SetForceLocalDraw( bool bForceLocalDraw )
+	{
+		m_Local.m_bForceLocalPlayerDraw = bForceLocalDraw;
+	}
+	bool					GetForceLocalDraw( void )
+	{
+		return m_Local.m_bForceLocalPlayerDraw;
+	}
+
 	// View model prediction setup
 	void					CalcView( Vector &eyeOrigin, QAngle &eyeAngles, float &zNear, float &zFar, float &fov );
 
