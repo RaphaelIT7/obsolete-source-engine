@@ -111,6 +111,8 @@ void CBaseHL2MPBludgeonWeapon::PrimaryAttack()
 #ifndef CLIENT_DLL
 	// Move other players back to history positions based on local player's lag
 	lagcompensation->FinishLagCompensation( pPlayer );
+
+	pPlayer->OnMyWeaponFired( this );
 #endif
 
 }
@@ -162,7 +164,9 @@ void CBaseHL2MPBludgeonWeapon::Hit( trace_t &traceHit, Activity nHitActivity )
 		// Now hit all triggers along the ray that... 
 		TraceAttackToTriggers( info, traceHit.startpos, traceHit.endpos, hitDirection );
 #endif
-		WeaponSound( MELEE_HIT );
+
+		if ( this->PlayFleshyHittySoundOnHit() )
+			WeaponSound( MELEE_HIT );
 	}
 
 	// Apply an impact effect

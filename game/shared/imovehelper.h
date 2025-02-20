@@ -84,6 +84,9 @@ public:
 
 	virtual bool IsWorldEntity( const CBaseHandle &handle ) = 0;
 
+	// sets the entity being moved
+	virtual void	SetHost( CBasePlayer *host ) = 0;
+
 protected:
 	// Inherited classes can call this to set the singleton
 	static void SetSingleton( IMoveHelper* pMoveHelper ) { sm_pSingleton = pMoveHelper; }

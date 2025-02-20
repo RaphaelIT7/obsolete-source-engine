@@ -1574,4 +1574,7 @@ enum
 	VEHICLE_ANALOG_BIAS_REVERSE,
 };
 
+class CSendProxyRecipients;
+void* SendProxy_SendNonLocalDataTable( const SendProp *pProp, const void *pStruct, const void *pVarData, CSendProxyRecipients *pRecipients, int objectID );
+
 #endif // PLAYER_H
