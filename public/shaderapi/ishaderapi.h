@@ -631,6 +631,8 @@ public:
 	virtual void TexLodBias( float bias ) = 0;
 	
 	virtual void CopyTextureToTexture( ShaderAPITextureHandle_t srcTex, ShaderAPITextureHandle_t dstTex ) = 0;
+	virtual void SceneFogRadial( bool bRadial ) = 0;
+	virtual bool GetSceneFogRadial() = 0;
 #endif
 };
 
