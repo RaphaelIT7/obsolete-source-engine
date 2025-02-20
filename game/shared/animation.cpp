@@ -909,6 +909,21 @@ const char *GetBodygroupName( CStudioHdr *pstudiohdr, int iGroup )
 	return pbodypart->pszName();
 }
 
+const char *GetBodygroupPartName( CStudioHdr *pstudiohdr, int iGroup, int iPart )
+{
+	if ( !pstudiohdr)
+		return "";
+
+	if ( iGroup < 0 || iGroup >= pstudiohdr->numbodyparts() )
+		return "";
+
+	mstudiobodyparts_t *pbodypart = pstudiohdr->pBodypart( iGroup );
+	if ( iPart < 0 && iPart >= pbodypart->nummodels )
+		return "";
+
+	return pbodypart->pModel( iPart )->name;
+}
+
 int FindBodygroupByName( CStudioHdr *pstudiohdr, const char *name )
 {
 	if ( !pstudiohdr || !pstudiohdr->IsValid() )
