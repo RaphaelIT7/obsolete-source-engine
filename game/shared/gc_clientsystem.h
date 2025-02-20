@@ -61,6 +61,8 @@ public:
 		void GameServerActivate();
 	#endif
 
+	char const * GetTxnCountryCode() const { return m_sTxnCountryCode.Get(); }
+
 protected:
 
 	void SetupGC();
@@ -68,23 +70,9 @@ protected:
 	virtual void PreInitGC() {}
 	virtual void PostInitGC() {}
 
-	#ifdef CLIENT_DLL
-		friend class CGCClientJobClientWelcome;
-		virtual void ReceivedClientWelcome( const CMsgClientWelcome &msg );
-
-		friend class CGCClientJobClientGoodbye;
-		virtual void ReceivedClientGoodbye( const CMsgClientGoodbye &msg );
-	#else
-		friend class CGCClientJobServerWelcome;
-		virtual void ReceivedServerWelcome( const CMsgServerWelcome &msg );
-
-		friend class CGCClientJobServerGoodbye;
-		virtual void ReceivedServerGoodbye( const CMsgServerGoodbye &msg );
-	#endif
-
-	void SetConnectedToGC( bool bConnected ) { m_bConnectedToGC = bConnected; }
 
 private:
+	void SetConnectedToGC( bool bConnected );
 
 	#ifdef CLIENT_DLL
 		void SteamLoggedOnCallback( const SteamLoggedOnChange_t &loggedOnState );
@@ -97,6 +85,7 @@ private:
 	bool m_bLoggedOn;
 	GCSDK::CGCClient m_GCClient;
 	double m_timeLastSendHello;
+	CUtlString m_sTxnCountryCode;
 
 	void ThinkConnection();
 

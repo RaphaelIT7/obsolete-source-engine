@@ -24,6 +24,11 @@ namespace google
 namespace GCSDK
 {
 
+bool IsProtoBufFieldLess( const ::google::protobuf::Message & msgLHS,
+						  const ::google::protobuf::Message & msgRHS,
+						  const ::google::protobuf::FieldDescriptor *pFieldLHS,
+						  const ::google::protobuf::FieldDescriptor *pFieldRHS );
+
 //----------------------------------------------------------------------------
 // Purpose: Base class for CProtoBufSharedObject. This is where all the actual
 //			code lives.

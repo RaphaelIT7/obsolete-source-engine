@@ -159,12 +159,13 @@ public:
 	bool _BAcquireLockImmediate( CLock *pLock, const char *filename = "unknown", int line = 0 );
 	void _ReleaseLock( CLock *pLock, bool bForce = false, const char *filename = "unknown", int line = 0 );
 	bool BHoldsAnyLocks() const { return m_vecLocks.Count() > 0; }
+	int  GetLockCount() const { return m_vecLocks.Count(); }
 	void ReleaseLocks();
 
 	/// If we hold any locks, spew about them and optionally release them.
 	/// This is useful for long running jobs, to make sure they don't leak
 	/// locks that never get cleaned up
-	void ShouldNotHoldAnyLocks();
+	void ShouldNotHoldAnyLocks( bool bReleaseLocks = true );
 
 	// --- general methods for waiting for events
 	// Simple yield to other jobs until Run() called again

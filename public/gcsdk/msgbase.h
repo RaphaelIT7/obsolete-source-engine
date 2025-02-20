@@ -10,6 +10,7 @@
 #pragma once
 #endif
 
+#include "gcsdk_types.h"
 #include "tier1/tsmultimempool.h"
 #include "gclogger.h"
 #include "gcconstants.h"

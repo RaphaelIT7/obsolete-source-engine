@@ -54,11 +54,11 @@ enum EGCBaseMsg
 	//k_EMsgGCServerConnectionStatus =			4010; // GC => server
 
 	// Matchmaking messages
-	k_EMsgGCInviteToParty =						4501; // inviting another player to your party
-	k_EMsgGCInvitationCreated =					4502; // sent from GC to sender
-	k_EMsgGCPartyInviteResponse =				4503; // client accepting a party invite
-	k_EMsgGCKickFromParty =						4504; // sent from party leader to GC to kick a player from the party
-	k_EMsgGCLeaveParty = 						4505; // sent from party member to GC to leave a party
+	//k_EMsgGCInviteToParty =						4501; // inviting another player to your party
+	//k_EMsgGCInvitationCreated =					4502; // sent from GC to sender
+	//k_EMsgGCPartyInviteResponse =				4503; // client accepting a party invite
+	//k_EMsgGCKickFromParty =						4504; // sent from party leader to GC to kick a player from the party
+	//k_EMsgGCLeaveParty = 						4505; // sent from party member to GC to leave a party
 	k_EMsgGCServerAvailable =					4506; // send from a dedicated server when its ready
 	k_EMsgGCClientConnectToServer =				4507; // sent to a client to connect to a server
 	k_EMsgGCGameServerInfo =					4508; // send from a dedicated server for server address information
@@ -106,26 +106,6 @@ message CMsgGCStorePurchaseInitResponse
 // Shared objects
 
 //
-// CSOPartyInvite	- sent from the GC to possible new party member
-//
-message CSOPartyInvite
-{
-	optional	uint64	group_id = 1 [ (key_field) = true ];
-	optional	fixed64	sender_id = 2;
-	optional	string	sender_name = 3;
-};
-
-// Sent from the GC to possible new lobby member
-//
-message CSOLobbyInvite
-{
-	optional	uint64	group_id = 1 [ (key_field) = true ];
-	optional	fixed64	sender_id = 2;
-	optional	string	sender_name = 3;
-	// TODO: Game mode, etc.
-};
-
-//
 // CMsgSystemBroadcast
 //
 message CMsgSystemBroadcast
@@ -156,6 +136,9 @@ message CMsgClientWelcome
 {
 	optional uint32 version = 1;
 	optional bytes game_data = 2;
+	// Country code determined by user transactions and persisting with the user Steam Store account (see
+	// CAMJobUserAccountGetUserCountryFromTxnOrLastIP)
+	optional string txn_country_code = 3;
 };
 
 //
@@ -187,58 +170,6 @@ message CMsgClientGoodbye
 message CMsgServerGoodbye
 {
 	optional GCGoodbyeReason reason = 1;
-};
-
-//
-// CMsgInviteToParty - sent from party leader to the GC
-//
-message CMsgInviteToParty
-{
-	optional	fixed64 steam_id = 1;
-	optional	uint32	client_version = 2;
-	optional	uint32	team_id = 3;
-	optional	bool	as_coach = 4;
-};
-
-
-//
-// CMsgInvitationCreated - sent from GC to the party leader
-//
-message CMsgInvitationCreated
-{
-	optional	uint64	group_id = 1;
-	optional	fixed64 steam_id = 2;
-};
-
-
-//
-// CMsgPartyInviteResponse	- sent from client to GC when accepting/rejecting a CMsgPartyInvite
-//
-message CMsgPartyInviteResponse
-{
-	optional	uint64	party_id = 1;
-	optional	bool	accept = 2;
-	optional	uint32	client_version = 3;
-	optional	uint32	team_id = 4;
-	optional	bool	as_coach = 5;
-};
-
-
-//
-// CMsgKickFromParty - sent from party leader to the GC
-//
-message CMsgKickFromParty
-{
-	optional	fixed64 steam_id = 1;
-};
-
-//
-// CMsgLeaveParty - sent from party member to the GC
-//
-message CMsgLeaveParty
-{
-	optional	uint64 party_id = 1;	// Party the user wants to leave
-	optional	uint64 lobby_id = 2;	// Lobby the user wants to leave
 };
 
 //
@@ -286,6 +217,10 @@ message CSOEconGameAccountClient
 	optional	uint32		matchmaking_casual_ban_last_duration = 29;          // How long the current casual ban's total duration was set for
 	optional	uint32		matchmaking_casual_low_priority_last_duration = 30; // How long the current casual ban's total duration was set for
 	optional	bool		phone_identifying = 31 [ default = false ];
+	optional	bool		disable_party_quest_progress = 32 [ default = false ];
+	optional	uint32		quest_reward_credits = 33;
+	optional	uint32		matchmaking_last_casual_excessive_reports_auto_ban_time = 34;	// Last time we were banned for excessive reports in casual
+	optional	uint32		matchmaking_last_comp_excessive_reports_auto_ban_time = 35;		// Last time we were banned for excessive reports in comp
 };
 
 //
@@ -317,6 +252,7 @@ message CSOItemCriteria
 
 	optional bool		recent_only = 10;
 	optional string		tags = 11;
+	optional string		equip_regions = 12;
 };
 
 
@@ -962,6 +898,7 @@ message CSOEconGameAccountForGameServers
 	// optional uint32 skill_rating_6v6 = 2;
 	// optional uint32 skill_rating_9v9 = 4;
 	// optional uint32 skill_rating_12v12 = 5;
+	optional bool	disable_party_quest_progress = 6 [ default = false ];
 };
 
 // ================================================================================================

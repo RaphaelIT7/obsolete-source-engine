@@ -22,22 +22,6 @@ public:
 	virtual ~IParty() { }
 };
 
-class CPartyInvite : public GCSDK::CProtoBufSharedObject<CSOPartyInvite, k_EProtoObjectPartyInvite>, public GCSDK::IPlayerGroupInvite
-{
-	//This is disabled since people shouldn't create these objects directly and should instead instantiate game specific versions of them
-	//DECLARE_CLASS_MEMPOOL( CPartyInvite );
-
-public:
-	const static int k_nTypeID = k_EProtoObjectPartyInvite;
-
-	virtual const CSteamID GetSenderID() const { return Obj().sender_id(); }
-	virtual PlayerGroupID_t GetGroupID() const { return Obj().group_id(); }
-	virtual const char* GetSenderName() const { return Obj().sender_name().c_str(); }
-
-	virtual GCSDK::CSharedObject* GetSharedObject() { return this; }
-
-};
-
 }
 
 #endif
