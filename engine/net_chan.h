@@ -27,9 +27,14 @@
 #define FLOW_INTERVAL 0.25F
 
 
-#define NET_FRAMES_BACKUP	64		// must be power of 2
+#define NET_FRAMES_BACKUP	64	// must be power of 2
 #define NET_FRAMES_MASK		(NET_FRAMES_BACKUP-1)
-#define MAX_SUBCHANNELS		8		// we have 8 alternative send&wait bits
+
+#define SUBCHANNEL_BITS		4	// raising it above 5 would require changes to m_nOutReliableState & m_nInReliableState as they couldn't hold the states anymore.
+#define MAX_SUBCHANNELS		(1 << SUBCHANNEL_BITS) // we have 16 alternative send&wait bits
+
+#define MAX_FRAGMENTS_BITS	5	// How many fragments we can send at once
+#define MAX_FRAGMENTS	(1 << MAX_FRAGMENTS_BITS) - 1  // Maximum number of fragments we can safely transmit. -1 as else we would go over MAX_FRAGMENTS_BITS
 
 #define SUBCHANNEL_FREE		0	// subchannel is free to use
 #define SUBCHANNEL_TOSEND	1	// subchannel has data, but not send yet
@@ -55,7 +60,7 @@ private: // netchan structurs
 		bool			asTCP;			// send as TCP stream
 		int				numFragments;	// number of total fragments
 		int				ackedFragments; // number of fragments send & acknowledged
-		int				pendingFragments; // number of fragments send, but not acknowledged yet
+		int				pendingFragments; // number of fragments send, but not acknowledged yet. Filled with junk in the m_ReceiveList as it's fully unused there
 	} dataFragments_t;
 
 	struct subChannel_s
