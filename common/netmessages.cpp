@@ -2073,6 +2073,26 @@ bool SVC_GMod_ServerToClient::ReadFromBuffer( bf_read &buffer )
 
 	m_iLength = buffer.ReadUBitLong(32);
 	m_DataIn = buffer;
+
+	/*
+	 * I'm assuming that Gmod writes the data always like this:
+	 * 4 bits - type - if it's a lua message or some internal gmod one
+	 * 30 bits - unknown
+	 * 16 bits - message index - this part is read normally by net.ReadHeader()
+	 */
+
+	int origin = buffer.GetNumBitsRead();
+
+	m_GmodType = buffer.ReadUBitLong( 4 ); // 4 bits containing the message type.
+
+	if ( m_GmodType == 2 ) // type 2 seems to be for lua net messages
+	{
+		buffer.SeekRelative( 30 ); // Skip next 30 bits
+		m_LuaID = buffer.ReadUBitLong( 16 ); // Read the header.
+	}
+
+	buffer.Seek(origin); // Reset the buffer to not break anything
+
 	return buffer.SeekRelative( m_iLength );
 }
 
@@ -2088,9 +2108,14 @@ bool SVC_GMod_ServerToClient::WriteToBuffer( bf_write &buffer )
 
 const char* SVC_GMod_ServerToClient::ToString() const
 {
-	//V_snprintf(s_text, sizeof(s_text), "boobies");
+	if (m_LuaID != -1)
+	{
+		Q_snprintf( s_text, sizeof( s_text ), "%s(Lua): index %i, bytes %i", GetName(), m_LuaID, m_iLength );
+	} else {
+		Q_snprintf( s_text, sizeof( s_text ), "%s: type %i, bytes %i", GetName(), m_GmodType, m_iLength );
+	}
 
-	return "boobies";
+	return s_text;
 }
 
 bool CLC_GMod_ClientToServer::ReadFromBuffer( bf_read &buffer )

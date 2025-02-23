@@ -913,6 +913,10 @@ public:
 	int			m_iLength;
 	bf_write	m_DataOut;
 	bf_read		m_DataIn;
+
+private:
+	int			m_GmodType = -1; // Gmod's message type
+	int			m_LuaID = -1; // lua message id.
 };
 
 class CLC_GMod_ClientToServer : public CNetMessage
