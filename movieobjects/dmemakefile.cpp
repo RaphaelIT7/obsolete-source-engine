@@ -194,7 +194,7 @@ bool CDmeMakefile::GetDefaultDirectory( const char *pDefaultDirectoryID, char *p
 	if ( StringHasPrefix( pDefaultDirectoryID, "makefiledir:" ) )
 	{
 		char pMakefilePath[MAX_PATH];
-		GetMakefilePath( pMakefilePath );
+		GetMakefilePath( pMakefilePath, sizeof( pMakefilePath ) );
 		pDefaultDirectoryID += 12;
 		Q_ComposeFileName( pMakefilePath, pDefaultDirectoryID, pFullPath, nBufLen );
 		Q_RemoveDotSlashes( pFullPath );
@@ -204,7 +204,7 @@ bool CDmeMakefile::GetDefaultDirectory( const char *pDefaultDirectoryID, char *p
 	if ( StringHasPrefix( pDefaultDirectoryID, "makefilegamedir:" ) )
 	{
 		char pMakefilePath[MAX_PATH];
-		GetMakefilePath( pMakefilePath );
+		GetMakefilePath( pMakefilePath, sizeof( pMakefilePath ) );
 
 		char pModContentDirectory[MAX_PATH];
 		GetModContentSubdirectory( NULL, pModContentDirectory );
@@ -246,7 +246,7 @@ void CDmeMakefile::RelativePathToFullPath( const char *pRelativePath, char *pFul
 		return;
 	}
 	char pRootDir[ MAX_PATH ];
-	GetMakefilePath( pRootDir );
+	GetMakefilePath( pRootDir, sizeof( pRootDir ) );
 	V_ComposeFileName( pRootDir, pRelativePath, pFullPath, nBufLen );
 	V_RemoveDotSlashes( pFullPath );
 }
@@ -263,7 +263,7 @@ void CDmeMakefile::FullPathToRelativePath( const char *pFullPath, char *pRelativ
 		return;
 	}
 	char pRootDir[ MAX_PATH ];
-	GetMakefilePath( pRootDir );
+	GetMakefilePath( pRootDir, sizeof( pRootDir ) );
 	if ( pRootDir[0] )
 	{
 		V_MakeRelativePath( pFullPath, pRootDir, pRelativePath, nBufLen );
@@ -301,7 +301,7 @@ CDmeSource *CDmeMakefile::AddSource( const char *pSourceType, const char *pFullP
 	}
 
 	char pRelativePath[MAX_PATH];
-	FullPathToRelativePath( pFullPath, pRelativePath );
+	FullPathToRelativePath( pFullPath, pRelativePath, sizeof( pRelativePath ) );
 	pSource->SetRelativeFileName( pRelativePath );
 	m_Sources.AddToTail( pSource );
 	return pSource;
@@ -314,7 +314,7 @@ CDmeSource *CDmeMakefile::AddSource( const char *pSourceType, const char *pFullP
 CDmeSource *CDmeMakefile::FindSource( const char *pSourceType, const char *pFullPath )
 {
 	char pRelativePath[MAX_PATH];
-	FullPathToRelativePath( pFullPath, pRelativePath );
+	FullPathToRelativePath( pFullPath, pRelativePath, sizeof( pRelativePath ) );
 	intp nCount = m_Sources.Count();
 	for ( intp i = 0; i < nCount; ++i )
 	{
@@ -345,7 +345,7 @@ CDmeSource *CDmeMakefile::SetSingleSource( const char *pSourceType, const char *
 void CDmeMakefile::SetSourceFullPath( CDmeSource *pSource, const char *pFullPath )
 {
 	char pRelativePath[MAX_PATH];
-	FullPathToRelativePath( pFullPath, pRelativePath );
+	FullPathToRelativePath( pFullPath, pRelativePath, sizeof( pRelativePath ) );
 
 	if ( Q_stricmp( pRelativePath, pSource->GetRelativeFileName() ) )
 	{
@@ -418,7 +418,7 @@ void CDmeMakefile::RemoveSource( CDmeSource *pSource )
 void CDmeMakefile::RemoveSource( const char *pSourceType, const char *pFullPath )
 {
 	char pRelativePath[MAX_PATH];
-	FullPathToRelativePath( pFullPath, pRelativePath );
+	FullPathToRelativePath( pFullPath, pRelativePath, sizeof( pRelativePath ) );
 	intp nCount = m_Sources.Count();
 	for ( intp i = 0; i < nCount; ++i )
 	{
@@ -523,7 +523,7 @@ bool CDmeMakefile::SetFileName( const char *pFileName )
 
 	char pOldRootDir[ MAX_PATH ];
 	char pNewRootDir[ MAX_PATH ];
-	GetMakefilePath( pOldRootDir );
+	GetMakefilePath( pOldRootDir, sizeof( pOldRootDir ) );
 	V_ExtractFilePath( pFileName, pNewRootDir );
 
 	// Gotta do this twice; once to check for validity, once to actually do it

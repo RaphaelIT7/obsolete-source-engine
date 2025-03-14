@@ -89,7 +89,7 @@ public:
 	virtual void BonusMapUnlock( const char *pchFileName = NULL, const char *pchMapName = NULL ) = 0;
 	virtual void BonusMapComplete( const char *pchFileName = NULL, const char *pchMapName = NULL ) = 0;
 	virtual void BonusMapChallengeUpdate( const char *pchFileName, const char *pchMapName, const char *pchChallengeName, int iBest ) = 0;
-	[[deprecated("Use BonusMapChallengeNames2 as former doesn't check bounds")]]
+	//[[deprecated("Use BonusMapChallengeNames2 as former doesn't check bounds")]]
 	virtual void BonusMapChallengeNames( char *pchFileName, char *pchMapName, char *pchChallengeName ) = 0;
 	virtual void BonusMapChallengeObjectives( int &iBronze, int &iSilver, int &iGold ) = 0;
 	virtual void BonusMapDatabaseSave( void ) = 0;

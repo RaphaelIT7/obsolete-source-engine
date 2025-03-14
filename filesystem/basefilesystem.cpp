@@ -3549,7 +3549,7 @@ void CBaseFileSystem::SetWhitelistSpewFlags( int flags )
 //			maxCharsIncludingTerminator - 
 //			fileTime - 
 //-----------------------------------------------------------------------------
-void CBaseFileSystem::FileTimeToString( char *pString, int maxCharsIncludingTerminator, long fileTime )
+void CBaseFileSystem::FileTimeToString( char *pString, int maxCharsIncludingTerminator, time_t fileTime )
 {
 		time_t time = fileTime;
 		V_strncpy( pString, ctime( &time ), maxCharsIncludingTerminator );

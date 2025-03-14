@@ -3598,7 +3598,7 @@ int TextEntry::GetValueAsInt()
 // Input:	offset - index to Start reading from 
 //			bufLenInBytes - length of string
 //-----------------------------------------------------------------------------
-void TextEntry::GetText(OUT_Z_BYTECAP(bufLenInBytes) char *buf, int bufLenInBytes)
+void TextEntry::GetText(OUT_Z_BYTECAP(bufLenInBytes) char *buf, intp bufLenInBytes)
 {
 	Assert(bufLenInBytes >= static_cast<int>(sizeof(buf[0])));
 	if (m_TextStream.Count())
@@ -3620,13 +3620,13 @@ void TextEntry::GetText(OUT_Z_BYTECAP(bufLenInBytes) char *buf, int bufLenInByte
 // Input:	offset - index to Start reading from 
 //			bufLen - length of string
 //-----------------------------------------------------------------------------
-void TextEntry::GetText(OUT_Z_BYTECAP(bufLenInBytes) wchar_t *wbuf, int bufLenInBytes)
+void TextEntry::GetText(OUT_Z_BYTECAP(bufLenInBytes) wchar_t *wbuf, intp bufLenInBytes)
 {
 	Assert(bufLenInBytes >= static_cast<int>(sizeof(wbuf[0])));
 	int len = m_TextStream.Count();
 	if (m_TextStream.Count())
 	{
-		int terminator = min(len, (bufLenInBytes / (int)sizeof(wchar_t)) - 1);
+		int terminator = MIN(len, (bufLenInBytes / (int)sizeof(wchar_t)) - 1);
 		wcsncpy(wbuf, m_TextStream.Base(), terminator);
 		wbuf[terminator] = 0;
 	}

@@ -259,7 +259,7 @@ void Label::OnMousePressed(MouseCode code)
 //-----------------------------------------------------------------------------
 // Purpose: Return the text in the label
 //-----------------------------------------------------------------------------
-void Label::GetText(char *textOut, int bufferLen)
+void Label::GetText(char *textOut, intp bufferLen)
 {
 	_textImage->GetText(textOut, bufferLen);
 }
@@ -267,7 +267,7 @@ void Label::GetText(char *textOut, int bufferLen)
 //-----------------------------------------------------------------------------
 // Purpose: Return the text in the label
 //-----------------------------------------------------------------------------
-void Label::GetText(wchar_t *textOut, int bufLenInBytes)
+void Label::GetText(wchar_t *textOut, intp bufLenInBytes)
 {
 	_textImage->GetText(textOut, bufLenInBytes);
 }

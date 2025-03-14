@@ -306,7 +306,7 @@ public:
 	long				GetFileTime( const char *pFileName, const char *pPathID = NULL ) override;
 	bool				IsFileWritable( char const *pFileName, const char *pPathID = NULL ) override;
 	bool				SetFileWritable( char const *pFileName, bool writable, const char *pPathID = 0 ) override;
-	void				FileTimeToString( char *pString, int maxChars, long fileTime ) override;
+	void				FileTimeToString( char *pString, int maxChars, time_t fileTime ) override;
 	
 	const char			*FindFirst( const char *pWildCard, FileFindHandle_t *pHandle ) override;
 	const char			*FindFirstEx( const char *pWildCard, const char *pPathID, FileFindHandle_t *pHandle ) override;

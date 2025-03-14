@@ -609,7 +609,7 @@ public:
 	// File I/O and info
 	virtual bool			IsDirectory( const char *pFileName, const char *pathID = nullptr ) = 0;
 
-	virtual void			FileTimeToString( char* pStrip, int maxCharsIncludingTerminator, long fileTime ) = 0;
+	virtual void			FileTimeToString( char* pStrip, int maxCharsIncludingTerminator, time_t fileTime ) = 0;
 
 	//--------------------------------------------------------
 	// Open file operations

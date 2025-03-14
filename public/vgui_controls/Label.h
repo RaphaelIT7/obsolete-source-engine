@@ -42,13 +42,13 @@ public:
 	virtual void SetText(const wchar_t *unicodeString, bool bClearUnlocalizedSymbol = false );
 
 	// Get the current text
-	virtual void GetText(OUT_Z_BYTECAP(bufferLen) char *textOut, int bufferLen);
+	virtual void GetText(OUT_Z_BYTECAP(bufferLen) char *textOut, intp bufferLen);
 	template<int bufferSize>
 	void GetText(OUT_Z_ARRAY char (&buf)[bufferSize]) 
 	{
 		GetText( buf, bufferSize );
 	}
-	virtual void GetText(OUT_Z_BYTECAP(bufLenInBytes) wchar_t *textOut, int bufLenInBytes);
+	virtual void GetText(OUT_Z_BYTECAP(bufLenInBytes) wchar_t *textOut, intp bufLenInBytes);
 	template<int bufferSize>
 	void GetText(OUT_Z_ARRAY wchar_t (&buf)[bufferSize]) 
 	{

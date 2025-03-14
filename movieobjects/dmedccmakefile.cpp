@@ -126,7 +126,7 @@ void CDmeDCCMakefile::GetOutputs( CUtlVector<CUtlString> &fullPaths )
 
 	// FIXME: We need to come up with an appropriate directory structure for export
 	char pOutputDir[MAX_PATH];
-	GetMakefilePath( pOutputDir );
+	GetMakefilePath( pOutputDir, sizeof( pOutputDir ) );
 	if ( !pOutputDir[0] )
 		return;
 
