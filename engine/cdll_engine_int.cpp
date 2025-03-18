@@ -588,6 +588,7 @@ public:
 	virtual bool NET_IsHostLocal( const char* pHostName );
 	virtual bool IsDedicatedServer();
 	virtual void ResetModelPrecache();
+	virtual void GMOD_RenderLoadingScreen();
 #else
 	float	GetPausedExpireTime( void ) override;
 
@@ -2354,4 +2355,17 @@ void CEngineClient::ResetModelPrecache()
 		cl.model_precache[i].SetModel(NULL);
 	}
 }
+
+static double g_pLastLoadingScreenRender;
+#define LOADINGSCREEN_DELAY 0.05 // Time in seconds to wait before rendering again.
+void CEngineClient::GMOD_RenderLoadingScreen()
+{
+	if (Plat_FloatTime() > (g_pLastLoadingScreenRender + LOADINGSCREEN_DELAY))
+	{
+		extern void V_RenderVGuiOnly();
+		V_RenderVGuiOnly();
+		g_pLastLoadingScreenRender = Plat_FloatTime();
+	}
+}
+
 #endif
