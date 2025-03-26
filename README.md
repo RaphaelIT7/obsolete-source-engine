@@ -87,3 +87,8 @@ If you found a bug, please file it at https://github.com/Source-Authors/obsolete
 ## SAST Tools
 
 [PVS-Studio](https://pvs-studio.com/en/pvs-studio/?utm_source=website&utm_medium=github&utm_campaign=open_source) - static analyzer for C, C++, C#, and Java code.
+
+---
+# ChangeLog
+- Implemented Linux support,
+- Implemented rotational physics gun.

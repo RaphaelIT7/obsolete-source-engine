@@ -17,7 +17,7 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\game\shared\hl2,.\hl2,.\hl2mp,$SRCDIR\game\shared\hl2mp;.\gmod;$SRCDIR\game\shared\gmod;$SRCDIR\gmod-lua-shared\source\public"
-		$PreprocessorDefinitions		"$BASE;HL2MP;HL2_DLL"
+		$PreprocessorDefinitions		"$BASE;HL2MP;HL2_DLL;GMOD"
 	}
 }
 

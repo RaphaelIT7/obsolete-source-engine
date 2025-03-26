@@ -86,6 +86,7 @@ public:
 
 	// Input
 	int		KeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBinding ) override;
+	virtual bool	OverrideViewAngles( void );
 	virtual int		HudElementKeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBinding );
 	void	OverrideMouseInput( float *x, float *y ) override;
 	void	StartMessageMode( int iMessageModeType ) override;

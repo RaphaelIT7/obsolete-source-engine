@@ -1136,6 +1136,7 @@ private:
 	CNetworkVar( float, m_flConstraintRadius );
 	CNetworkVar( float, m_flConstraintWidth );
 	CNetworkVar( float, m_flConstraintSpeedFactor );
+	CNetworkQAngle( m_vecUseAngles );
 
 	friend class CPlayerMove;
 	friend class CPlayerClass;

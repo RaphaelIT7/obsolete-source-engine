@@ -7,6 +7,7 @@
 #include "cbase.h"
 #include "c_gmod_player.h"
 #include "gmod_gamerules.h"
+#include "iclientmode.h"
 
 // Don't alias here
 #if defined( CGMOD_Player )
