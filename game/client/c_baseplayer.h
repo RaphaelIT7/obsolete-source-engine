@@ -438,6 +438,7 @@ public:
 	int				m_nButtons;
 
 	CUserCmd		*m_pCurrentCommand;
+	QAngle		m_vecUseAngles;
 
 	// Movement constraints
 	EHANDLE			m_hConstraintEntity;

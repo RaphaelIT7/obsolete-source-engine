@@ -515,6 +515,7 @@ public:
 	bool			ShouldDraw( void ) override;
 	virtual bool			ShouldDrawPickup( void );
 	virtual void			HandleInput( void ) {}
+	virtual bool			OverrideViewAngles( void ) { return false; };
 	virtual void			OverrideMouseInput( [[maybe_unused]] float *x, [[maybe_unused]] float *y ) {}
 	virtual int				KeyInput( [[maybe_unused]] int down, [[maybe_unused]] ButtonCode_t keynum, [[maybe_unused]] const char *pszurrentBinding ) { return 1; }
 	virtual bool			AddLookShift( void ) { return true; }

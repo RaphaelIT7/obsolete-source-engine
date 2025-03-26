@@ -697,9 +697,12 @@ void CInput::MouseMove( CUserCmd *cmd )
 	}
 
 	// Store out the new viewangles.
-	engine->SetViewAngles( viewangles );
-}
+	if( !(g_pClientMode->OverrideViewAngles()) )
+	{
+		engine->SetViewAngles( viewangles );
 
+	}
+}
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *mx - 
