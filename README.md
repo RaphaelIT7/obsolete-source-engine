@@ -90,5 +90,4 @@ If you found a bug, please file it at https://github.com/Source-Authors/obsolete
 
 ---
 # ChangeLog
-- Implemented Linux support,
 - Implemented rotational physics gun.
