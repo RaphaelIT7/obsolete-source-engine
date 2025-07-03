@@ -95,6 +95,7 @@
 #include "gmod_networkvars.h"
 #include "gmod_stringtable.h"
 #include "stringtable_bits.h"
+#include <voice_gamemgr.h>
 #endif
 
 
@@ -3330,6 +3331,13 @@ void CServerGameClients::GMOD_SentClientStringTables( int userID )
 	// ToDo
 	// DataPack()
 	// GModDataPack::SendFileRequestRequest(int)
+}
+
+bool CServerGameClients::GMOD_OnClientReceivedVoicePacket( edict_t* pPlayer )
+{
+	GetVoiceGameMgr()->UpdatePlayer( (CBasePlayer*)CBaseEntity::Instance( pPlayer ), true );
+
+	return false; // Idea is that in the future, we could have possibly even something like a lua hook here that can allow servers to reject a voice packet early on.
 }
 #endif
 

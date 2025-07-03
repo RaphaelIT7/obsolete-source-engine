@@ -796,6 +796,8 @@ public:
 	virtual void 			GMOD_ClientConnected( int userID ) = 0;
 
 	virtual void 			GMOD_SentClientStringTables( int userID ) = 0;
+
+	virtual bool			GMOD_OnClientReceivedVoicePacket( edict_t* pPlayer ) = 0;
 #endif
 };
 

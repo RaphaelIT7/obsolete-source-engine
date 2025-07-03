@@ -62,6 +62,7 @@ public:
 	virtual void			GMOD_ReceiveClientMessage( int unknown, edict_t* pPlayer, bf_read* msg, int unknown2 ) OVERRIDE;
 	virtual void			GMOD_ClientConnected( int userID ) OVERRIDE;
 	virtual void 			GMOD_SentClientStringTables( int userID ) OVERRIDE;
+	virtual bool			GMOD_OnClientReceivedVoicePacket( edict_t* pPlayer ) OVERRIDE;
 #endif
 };
 

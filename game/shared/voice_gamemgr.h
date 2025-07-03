@@ -46,6 +46,7 @@ public:
 	// If gameplay mode is teamplay, then only players on the same team can hear each other.
 	// Player masks are always applied.
 	void				Update(double frametime);
+	void				UpdatePlayer(CBasePlayer* pPlayer, bool bIsTalking);
 
 	// Called when a new client connects (unsquelches its entity for everyone).
 	void				ClientConnected(struct edict_t *pEdict);

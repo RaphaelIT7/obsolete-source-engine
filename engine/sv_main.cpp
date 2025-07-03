@@ -2027,6 +2027,9 @@ void SV_BroadcastVoiceData(IClient * pClient, int nBytes, char * data, int64 xui
 	if( !sv_voiceenable.GetInt() )
 		return;
 
+	if (serverGameClients->GMOD_OnClientReceivedVoicePacket( EDICT_NUM(pClient->GetPlayerSlot() + 1) ))
+		return;
+
 	// Build voice message once
 	SVC_VoiceData voiceData;
 	voiceData.m_nFromClient = pClient->GetPlayerSlot();
