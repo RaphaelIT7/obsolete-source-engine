@@ -1333,6 +1333,25 @@ bool CBaseClient::ExecuteStringCommand( const char *pCommand )
 		return false; 
 	}
 
+#ifdef DEBUG
+	if ( V_stricmp( pCommand, "net_testfile " ) == 0 )
+	{
+		Assert(sv.IsMultiplayer()); // Networking is different in SP. Always use MP.
+
+		Cbuf_AddText("net_graph 4");
+		Cbuf_AddText("developer 4");
+		Cbuf_AddText("cl_localnetworkbackdoor 0");
+		Cbuf_AddText("net_usesocketsforloopback 1");
+		Cbuf_AddText("net_filebackgroundtranmission 0"); // Disable file background transmition as it limits networking to 1 fragment each transmit
+		Cbuf_AddText("net_minfragments 31"); // Use 31 fragments each transmit to reach the full speed.
+		Cbuf_AddText("rate 10000000000000");
+		Cbuf_AddText("net_fakelag 300");
+		Cbuf_Execute();
+		GetNetChannel()->SendFile("test.txt", 5151); // 190+ MB test file inside the base directory "garrysmod/test.txt".
+		return true;
+	}
+#endif
+
 	return false;
 }
 

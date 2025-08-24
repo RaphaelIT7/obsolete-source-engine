@@ -40,11 +40,16 @@ static ConVar net_blockmsg( "net_blockmsg", "none", FCVAR_CHEAT, "Discards incom
 static ConVar net_showdrop( "net_showdrop", "0", 0, "Show dropped packets in console" );
 static ConVar net_drawslider( "net_drawslider", "0", 0, "Draw completion slider during signon" );
 static ConVar net_chokeloopback( "net_chokeloop", "0", 0, "Apply bandwidth choke to loopback packets" );
-static ConVar net_maxfilesize( "net_maxfilesize", "16", 0, "Maximum allowed file size for uploading in MiB", true, 0, true, 64 );
+static ConVar net_maxfilesize( "net_maxfilesize", "256", 0, "Maximum allowed file size for uploading in MiB", true, 0, true, 512 );
 static ConVar net_compresspackets( "net_compresspackets", "1", 0, "Use compression on game packets." );
 static ConVar net_compresspackets_minsize( "net_compresspackets_minsize", "1024", 0, "Don't bother compressing packets below this size." );
 static ConVar net_maxcleartime( "net_maxcleartime", "4.0", 0, "Max # of seconds we can wait for next packets to be sent based on rate setting (0 == no limit)." );
 static ConVar net_maxpacketdrop( "net_maxpacketdrop", "5000", 0, "Ignore any packets with the sequence number more than this ahead (0 == no limit)" );
+
+// Testing convars, but can be useful for server owners to control how many fragments are used.
+static ConVar net_filebackgroundtranmission( "net_filebackgroundtranmission", "-1", 0, "Networks a file by sending only a single fragment making it quite slow. -1 = let engine control it. 0 = force disable. 1 = force enable" );
+static ConVar net_minfragments( "net_minfragments", "1", 0, "Forces a minimum number of fragments to be used", true, 1, true, MAX_FRAGMENTS );
+static ConVar net_maxfragments( "net_maxfragments", "0", 0, "Forces a maximum number of fragments to be used. 0 = let the engine freely decide", true, 0, true, MAX_FRAGMENTS );
 
 extern ConVar net_maxroutable;
 
@@ -1194,7 +1199,7 @@ bool CNetChan::SendSubChannelData( bf_write &buf )
 		return false; // no data to send in any subchannel
 
 	// first write subchannel index
-	buf.WriteUBitLong( i, 3 );
+	buf.WriteUBitLong( i, SUBCHANNEL_BITS );
 
 	// write fragemnts for both streams
 	for ( i=0; i<MAX_STREAMS; i++ )
@@ -1249,7 +1254,7 @@ bool CNetChan::SendSubChannelData( bf_write &buf )
 		{
 			buf.WriteOneBit( 1 ); // uses fragments with start fragment offset byte
 			buf.WriteUBitLong( subChan->startFraggment[i], (MAX_FILE_SIZE_BITS-FRAGMENT_BITS) ); 
-			buf.WriteUBitLong( subChan->numFragments[i], 3 ); 
+			buf.WriteUBitLong( subChan->numFragments[i], MAX_FRAGMENTS_BITS ); 
 		
 			if ( offset == 0 )
 			{
@@ -1324,7 +1329,7 @@ bool CNetChan::ReadSubChannelData( bf_read &buf, int stream  )
 	if ( !bSingleBlock )
 	{
 		startFragment = buf.ReadUBitLong( MAX_FILE_SIZE_BITS-FRAGMENT_BITS ); // 16 MiB max
-		numFragments = buf.ReadUBitLong( 3 );  // 8 fragments per packet max
+		numFragments = buf.ReadUBitLong( MAX_FRAGMENTS_BITS );  // 31 fragments per packet max
 		offset = startFragment * FRAGMENT_SIZE;
 		length = numFragments * FRAGMENT_SIZE;
 	}
@@ -1460,6 +1465,12 @@ void CNetChan::UpdateSubChannels()
 
 	int i, nSendMaxFragments = m_MaxReliablePayloadSize / FRAGMENT_SIZE;
 
+	nSendMaxFragments = MAX(nSendMaxFragments, net_minfragments.GetInt());
+	if (net_maxfragments.GetInt() > 0)
+		nSendMaxFragments = MIN(nSendMaxFragments, net_maxfragments.GetInt());
+
+	nSendMaxFragments = MIN(nSendMaxFragments, MAX_FRAGMENTS); // Safety as going above breaks things.
+
 	bool bSendData = false;
 
 	for ( i = 0; i < MAX_STREAMS; i++ )
@@ -1481,11 +1492,11 @@ void CNetChan::UpdateSubChannels()
 
 		// how many fragments can we send ?
 
-		int numFragments = min( nSendMaxFragments, data->numFragments - nSentFragments );
+		int numFragments = MIN( nSendMaxFragments, data->numFragments - nSentFragments );
 
 		// if we are in file background transmission mode, just send one fragment per packet
-		if ( i == FRAG_FILE_STREAM && m_bFileBackgroundTranmission )
-			numFragments = min( 1, numFragments );
+		if ( i == FRAG_FILE_STREAM && (net_filebackgroundtranmission.GetInt() == -1 ? m_bFileBackgroundTranmission : net_filebackgroundtranmission.GetInt() == 1) )
+			numFragments = MIN( 1, numFragments );
 
 		// copy fragment data into subchannel
 
@@ -1643,7 +1654,7 @@ int CNetChan::SendDatagram(bf_write *datagram)
 	// Note, this only matters on the PC
 	int nCheckSumStart = send.GetNumBytesWritten();
 
-	send.WriteByte ( m_nInReliableState );
+	send.WriteUBitLong ( m_nInReliableState, MAX_SUBCHANNELS ); // send subchannel states
 
 	if ( m_nChokedPackets > 0 )
 	{
@@ -2260,7 +2271,7 @@ int CNetChan::ProcessPacketHeader( netpacket_t * packet )
 		}
 	}
 
-	int relState	= packet->message.ReadByte();	// reliable state of 8 subchannels
+	int relState	= packet->message.ReadUBitLong(MAX_SUBCHANNELS);	// reliable state of subchannels
 	int nChoked		= 0;	// read later if choked flag is set
 	int i,j;
 
@@ -2467,7 +2478,7 @@ void CNetChan::ProcessPacket( netpacket_t * packet, bool bHasHeader )
 
 	if ( flags & PACKET_FLAG_RELIABLE )
 	{
-		int i, bit = 1<<msg.ReadUBitLong( 3 );
+		int i, bit = 1<<msg.ReadUBitLong( SUBCHANNEL_BITS ); // Read subChannel id
 
 		for ( i=0; i<MAX_STREAMS; i++ )
 		{
