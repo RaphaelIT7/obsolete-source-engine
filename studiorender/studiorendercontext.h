@@ -174,12 +174,12 @@ public:
 	CStudioRenderContext();
 	virtual ~CStudioRenderContext();
 
+	// Determines material flags
+	void ComputeMaterialFlags( studiohdr_t *phdr, studioloddata_t &lodData, IMaterial *pMaterial );
+
 private:
 	// Load, unload materials
 	void LoadMaterials( studiohdr_t *phdr, OptimizedModel::FileHeader_t *, studioloddata_t &lodData, int lodID );
-
-	// Determines material flags
-	void ComputeMaterialFlags( studiohdr_t *phdr, studioloddata_t &lodData, IMaterial *pMaterial );
 
 	// Creates, destroys static meshes
 	void R_StudioCreateStaticMeshes( studiohdr_t *pStudioHdr, OptimizedModel::FileHeader_t* pVtxHdr,

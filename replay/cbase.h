@@ -1,0 +1,3 @@
+#ifndef CBASE_H // Required apparently if you want to share a file between engine, client and server....
+#define CBASE_H
+#endif

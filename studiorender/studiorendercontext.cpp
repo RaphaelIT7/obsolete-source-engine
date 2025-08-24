@@ -19,6 +19,7 @@
 #include "tier1/callqueue.h"
 #include "cmodel.h"
 #include "tier0/vprof.h"
+#include <vstdlib/jobthread.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -222,6 +223,83 @@ static const char *GetTextureName( studiohdr_t *phdr, OptimizedModel::FileHeader
 	return phdr->pTexture( inMaterialID )->pszName();
 }
 
+struct Threaded_LoadMaterials_Data
+{
+	studiohdr_t* phdr;
+	OptimizedModel::FileHeader_t* pVtxHeader;
+	studioloddata_t* lodData;
+	int lodID;
+	int id;
+	CStudioRenderContext* context;
+};
+
+static void Threaded_LoadMaterials(Threaded_LoadMaterials_Data*& threadData)
+{
+	studiohdr_t* phdr = threadData->phdr;
+	OptimizedModel::FileHeader_t* pVtxHeader = threadData->pVtxHeader;
+	studioloddata_t &lodData = *threadData->lodData;
+	int lodID = threadData->lodID;
+	int i = threadData->id;
+
+	char szPath[MAX_PATH];
+	IMaterial *pMaterial = NULL;
+
+	// search through all specified directories until a valid material is found
+	for ( int j = 0; j < phdr->numcdtextures && IsErrorMaterial( pMaterial ); j++ )
+	{
+		// If we don't do this, we get filenames like "materials\\blah.vmt".
+		const char *textureName = GetTextureName( phdr, pVtxHeader, lodID, i );
+		if ( textureName[0] == CORRECT_PATH_SEPARATOR || textureName[0] == INCORRECT_PATH_SEPARATOR )
+			++textureName;
+
+		// This prevents filenames like /models/blah.vmt.
+		const char *pCdTexture = phdr->pCdtexture( j );
+		if ( pCdTexture[0] == CORRECT_PATH_SEPARATOR || pCdTexture[0] == INCORRECT_PATH_SEPARATOR )
+			++pCdTexture;
+
+		V_ComposeFileName( pCdTexture, textureName, szPath, sizeof( szPath ) );
+
+		if ( phdr->flags & STUDIOHDR_FLAGS_OBSOLETE )
+		{
+			pMaterial = g_pMaterialSystem->FindMaterial( "models/obsolete/obsolete", TEXTURE_GROUP_MODEL, false );
+			if ( IsErrorMaterial( pMaterial ) )
+			{
+				Warning( "StudioRender: OBSOLETE material missing: \"models/obsolete/obsolete\"\n" );
+			}
+		}
+		else
+		{
+			pMaterial = g_pMaterialSystem->FindMaterial( szPath, TEXTURE_GROUP_MODEL, false );
+		}
+	}
+	if ( IsErrorMaterial( pMaterial ) )
+	{
+		// hack - if it isn't found, go through the motions of looking for it again
+		// so that the materialsystem will give an error.
+		char szPrefix[256];
+		Q_strncpy( szPrefix, phdr->pszName(), sizeof( szPrefix ) );
+		Q_strncat( szPrefix, " : ", sizeof( szPrefix ), COPY_ALL_CHARACTERS );
+		for ( int j = 0; j < phdr->numcdtextures; j++ )
+		{
+			Q_strncpy( szPath, phdr->pCdtexture( j ), sizeof( szPath ) );
+			const char *textureName = GetTextureName( phdr, pVtxHeader, lodID, i );
+			Q_strncat( szPath, textureName, sizeof( szPath ), COPY_ALL_CHARACTERS );
+			Q_FixSlashes( szPath, CORRECT_PATH_SEPARATOR );
+			g_pMaterialSystem->FindMaterial( szPath, TEXTURE_GROUP_MODEL, true, szPrefix );
+		}
+	}
+
+	lodData.ppMaterials[i] = pMaterial;
+	if ( pMaterial )
+	{
+		// Increment the reference count for the material.
+		pMaterial->IncrementReferenceCount();
+		threadData->context->ComputeMaterialFlags( phdr, lodData, pMaterial );
+		lodData.pMaterialFlags[i] = UsesMouthShader( pMaterial ) ? 1 : 0;
+	}
+
+	delete threadData;
+}
 
 //-----------------------------------------------------------------------------
 // Loads materials associated with a particular LOD of a model
@@ -245,72 +323,26 @@ void CStudioRenderContext::LoadMaterials( studiohdr_t *phdr,
 	lodData.pMaterialFlags = new int[lodData.numMaterials];
 	Assert( lodData.pMaterialFlags );
 
-	int i, j;
-
 	// get index of each material
 	// set the runtime studiohdr flags that are material derived
 	if ( phdr->textureindex == 0 )
 		return;
 
-	for ( i = 0; i < phdr->numtextures; i++ )
+	CUtlVector<Threaded_LoadMaterials_Data*> textures;
+	for ( int i = 0; i < phdr->numtextures; i++ )
 	{
-		char szPath[MAX_PATH];
-		IMaterial *pMaterial = NULL;
+		Threaded_LoadMaterials_Data* threadData = new Threaded_LoadMaterials_Data;
+		threadData->context = this;
+		threadData->id = i;
+		threadData->lodID = lodID;
+		threadData->phdr = phdr;
+		threadData->pVtxHeader = pVtxHeader;
+		threadData->lodData = &lodData;
 
-		// search through all specified directories until a valid material is found
-		for ( j = 0; j < phdr->numcdtextures && IsErrorMaterial( pMaterial ); j++ )
-		{
-			// If we don't do this, we get filenames like "materials\\blah.vmt".
-			const char *textureName = GetTextureName( phdr, pVtxHeader, lodID, i );
-			if ( textureName[0] == CORRECT_PATH_SEPARATOR || textureName[0] == INCORRECT_PATH_SEPARATOR )
-				++textureName;
-
-			// This prevents filenames like /models/blah.vmt.
-			const char *pCdTexture = phdr->pCdtexture( j );
-			if ( pCdTexture[0] == CORRECT_PATH_SEPARATOR || pCdTexture[0] == INCORRECT_PATH_SEPARATOR )
-				++pCdTexture;
-
-			V_ComposeFileName( pCdTexture, textureName, szPath, sizeof( szPath ) );
-
-			if ( phdr->flags & STUDIOHDR_FLAGS_OBSOLETE )
-			{
-				pMaterial = g_pMaterialSystem->FindMaterial( "models/obsolete/obsolete", TEXTURE_GROUP_MODEL, false );
-				if ( IsErrorMaterial( pMaterial ) )
-				{
-					Warning( "StudioRender: OBSOLETE material missing: \"models/obsolete/obsolete\"\n" );
-				}
-			}
-			else
-			{
-				pMaterial = g_pMaterialSystem->FindMaterial( szPath, TEXTURE_GROUP_MODEL, false );
-			}
-		}
-		if ( IsErrorMaterial( pMaterial ) )
-		{
-			// hack - if it isn't found, go through the motions of looking for it again
-			// so that the materialsystem will give an error.
-			char szPrefix[256];
-			Q_strncpy( szPrefix, phdr->pszName(), sizeof( szPrefix ) );
-			Q_strncat( szPrefix, " : ", sizeof( szPrefix ), COPY_ALL_CHARACTERS );
-			for ( j = 0; j < phdr->numcdtextures; j++ )
-			{
-				Q_strncpy( szPath, phdr->pCdtexture( j ), sizeof( szPath ) );
-				const char *textureName = GetTextureName( phdr, pVtxHeader, lodID, i );
-				Q_strncat( szPath, textureName, sizeof( szPath ), COPY_ALL_CHARACTERS );
-				Q_FixSlashes( szPath, CORRECT_PATH_SEPARATOR );
-				g_pMaterialSystem->FindMaterial( szPath, TEXTURE_GROUP_MODEL, true, szPrefix );
-			}
-		}
-
-		lodData.ppMaterials[i] = pMaterial;
-		if ( pMaterial )
-		{
-			// Increment the reference count for the material.
-			pMaterial->IncrementReferenceCount();
-			ComputeMaterialFlags( phdr, lodData, pMaterial );
-			lodData.pMaterialFlags[i] = UsesMouthShader( pMaterial ) ? 1 : 0;
-		}
+		textures.AddToTail(threadData);
 	}
+
+	ParallelProcess("Threaded_LoadMaterials", textures.Base(), textures.Count(), &Threaded_LoadMaterials);
 }
 
 

@@ -2546,12 +2546,13 @@ void CServerGameEnts::CheckTransmit( CCheckTransmitInfo *pInfo, const unsigned s
 		    bIsReplay == ( pInfo->m_pTransmitAlways != NULL) );
 #endif
 
+	bool bForceTransmit = sv_force_transmit_ents.GetBool();
 	for ( int i=0; i < nEdicts; i++ )
 	{
 		int iEdict = pEdictIndices[i];
 
 		edict_t *pEdict = &pBaseEdict[iEdict];
-		Assert( pEdict == engine->PEntityOfEntIndex( iEdict ) );
+		//Assert( pEdict == engine->PEntityOfEntIndex( iEdict ) );
 		int nFlags = pEdict->m_fStateFlags & (FL_EDICT_DONTSEND|FL_EDICT_ALWAYS|FL_EDICT_PVSCHECK|FL_EDICT_FULLCHECK);
 
 		// entity needs no transmit
@@ -2586,14 +2587,14 @@ void CServerGameEnts::CheckTransmit( CCheckTransmitInfo *pInfo, const unsigned s
 					break;
 
 				pEdict = pParent->edict();
-				iEdict = pParent->entindex();
+				iEdict = pEdict->m_EdictIndex;
 			}
 			continue;
 		}
 
 		// FIXME: Would like to remove all dependencies
 		CBaseEntity *pEnt = ( CBaseEntity * )pEdict->GetUnknown();
-		Assert( dynamic_cast< CBaseEntity* >( pEdict->GetUnknown() ) == pEnt );
+		//Assert( dynamic_cast< CBaseEntity* >( pEdict->GetUnknown() ) == pEnt );
 
 		if ( nFlags == FL_EDICT_FULLCHECK )
 		{
@@ -2641,7 +2642,7 @@ void CServerGameEnts::CheckTransmit( CCheckTransmitInfo *pInfo, const unsigned s
 		}
 
 		bool bInPVS = netProp->IsInPVS( pInfo );
-		if ( bInPVS || sv_force_transmit_ents.GetBool() )
+		if ( bInPVS || bForceTransmit )
 		{
 			// only send if entity is in PVS
 			pEnt->SetTransmit( pInfo, false );
@@ -2650,7 +2651,6 @@ void CServerGameEnts::CheckTransmit( CCheckTransmitInfo *pInfo, const unsigned s
 
 		// If the entity is marked "check PVS" but it's in hierarchy, walk up the hierarchy looking for the
 		//  for any parent which is also in the PVS.  If none are found, then we don't need to worry about sending ourself
-		CBaseEntity *orig = pEnt;
 		CServerNetworkProperty *check = netProp->GetNetworkParent();
 
 		// BUG BUG:  I think it might be better to build up a list of edict indices which "depend" on other answers and then
@@ -2662,7 +2662,7 @@ void CServerGameEnts::CheckTransmit( CCheckTransmitInfo *pInfo, const unsigned s
 			// Parent already being sent
 			if ( pInfo->m_pTransmitEdict->Get( checkIndex ) )
 			{
-				orig->SetTransmit( pInfo, true );
+				pEnt->SetTransmit( pInfo, true );
 				break;
 			}
 
@@ -2673,7 +2673,7 @@ void CServerGameEnts::CheckTransmit( CCheckTransmitInfo *pInfo, const unsigned s
 
 			if ( checkFlags & FL_EDICT_ALWAYS )
 			{
-				orig->SetTransmit( pInfo, true );
+				pEnt->SetTransmit( pInfo, true );
 				break;
 			}
 
@@ -2686,7 +2686,7 @@ void CServerGameEnts::CheckTransmit( CCheckTransmitInfo *pInfo, const unsigned s
 				if ( nFlags & FL_EDICT_ALWAYS )
 				{
 					pCheckEntity->SetTransmit( pInfo, true );
-					orig->SetTransmit( pInfo, true );
+					pEnt->SetTransmit( pInfo, true );
 				}
 				break;
 			}
@@ -2698,7 +2698,7 @@ void CServerGameEnts::CheckTransmit( CCheckTransmitInfo *pInfo, const unsigned s
 				bool bMoveParentInPVS = check->IsInPVS( pInfo );
 				if ( bMoveParentInPVS )
 				{
-					orig->SetTransmit( pInfo, true );
+					pEnt->SetTransmit( pInfo, true );
 					break;
 				}
 			}

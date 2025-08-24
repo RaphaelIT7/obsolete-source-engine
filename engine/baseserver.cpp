@@ -482,7 +482,7 @@ IClient *CBaseServer::ConnectClient ( netadr_t &adr, int protocol, int challenge
 		}
 #endif
 
-		if ( !CheckPassword( adr, password, name ) )
+		if ( !CheckPassword( adr, password, name ) /* || serverGameDLL->GMOD_CheckPassword( ToDo ) */ )
 		{
 			// failed
 			ConMsg ( "%s:  password failed.\n", adr.ToString() );
