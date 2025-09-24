@@ -4,7 +4,7 @@
 
 #include <winresrc.h>
 
-#include "resource.h"
+//#include "resource.h"
 
 #include "app_version_config.h"
 
@@ -18,7 +18,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_DEFAULT
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-SRC_IDI_APP_MAIN   ICON   DISCARDABLE   "resources\\app.ico"
+// SRC_IDI_APP_MAIN   ICON   DISCARDABLE   "resources\\app.ico"
 
 // Version info.
 

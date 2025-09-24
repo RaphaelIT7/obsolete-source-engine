@@ -6,7 +6,6 @@
 //
 //=============================================================================//
 #include "vis.h"
-#include "vmpi.h"
 
 int g_TraceClusterStart = -1;
 int g_TraceClusterStop = -1;

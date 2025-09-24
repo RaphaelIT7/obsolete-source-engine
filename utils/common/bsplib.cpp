@@ -3156,7 +3156,7 @@ void SetKeyValue(entity_t *ent, const char *key, const char *value)
 	ep->value = copystring(value);
 }
 
-const char 	*ValueForKey (entity_t *ent, char *key)
+const char 	*ValueForKey (entity_t *ent, const char *key)
 {
 	for (epair_t *ep=ent->epairs ; ep ; ep=ep->next)
 		if (!Q_stricmp (ep->key, key) )

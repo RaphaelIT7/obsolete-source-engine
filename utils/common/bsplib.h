@@ -313,7 +313,7 @@ void	UnparseEntities (void);
 void	PrintEntity (entity_t *ent);
 
 void 	SetKeyValue (entity_t *ent, const char *key, const char *value);
-const char 	*ValueForKey (entity_t *ent, char *key);
+const char 	*ValueForKey (entity_t *ent, const char *key);
 // will return "" if not present
 int		IntForKey (entity_t *ent, char *key);
 int		IntForKeyWithDefault(entity_t *ent, char *key, int nDefault );

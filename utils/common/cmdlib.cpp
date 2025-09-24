@@ -22,11 +22,6 @@
 #include "filesystem_helpers.h"
 #include "filesystem_tools.h"
 
-#if defined(MPI)
-#include "vmpi.h"
-#include "vmpi_tools_shared.h"
-#endif
-
 #include "tier0/memdbgon.h"
 
 // set these before calling CheckParm
@@ -195,28 +190,6 @@ SpewRetval_t CmdLib_SpewOutputFunc(SpewType_t type, char const *pMsg) {
     } else if (type == SPEW_ASSERT) {
       old = SetConsoleTextColor(1, 0, 0, 1);
       retVal = SPEW_DEBUGGER;
-
-#ifdef MPI
-      // VMPI workers don't want to bring up dialogs and suchlike.
-      // They need to have a special function installed to handle
-      // the exceptions and write the minidumps.
-      // Install the function after VMPI_Init with a call:
-      // SetupToolsMinidumpHandler( VMPI_ExceptionFilter );
-      if (g_bUseMPI && !g_bMPIMaster && !Plat_IsInDebugSession()) {
-        // Generating an exception and letting the
-        // installed handler handle it
-        ::RaiseException(0,                         // dwExceptionCode
-                         EXCEPTION_NONCONTINUABLE,  // dwExceptionFlags
-                         0,                         // nNumberOfArguments,
-                         NULL  // const ULONG_PTR* lpArguments
-        );
-
-        // Never get here (non-continuable exception)
-
-        VMPI_HandleCrash(pMsg, NULL, true);
-        exit(0);
-      }
-#endif
     } else if (type == SPEW_ERROR) {
       old = SetConsoleTextColor(1, 0, 0, 1);
       retVal = SPEW_ABORT;  // doesn't matter.. we exit below so we can return
@@ -295,15 +268,6 @@ void CmdLib_Cleanup() {
 
   FOR_EACH_LL(g_CleanupFunctions, i)
   g_CleanupFunctions[i]();
-
-#if defined(MPI)
-  // Unfortunately, when you call exit(), even if you have things registered
-  // with atexit(), threads go into a seemingly undefined state where
-  // GetExitCodeThread gives STILL_ACTIVE and WaitForSingleObject will stall
-  // forever on the thread. Because of this, we must cleanup everything that
-  // uses threads before exiting.
-  VMPI_Finalize();
-#endif
 }
 
 void CmdLib_Exit(int exitCode) { ExitProcess(exitCode); }
