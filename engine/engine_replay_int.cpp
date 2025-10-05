@@ -201,7 +201,7 @@ public:
 class CEngineClientReplay : public IEngineClientReplay
 {
 public:
-	virtual float GetLastServerTickTime()
+	virtual double GetLastServerTickTime()
 	{
 		return TIME_TO_TICKS( cl.m_flLastServerTickTime );
 	}

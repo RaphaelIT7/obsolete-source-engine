@@ -359,7 +359,7 @@ public:
 	client_textmessage_t *TextMessageGet( const char *pName ) override;
 	bool Con_IsVisible( void ) override;
 	int GetLocalPlayer( void ) override;
-	float GetLastTimeStamp( void ) override;
+	double GetLastTimeStamp( void ) override;
 	const model_t *LoadModel( const char *pName, bool bProp ) override;
 	void UnloadModel( const model_t *model, bool bProp );
 	CSentence *GetSentence( CAudioSource *pAudioSource ) override;
@@ -389,7 +389,7 @@ public:
 	int		IsBoxVisible( const Vector& mins, const Vector& maxs ) override;
 	int		IsBoxInViewCluster( const Vector& mins, const Vector& maxs ) override;
 
-	float Time() override;
+	double Time() override;
 	void Sound_ExtraUpdate( void ) override;
 
 	bool CullBox ( const Vector& mins, const Vector& maxs ) override;
@@ -797,7 +797,7 @@ int CEngineClient::GetLocalPlayer( void )
 	return cl.m_nPlayerSlot + 1;
 }
 
-float CEngineClient::GetLastTimeStamp( void )
+double CEngineClient::GetLastTimeStamp( void )
 {
 	return cl.m_flLastServerTickTime;
 }
@@ -970,9 +970,9 @@ int	CEngineClient::IsBoxInViewCluster( const Vector& mins, const Vector& maxs )
 	return CM_BoxVisible(mins, maxs, ppvs, sizeof(pvs) );
 }
 
-float CEngineClient::Time()
+double CEngineClient::Time()
 {
-	return Sys_FloatTime();
+	return Plat_FloatTime();
 }
 
 void CEngineClient::Sound_ExtraUpdate( void )

@@ -106,7 +106,6 @@ REGISTER_SEND_PROXY_NON_MODIFIED_POINTER( SendProxy_OnlyToTeam );
 #define TIME_BITS 24
 
 // This table encodes edict data.
-#if 0
 static void SendProxy_Time( const SendProp *pProp, const void *pStruct, const void *pVarData, DVariant *pOut, int iElement, int objectID )
 {
 	float clock_base = floor( gpGlobals->curtime );
@@ -120,7 +119,6 @@ static void SendProxy_Time( const SendProp *pProp, const void *pStruct, const vo
 
 	pOut->m_Int = addt;
 }
-#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -135,9 +133,7 @@ SendProp SendPropTime(
 	int offset,
 	int sizeofVar )
 {
-//	return SendPropInt( pVarName, offset, sizeofVar, TIME_BITS, 0, SendProxy_Time );
-	// FIXME:  Re-enable above when it doesn't cause lots of deltas
-	return SendPropFloat( pVarName, offset, sizeofVar, -1, SPROP_NOSCALE );
+	return SendPropInt( pVarName, offset, sizeofVar, TIME_BITS, 0, SendProxy_Time );
 }
 
 #if !defined( NO_ENTITY_PREDICTION )

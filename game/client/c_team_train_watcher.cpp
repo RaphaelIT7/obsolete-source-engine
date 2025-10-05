@@ -21,7 +21,7 @@ IMPLEMENT_CLIENTCLASS_DT(C_TeamTrainWatcher, DT_TeamTrainWatcher, CTeamTrainWatc
 
 	RecvPropFloat( RECVINFO( m_flTotalProgress ) ),
 	RecvPropInt( RECVINFO( m_iTrainSpeedLevel ) ),
-	RecvPropFloat( RECVINFO( m_flRecedeTime ) ),
+	RecvPropTime( RECVINFO( m_flRecedeTime ) ),
 	RecvPropInt( RECVINFO( m_nNumCappers ) ),
 #ifdef GLOWS_ENABLE
 	RecvPropEHandle( RECVINFO( m_hGlowEnt ) ),

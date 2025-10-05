@@ -69,6 +69,8 @@
 #include "gperftools/profiler.h"
 #endif
 
+#include <chrono>
+
 // This is here just for legacy support of older .dlls!!!
 #include "SoundEmitterSystem/isoundemittersystembase.h"
 #include "eiface.h"

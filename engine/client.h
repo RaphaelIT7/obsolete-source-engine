@@ -45,7 +45,7 @@ class CPureServerWhitelist;
 struct AddAngle
 {
 	float total;
-	float starttime;
+	double starttime;
 };
 
 
@@ -137,7 +137,7 @@ public:
 	bool		insimulation;
 
 	int			oldtickcount;		// previous tick
-	float		m_tickRemainder;	// client copy of tick remainder
+	double		m_tickRemainder;	// client copy of tick remainder
 	float		m_frameTime;		// dt of the current frame
 
 	int			lastoutgoingcommand;// Sequence number of last outgoing command

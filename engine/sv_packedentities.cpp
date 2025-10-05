@@ -495,7 +495,7 @@ void SV_ComputeClientPacks(
 		int saveClientTicks = cl.GetClientTickCount();
 		int saveServerTicks = cl.GetServerTickCount();
 		bool bSaveSimulation = cl.insimulation;
-		float flSaveLastServerTickTime = cl.m_flLastServerTickTime;
+		double flSaveLastServerTickTime = cl.m_flLastServerTickTime;
 
 		cl.insimulation = true;
 		cl.SetClientTickCount( sv.m_nTickCount );

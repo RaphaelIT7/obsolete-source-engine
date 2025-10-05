@@ -8,6 +8,8 @@
 #pragma once
 #endif
 
+// NOTE: Gmod doesn't have any replay code / it was nuked.
+
 //----------------------------------------------------------------------------------------
 
 #include "interface.h"
@@ -84,7 +86,7 @@ public:
 	virtual INetChannel		*GetNetChannel() = 0;
 	virtual bool			IsConnected() = 0;
 	virtual bool			IsListenServer() = 0;
-	virtual float			GetLastServerTickTime() = 0;
+	virtual double			GetLastServerTickTime() = 0;
 	virtual const char		*GetLevelName() = 0;
 	virtual const char		*GetLevelNameShort() = 0;
 	virtual int				GetPlayerSlot() = 0;

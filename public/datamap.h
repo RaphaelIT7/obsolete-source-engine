@@ -45,7 +45,7 @@ typedef enum _fieldtypes
 	FIELD_EDICT,			// edict_t *
 
 	FIELD_POSITION_VECTOR,	// A world coordinate (these are fixed up across level transitions automagically)
-	FIELD_TIME,				// a floating point time (these are fixed up automatically too!)
+	FIELD_TIME,				// a double floating point time (these are fixed up automatically too!)
 	FIELD_TICK,				// an integer tick count( fixed up similarly to time)
 	FIELD_MODELNAME,		// Engine string that is a model name (needs precache)
 	FIELD_SOUNDNAME,		// Engine string that is a sound name (needs precache)
