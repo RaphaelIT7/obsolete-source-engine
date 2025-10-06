@@ -23,6 +23,7 @@
 #ifdef BUILD_GMOD
 #include "datacache/imdlcache.h"
 #endif
+#include <GarrysMod/IGMODDataTable.h>
 
 #if !defined( _X360 )
 #include "xbox/xboxstubs.h"
@@ -570,7 +571,7 @@ public:
 	virtual void GMOD_BrushMaterialOverride( IMaterial *matOverride ) = 0;
 	virtual void GMOD_R_RedownloadAllLightmaps( bool ) = 0;
 	virtual void GMOD_RawClientCmd_Unrestricted( const char *command ) = 0;
-	virtual IGMODDataTable *GMOD_CreateDataTable( void( * )( void *, int, const CGMODVariant & ) ) = 0;
+	virtual IGMODDataTable *GMOD_CreateDataTable( GMODRecvProxy pProxy ) = 0;
 	virtual void GMOD_DestroyDataTable( IGMODDataTable *dataTable ) = 0;
 	virtual MDLHandle_t GMOD_LoadModel( const char *pModel ) = 0;
 	virtual void GMOD_DecalRemoveEntity( int index ) = 0;

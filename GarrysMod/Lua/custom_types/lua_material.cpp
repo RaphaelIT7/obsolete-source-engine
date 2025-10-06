@@ -13,7 +13,9 @@
 #include "materialsystem/itexture.h"
 #include "mathlib/vector.h"
 #include <Lua/LuaHelper.h>
+#include "tier1/KeyValues.h"
 
+#if 0
 LUA_FUNCTION_STATIC(Material__CreateMaterial) {
 
 	LUA->CheckType(3, Type::Table);
@@ -654,3 +656,4 @@ void Material_Class() {
 }
 
 CLuaClass material_class("IMaterial", Type::Material, Material_Class);
+#endif

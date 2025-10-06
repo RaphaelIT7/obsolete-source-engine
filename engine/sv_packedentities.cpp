@@ -145,6 +145,19 @@ static inline void SV_PackEntity(
 		
 	int nFlatProps = SendTable_GetNumFlatProps( pSendTable );
 	IChangeFrameList *pChangeFrame = NULL;
+	CGMODDataTable* pGMODDataTable = NULL;
+	CSendTablePrecalc* pPrecalc = pSendTable->m_pPrecalc;
+	if (pPrecalc->GetNumProps() > 0)
+	{
+		for (int i=0; i<pPrecalc->GetNumProps(); ++i)
+		{
+			const SendProp* pProp = pPrecalc->GetProp(i);
+			if (pProp->GetType() != DPT_GMODTable) 
+				continue;
+				
+			pGMODDataTable = (CGMODDataTable*)*((void**)((char*)edict->GetUnknown()->GetBaseEntity() + pProp->GetOffset()));
+		}
+	}
 
 	// If this entity was previously in there, then it should have a valid IChangeFrameList 
 	// which we can delta against to figure out which properties have changed.
@@ -254,6 +267,7 @@ static inline void SV_PackEntity(
 		pPackedEntity->SetServerAndClientClass( pServerClass, NULL );
 		pPackedEntity->AllocAndCopyPadded( packedData, writeBuf.GetNumBytesWritten() );
 		pPackedEntity->SetRecipients( recip );
+		pPackedEntity->m_GMODDataTable = pGMODDataTable;
 	}
 
 	edict->ClearStateChanged();

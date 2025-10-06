@@ -29,7 +29,8 @@ void GarrysMod::MaterialProxy::CallBind( C_BaseEntity* ent )
 	{
 		// I tried 
 		g_Lua->PushString( m_strName.c_str() );
-		Push_Material(m_pMaterial);
+		g_Lua->PushNil();
+		//Push_Material(m_pMaterial);
 		Push_Entity(ent);
 
 		if(g_Lua->CallFunctionProtected(3, 0, 0) == 0){

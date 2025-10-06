@@ -436,6 +436,19 @@ RecvProp InternalRecvPropArray(
 	return ret;
 }
 
+RecvProp RecvPropGMODTable(
+	const char *pVarName,
+	int offset, 
+	int sizeofVar )
+{
+	RecvProp ret;
+
+	ret.m_pVarName = pVarName;
+	ret.m_RecvType = DPT_GMODTable;
+	ret.SetOffset( offset );
+
+	return ret;
+}
 
 // ---------------------------------------------------------------------- //
 // Proxies.

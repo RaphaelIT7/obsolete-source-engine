@@ -5,6 +5,7 @@
 #include "tier1/strtools.h"
 #include "materialsystem/itexture.h"
 
+#if 0
 LUA_FUNCTION_STATIC(Texture__index) {
 	LUA->CheckType(1, Type::Texture);
 	if (!LUA->FindOnObjectsMetaTable(-2, -1)) 
@@ -98,7 +99,10 @@ extern CLuaClass texture_class;
 
 ITexture* Get_Texture(int index) { return (ITexture*)texture_class.Get(index); }
 
-void Push_Texture(const ITexture* tex) { texture_class.Push((void*)tex); }
+void Push_Texture(const ITexture* tex)
+{
+	texture_class.Push((void*)tex);
+}
 
 void Texture_Class() {
 	g_Lua->CreateMetaTableType("ITexture", Type::Texture);
@@ -118,3 +122,4 @@ void Texture_Class() {
 }
 
 CLuaClass texture_class("ITexture", Type::Texture, Texture_Class);
+#endif

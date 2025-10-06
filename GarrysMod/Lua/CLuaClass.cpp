@@ -1101,6 +1101,11 @@ void CLuaObject::SetMemberPhysObject(const char* name, IPhysicsObject* val)
 	Error("Not implemented! (CLuaObject::SetMemberPhysObject)");
 }
 
+double CLuaObject::GetMemberDouble(float, double)
+{
+	return 0.0;
+}
+
 /*
 	CLuaClass
 */
@@ -1145,8 +1150,8 @@ void InitLuaClasses(ILuaInterface* LUA)
 	vector_class.InitClass();
 	Lua::LC_File.InitClass();
 	LC_ConVar.InitClass();
-	material_class.InitClass();
-	texture_class.InitClass();
+	//material_class.InitClass();
+	//texture_class.InitClass();
 
 #ifndef MENUSYSTEM
 	entity_class.InitClass();

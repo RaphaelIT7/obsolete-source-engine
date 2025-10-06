@@ -1909,6 +1909,9 @@ protected:
 	unsigned char _offset4;
 	int m_iCreationID;
 	int _offset5[26];
+
+public:
+	CNetworkVar( IGMODDataTable*, m_GMOD_DataTable );
 #endif
 };
 

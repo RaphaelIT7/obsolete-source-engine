@@ -1236,13 +1236,13 @@ void CBaseGameStats_Driver::ResetData()
 	
 	// Capture memory stats as well.
 	MemoryInformation memInfo;
-	if ( GetMemoryInformation( &memInfo ) )
+	/*if ( GetMemoryInformation( &memInfo ) )
 	{
 		pKV->SetInt( "PhysicalRamMbTotal",     memInfo.m_nPhysicalRamMbTotal );
 		pKV->SetInt( "PhysicalRamMbAvailable", memInfo.m_nPhysicalRamMbAvailable );
 		pKV->SetInt( "VirtualRamMbTotal",      memInfo.m_nVirtualRamMbTotal );
 		pKV->SetInt( "VirtualRamMbAvailable",  memInfo.m_nVirtualRamMbAvailable );
-	}
+	}*/
 			
 	MaterialAdapterInfo_t gpu;
 	materials->GetDisplayAdapterInfo( materials->GetCurrentAdapter(), gpu );

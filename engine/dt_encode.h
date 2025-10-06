@@ -38,6 +38,9 @@ public:
 	bf_read			*m_pIn;			// The buffer to get the encoded data from.
 
 	char			m_TempStr[DT_MAX_STRING_BUFFERSIZE];	// m_Value.m_pString is set to point to this.
+
+	// Clientside inside CL_CopyNewEntity we call Decode twice, but in once case we don't want some callbacks to react.
+	bool			m_bIsClientBaseLineCopyCall = false;
 };
 
 

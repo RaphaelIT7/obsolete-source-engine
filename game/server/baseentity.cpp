@@ -71,6 +71,8 @@
 #include "tf_gamerules.h"
 #endif
 
+#include "GarrysMod/IGMODDataTable.h"
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -307,6 +309,7 @@ IMPLEMENT_SERVERCLASS_ST_NOBASE( CBaseEntity, DT_BaseEntity )
 	SendPropInt		(SENDINFO(m_bSimulatedEveryTick),		1, SPROP_UNSIGNED ),
 	SendPropInt		(SENDINFO(m_bAnimatedEveryTick),		1, SPROP_UNSIGNED ),
 	SendPropBool( SENDINFO( m_bAlternateSorting )),
+	SendPropGMODTable( SENDINFO( m_GMOD_DataTable ) ),
 
 #ifdef TF_DLL
 	SendPropArray3( SENDINFO_ARRAY3(m_nModelIndexOverrides), SendPropInt( SENDINFO_ARRAY(m_nModelIndexOverrides), SP_MODEL_INDEX_BITS, 0 ) ),
@@ -428,6 +431,8 @@ CBaseEntity::CBaseEntity( bool bServerOnly )
 #ifndef BUILD_GMOD
 	m_bTruceValidForEnt = false;
 #endif
+
+	m_GMOD_DataTable = engine->GMOD_CreateDataTable();
 }
 
 //-----------------------------------------------------------------------------
@@ -481,6 +486,12 @@ CBaseEntity::~CBaseEntity( )
 
 		// Remove this entity from the ent list (NOTE:  This Makes EHANDLES go NULL)
 		gEntList.RemoveEntity( GetRefEHandle() );
+	}
+
+	if (m_GMOD_DataTable)
+	{
+		engine->GMOD_DestroyDataTable(m_GMOD_DataTable);
+		m_GMOD_DataTable = NULL;
 	}
 }
 
@@ -7512,3 +7523,34 @@ void CC_Ent_Orient( const CCommand& args )
 }
 
 static ConCommand ent_orient("ent_orient", CC_Ent_Orient, "Orient the specified entity to match the player's angles. By default, only orients target entity's YAW. Use the 'allangles' option to orient on all axis.\n\tFormat: ent_orient <entity name> <optional: allangles>", FCVAR_CHEAT);
+
+
+//------------------------------------------------------------------------------
+// Purpose: Fucks up shit
+//------------------------------------------------------------------------------
+static CBaseEntity* pTestEnt = NULL;
+static int nTestShitIndex = 0;
+void CC_Ent_FuckUp( const CCommand& args )
+{
+	if (pTestEnt)
+		pTestEnt->Remove();
+
+	pTestEnt = CreateEntityByName("prop_physics");
+	if (!pTestEnt)
+		Warning("GG!");
+
+	CBasePlayer* pPlayer = UTIL_PlayerByIndex(1);
+
+	pTestEnt->SetModel("models/props_c17/oildrum001.mdl");
+	pTestEnt->SetAbsOrigin(pPlayer->GetAbsOrigin());
+	pTestEnt->Spawn();
+	pTestEnt->Activate();
+
+	std::string shit = "TestShit-";
+	shit.append(std::to_string(nTestShitIndex++));
+	CGMODVariant pVariant;
+	pVariant = shit.c_str();
+	pTestEnt->m_GMOD_DataTable.Get()->Set(0, pVariant);
+}
+
+static ConCommand ent_fuckup("ent_fuckup", CC_Ent_FuckUp);

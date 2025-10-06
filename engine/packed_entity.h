@@ -49,7 +49,7 @@ class RecvTable;
 class ServerClass;
 class ClientClass;
 class IChangeFrameList;
-
+class CGMODDataTable;
 
 
 // Replaces entity_state_t.
@@ -111,6 +111,8 @@ public:
 		
 	int			m_nEntityIndex;		// Entity index.
 	int			m_ReferenceCount;	// reference count;
+
+	CGMODDataTable *m_GMODDataTable;
 
 private:
 

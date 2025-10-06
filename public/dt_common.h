@@ -119,7 +119,7 @@ typedef enum
 #ifdef SUPPORTS_INT64
 	DPT_Int64,
 #endif
-
+	DPT_GMODTable,
 	DPT_NUMSendPropTypes
 
 } SendPropType;

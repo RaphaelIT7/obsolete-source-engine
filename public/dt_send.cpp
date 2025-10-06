@@ -797,7 +797,26 @@ SendProp SendPropExclude(
 	return ret;
 }
 
+void SendProxy_GMODTableToGMODTable( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID)
+{
+	pOut->m_pData = (void*)pData;
+}
 
+SendProp SendPropGMODTable(
+	const char *pVarName,
+	int offset,
+	int sizeofVar
+	)
+{
+	SendProp ret;
+
+	ret.m_pVarName = pVarName;
+	ret.m_Type = DPT_GMODTable;
+	ret.SetProxyFn( SendProxy_GMODTableToGMODTable );
+	ret.SetOffset( offset );
+
+	return ret;
+}
 
 // ---------------------------------------------------------------------- //
 // SendProp

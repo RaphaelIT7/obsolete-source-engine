@@ -48,6 +48,7 @@
 #include "replay_internal.h"
 #include "replayserver.h"
 #include "replay/iserverengine.h"
+#include "dt.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -1674,13 +1675,13 @@ public:
 
 	virtual IGMODDataTable *GMOD_CreateDataTable()
 	{
-		// ToDo
-		return NULL;
+		return new CGMODDataTable(NULL);
 	}
 
 	virtual void GMOD_DestroyDataTable( IGMODDataTable *dataTable )
 	{
-		// ToDo
+		// NOTE: What if a PackedEntity holds a wrong DataTable?
+		delete (CGMODDataTable*)dataTable;
 	}
 
 	virtual const char *GMOD_GetServerAddress() const

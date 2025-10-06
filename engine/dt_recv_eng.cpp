@@ -508,6 +508,7 @@ bool RecvTable_Decode(
 		decodeInfo.m_pProp = pDecoder->GetSendProp( iProp );
 		decodeInfo.m_pIn = pIn;
 		decodeInfo.m_ObjectID = objectID;
+		decodeInfo.m_bIsClientBaseLineCopyCall = !updateDTI;
 
 		g_PropTypeFns[ decodeInfo.m_pProp->GetType() ].Decode( &decodeInfo );
 		++g_nPropsDecoded;

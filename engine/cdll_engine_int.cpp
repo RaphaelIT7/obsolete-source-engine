@@ -2292,13 +2292,14 @@ void CEngineClient::GMOD_RawClientCmd_Unrestricted( const char *command )
 	Cbuf_AddRawText( command );
 }
 
-IGMODDataTable* CEngineClient::GMOD_CreateDataTable( void( * )( void *, int, const CGMODVariant & ) )
+IGMODDataTable* CEngineClient::GMOD_CreateDataTable( GMODRecvProxy pProxy )
 {
-	return NULL;
+	return new CGMODDataTable( pProxy );
 }
 
 void CEngineClient::GMOD_DestroyDataTable( IGMODDataTable *dataTable )
 {
+	delete (CGMODDataTable*)dataTable;
 }
 
 MDLHandle_t CEngineClient::GMOD_LoadModel( const char *pModel )

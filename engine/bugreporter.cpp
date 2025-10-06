@@ -133,11 +133,11 @@ using namespace vgui;
 
 unsigned long GetRam()
 {
-	MemoryInformation info;
+	/*MemoryInformation info;
 	if (GetMemoryInformation(&info))
 	{
 		return info.m_nPhysicalRamMbTotal;
-	}
+	}*/
 
 	return 0;
 }

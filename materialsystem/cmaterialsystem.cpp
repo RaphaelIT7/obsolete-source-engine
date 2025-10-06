@@ -2568,7 +2568,7 @@ IMaterial *CMaterialSystem::CreateMaterial( const char *pMaterialName, KeyValues
 // Finds or creates a procedural material
 //-----------------------------------------------------------------------------
 #ifdef BUILD_GMOD
-IMaterial *CMaterialSystem::FindProceduralMaterial( const char *pMaterialName, const char *pTextureGroupName, KeyValues *pVMTKeyValues = NULL )
+IMaterial *CMaterialSystem::FindProceduralMaterial( const char *pMaterialName, const char *pTextureGroupName, KeyValues *pVMTKeyValues )
 {
 	// We need lower-case symbols for this to work
 	intp nLen = Q_strlen( pMaterialName ) + 1;

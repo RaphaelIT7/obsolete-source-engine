@@ -582,7 +582,7 @@ void Sys_InitMemory( void )
 	host_parms.memsize = 0;
 
 	MemoryInformation info;
-	if (GetMemoryInformation(&info))
+	if (false) //if (GetMemoryInformation(&info))
 	{
 #ifdef PLATFORM_64BITS
 		host_parms.memsize = static_cast<uintp>(info.m_nPhysicalRamMbTotal) * 1024 * 1024;

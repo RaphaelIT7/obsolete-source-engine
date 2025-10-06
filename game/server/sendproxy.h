@@ -54,6 +54,12 @@ SendProp SendPropIntWithMinusOneFlag(
 // Send a string_t as a string property.
 SendProp SendPropStringT( const char *pVarName, int offset, int sizeofVar );
 
+SendProp SendPropGMODTable(
+	const char *pVarName,
+	int offset,
+	int sizeofVar=SIZEOF_IGNORE
+);
+
 //-----------------------------------------------------------------------------
 // Purpose: Proxy that only sends data to team members
 //-----------------------------------------------------------------------------

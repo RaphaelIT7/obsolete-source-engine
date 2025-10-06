@@ -137,6 +137,7 @@ public:
 	virtual void SetMemberMatrix( int, VMatrix const * );
 
 	virtual void SetMemberPhysObject( const char *, IPhysicsObject * );
+	virtual double GetMemberDouble( float, double );
 public:
 	void Init(ILuaInterface*);
 protected:
@@ -188,8 +189,8 @@ extern void InitLuaLibraries(ILuaInterface* LUA);
 extern CLuaClass angle_class;
 extern CLuaClass vector_class;
 extern CLuaClass entity_class;
-extern CLuaClass texture_class;
-extern CLuaClass material_class;
+//extern CLuaClass texture_class;
+//extern CLuaClass material_class;
 extern CLuaClass recipientfilter_class;
 extern CLuaClass LC_bf_read;
 extern CLuaClass LC_ConVar;
@@ -228,11 +229,13 @@ extern Vector* Get_Vector(int index);
 // Pushes the given Vector and deletes it when it's unused!
 extern void Push_Vector(const Vector* vec);
 
+/*class ITexture;
 extern ITexture* Get_Texture(int index);
 extern void Push_Texture(const ITexture *vec);
 
+class IMaterial;
 extern IMaterial *Get_Material(int index);
-extern void Push_Material(const IMaterial *vec);
+extern void Push_Material(const IMaterial *vec);*/
 
 
 #ifndef MENUSYSTEM

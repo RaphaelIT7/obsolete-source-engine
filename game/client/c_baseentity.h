@@ -1766,6 +1766,7 @@ public:
 
 private: // Add other vars later.
 	ILuaObject* m_pLuaTable = NULL;
+	CNetworkVar( IGMODDataTable*, m_GMOD_DataTable );
 #endif
 };
 

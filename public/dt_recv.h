@@ -401,7 +401,8 @@ RecvProp InternalRecvPropArray(
 
 RecvProp RecvPropGMODTable(
 	const char *pVarName,
-	int unknown
+	int unknown,
+	int sizeofVar=SIZEOF_IGNORE
 	);
 
 

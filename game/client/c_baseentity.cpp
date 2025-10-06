@@ -419,6 +419,12 @@ void RecvProxy_EffectFlags( const CRecvProxyData *pData, void *pStruct, void *pO
 	((C_BaseEntity*)pStruct)->SetEffects( pData->m_Value.m_Int );
 }
 
+void RecvProxy_GMODTable( void *pStruct, int nIndex, const CGMODVariant& pValue )
+{
+	C_BaseEntity *pEntity = ( C_BaseEntity * )pStruct;
+	Msg("Received value at index %i (%s)\n", nIndex, pValue.ToString());
+}
+
 
 BEGIN_RECV_TABLE_NOBASE( C_BaseEntity, DT_AnimTimeMustBeFirst )
 	RecvPropInt( RECVINFO(m_flAnimTime), 0, RecvProxy_AnimTime ),
@@ -479,6 +485,7 @@ BEGIN_RECV_TABLE_NOBASE(C_BaseEntity, DT_BaseEntity)
 	RecvPropInt		( RECVINFO( m_bSimulatedEveryTick ), 0, RecvProxy_InterpolationAmountChanged ),
 	RecvPropInt		( RECVINFO( m_bAnimatedEveryTick ), 0, RecvProxy_InterpolationAmountChanged ),
 	RecvPropBool	( RECVINFO( m_bAlternateSorting ) ),
+	RecvPropGMODTable( RECVINFO( m_GMOD_DataTable ) ),
 
 #ifdef TF_CLIENT_DLL
 	RecvPropArray3( RECVINFO_ARRAY(m_nModelIndexOverrides),	RecvPropInt( RECVINFO(m_nModelIndexOverrides[0]) ) ),
@@ -974,6 +981,8 @@ C_BaseEntity::C_BaseEntity() :
 #endif
 
 	ParticleProp()->Init( this );
+
+	m_GMOD_DataTable = engine->GMOD_CreateDataTable(RecvProxy_GMODTable);
 }
 
 
@@ -991,6 +1000,12 @@ C_BaseEntity::~C_BaseEntity()
 #endif
 	RemoveFromInterpolationList();
 	RemoveFromTeleportList();
+
+	if (m_GMOD_DataTable)
+	{
+		engine->GMOD_DestroyDataTable( m_GMOD_DataTable );
+		m_GMOD_DataTable = NULL;
+	}
 }
 
 void C_BaseEntity::Clear( void )
@@ -1052,6 +1067,11 @@ void C_BaseEntity::Clear( void )
 	//AddEFlags( EFL_USE_PARTITION_WHEN_NOT_SOLID );
 
 	UpdateVisibility();
+
+	if (m_GMOD_DataTable)
+	{
+		m_GMOD_DataTable.Get()->Clear();
+	}
 }
 
 //-----------------------------------------------------------------------------
