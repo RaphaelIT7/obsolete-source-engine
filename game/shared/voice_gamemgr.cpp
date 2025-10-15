@@ -43,6 +43,7 @@ ConVar sv_alltalk( "sv_alltalk", "0", FCVAR_NOTIFY | FCVAR_REPLICATED, "Players 
 ConVar voicemgr_managerupdateinterval( "voicemgr_managerupdateinterval", "0.3", FCVAR_ARCHIVE, "How often the voice manager tries to update all players" );
 ConVar voicemgr_updateinterval( "voicemgr_updateinterval", "0.1", FCVAR_ARCHIVE, "How often a player can be updated" );
 ConVar voicemgr_stopdelay( "voicemgr_stopdelay", "1", FCVAR_ARCHIVE, "How many seconds have to pass before a player is considered to have stopped talking" );
+ConVar voicechat_canhearhimself( "voicechat_canhearhimself", "1", FCVAR_ARCHIVE, "If enabled, we assume the player can always hear himself and thus we save one call for PlayerCanHearPlayersVoice" );
 
 CVoiceGameMgr g_VoiceGameMgr;
 
@@ -155,7 +156,7 @@ void CVoiceGameMgr::UpdatePlayer(CBasePlayer* pPlayer, bool bIsTalking)
 			return;
 	}
 
-	if ((g_fLastPlayerUpdated[iClient] + voicemgr_updateinterval.GetFloat()) > gpGlobals->curtime)
+	if ((g_bIsPlayerTalking[iClient] == bIsTalking || !bIsTalking) && (g_fLastPlayerUpdated[iClient] + voicemgr_updateinterval.GetFloat()) > gpGlobals->curtime)
 		return;
 
 	CSingleUserRecipientFilter user( pPlayer );
@@ -179,7 +180,7 @@ void CVoiceGameMgr::UpdatePlayer(CBasePlayer* pPlayer, bool bIsTalking)
 		{
 			CBaseEntity *pEnt = UTIL_PlayerByIndex(iOtherClient+1);
 			if(pEnt && pEnt->IsPlayer() && 
-				((!!sv_alltalk.GetInt()) || m_pHelper->CanPlayerHearPlayer((CBasePlayer*)pEnt, pPlayer, bProximity )) )
+				((voicechat_canhearhimself.GetBool() && (iOtherClient == iClient)) || (sv_alltalk.GetBool() || m_pHelper->CanPlayerHearPlayer((CBasePlayer*)pEnt, pPlayer, bProximity ))) )
 			{
 				gameRulesMask[iOtherClient] = true;
 				ProximityMask[iOtherClient] = bProximity;
@@ -199,7 +200,7 @@ void CVoiceGameMgr::UpdatePlayer(CBasePlayer* pPlayer, bool bIsTalking)
 			for(dw=0; dw < VOICE_MAX_PLAYERS_DW; dw++)
 			{
 				WRITE_LONG(gameRulesMask.GetDWord(dw));
-				WRITE_LONG(g_BanMasks[iClient].GetDWord(dw));
+				WRITE_LONG(g_BanMasks[dw].GetDWord(iClient));
 			}
 			WRITE_BYTE( !!g_PlayerModEnable[iClient] );
 		MessageEnd();
@@ -208,7 +209,7 @@ void CVoiceGameMgr::UpdatePlayer(CBasePlayer* pPlayer, bool bIsTalking)
 	// Tell the engine.
 	for(int iOtherClient=0; iOtherClient < m_nMaxPlayers; iOtherClient++)
 	{
-		bool bCanHear = gameRulesMask[iOtherClient] && !g_BanMasks[iClient][iOtherClient];
+		bool bCanHear = gameRulesMask[iOtherClient] && !g_BanMasks[iOtherClient][iClient];
 		g_pVoiceServer->SetClientListening( iOtherClient+1, iClient+1, bCanHear );
 
 		if ( bCanHear )
@@ -218,7 +219,7 @@ void CVoiceGameMgr::UpdatePlayer(CBasePlayer* pPlayer, bool bIsTalking)
 	}
 
 	g_fLastPlayerUpdated[iClient] = gpGlobals->curtime;
-	if ((g_fLastPlayerTalked[iClient] + voicemgr_stopdelay.GetFloat()) > gpGlobals->curtime)
+	if (bIsTalking || (g_fLastPlayerTalked[iClient] + voicemgr_stopdelay.GetFloat()) > gpGlobals->curtime)
 	{
 		g_bIsPlayerTalking[iClient] = true;
 	} else {
