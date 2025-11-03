@@ -93,7 +93,7 @@ IMaterial *CMaterial_QueueFriendly::GetMaterialPage( void )
 
 void CMaterial_QueueFriendly::IncrementReferenceCount( void )
 {
-	AUTO_LOCK( m_pReferenceMutex );
+	Assert( ThreadInMainThread() );
 	++m_nReferenceCount;
 	m_pRealTimeVersion->IncrementReferenceCount();
 }
@@ -226,14 +226,14 @@ IMaterialVar **CMaterial_QueueFriendly::GetShaderParams( void )
 
 void CMaterial_QueueFriendly::DecrementReferenceCount( void )
 {
-	AUTO_LOCK( m_pReferenceMutex );
+	Assert( ThreadInMainThread() );
 	--m_nReferenceCount;
 	QUEUE_MATERIAL_CALL( DecrementReferenceCount );
 }
 
 void CMaterial_QueueFriendly::DeleteIfUnreferenced()
 {
-	AUTO_LOCK( m_pReferenceMutex );
+	Assert( ThreadInMainThread() );
 	if ( m_nReferenceCount > 0 )
 		return;
 		
@@ -388,8 +388,6 @@ void CMaterial_QueueFriendly::UpdateToRealTime( void )
 											&m_vColorModulationOnQueueCompletion.y,
 											&m_vColorModulationOnQueueCompletion.z );
 	
-	AUTO_LOCK( m_pReferenceMutex );
-
 	m_nReferenceCount = m_pRealTimeVersion->GetReferenceCount();
 }
 

@@ -163,7 +163,6 @@ private:
 	float m_fAlphaModulationOnQueueCompletion;
 	Vector m_vColorModulationOnQueueCompletion;
 	int m_nReferenceCount; // Only ever accessed from the main thread.
-	CThreadMutex m_pReferenceMutex;
 };
 
 

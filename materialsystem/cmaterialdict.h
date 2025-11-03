@@ -93,8 +93,6 @@ protected: /*private:*/
 
 	CUtlRBTree< MaterialLookup_t, MaterialHandle_t > m_MaterialDict;
 	CUtlRBTree< MissingMaterial_t, int > m_MissingList;
-
-	CThreadMutex m_pMutex;
 };
 
 //-----------------------------------------------------------------------------
@@ -102,19 +100,19 @@ protected: /*private:*/
 //-----------------------------------------------------------------------------
 inline MaterialHandle_t CMaterialDict::FirstMaterial() const
 {
-	AUTO_LOCK( m_pMutex );
+	Assert( ThreadInMainThread() );
 	return m_MaterialDict.FirstInorder();
 }
 
 inline MaterialHandle_t CMaterialDict::NextMaterial( MaterialHandle_t h ) const
 {
-	AUTO_LOCK( m_pMutex );
+	Assert( ThreadInMainThread() );
 	return m_MaterialDict.NextInorder(h);
 }
 
 inline int CMaterialDict::GetNumMaterials( )	const
 {
-	AUTO_LOCK( m_pMutex );
+	Assert( ThreadInMainThread() );
 	return m_MaterialDict.Count();
 }
 
@@ -124,7 +122,7 @@ inline int CMaterialDict::GetNumMaterials( )	const
 //-----------------------------------------------------------------------------
 inline MaterialHandle_t CMaterialDict::InvalidMaterial() const
 {
-	AUTO_LOCK( m_pMutex );
+	Assert( ThreadInMainThread() );
 	return m_MaterialDict.InvalidIndex();
 }
 
@@ -134,20 +132,20 @@ inline MaterialHandle_t CMaterialDict::InvalidMaterial() const
 //-----------------------------------------------------------------------------
 inline IMaterial* CMaterialDict::GetMaterial( MaterialHandle_t idx ) const
 {
-	AUTO_LOCK( m_pMutex );
+	Assert( ThreadInMainThread() );
 	return m_MaterialDict[idx].m_pMaterial;
 }
 
 inline IMaterialInternal* CMaterialDict::GetMaterialInternal( MaterialHandle_t idx ) const
 {
-	AUTO_LOCK( m_pMutex );
+	Assert( ThreadInMainThread() );
 	Assert( (m_MaterialDict[idx].m_pMaterial == NULL) || m_MaterialDict[idx].m_pMaterial->IsRealTimeVersion() );	
 	return m_MaterialDict[idx].m_pMaterial;
 }
 
 inline IMaterialInternal* CMaterialDict::FindMaterial( const char *pszName, bool bManuallyCreated ) const
 {
-	AUTO_LOCK( m_pMutex );
+	Assert( ThreadInMainThread() );
 	MaterialLookup_t lookup;
 	lookup.m_Name = pszName;
 	lookup.m_bManuallyCreated = bManuallyCreated;	// This causes the search to find only file-created materials
@@ -164,7 +162,7 @@ inline IMaterialInternal* CMaterialDict::FindMaterial( const char *pszName, bool
 
 inline bool CMaterialDict::NoteMissing( const char *pszName )
 {
-	AUTO_LOCK( m_pMutex );
+	Assert( ThreadInMainThread() );
 	MissingMaterial_t missing;
 	missing.m_Name = pszName;
 	if ( m_MissingList.Find( missing ) != m_MissingList.InvalidIndex() )

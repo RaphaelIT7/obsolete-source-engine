@@ -577,9 +577,9 @@ public:
 			if ( *ppszFilename && !Q_IsAbsolutePath( *ppszFilename ) )
 			{
 				// Copy paths to minimize mutex lock time
-				pFileSystem->m_SearchPathsMutex.LockForRead();
+				pFileSystem->m_SearchPathsMutex.Lock();
 				CopySearchPaths( pFileSystem->m_SearchPaths );
-				pFileSystem->m_SearchPathsMutex.UnlockRead();
+				pFileSystem->m_SearchPathsMutex.Unlock();
 
 				pFileSystem->FixUpPath ( *ppszFilename, m_Filename, sizeof( m_Filename ) );
 			}
@@ -608,9 +608,9 @@ public:
 				m_pathID =  UTL_INVAL_SYMBOL;
 			}
 			// Copy paths to minimize mutex lock time
-			pFileSystem->m_SearchPathsMutex.LockForRead();
+			pFileSystem->m_SearchPathsMutex.Lock();
 			CopySearchPaths( pFileSystem->m_SearchPaths );
-			pFileSystem->m_SearchPathsMutex.UnlockRead();
+			pFileSystem->m_SearchPathsMutex.Unlock();
 			m_Filename[0] = '\0';
 		}
 
@@ -659,11 +659,7 @@ public:
 	// logging functions
 	CUtlVector< FileSystemLoggingFunc_t > m_LogFuncs;
 
-#if defined(WIN32) || defined(_WIN32)
-	mutable CThreadSpinRWLock m_SearchPathsMutex;
-#else
-	mutable CThreadRWLock m_SearchPathsMutex;
-#endif
+	CThreadMutex m_SearchPathsMutex;
 	CUtlVector< CSearchPath > m_SearchPaths;
 	CUtlVector<CPathIDInfo*> m_PathIDInfos;
 	CUtlLinkedList<FindData_t> m_FindData;
@@ -707,7 +703,7 @@ protected:
 	virtual int FS_feof( FILE *fp ) = 0;
 	size_t FS_fread( void *dest, size_t size, FILE *fp ) { return FS_fread( dest, (size_t)-1, size, fp ); }
 	virtual size_t FS_fread( void *dest, size_t destSize, size_t size, FILE *fp ) = 0;
-	virtual size_t FS_fwrite( const void *src, size_t size, FILE *fp ) = 0;
+    virtual size_t FS_fwrite( const void *src, size_t size, FILE *fp ) = 0;
 	virtual bool FS_setmode( FILE *, FileMode_t ) { return false; }
 	virtual size_t FS_vfprintf( FILE *fp, const char *fmt, va_list list ) = 0;
 	virtual int FS_ferror( FILE *fp ) = 0;
