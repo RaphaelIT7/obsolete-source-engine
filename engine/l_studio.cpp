@@ -1264,8 +1264,8 @@ LightingState_t *CModelRender::TimeAverageLightingState( ModelInstanceHandle_t h
 		inst.m_flLightingTime = cl.GetTime();
 	}
 
-	static LightingState_t actualLightingState;
-	static dworldlight_t s_WorldLights[MAXLOCALLIGHTS];
+	static thread_local LightingState_t actualLightingState;
+	static thread_local dworldlight_t s_WorldLights[MAXLOCALLIGHTS];
 	
 	// I'm creating the equation v = vf - (vf-vi)e^-at 
 	// where vf = this frame's lighting value, vi = current time averaged lighting value
@@ -1616,7 +1616,7 @@ void CModelRender::StudioSetupLighting( const DrawModelState_t &state, const Vec
 	{
 		pRenderContext->SetAmbientLight( 1.0, 1.0, 1.0 );
 
-		static Vector white[6] = 
+		static thread_local Vector white[6] = 
 		{
 			Vector( 1.0, 1.0, 1.0 ),
 			Vector( 1.0, 1.0, 1.0 ),
@@ -1637,7 +1637,7 @@ void CModelRender::StudioSetupLighting( const DrawModelState_t &state, const Vec
 		{
 			float add = r_itemblinkmax.GetFloat() * ( FastCos( r_itemblinkrate.GetFloat() * Sys_FloatTime() ) + 1.0f );
 			Vector additiveColor( add, add, add );
-			static Vector temp[6];
+			static thread_local Vector temp[6];
 			int i;
 			for( i = 0; i < 6; i++ )
 			{
@@ -1885,6 +1885,7 @@ private:
 };
 
 static CUtlVector<ModelDebugOverlayData_t> s_SavedModelInfo;
+static CThreadFastMutex s_SavedModelInfoMutex;
 
 void DrawModelDebugOverlay( const DrawModelInfo_t& info, const DrawModelResults_t &results, const Vector &origin, float r = 1.0f, float g = 1.0f, float b = 1.0f )
 {
@@ -1959,6 +1960,8 @@ void DrawModelDebugOverlay( const DrawModelInfo_t& info, const DrawModelResults_
 
 void AddModelDebugOverlay( const DrawModelInfo_t& info, const DrawModelResults_t &results, const Vector& origin )
 {
+	AUTO_LOCK( s_SavedModelInfoMutex );
+
 	ModelDebugOverlayData_t &tmp = s_SavedModelInfo[s_SavedModelInfo.AddToTail()];
 	tmp.m_ModelInfo = info;
 	tmp.m_ModelResults = results;
@@ -1967,6 +1970,8 @@ void AddModelDebugOverlay( const DrawModelInfo_t& info, const DrawModelResults_t
 
 void ClearSaveModelDebugOverlays( void )
 {
+	AUTO_LOCK( s_SavedModelInfoMutex );
+
 	s_SavedModelInfo.RemoveAll();
 }
 
@@ -1982,6 +1987,8 @@ static ConVar r_drawmodelstatsoverlaymax( "r_drawmodelstatsoverlaymax", "1.5", F
 
 void DrawSavedModelDebugOverlays( void )
 {
+	AUTO_LOCK( s_SavedModelInfoMutex );
+
 	if( s_SavedModelInfo.Count() == 0 )
 	{
 		return;
@@ -4329,6 +4336,7 @@ ModelInstanceHandle_t CModelRender::CreateInstance( IClientRenderable *pRenderab
 {
 	Assert( pRenderable );
 
+	// ToDo: Unlock it after setting instance.m_FirstShadow = so that RecomputeStaticLighting though the entire light cache would need to be made threadsafe for that.
 	AUTO_LOCK( m_ModelInstancesMutex );
 
 	// ensure all components are available
@@ -5096,7 +5104,7 @@ bool CModelRender::GetBrightestShadowingLightSource( const Vector &vecCenter, Ve
 	float fLightFalloff = 0.0f;
 	int nLightIdx = -1;
 
-	static Vector colorToGray( 0.3f, 0.59f, 0.11f );
+	static const Vector colorToGray( 0.3f, 0.59f, 0.11f );
 
 	for ( int i = 0; i < state.numlights; ++i )
 	{
