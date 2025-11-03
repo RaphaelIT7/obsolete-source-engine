@@ -24,6 +24,11 @@ static ConVar sv_filterban( "sv_filterban", "1", 0, "Set packet filtering by IP 
 
 CUtlVector< ipfilter_t > g_IPFilters;
 CUtlVector< userfilter_t > g_UserFilters;
+#if defined(WIN32) || defined(_WIN32)
+CThreadSpinRWLock g_IPFilterMutex;
+#else
+CThreadRWLock g_IPFilterMutex;
+#endif
 
 #define BANNED_IP_FILENAME "banned_ip.cfg"
 #define BANNED_USER_FILENAME "banned_user.cfg"
@@ -54,6 +59,8 @@ bool Filter_ShouldDiscard( const netadr_t& adr )
 	bool bNegativeFilter = sv_filterban.GetInt() == 1;
 
 	unsigned in = *(unsigned *)&adr.ip[0];
+
+	AUTO_LOCK_READ( g_IPFilterMutex );
 
 	// Handle timeouts 
 	for ( int i = g_IPFilters.Count() - 1 ; i >= 0 ; i--)
@@ -151,6 +158,10 @@ static void Filter_Add_f( const CCommand& args )
 	if ( !Filter_ConvertString( args[2], &f ) )
 		return;
 
+	// WARNING: You cannot use it here as else you'd enter a deadlock
+	// AUTO_LOCK_WRITE( g_IPFilterMutex );
+	g_IPFilterMutex.LockForWrite();
+
 	for (i=0 ; i<g_IPFilters.Count(); i++)
 	{
 		if ( g_IPFilters[i].compare == 0xffffffff || ( g_IPFilters[i].compare == f.compare && g_IPFilters[i].mask == f.mask ) )
@@ -162,6 +173,7 @@ static void Filter_Add_f( const CCommand& args )
 		if (g_IPFilters.Count() == MAX_IPFILTERS)
 		{
 			ConMsg( "addip:  IP filter list is full\n" );
+			g_IPFilterMutex.UnlockWrite();
 			return;
 		}
 
@@ -188,6 +200,10 @@ static void Filter_Add_f( const CCommand& args )
 	{
 		g_IPFilters[i].compare = 0xffffffff;
 	}
+
+	// WARNING: We have to unlock here as if bKick we might call Filter_ShouldDiscard
+	//          And since in there we lock for read, we have to ensure that we aren't already locking it!
+	g_IPFilterMutex.UnlockWrite();
 
 	if ( bKick )
 	{
@@ -275,6 +291,10 @@ CON_COMMAND( removeip, "Remove an IP address from the ban list." )
 	// if no "." in the string we'll assume it's a slot number
 	if ( !Q_strstr( args[1], "." ) )
 	{
+		// NOTE: I perfer to release it sooner so that when the gameevent is fired we are not locking it anymore
+		//       Just so that in the case that anything might do something filter related we avoid a deadlock
+		// AUTO_LOCK_WRITE( g_IPFilterMutex );
+		g_IPFilterMutex.LockForWrite();
 		int slot = Q_atoi( args[1] );
 		if ( slot > 0 && slot <= g_IPFilters.Count() )
 		{
@@ -288,6 +308,8 @@ CON_COMMAND( removeip, "Remove an IP address from the ban list." )
 			Q_snprintf( szIP, sizeof( szIP ), "%3i.%3i.%3i.%3i", b[0], b[1], b[2], b[3] );
 
 			g_IPFilters.Remove( slot );
+
+			g_IPFilterMutex.UnlockWrite();
 
 			// Tell server operator
 			ConMsg( "removeip:  filter removed for %s, IP %s\n", args[1], szIP );
@@ -305,6 +327,7 @@ CON_COMMAND( removeip, "Remove an IP address from the ban list." )
 		}
 		else
 		{
+			g_IPFilterMutex.UnlockWrite();
 			ConMsg( "removeip:  invalid slot %i\n", slot );
 		}
 
@@ -347,6 +370,8 @@ CON_COMMAND( listip, "List IP addresses on the ban list." )
 {
 	int		i;
 	byte	b[4];
+
+	AUTO_LOCK_READ( g_IPFilterMutex );
 	int		count = g_IPFilters.Count();
 
 	if ( !count )
@@ -399,6 +424,8 @@ CON_COMMAND( writeip, "Save the ban list to " BANNED_IP_FILENAME "." )
 		ConMsg( "Couldn't open %s\n", name );
 		return;
 	}
+
+	AUTO_LOCK_READ( g_IPFilterMutex );
 	
 	for ( const auto &ipf : g_IPFilters )
 	{
@@ -430,7 +457,7 @@ bool Filter_IsUserBanned( const USERID_t& userid )
 		return false;
 
 	bool bNegativeFilter = sv_filterban.GetInt() == 1;
-	
+
 	// Handle timeouts 
 	for ( int i =g_UserFilters.Count() - 1 ; i >= 0 ; i-- )
 	{
