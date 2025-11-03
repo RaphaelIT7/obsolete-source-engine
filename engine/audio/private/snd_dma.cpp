@@ -22,6 +22,7 @@
 #include "../../client.h"
 #include "../../cl_main.h"
 #include "utldict.h"
+#include "utlmapmt.h"
 #include "mempool.h"
 #include "../../enginetrace.h"			// for traceline
 #include "../../public/bspflags.h"		// for traceline
@@ -296,13 +297,14 @@ static	float	s_lastsoundtime = 0.0f;
 
 bool s_bOnLoadScreen = false;
 
+static CThreadMutex g_pSoundPoolMutex; // Mutex since s_SoundPool.Alloc is not threadsafe
 static CClassMemoryPool< CSfxTable > s_SoundPool( MAX_SFX );
 struct SfxDictEntry
 {
 	CSfxTable *pSfx;
 };
 
-static CUtlMap< FileNameHandle_t, SfxDictEntry > s_Sounds( 0, 0, DefLessFunc( FileNameHandle_t ) );
+static CUtlMapMT< FileNameHandle_t, SfxDictEntry > s_Sounds( 0, 0, DefLessFunc( FileNameHandle_t ) );
 
 class CDummySfx : public CSfxTable
 {
@@ -393,6 +395,7 @@ FileNameHandle_t CSfxTable::GetFileNameHandle()
 	{
 		return s_Sounds.Key( m_namePoolIndex );
 	}
+
 	return NULL;
 }
 
@@ -573,7 +576,7 @@ public:
 	}
 	
 private:
-	CUtlSymbolTable	m_SoundNames;
+	CUtlSymbolTableMT	m_SoundNames;
 };
 static CResourcePreloadSound s_ResourcePreloadSound;
 
@@ -824,6 +827,8 @@ CSfxTable *S_FindName( const char *szName, int *pfInCache )
 	}
 	else
 	{
+		AUTO_LOCK( g_pSoundPoolMutex );
+
 		SfxDictEntry entry = {};
 		entry.pSfx = ( CSfxTable * )s_SoundPool.Alloc();
 

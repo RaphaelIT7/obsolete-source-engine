@@ -24,6 +24,7 @@
 #include "studio.h"
 #include "vcollide.h"
 #include "utldict.h"
+#include "utlmapmt.h"
 #include "convar.h"
 #include "datacache_common.h"
 #include "mempool.h"
@@ -538,7 +539,7 @@ private:
 	int m_nModelCacheFrameLocks;
 	int m_nMeshCacheFrameLocks;
 
-	CUtlDict< studiodata_t*, MDLHandle_t > m_MDLDict;
+	CUtlDict< studiodata_t*, MDLHandle_t, CUtlMapMT > m_MDLDict;
 
 	IMDLCacheNotify *m_pCacheNotify;
 
