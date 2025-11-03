@@ -32,7 +32,8 @@ struct DecalEntry
 // This stores the list of all decals
 CUtlMap< FileNameHandle_t, DecalEntry >	g_DecalDictionary( 0, 0, DefLessFunc( FileNameHandle_t ) );
 
-CThreadMutex g_DecalMutex;
+// We could now use the CUtlMapMT but g_DecalLookup also exists and its easier to lock both.
+CThreadRWLock g_DecalMutex;
 
 // This is a list of indices into the dictionary.
 // This list is indexed by network id, so it maps network ids to decal dictionary entries
@@ -58,7 +59,7 @@ int Draw_DecalMax( void )
 // called from gl_rsurf.cpp
 IMaterial *Draw_DecalMaterial( int index )
 {
-	AUTO_LOCK( g_DecalMutex );
+	AUTO_LOCK_READ( g_DecalMutex );
 
 	if ( index < 0 || index >= g_DecalLookup.Count() )
 		return NULL;
@@ -82,7 +83,7 @@ IMaterial *Draw_DecalMaterial( int index )
 #ifndef SWDS
 void Draw_DecalSetName( int decal, char *name )
 {
-	AUTO_LOCK( g_DecalMutex );
+	AUTO_LOCK_WRITE( g_DecalMutex );
 
 	while ( decal >= g_DecalLookup.Count() )
 	{
@@ -121,7 +122,7 @@ void Draw_DecalSetName( int decal, char *name )
 // used for save/restore
 int Draw_DecalIndexFromName( char *name, bool *found )
 {
-	AUTO_LOCK( g_DecalMutex );
+	AUTO_LOCK_READ( g_DecalMutex );
 
 	Assert( found );
 
@@ -147,7 +148,7 @@ int Draw_DecalIndexFromName( char *name, bool *found )
 
 const char *Draw_DecalNameFromIndex( int index )
 {
-	AUTO_LOCK( g_DecalMutex );
+	AUTO_LOCK_READ( g_DecalMutex );
 
 #if !defined(SWDS)
 	return g_DecalDictionary[index].material ? g_DecalDictionary[index].material->GetName() : "";
@@ -168,7 +169,7 @@ void Decal_Init( void )
 //-----------------------------------------------------------------------------
 void Decal_Shutdown( void )
 {
-	AUTO_LOCK( g_DecalMutex );
+	AUTO_LOCK_WRITE( g_DecalMutex );
 
 	for ( int index = g_DecalDictionary.FirstInorder(); index != g_DecalDictionary.InvalidIndex(); index = g_DecalDictionary.NextInorder(index) )
 	{

@@ -57,7 +57,6 @@
 #include "ifilelist.h"
 #include "tier0/icommandline.h"
 #include "tier0/vprof.h"
-#include "unordered_map"
 
 // NOTE: This must be the last file included!!!
 #include "tier0/memdbgon.h"
@@ -859,12 +858,12 @@ void CReferenceToHandleTexture::DeleteIfUnreferenced()
 // For safety's sake, we allow any of the threads that intersect with rendering
 // to have their own state vars. In practice, we expect only the matqueue thread 
 // and the main thread to ever hit s_pVTFTexture. 
-static std::unordered_map<ThreadId_t, IVTFTexture*> s_pVTFTexture;
+static thread_local IVTFTexture* s_pVTFTexture = NULL;
 
 // We only expect that the main thread or the matqueue thread to actually touch 
 // these, but we still need a NULL and size of 0 for the other threads. 
-static std::unordered_map<ThreadId_t, void*> s_pOptimalReadBuffer;
-static std::unordered_map<ThreadId_t, int> s_nOptimalReadBufferSize;
+static thread_local void* s_pOptimalReadBuffer = NULL;
+static thread_local int s_nOptimalReadBufferSize = 0;
 
 //-----------------------------------------------------------------------------
 // Class factory methods
@@ -1152,12 +1151,10 @@ void CTexture::ReleaseMemory()
 
 IVTFTexture *CTexture::GetScratchVTFTexture( )
 {
-	ThreadId_t ti = GetCurrentThreadId();
+	if ( !s_pVTFTexture )
+		s_pVTFTexture = CreateVTFTexture();
 
-	if ( s_pVTFTexture.find(ti) == s_pVTFTexture.end() )
-		s_pVTFTexture[ ti ] = CreateVTFTexture();
-
-	return s_pVTFTexture[ ti ];
+	return s_pVTFTexture;
 }
 
 void CTexture::ReleaseScratchVTFTexture( IVTFTexture* tex )
@@ -4534,22 +4531,20 @@ int GetOptimalReadBuffer( CUtlBuffer* pOutOptimalBuffer, FileHandle_t hFile, int
 	nSize = max( nSize, minSize );
 	int nBytesOptimalRead = g_pFullFileSystem->GetOptimalReadSize( hFile, nSize );
 
-	const int ti = GetCurrentThreadId();
-
-	if ( nBytesOptimalRead > s_nOptimalReadBufferSize[ ti ] )
+	if ( nBytesOptimalRead > s_nOptimalReadBufferSize )
 	{
 		FreeOptimalReadBuffer( 0 );
 
-		s_nOptimalReadBufferSize[ ti ] = nBytesOptimalRead;
-		s_pOptimalReadBuffer[ ti ] = g_pFullFileSystem->AllocOptimalReadBuffer( hFile, nSize );
+		s_nOptimalReadBufferSize = nBytesOptimalRead;
+		s_pOptimalReadBuffer = g_pFullFileSystem->AllocOptimalReadBuffer( hFile, nSize );
 		if ( mat_spewalloc.GetBool() )
 		{
-			Msg( "Allocated optimal read buffer of %d bytes @ 0x%p for thread %d\n", s_nOptimalReadBufferSize[ ti ], s_pOptimalReadBuffer[ ti ], ti );
+			Msg( "Allocated optimal read buffer of %d bytes @ 0x%p for thread %d\n", s_nOptimalReadBufferSize, s_pOptimalReadBuffer, ThreadGetCurrentId() );
 		}
 	}
 
 	// set external buffer and reset to empty
-	( *pOutOptimalBuffer ).SetExternalBuffer( s_pOptimalReadBuffer[ ti ], s_nOptimalReadBufferSize[ ti ], 0 );
+	( *pOutOptimalBuffer ).SetExternalBuffer( s_pOptimalReadBuffer, s_nOptimalReadBufferSize, 0 );
 
 	// return the optimal read size
 	return nBytesOptimalRead;
@@ -4562,17 +4557,15 @@ void FreeOptimalReadBuffer( int nMaxSize )
 {
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s", __FUNCTION__ );
 
-	const int ti = GetCurrentThreadId();
-
-	if ( s_pOptimalReadBuffer[ ti ] && s_nOptimalReadBufferSize[ ti ] >= nMaxSize )
+	if ( s_pOptimalReadBuffer && s_nOptimalReadBufferSize >= nMaxSize )
 	{
 		if ( mat_spewalloc.GetBool() )
 		{
-			Msg( "Freeing optimal read buffer of %d bytes @ 0x%p for thread %d\n", s_nOptimalReadBufferSize[ ti ], s_pOptimalReadBuffer[ ti ], ti );
+			Msg( "Freeing optimal read buffer of %d bytes @ 0x%p for thread %d\n", s_nOptimalReadBufferSize, s_pOptimalReadBuffer, ThreadGetCurrentId() );
 		}
-		g_pFullFileSystem->FreeOptimalReadBuffer( s_pOptimalReadBuffer[ ti ] );
-		s_pOptimalReadBuffer[ ti ] = NULL;
-		s_nOptimalReadBufferSize[ ti ] = 0;
+		g_pFullFileSystem->FreeOptimalReadBuffer( s_pOptimalReadBuffer );
+		s_pOptimalReadBuffer = NULL;
+		s_nOptimalReadBufferSize = 0;
 	}
 }
 

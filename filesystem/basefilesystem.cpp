@@ -912,6 +912,8 @@ bool CBaseFileSystem::AddPackFileFromPath( const char *pPath, const char *pakfil
 		return false;
 	}
 
+	AUTO_LOCK_WRITE( m_SearchPathsMutex );
+
 	// Add this pack file to the search path:
 	CSearchPath *sp = &m_SearchPaths[ m_SearchPaths.AddToTail() ];
 	pf->SetPath( sp->GetPath() );
@@ -1511,7 +1513,7 @@ void CBaseFileSystem::AddSearchPath( const char *pPath, const char *pathID, Sear
 //-----------------------------------------------------------------------------
 int CBaseFileSystem::GetSearchPath( const char *pathID, bool bGetPackFiles, OUT_Z_CAP(maxLenInChars) char *pDest, int maxLenInChars )
 {
-	AUTO_LOCK( m_SearchPathsMutex );
+	AUTO_LOCK_READ( m_SearchPathsMutex );
 
 	if ( maxLenInChars )
 	{
@@ -1638,7 +1640,7 @@ CBaseFileSystem::CSearchPath *CBaseFileSystem::FindWritePath( const char *pFilen
 {
 	CUtlSymbol lookup = g_PathIDTable.AddString( pathID );
 
-	AUTO_LOCK( m_SearchPathsMutex );
+	AUTO_LOCK_READ( m_SearchPathsMutex );
 
 	// a pathID has been specified, find the first match in the path list
 	intp c = m_SearchPaths.Count();
@@ -2020,7 +2022,7 @@ bool CBaseFileSystem::UnzipFile( const char *pFileName, const char *pPath, const
 //-----------------------------------------------------------------------------
 void CBaseFileSystem::RemoveAllSearchPaths( void )
 {
-	AUTO_LOCK( m_SearchPathsMutex );
+	AUTO_LOCK_WRITE( m_SearchPathsMutex );
 	m_SearchPaths.Purge();
 	//m_PackFileHandles.Purge();
 }

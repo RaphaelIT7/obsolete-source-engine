@@ -24,6 +24,7 @@
 #include "studio.h"
 #include "vcollide.h"
 #include "utldict.h"
+#include "utlmapmt.h"
 #include "convar.h"
 #include "datacache_common.h"
 #include "mempool.h"
@@ -538,8 +539,7 @@ private:
 	int m_nModelCacheFrameLocks;
 	int m_nMeshCacheFrameLocks;
 
-	CThreadFastMutex m_MDLDictMutex;
-	CUtlDict< studiodata_t*, MDLHandle_t > m_MDLDict;
+	CUtlDict< studiodata_t*, MDLHandle_t, CUtlMapMT > m_MDLDict;
 
 	IMDLCacheNotify *m_pCacheNotify;
 
@@ -933,11 +933,7 @@ MDLHandle_t CMDLCache::FindMDL( const char *pMDLRelativePath )
 	MDLHandle_t handle = m_MDLDict.Find( szFixedName );
 	if ( handle == m_MDLDict.InvalidIndex() )
 	{
-		{
-			m_MDLDictMutex.Lock();
-			handle = m_MDLDict.Insert( szFixedName, NULL );
-			m_MDLDictMutex.Unlock();
-		}
+		handle = m_MDLDict.Insert( szFixedName, NULL );
 		InitStudioData( handle );
 	}
 

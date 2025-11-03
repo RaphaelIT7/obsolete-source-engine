@@ -22,6 +22,7 @@
 #include "../../client.h"
 #include "../../cl_main.h"
 #include "utldict.h"
+#include "utlmapmt.h"
 #include "mempool.h"
 #include "../../enginetrace.h"			// for traceline
 #include "../../public/bspflags.h"		// for traceline
@@ -128,7 +129,6 @@ CActiveChannels g_ActiveChannels;
 static double g_LastSoundFrame = 0.0f;		// last full frame of sound
 static double g_LastMixTime = 0.0f;			// last time we did mixing
 static float g_EstFrameTime = 0.1f;			// estimated frame time running average
-static CThreadMutex g_pSoundPoolMutex;  // Mutex to resolve threading issues
 
 // x360 override to fade out game music when the user is playing music through the dashboard
 static float g_DashboardMusicMixValue = 1.0f;
@@ -297,13 +297,14 @@ static	float	s_lastsoundtime = 0.0f;
 
 bool s_bOnLoadScreen = false;
 
+static CThreadMutex g_pSoundPoolMutex; // Mutex to resolve threading issues
 static CClassMemoryPool< CSfxTable > s_SoundPool( MAX_SFX );
 struct SfxDictEntry
 {
 	CSfxTable *pSfx;
 };
 
-static CUtlMap< FileNameHandle_t, SfxDictEntry > s_Sounds( 0, 0, DefLessFunc( FileNameHandle_t ) );
+static CUtlMapMT< FileNameHandle_t, SfxDictEntry > s_Sounds( 0, 0, DefLessFunc( FileNameHandle_t ) );
 
 class CDummySfx : public CSfxTable
 {
@@ -373,7 +374,6 @@ void CSfxTable::OnNameChanged( const char *pName )
 //-----------------------------------------------------------------------------
 const char *CSfxTable::getname()
 {
-	AUTO_LOCK( g_pSoundPoolMutex );
 	if ( s_Sounds.InvalidIndex() != m_namePoolIndex )
 	{
 		char* pString = tmpstr512();
@@ -391,7 +391,6 @@ const char *CSfxTable::getname()
 
 FileNameHandle_t CSfxTable::GetFileNameHandle()
 {
-	AUTO_LOCK( g_pSoundPoolMutex );
 	if ( s_Sounds.InvalidIndex() != m_namePoolIndex )
 	{
 		return s_Sounds.Key( m_namePoolIndex );
@@ -501,7 +500,6 @@ public:
 	{
 		bool bSpew = ( g_pQueuedLoader->GetSpewDetail() & LOADER_DETAIL_PURGES ) != 0;
 
-		AUTO_LOCK( g_pSoundPoolMutex );
 		for ( int i = s_Sounds.FirstInorder(); i != s_Sounds.InvalidIndex(); i = s_Sounds.NextInorder( i ) )
 		{
 			// the master sound table grows forever
@@ -543,7 +541,6 @@ public:
 	{
 		bool bSpew = ( g_pQueuedLoader->GetSpewDetail() & LOADER_DETAIL_PURGES ) != 0;
 
-		AUTO_LOCK( g_pSoundPoolMutex );
 		for ( int i = s_Sounds.FirstInorder(); i != s_Sounds.InvalidIndex(); i = s_Sounds.NextInorder( i ) )
 		{
 			// the master sound table grows forever
@@ -579,7 +576,7 @@ public:
 	}
 	
 private:
-	CUtlSymbolTable	m_SoundNames;
+	CUtlSymbolTableMT	m_SoundNames;
 };
 static CResourcePreloadSound s_ResourcePreloadSound;
 
@@ -805,8 +802,6 @@ bool S_IsInitted()
 //-----------------------------------------------------------------------------
 CSfxTable *S_FindName( const char *szName, int *pfInCache )
 {
-	AUTO_LOCK( g_pSoundPoolMutex );
-
 	CSfxTable	*sfx = NULL;
 
 	if ( !szName )
@@ -832,6 +827,8 @@ CSfxTable *S_FindName( const char *szName, int *pfInCache )
 	}
 	else
 	{
+		AUTO_LOCK( g_pSoundPoolMutex );
+
 		SfxDictEntry entry = {};
 		entry.pSfx = ( CSfxTable * )s_SoundPool.Alloc();
 
@@ -1013,8 +1010,6 @@ void S_ReloadFilesInList( IFileList *pFilesToReload )
 	
 
 	CUtlVector< CSfxTable * > processed;
-
-	AUTO_LOCK( g_pSoundPoolMutex );
 
 	int iLast = s_Sounds.LastInorder();
 	for ( int i = s_Sounds.FirstInorder(); i != iLast; i = s_Sounds.NextInorder( i ) )
@@ -6654,8 +6649,6 @@ void S_SoundList()
 	CSfxTable		*sfx;
 	CAudioSource	*pSource;
 	int				size, total;
-
-	AUTO_LOCK( g_pSoundPoolMutex );
 
 	total = 0;
 	for ( auto i = s_Sounds.FirstInorder(); i != s_Sounds.InvalidIndex(); i = s_Sounds.NextInorder( i ) )
