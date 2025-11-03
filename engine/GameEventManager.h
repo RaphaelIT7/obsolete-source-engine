@@ -14,7 +14,6 @@
 #endif 
 
 #include <igameevents.h>
-#include <utlvector.h>
 #include <KeyValues.h>
 #include <networkstringtabledefs.h>
 #include <utlsymbol.h>
@@ -29,7 +28,7 @@ public:
 	int					m_nListenerType;	// client or server side ?
 };
 
-class CGameEventDescriptor
+class CGameEventDescriptor : public IGameEventDescriptor
 {
 public:
 	CGameEventDescriptor()
@@ -41,13 +40,21 @@ public:
 		reliable = true;
 	}
 
+	const char* GetName();
+	int GetEventID();
+	KeyValues* GetKeyValues();
+	bool IsLocal();
+	bool IsReliable();
+	int GetListenerCount( bool bIncludeEngine = false );
+	void GetClientListeners( CUtlVector<IClient*> pClients );
+
 public:
 	char		name[MAX_EVENT_NAME_LENGTH];	// name of this event
 	int			eventid;	// network index number, -1 = not networked
 	KeyValues	*keys;		// KeyValue describing data types, if NULL only name 
 	bool		local;		// local event, never tell clients about that
 	bool		reliable;	// send this event as reliable message
-    CUtlVector<CGameEventCallback*>	listeners;	// registered listeners
+	CUtlVector<CGameEventCallback*>	listeners;	// registered listeners
 };
 
 class CGameEvent : public IGameEvent
@@ -71,6 +78,8 @@ public:
 	void SetInt( const char *keyName, int value );
 	void SetFloat( const char *keyName, float value );
 	void SetString( const char *keyName, const char *value );
+
+	KeyValues* GetKeyValues() { return m_pDataKeys; };
 	
 	CGameEventDescriptor	*m_pDescriptor;
 	KeyValues				*m_pDataKeys;
@@ -121,13 +130,18 @@ public:	// IGameEventManager functions
 	bool SerializeEvent( IGameEvent *event, bf_write *buf );
 	IGameEvent *UnserializeEvent( bf_read *buf );
 
+	void GetEventDescriptors( CUtlVector<IGameEventDescriptor*> pList );
+	IGameEventDescriptor *FindEventDescriptor( const char *name );
+	IGameEventDescriptor *FindEventDescriptor( int eventid );
+	bool AddStubListener( void *listener, const char *name );
+
 public:
 	bool Init();
 	void Shutdown();
 	void ReloadEventDefinitions();	// called by server on new map
 	bool AddListener( void *listener, CGameEventDescriptor *descriptor, int nListenerType );
 
-    CGameEventDescriptor *GetEventDescriptor( const char *name );
+	CGameEventDescriptor *GetEventDescriptor( const char *name );
 	CGameEventDescriptor *GetEventDescriptor( IGameEvent *event );
 	CGameEventDescriptor *GetEventDescriptor( int eventid );
 

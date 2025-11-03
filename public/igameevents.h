@@ -22,6 +22,7 @@
 #define INTERFACEVERSION_GAMEEVENTSMANAGER2	"GAMEEVENTSMANAGER002"	// new game event manager,
 
 #include "tier1/bitbuf.h"
+#include <utlvector.h>
 //-----------------------------------------------------------------------------
 // Purpose: Engine interface into global game event management
 //-----------------------------------------------------------------------------
@@ -82,8 +83,10 @@ public:
 	virtual void SetInt( const char *keyName, int value ) = 0;
 	virtual void SetFloat( const char *keyName, float value ) = 0;
 	virtual void SetString( const char *keyName, const char *value ) = 0;
-};
 
+	// Gmod custom one, used to get all fields to call the lua gameevent hooks
+	virtual KeyValues* GetKeyValues() = 0;
+};
 
 abstract_class IGameEventListener2
 {
@@ -93,6 +96,23 @@ public:
 	// FireEvent is called by EventManager if event just occurred
 	// KeyValue memory will be freed by manager if not needed anymore
 	virtual void FireGameEvent( IGameEvent *event ) = 0;
+};
+
+class IClient;
+abstract_class IGameEventDescriptor
+{
+public:
+	virtual ~IGameEventDescriptor() {};
+
+	virtual const char* GetName() = 0;
+	virtual int GetEventID() = 0;
+	virtual KeyValues* GetKeyValues() = 0;
+	virtual bool IsLocal() = 0;
+	virtual bool IsReliable() = 0;
+	// bIncludeEngine = Includes engine listeners / clients that listen to an event
+	virtual int GetListenerCount(bool bIncludeEngine = false) = 0;
+	// All engine/client listeners for us, can easily be converted to a CBasePlayer by doing UTIL_PlayerByIndex(pClient->GetPlayerSlot() + 1)
+	virtual void GetClientListeners( CUtlVector<IClient*> pClients ) = 0;
 };
 
 abstract_class IGameEventManager2 : public IBaseInterface
@@ -134,6 +154,17 @@ public:
 	// write/read event to/from bitbuffer
 	virtual bool SerializeEvent( IGameEvent *event, bf_write *buf ) = 0;
 	virtual IGameEvent *UnserializeEvent( bf_read *buf ) = 0; // create new KeyValues, must be deleted
+
+	// To get all existing events
+	virtual void GetEventDescriptors( CUtlVector<IGameEventDescriptor*> pList ) = 0;
+
+	// Engine internally has GetEventDescriptor already
+	// but these are the exposed versions returning the IGameEventDescriptor instead of CGameEventDescriptor
+	virtual IGameEventDescriptor *FindEventDescriptor( const char *name ) = 0;
+	virtual IGameEventDescriptor *FindEventDescriptor( int eventid ) = 0;
+
+	// For binary modules that want to add a Stub / CBaseClient as a listener
+	virtual bool AddStubListener( void *listener, const char *name ) = 0;
 };
 
 // the old game event manager interface, don't use it. Rest is legacy support:

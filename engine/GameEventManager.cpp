@@ -41,6 +41,61 @@ static ConVar net_showevents( "net_showevents", "0", FCVAR_CHEAT, "Dump game eve
 
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CGameEventManager, IGameEventManager2, INTERFACEVERSION_GAMEEVENTSMANAGER2, s_GameEventManager );
 
+const char* CGameEventDescriptor::GetName()
+{
+	return name;
+};
+
+int CGameEventDescriptor::GetEventID()
+{
+	return eventid;
+};
+
+KeyValues* CGameEventDescriptor::GetKeyValues()
+{
+	return keys;
+};
+
+bool CGameEventDescriptor::IsLocal()
+{
+	return local;
+};
+
+bool CGameEventDescriptor::IsReliable()
+{
+	return reliable;
+};
+
+int CGameEventDescriptor::GetListenerCount(bool bIncludeEngine)
+{
+	if (bIncludeEngine)
+		return listeners.Count();
+
+	int nCount = 0;
+	FOR_EACH_VEC( listeners, i )
+	{
+		CGameEventCallback* pCallback = listeners[ i ];
+		if ( pCallback->m_nListenerType == CGameEventManager::CLIENTSTUB)
+			continue;
+
+		++nCount;
+	}
+	
+	return nCount;
+}
+
+void CGameEventDescriptor::GetClientListeners(CUtlVector<IClient*> pClients)
+{
+	FOR_EACH_VEC( listeners, i )
+	{
+		CGameEventCallback* pCallback = listeners[ i ];
+		if ( pCallback->m_nListenerType != CGameEventManager::CLIENTSTUB)
+			continue;
+
+		pClients.AddToTail( (IClient*)pCallback->m_pCallback );
+	}
+};
+
 CGameEvent::CGameEvent( CGameEventDescriptor *descriptor )
 {
 	Assert( descriptor );
@@ -221,7 +276,7 @@ bool CGameEventManager::ParseEventList(SVC_GameEventList *msg)
 		int id = msg->m_DataIn.ReadUBitLong( MAX_EVENT_BITS );
 		char name[MAX_EVENT_NAME_LENGTH];
 		msg->m_DataIn.ReadString( name, sizeof(name) );
-        		
+				
 		CGameEventDescriptor *descriptor = GetEventDescriptor( name );
 
 		if ( !descriptor )
@@ -423,7 +478,7 @@ bool CGameEventManager::FireEventIntern( IGameEvent *event, bool bServerOnly, bo
 			   bClientOnly  )
 			continue;
 
-        // don't trigger clientside events, if not explicit a clientside event
+		// don't trigger clientside events, if not explicit a clientside event
 		if ( ( listener->m_nListenerType == CLIENTSIDE ||
 			   listener->m_nListenerType == CLIENTSIDE_OLD ) &&  
 			   !bClientOnly  )
@@ -566,6 +621,40 @@ IGameEvent *CGameEventManager::UnserializeEvent( bf_read *buf)
 	}
 
 	return event;
+}
+
+void CGameEventManager::GetEventDescriptors( CUtlVector<IGameEventDescriptor*> pList )
+{
+	pList.EnsureCapacity( m_GameEvents.Count() );
+	FOR_EACH_VEC( m_GameEvents, i )
+		pList.AddToTail( &m_GameEvents[ i ] );
+}
+
+IGameEventDescriptor *CGameEventManager::FindEventDescriptor( const char *name )
+{
+	return GetEventDescriptor( name );
+}
+
+IGameEventDescriptor *CGameEventManager::FindEventDescriptor( int eventid )
+{
+	return GetEventDescriptor( eventid );
+}
+
+bool CGameEventManager::AddStubListener( void *listener, const char *name )
+{
+	if ( !name )
+		return false;
+
+	// look for the event descriptor
+	CGameEventDescriptor *descriptor = GetEventDescriptor( name );
+
+	if ( !descriptor )
+	{
+		DevMsg( "CGameEventManager::AddStubListener: event '%s' unknown. Check 'resource/serverevents.res'.\n", name );
+		return false;	// that should not happen
+	}
+
+	return AddListener( listener, descriptor, CLIENTSTUB );
 }
 
 // returns true if this listener is listens to given event
@@ -729,7 +818,6 @@ bool CGameEventManager::AddListener( void *listener, CGameEventDescriptor *descr
 
 	return true;
 }
-
 
 bool CGameEventManager::RegisterEvent( KeyValues * event)
 {
