@@ -118,7 +118,7 @@ void CMatchmaking::HandleSystemLinkSearch( netpacket_t *pPacket )
 	XSESSION_INFO info;
 	m_Session.GetSessionInfo( &info );
 
-	char msg_buffer[MAX_ROUTABLE_PAYLOAD];
+	char msg_buffer[NORMAL_ROUTABLE_PAYLOAD];
 	bf_write msg( msg_buffer, sizeof(msg_buffer) );
 
 	msg.WriteLong( CONNECTIONLESS_HEADER );

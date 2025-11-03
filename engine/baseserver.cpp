@@ -575,7 +575,7 @@ IClient *CBaseServer::ConnectClient ( netadr_t &adr, int protocol, int challenge
 	
 	// Tell client connection worked, now use netchannels
 	{
-		ALIGN4 char		msg_buffer[MAX_ROUTABLE_PAYLOAD] ALIGN4_POST;
+		ALIGN4 char		msg_buffer[NORMAL_ROUTABLE_PAYLOAD] ALIGN4_POST;
 		bf_write	msg( msg_buffer, sizeof(msg_buffer) );
 
 		msg.WriteLong( CONNECTIONLESS_HEADER );
@@ -1645,7 +1645,7 @@ Rejects connection request and sends back a message
 */
 void CBaseServer::RejectConnection( const netadr_t &adr, int clientChallenge, const char *s )
 {
-	ALIGN4 char		msg_buffer[MAX_ROUTABLE_PAYLOAD] ALIGN4_POST;
+	ALIGN4 char		msg_buffer[NORMAL_ROUTABLE_PAYLOAD] ALIGN4_POST;
 	bf_write	msg( msg_buffer, sizeof(msg_buffer) );
 
 	msg.WriteLong( CONNECTIONLESS_HEADER );

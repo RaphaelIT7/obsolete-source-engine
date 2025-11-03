@@ -517,7 +517,7 @@ void CBaseClientState::SendConnectPacket (int challengeNr, int authProtocol, uin
 		adr.SetPort( PORT_SERVER );
 	}
 
-	ALIGN4 char		msg_buffer[MAX_ROUTABLE_PAYLOAD] ALIGN4_POST;
+	ALIGN4 char		msg_buffer[NORMAL_ROUTABLE_PAYLOAD] ALIGN4_POST;
 	bf_write	msg( msg_buffer, sizeof(msg_buffer) );
 
 	msg.WriteLong( CONNECTIONLESS_HEADER );
@@ -855,7 +855,7 @@ void CBaseClientState::CheckForResend (void)
 
 	// Request another challenge value.
 	{
-		ALIGN4 char		msg_buffer[MAX_ROUTABLE_PAYLOAD] ALIGN4_POST;
+		ALIGN4 char		msg_buffer[NORMAL_ROUTABLE_PAYLOAD] ALIGN4_POST;
 		bf_write	msg( msg_buffer, sizeof(msg_buffer) );
 
 		msg.WriteLong( CONNECTIONLESS_HEADER );
@@ -880,7 +880,7 @@ bool CBaseClientState::ProcessConnectionlessPacket( netpacket_t *packet )
 	if ( c == C2C_MOD )
 		return false;
 
-	char string[MAX_ROUTABLE_PAYLOAD];
+	char string[NORMAL_ROUTABLE_PAYLOAD];
 
 	netadr_t adrServerConnectingTo;
 	NET_StringToAdr ( m_szRetryAddress, &adrServerConnectingTo );

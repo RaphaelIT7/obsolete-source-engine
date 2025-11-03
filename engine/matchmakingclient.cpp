@@ -81,7 +81,7 @@ void CMatchmaking::HandleSystemLinkReply( netpacket_t *pPacket )
 	// Store the session information
 	bf_read &msg = pPacket->message;
 
-	alignas(systemLinkInfo_s*) char *pData = new char[MAX_ROUTABLE_PAYLOAD];
+	alignas(systemLinkInfo_s*) char *pData = new char[NORMAL_ROUTABLE_PAYLOAD];
 
 	systemLinkInfo_s *pResultInfo = (systemLinkInfo_s*)pData;
 	XSESSION_SEARCHRESULT *pResult = &pResultInfo->Result;
@@ -248,7 +248,7 @@ void CMatchmaking::UpdateSearch()
 		if ( GetTime() - m_fSendTimer > SYSTEMLINK_RETRYINTERVAL && m_nSendCount < SYSTEMLINK_MAXRETRIES )
 		{
 			// Send out a search for lan servers
-			ALIGN4 char	 msg_buffer[MAX_ROUTABLE_PAYLOAD] ALIGN4_POST;
+			ALIGN4 char	 msg_buffer[NORMAL_ROUTABLE_PAYLOAD] ALIGN4_POST;
 			bf_write msg( msg_buffer, sizeof(msg_buffer) );
 
 			msg.WriteLong( CONNECTIONLESS_HEADER );
@@ -741,7 +741,7 @@ void CMatchmaking::JoinInviteSessionByID( XNKID nSessionID )
 //-----------------------------------------------------------------------------
 void CMatchmaking::SendJoinRequest( netadr_t *adr )
 {
-	ALIGN4 char	 msg_buffer[MAX_ROUTABLE_PAYLOAD] ALIGN4_POST;
+	ALIGN4 char	 msg_buffer[NORMAL_ROUTABLE_PAYLOAD] ALIGN4_POST;
 	bf_write msg( msg_buffer, sizeof(msg_buffer) );
 
 	// Send local player info

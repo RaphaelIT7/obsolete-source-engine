@@ -25,10 +25,10 @@
 
 #define SIGNON_TIME_OUT				300.0f  // signon disconnect timeout
 
-#define MAX_FRAGMENTS_BITS	6	// How many fragments we can send at once
+#define MAX_FRAGMENTS_BITS	5	// How many fragments we can send at once
 #define MAX_FRAGMENTS	(1 << MAX_FRAGMENTS_BITS) - 1  // Maximum number of fragments we can safely transmit. -1 as else we would go over MAX_FRAGMENTS_BITS
 
-#define FRAGMENT_BITS		16
+#define FRAGMENT_BITS		13
 #define FRAGMENT_SIZE		(1<<FRAGMENT_BITS)
 #define MAX_FILE_SIZE_BITS	32
 #define MAX_FILE_SIZE		((1<<MAX_FILE_SIZE_BITS)-1)	// maximum transferable size is	64MB
@@ -55,7 +55,7 @@
 // NETWORKING INFO
 
 // This is the packet payload without any header bytes (which are attached for actual sending)
-#define	NET_MAX_PAYLOAD				576000	// largest message we can send in bytes
+#define	NET_MAX_PAYLOAD				288000	// largest message we can send in bytes
 #define	NET_MAX_PAYLOAD_V23			96000	// largest message we can send in bytes
 #define NET_MAX_PAYLOAD_BITS_V23	17		// 2^NET_MAX_PAYLOAD_BITS > NET_MAX_PAYLOAD
 // This is just the client_t->netchan.datagram buffer size (shouldn't ever need to be huge)
@@ -64,8 +64,19 @@
 // UDP has 28 byte headers
 #define UDP_HEADER_SIZE				(20+8)	// IP = 20, UDP = 8
 
-// This is set by FRAGMENT_SIZE * MAX_FRAGMENTS
-#define MAX_ROUTABLE_PAYLOAD		(FRAGMENT_SIZE * FRAGMENT_SIZE)	// Matches x360 size(1260). Update: Won't match anymore
+// NOTE: This is used by many things to allocate some buffer, the real size is way above.
+// Many things used this just to send out small things, so they can keep using it
+// No point in using 200kb stack alloc when only 1kb is actually used.
+#define NORMAL_ROUTABLE_PAYLOAD	1260	// Matches x360 size(1260)
+
+static_assert((NORMAL_ROUTABLE_PAYLOAD & 3) == 0,
+              "Bit buffers must be a multiple of 4 bytes");
+
+// Use:
+// static thread_local std::unique_ptr<char[]> g_pBuffer(new char[MAX_ROUTABLE_PAYLOAD]);
+// This is to avoid stack overflows by allocating them in memory instead
+// Do the same when using NET_MAX_MESSAGE! It's even bigger!
+#define MAX_ROUTABLE_PAYLOAD	(FRAGMENT_SIZE * (MAX_FRAGMENTS))
 
 static_assert((MAX_ROUTABLE_PAYLOAD & 3) == 0,
               "Bit buffers must be a multiple of 4 bytes");

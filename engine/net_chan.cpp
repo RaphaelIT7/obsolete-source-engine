@@ -21,6 +21,7 @@
 #include "net_ws_queued_packet_sender.h"
 #include "filesystem_init.h"
 #include "bzip2/bzlib.h"
+#include <memory>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -1587,7 +1588,11 @@ A 0 length will still generate a packet and deal with the reliable messages.
 */
 int CNetChan::SendDatagram(bf_write *datagram)
 {
-	ALIGN4 byte		send_buf[ NET_MAX_MESSAGE ] ALIGN4_POST;
+	// static to avoid allocating over and over again.
+	// thread_local since this is called by multiple threads at once.
+	// unique_ptr to properly free the memory once a thread stops.
+	// Why even not use the original way? Allocating 512kb on the stack will on windows almost certanly cause a stack overflow!
+	static thread_local std::unique_ptr<char[]> send_buf(new char[NET_MAX_MESSAGE]);
 
 #ifndef NO_VCR
 	if ( vcr_verbose.GetInt() && datagram && datagram->GetNumBytesWritten() > 0 )
@@ -1631,7 +1636,7 @@ int CNetChan::SendDatagram(bf_write *datagram)
 		m_StreamReliable.Reset();
 	}
 
-	bf_write send( "CNetChan_TransmitBits->send", send_buf, sizeof(send_buf) );
+	bf_write send( "CNetChan_TransmitBits->send", send_buf.get(), NET_MAX_MESSAGE );
 
 	// Prepare the packet header
 	// build packet flags

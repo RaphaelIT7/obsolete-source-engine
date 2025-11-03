@@ -15,6 +15,7 @@
 #include "net_ws_headers.h"
 #include "net_ws_queued_packet_sender.h"
 #include "fmtstr.h"
+#include <memory>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -146,6 +147,14 @@ typedef struct
 #define MIN_USER_MAXROUTABLE_SIZE	576  // ( X.25 Networks )
 #define MAX_USER_MAXROUTABLE_SIZE	MAX_ROUTABLE_PAYLOAD
 
+static char* GetNetworkBuffer()
+{
+	// 100% called by multiple threads, so we gotta use thread_local
+	// We also put it inside this function to avoid allocating it for every single thread
+	// instead only when now called it gets allocated its allocated
+	static thread_local std::unique_ptr<char[]> g_pBuffer(new char[MAX_ROUTABLE_PAYLOAD]);
+	return g_pBuffer.get();
+}
 
 #define MAX_SPLIT_SIZE	(MAX_USER_MAXROUTABLE_SIZE - static_cast<int>(sizeof( SPLITPACKET )))
 #define MIN_SPLIT_SIZE	(MIN_USER_MAXROUTABLE_SIZE - static_cast<int>(sizeof( SPLITPACKET )))
@@ -186,7 +195,7 @@ static	bool net_nodns = false;	// Disable DNS request to avoid long timeouts
 static  bool net_notcp = true;	// Disable TCP support
 static	bool net_nohltv = false; // disable HLTV support
 static	bool net_dedicated = false;	// true is dedicated system
-static	int  net_error = 0;			// global error code updated with NET_GetLastError()
+static thread_local int net_error = 0;			// global error code updated with NET_GetLastError()
 
 
 static CUtlVectorMT< CUtlVector< CNetChan* > >			s_NetChannels;
@@ -2035,9 +2044,9 @@ int NET_SendTo( bool verbose, SOCKET s, const char FAR * buf, int len, const str
 #if defined( _DEBUG )
 	if ( verbose && 
 		( nSend > 0 ) && 
-		( len > MAX_ROUTABLE_PAYLOAD ) )
+		( len > NORMAL_ROUTABLE_PAYLOAD ) )
 	{
-		ConDMsg( "NET_SendTo:  Packet length (%i) > (%i) bytes\n", len, MAX_ROUTABLE_PAYLOAD );
+		ConDMsg( "NET_SendTo:  Packet length (%i) > (%i) bytes\n", len, NORMAL_ROUTABLE_PAYLOAD );
 	}
 #endif
 	return nSend;
@@ -2232,7 +2241,7 @@ int NET_SendLong( INetChannel *chan, int sock, SOCKET s, const char FAR * buf, i
 	const char *sendbuf = buf;
 	int sendlen = len;
 
-	char			packet[ MAX_ROUTABLE_PAYLOAD ];
+	char* packet = GetNetworkBuffer();
 	SPLITPACKET		*pPacket = (SPLITPACKET *)packet;
 
 	// Make pPacket data network endian correct
@@ -2530,7 +2539,7 @@ int NET_SendPacket ( INetChannel *chan, int sock,  const netadr_t &to, const uns
 void NET_OutOfBandPrintf(int sock, const netadr_t &adr, const char *format, ...)
 {
 	va_list		argptr;
-	alignas(unsigned int) char		string[MAX_ROUTABLE_PAYLOAD];
+	char* string = GetNetworkBuffer();
 	
 	*(unsigned int*)string = CONNECTIONLESS_HEADER;
 
