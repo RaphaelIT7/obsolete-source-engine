@@ -146,17 +146,10 @@ static inline void SV_PackEntity(
 	int nFlatProps = SendTable_GetNumFlatProps( pSendTable );
 	IChangeFrameList *pChangeFrame = NULL;
 	CGMODDataTable* pGMODDataTable = NULL;
-	CSendTablePrecalc* pPrecalc = pSendTable->m_pPrecalc;
-	if (pPrecalc->GetNumProps() > 0)
+	int nGMODDataTableOffset = pSendTable->m_pPrecalc->m_nGMODDataTableOffset;
+	if ( nGMODDataTableOffset != -1 ) // We use a precalculated offset, since finding it in here is uttelry expensive!
 	{
-		for (int i=0; i<pPrecalc->GetNumProps(); ++i)
-		{
-			const SendProp* pProp = pPrecalc->GetProp(i);
-			if (pProp->GetType() != DPT_GMODTable) 
-				continue;
-				
-			pGMODDataTable = (CGMODDataTable*)*((void**)((char*)edict->GetUnknown()->GetBaseEntity() + pProp->GetOffset()));
-		}
+		pGMODDataTable = *(CGMODDataTable**)((char*)edict->GetUnknown() + nGMODDataTableOffset);
 	}
 
 	// If this entity was previously in there, then it should have a valid IChangeFrameList 

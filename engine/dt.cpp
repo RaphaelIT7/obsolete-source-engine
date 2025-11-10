@@ -442,6 +442,8 @@ bool CSendTablePrecalc::SetupFlatPropertyArray()
 	SetRecursiveProxyIndices_R( pTable, GetRootNode(), nProxyIndices );
 
 	SendTable_GenerateProxyPaths( this, nProxyIndices );
+
+	FillGModDataTableOffset();
 	return true;
 }
 
