@@ -663,7 +663,12 @@ public:
 	// logging functions
 	CUtlVector< FileSystemLoggingFunc_t > m_LogFuncs;
 
-	CThreadMutex m_SearchPathsMutex;
+	// RaphaelIT7: A CThreadRWLock/CThreadSpinRWLock should perform better than a CThreadFastMutex
+#if defined(WIN32) || defined(_WIN32)
+	CThreadSpinRWLock m_SearchPathsMutex;
+#else
+	CThreadRWLock m_SearchPathsMutex;
+#endif
 	CUtlVector< CSearchPath > m_SearchPaths;
 	CUtlVector<CPathIDInfo*> m_PathIDInfos;
 	CUtlLinkedList<FindData_t> m_FindData;
