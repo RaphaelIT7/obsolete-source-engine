@@ -34,7 +34,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
-static const char * s_LastFileLoadingFrom = "unknown"; // just needed for error messages
+static thread_local const char * s_LastFileLoadingFrom = "unknown"; // just needed for error messages
 
 // Statics for the growable string table
 HKeySymbol (*KeyValues::s_pfGetSymbolForString)( const char *name, bool bCreate ) = &KeyValues::GetSymbolForStringClassic;
@@ -42,7 +42,7 @@ const char *(*KeyValues::s_pfGetStringForSymbol)( HKeySymbol symbol ) = &KeyValu
 CKeyValuesGrowableStringTable *KeyValues::s_pGrowableStringTable = nullptr;
 
 #define KEYVALUES_TOKEN_SIZE	4096
-static char s_pTokenBuf[KEYVALUES_TOKEN_SIZE];
+static thread_local char s_pTokenBuf[KEYVALUES_TOKEN_SIZE];
 
 
 #define INTERNALWRITE( pData, len ) InternalWrite( filesystem, f, pBuf, pData, size_cast<int>( len ) )
@@ -127,7 +127,7 @@ private:
 	int		m_maxErrorIndex{0};
 };
 
-static CKeyValuesErrorStack g_KeyValuesErrorStack;
+static thread_local CKeyValuesErrorStack g_KeyValuesErrorStack;
 
 // a simple helper that creates stack entries as it goes in & out of scope
 class CKeyErrorContext
