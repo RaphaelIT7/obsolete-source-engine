@@ -189,6 +189,10 @@ public:
 	// dimhotepus: TF2 backport. Expose as public.
 	[[nodiscard]] float	GetBuoyancyRatio() const override { return m_buoyancyRatio; }
 
+	[[nodiscard]] float	GetBuoyancyRatio( void ) const override { return m_buoyancyRatio; }
+
+	[[nodiscard]] IPhysicsEnvironment	*GetEnvironment() const override;
+
 	// local functions
 	[[nodiscard]] inline	IVP_Real_Object *GetObject( void ) const { return m_pObject; }
 	// dimhotepus: int -> unsigned short.
