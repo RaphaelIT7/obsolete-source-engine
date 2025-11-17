@@ -184,7 +184,7 @@ extern ConVar sv_stressbots;
 
 int g_CurGameServerID = 1;
 
-// #define ALLOW_DEBUG_DEDICATED_SERVER_OUTSIDE_STEAM
+#define ALLOW_DEBUG_DEDICATED_SERVER_OUTSIDE_STEAM
 
 bool AllowDebugDedicatedServerOutsideSteam()
 {
