@@ -82,8 +82,10 @@ IViewPortPanel* CHudViewport::CreatePanelByName( const char *szPanelName )
 	}
 	else if ( Q_strcmp(PANEL_INFO, szPanelName) == 0 )
 	{
-		newpanel = new CHL2MPTextWindow( this );
-		return newpanel;
+		// RaphaelIT7: Don't show me this every time start the game >:(
+		// newpanel = new CHL2MPTextWindow( this );
+		// return newpanel;
+		return NULL;
 	}
 	else if ( Q_strcmp(PANEL_SPECGUI, szPanelName) == 0 )
 	{

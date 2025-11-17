@@ -44,7 +44,7 @@ static ConVar	sv_minrate( "sv_minrate", "3500", FCVAR_REPLICATED, "Min bandwidth
        ConVar	sv_maxupdaterate( "sv_maxupdaterate", "66", FCVAR_REPLICATED, "Maximum updates per second that the server will allow" );
 	   ConVar	sv_minupdaterate( "sv_minupdaterate", "10", FCVAR_REPLICATED, "Minimum updates per second that the server will allow" );
 
-	   ConVar	sv_stressbots("sv_stressbots", "0", FCVAR_DEVELOPMENTONLY, "If set to 1, the server calculates data and fills packets to bots. Used for perf testing.");
+	   ConVar	sv_stressbots("sv_stressbots", "0", 0, "If set to 1, the server calculates data and fills packets to bots. Used for perf testing.");
 static ConVar	sv_allowdownload ("sv_allowdownload", "1", 0, "Allow clients to download files");
 static ConVar	sv_allowupload ("sv_allowupload", "1", 0, "Allow clients to upload customizations files");
 	   ConVar	sv_sendtables ( "sv_sendtables", "0", FCVAR_DEVELOPMENTONLY, "Force full sendtable sending path." );

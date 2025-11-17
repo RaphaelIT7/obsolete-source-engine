@@ -10,6 +10,7 @@
 #pragma once
 #endif
 
+class CBasePlayer;
 
 // If iTeam or iClass is -1, then a team or class is randomly chosen.
 CBasePlayer *BotPutInServer( bool bFrozen, int iTeam );
