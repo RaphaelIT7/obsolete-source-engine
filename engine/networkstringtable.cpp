@@ -5,7 +5,6 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "host.h"
-#include "sysexternal.h"
 #include "networkstringtable.h"
 #include "tier1/utlbuffer.h"
 #include "tier1/bitbuf.h"
@@ -1316,7 +1315,7 @@ INetworkStringTable *CNetworkStringTableContainer::CreateStringTableEx( const ch
 {
 	if ( !m_bAllowCreation )
 	{
-		Sys_Error( "Tried to create string table '%s' at wrong time\n", tableName );
+		Host_Error( "Tried to create string table '%s' at wrong time\n", tableName );
 		return NULL;
 	}
 
@@ -1324,13 +1323,13 @@ INetworkStringTable *CNetworkStringTableContainer::CreateStringTableEx( const ch
 
 	if ( pTable != NULL )
 	{
-		Sys_Error( "Tried to create string table '%s' twice\n", tableName );
+		Host_Error( "Tried to create string table '%s' twice\n", tableName );
 		return NULL;
 	}
 
 	if ( m_Tables.Count() >= MAX_TABLES )
 	{
-		Sys_Error( "Only %i string tables allowed, can't create'%s'", MAX_TABLES, tableName);
+		Host_Error( "Only %i string tables allowed, can't create'%s'", MAX_TABLES, tableName);
 		return NULL;
 	}
 
