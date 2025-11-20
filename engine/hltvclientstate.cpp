@@ -102,16 +102,13 @@ void CHLTVClientState::CopyNewEntity(
 	if ( baseline && baseline->m_pClientClass == pClientClass )
 	{
 		Assert( !baseline->IsCompressed() );
-		pFromData = baseline->GetData();
-		nFromBits = baseline->GetNumBits();
+		pFromData = baseline->m_pNewPackedData;
+		nFromBits = baseline->m_nNewPackedDataSize;
 	}
 	else
 	{
-		// Every entity must have a static or an instance baseline when we get here.
-		ErrorIfNot(
-			GetClassBaseline( iClass, &pFromData, &nFromBits ),
-			("HLTV_CopyNewEntity: GetDynamicBaseline(%d) failed.", iClass)
-		);
+		Warning("Were cooked...\n"); // ToDo: Finish this
+
 		nFromBits *= 8; // convert to bits
 	}
 
@@ -126,7 +123,6 @@ void CHLTVClientState::CopyNewEntity(
 
 	// Now make a PackedEntity and store the new packed data in there.
 	PackedEntity *pPackedEntity = framesnapshotmanager->CreatePackedEntity( pSnapshot, ent );
-	pPackedEntity->SetChangeFrameList( pChangeFrame );
 	pPackedEntity->SetServerAndClientClass( pServerClass, pClientClass );
 
 	// Make space for the baseline data.
@@ -723,29 +719,10 @@ void CHLTVClientState::ReadDeltaEnt( CEntityReadInfo &u )
 
 	pToPackedEntity->SetServerAndClientClass( pFromPackedEntity->m_pServerClass, pFromPackedEntity->m_pClientClass );
 
-	// create a copy of the pFromSnapshot ChangeFrameList
-	IChangeFrameList* pChangeFrame = NULL;
- 
-	if ( !m_bSaveMemory )
-	{
-		pChangeFrame = pFromPackedEntity->GetChangeFrameList()->Copy();
-		pToPackedEntity->SetChangeFrameList( pChangeFrame );
-	}
-
 	// Make space for the baseline data.
 	ALIGN4 char packedData[MAX_PACKEDENTITY_DATA] ALIGN4_POST;
-	const void *pFromData;
-	int nFromBits;
-
-	if ( pFromPackedEntity->IsCompressed() )
-	{
-		pFromData = m_pHLTV->UncompressPackedEntity( pFromPackedEntity, nFromBits );
-	}
-	else
-	{
-		pFromData = pFromPackedEntity->GetData();
-		nFromBits = pFromPackedEntity->GetNumBits();
-	}
+	const void *pFromData = pFromPackedEntity->m_pNewPackedData;
+	int nFromBits = pFromPackedEntity->m_nNewPackedDataSize;
 
 	bf_read fromBuf( "HLTV_ReadEnterPVS1", pFromData, Bits2Bytes( nFromBits ), nFromBits );
 	bf_write writeBuf( "HLTV_ReadEnterPVS2", packedData, sizeof( packedData ) );
@@ -756,30 +733,8 @@ void CHLTVClientState::ReadDeltaEnt( CEntityReadInfo &u )
 	int nChangedProps = RecvTable_MergeDeltas( pToPackedEntity->m_pClientClass->m_pRecvTable,
 		&fromBuf, u.m_pBuf, &writeBuf, -1, changedProps, false );
 
-	// update change tick in ChangeFrameList
-	if ( pChangeFrame )
-	{
-		pChangeFrame->SetChangeTick( changedProps, nChangedProps, pSnapshot->m_nTickCount );
-	}
-
-	if ( m_bSaveMemory )
-	{
-		int bits = writeBuf.GetNumBitsWritten();
-
-		const char *compressedData = m_pHLTV->CompressPackedEntity( 
-			pToPackedEntity->m_pServerClass,
-			(char*)writeBuf.GetData(),
-			bits );
-
-		// store as compressed data and don't use mem pools
-		pToPackedEntity->AllocAndCopyPadded( compressedData, Bits2Bytes(bits) );
-		pToPackedEntity->SetCompressed();
-	}
-	else
-	{
-		// store as normal
-		pToPackedEntity->AllocAndCopyPadded( packedData, writeBuf.GetNumBytesWritten() );
-	}
+	// store as normal
+	pToPackedEntity->AllocAndCopyPadded( packedData, writeBuf.GetNumBytesWritten() );
 
 	u.m_pTo->last_entity = u.m_nNewEntity;
 	u.m_pTo->transmit_entity.Set( u.m_nNewEntity );

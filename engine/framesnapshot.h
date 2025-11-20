@@ -51,15 +51,6 @@ public:
 	unsigned int	m_nNodeCluster;  // if (1<<31) is set it's a node, otherwise a cluster
 };
 
-typedef struct
-{
-	PackedEntity	*pEntity;	// original packed entity
-	int				counter;	// increaseing counter to find LRU entries
-	int				bits;		// uncompressed data length in bits
-	char			data[MAX_PACKEDENTITY_DATA]; // uncompressed data cache
-} UnpackedDataCache_t;
-
-
 
 //-----------------------------------------------------------------------------
 // Purpose: For all entities, stores whether the entity existed and what frame the
@@ -155,9 +146,6 @@ public:
 
 	PackedEntity*	GetPreviouslySentPacket( int iEntity, int iSerialNumber );
 
-	// Return the entity sitting in iEntity's slot if iSerialNumber matches its number.
-	UnpackedDataCache_t *GetCachedUncompressedEntity( PackedEntity *pPackedEntity );
-
 	CThreadFastMutex	&GetMutex();
 
 	// List of entities to explicitly delete
@@ -168,9 +156,6 @@ private:
 
 	CUtlLinkedList<CFrameSnapshot*, int>		m_FrameSnapshots;
 	CClassMemoryPool< PackedEntity >			m_PackedEntitiesPool;
-
-	int								m_nPackedEntityCacheCounter;  // increase with every cache access
-	CUtlVector<UnpackedDataCache_t>	m_PackedEntityCache;	// cache for uncompressed packed entities
 
 	// The most recently sent packets for each entity
 	PackedEntityHandle_t	m_pPackedData[ MAX_EDICTS ];

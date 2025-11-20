@@ -443,6 +443,99 @@ bool CSendTablePrecalc::SetupFlatPropertyArray()
 	SetRecursiveProxyIndices_R( pTable, GetRootNode(), nProxyIndices );
 
 	SendTable_GenerateProxyPaths( this, nProxyIndices );
+
+	/*
+		Generate SendPropPrecalc data
+		This splits all SendProps into groups by their types
+		Aligns them to 1 byte / 8 bits and sets new offsets
+	*/
+
+	CUtlVector<const SendProp*> pProps[SendPropPrecalc::DPT_REALNUMSendPropTypes];
+	for (int i = 0; i < GetNumProps(); ++i)
+	{
+		const SendProp* pProp = GetProp(i);
+		SendPropType type = pProp->GetType();
+    
+		if (type >= 0 && type < DPT_NUMSendPropTypes)
+		{
+			if (type == SendPropType::DPT_Int && pProp->m_nBits == 1)
+			{
+				pProps[SendPropPrecalc::DPT_BOOL].AddToTail(pProp);
+			} else {
+				pProps[type].AddToTail(pProp);
+			}
+		} else {
+			Warning("SendProp %s has invalid type %d\n", pProp->GetName(), type);
+		}
+	}
+
+	for (int nDPTType = 0; nDPTType < SendPropPrecalc::DPT_REALNUMSendPropTypes; ++nDPTType)
+	{
+		SendPropStruct& pStruct = m_SendPropStruct[nDPTType];
+
+		FOR_EACH_VEC( pProps[nDPTType], i )
+		{
+			const SendProp* pProp = pProps[nDPTType][i];
+			int nBits = pProp->m_nBits;
+			if (nBits <= 0)
+			{
+				switch(nDPTType)
+				{
+				case SendPropType::DPT_Int:
+					nBits = sizeof(int) * 8;
+					break;
+				case SendPropType::DPT_Float:
+					nBits = sizeof(float) * 8;
+					break;
+				case SendPropType::DPT_Vector:
+					nBits = sizeof(float) * 8 * 3;
+					break;
+				case SendPropType::DPT_Array:
+					nBits = sizeof(float) * 8 * 3;
+					break;
+				case SendPropType::DPT_VectorXY:
+					nBits = sizeof(float) * 8 * 2;
+					break;
+				default:
+					Warning("SendProp: No idea for size of %s!\n", pProp->GetName());
+					break;
+				}
+			}
+
+			SendPropPrecalc* pPrecalc = new SendPropPrecalc;
+			memcpy(pPrecalc, pProp, sizeof(SendProp));
+
+			if (nDPTType == SendPropPrecalc::DPT_BOOL) // Bool, yay, we store them in bits :3
+			{
+				if (pStruct.m_nBytes == 0) // Initial size! Needed for later allocation as else we'd have to check the bits
+					++pStruct.m_nBytes;
+
+				pPrecalc->m_nNewOffset = pStruct.m_nBytes-1; // -1 since m_nBytes will always be +1 for the current byte
+				pPrecalc->m_nNewSize = SendPropPrecalc::BOOL_SIZE;
+				pPrecalc->m_nBitOffset = pStruct.m_nBits++;
+				if (pStruct.m_nBits >= 8) // not >= since else we'd skip the 8th bit
+				{
+					++pStruct.m_nBytes;
+					pStruct.m_nBits = 0;
+				}
+
+				pStruct.m_pProps.AddToTail(pPrecalc);
+			} else {
+				pPrecalc->m_nNewOffset = pStruct.m_nBytes;
+
+				int nBytes = ((nBits + 7) & ~7) / 8; // Align to 8 bits & make into bytes
+				pStruct.m_nBytes += nBytes;
+				pPrecalc->m_nNewSize = nBytes;
+
+				pStruct.m_pProps.AddToTail(pPrecalc);
+			}
+
+			// Msg("%i: %s (%i) - %s\n", i, pProp->GetName(), nBits, pProp->GetArrayProp() ? pProp->GetArrayProp()->GetName() : "");
+		}
+
+		m_nSendPropDataSize += pStruct.m_nBytes; // Collect final sendprop size :3
+	}
+
 	return true;
 }
 

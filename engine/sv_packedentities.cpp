@@ -119,141 +119,19 @@ static inline void SV_PackEntity(
 		edict->ClearStateChanged();
 		return;
 	}
-	
-	// First encode the entity's data.
-	ALIGN4 char packedData[MAX_PACKEDENTITY_DATA] ALIGN4_POST;
-	bf_write writeBuf( "SV_PackEntity->writeBuf", packedData, sizeof( packedData ) );
-
-	SendTable *pSendTable = pServerClass->m_pTable;
-	
-	// (avoid constructor overhead).
-	unsigned char tempData[ sizeof( CSendProxyRecipients ) * MAX_DATATABLE_PROXIES ];
-	CUtlMemory< CSendProxyRecipients > recip( (CSendProxyRecipients*)tempData, pSendTable->m_pPrecalc->GetNumDataTableProxies() );
-
-	if( !SendTable_Encode( pSendTable, edict->GetUnknown(), &writeBuf, edictIdx, &recip, false ) )
-	{							 
-		Host_Error( "SV_PackEntity: SendTable_Encode returned false (ent %d).\n", edictIdx );
-	}
-
-#ifndef NO_VCR
-	// VCR mode stuff..
-	if ( vcr_verbose.GetInt() && writeBuf.GetNumBytesWritten() > 0 )
-		VCRGenericValueVerify( "writebuf", writeBuf.GetBasePointer(), writeBuf.GetNumBytesWritten()-1 );
-#endif
-
-	SV_EnsureInstanceBaseline( pServerClass, edictIdx, packedData, writeBuf.GetNumBytesWritten() );
-		
-	int nFlatProps = SendTable_GetNumFlatProps( pSendTable );
-	IChangeFrameList *pChangeFrame = NULL;
-
-	// If this entity was previously in there, then it should have a valid IChangeFrameList 
-	// which we can delta against to figure out which properties have changed.
-	//
-	// If not, then we want to setup a new IChangeFrameList.
-
-	PackedEntity *pPrevFrame = framesnapshotmanager->GetPreviouslySentPacket( edictIdx, pSnapshot->m_pEntities[ edictIdx ].m_nSerialNumber );
-	if ( pPrevFrame )
-	{
-		// Calculate a delta.
-		Assert( !pPrevFrame->IsCompressed() );
-		
-		int deltaProps[MAX_DATATABLE_PROPS];
-
-		int nChanges = SendTable_CalcDelta(
-			pSendTable, 
-			pPrevFrame->GetData(), pPrevFrame->GetNumBits(),
-			packedData,	writeBuf.GetNumBitsWritten(),
-			
-			deltaProps,
-			ARRAYSIZE( deltaProps ),
-
-			edictIdx
-			);
-
-#ifndef NO_VCR
-		if ( vcr_verbose.GetInt() )
-			VCRGenericValueVerify( "nChanges", &nChanges, sizeof( nChanges ) );
-#endif
-
-		// If it's non-manual-mode, but we detect that there are no changes here, then just
-		// use the previous pSnapshot if it's available (as though the entity were manual mode).
-		// It would be interesting to hook here and see how many non-manual-mode entities 
-		// are winding up with no changes.
-		if ( nChanges == 0 )
-		{
-			if ( pPrevFrame->CompareRecipients( recip ) )
-			{
-				if ( framesnapshotmanager->UsePreviouslySentPacket( pSnapshot, edictIdx, iSerialNum ) )
-				{
-					edict->ClearStateChanged();
-					return;
-				}
-			}
-		}
-		else
-		{
-			if ( !edict->HasStateChanged() )
-			{
-				for ( int iDeltaProp=0; iDeltaProp < nChanges; iDeltaProp++ )
-				{
-					Assert( pSendTable->m_pPrecalc );
-					Assert( deltaProps[iDeltaProp] < pSendTable->m_pPrecalc->GetNumProps() );
-
-					const SendProp *pProp = pSendTable->m_pPrecalc->GetProp( deltaProps[iDeltaProp] );
-					// If a field changed, but it changed because it encoded against tickcount, 
-					//   then it's just like the entity changed the underlying field, not an error, that is.
-					if ( pProp->GetFlags() & SPROP_ENCODED_AGAINST_TICKCOUNT )
-						continue;
-
-					Msg( "Entity %d (class '%s') reported ENTITY_CHANGE_NONE but '%s' changed.\n", 
-						edictIdx,
-						edict->GetClassName(),
-						pProp->GetName() );
-
-				}
-			}
-		}
-
-#ifndef _XBOX	
-#if defined( REPLAY_ENABLED )
-		if ( (hltv && hltv->IsActive()) || (replay && replay->IsActive()) )
-#else
-		if ( hltv && hltv->IsActive() )
-#endif
-		{
-			// in HLTV or Replay mode every PackedEntity keeps it's own ChangeFrameList
-			// we just copy the ChangeFrameList from prev frame and update it
-			pChangeFrame = pPrevFrame->GetChangeFrameList();
-			pChangeFrame = pChangeFrame->Copy(); // allocs and copies ChangeFrameList
-		}
-		else
-#endif
-		{
-			// Ok, now snag the changeframe from the previous frame and update the 'last frame changed'
-			// for the properties in the delta.
-			pChangeFrame = pPrevFrame->SnagChangeFrameList();
-		}
-		
-		ErrorIfNot( pChangeFrame,
-			("SV_PackEntity: SnagChangeFrameList returned null") );
-		ErrorIfNot( pChangeFrame->GetNumProps() == nFlatProps,
-			("SV_PackEntity: SnagChangeFrameList mismatched number of props[%d vs %d]", nFlatProps, pChangeFrame->GetNumProps() ) );
-
-		pChangeFrame->SetChangeTick( deltaProps, nChanges, pSnapshot->m_nTickCount );
-	}
-	else
-	{
-		// Ok, init the change frames for the first time.
-		pChangeFrame = AllocChangeFrameList( nFlatProps, pSnapshot->m_nTickCount );
-	}
 
 	// Now make a PackedEntity and store the new packed data in there.
+	PackedEntity *pPackedEntity = framesnapshotmanager->CreatePackedEntity( pSnapshot, edictIdx );
+	pPackedEntity->SetServerAndClientClass( pServerClass, NULL );
+
+	CSendTablePrecalc *pSendTablePrecalc = pServerClass->m_pTable->m_pPrecalc;
+	pPackedEntity->SetPackedData( pSendTablePrecalc->m_nSendPropDataSize);
+
+	SendProp_FillSnapshot( pSendTablePrecalc, pPackedEntity, edict->GetUnknown() );
+	
+	for (int i=0; i<200; ++i) // Performance testing
 	{
-		PackedEntity *pPackedEntity = framesnapshotmanager->CreatePackedEntity( pSnapshot, edictIdx );
-		pPackedEntity->SetChangeFrameList( pChangeFrame );
-		pPackedEntity->SetServerAndClientClass( pServerClass, NULL );
-		pPackedEntity->AllocAndCopyPadded( packedData, writeBuf.GetNumBytesWritten() );
-		pPackedEntity->SetRecipients( recip );
+		SendProp_FillSnapshot( pSendTablePrecalc, pPackedEntity, edict->GetUnknown() );
 	}
 
 	edict->ClearStateChanged();
@@ -372,7 +250,7 @@ void PackEntities_NetworkBackDoor(
 	InvalidateSharedEdictChangeInfos();
 }
 
-static ConVar sv_parallel_packentities( "sv_parallel_packentities", "1" );
+static ConVar sv_parallel_packentities( "sv_parallel_packentities", "0" );
 
 struct PackWork_t
 {
@@ -393,6 +271,8 @@ void PackEntities_Normal(
 {
 	Assert( snapshot->m_nValidEntities >= 0 && snapshot->m_nValidEntities <= MAX_EDICTS );
 	tmZoneFiltered( TELEMETRY_LEVEL0, 50, TMZF_NONE, "%s %d", __FUNCTION__, snapshot->m_nValidEntities );
+
+	VPROF_BUDGET( "PackEntities", VPROF_BUDGETGROUP_OTHER_NETWORKING );
 
 	CUtlVectorFixed< PackWork_t, MAX_EDICTS > workItems;
 

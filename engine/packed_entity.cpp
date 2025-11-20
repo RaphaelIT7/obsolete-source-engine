@@ -30,87 +30,20 @@ PackedEntity::PackedEntity()
 	m_nEntityIndex = -1;
 	m_ReferenceCount = -1;
 
-	m_pData = nullptr;
-	m_nBits = -1;
-	m_pChangeFrameList = nullptr;
-
 	m_nSnapshotCreationTick = 0;
 	m_nShouldCheckCreationTick = 0;
+
+	m_nNewPackedDataSize = 0;
+	m_pNewPackedData = nullptr;
 }
 
 PackedEntity::~PackedEntity()
 {
-	FreeData();
-
-	if ( m_pChangeFrameList )
+	if (m_pNewPackedData)
 	{
-		m_pChangeFrameList->Release();
-		m_pChangeFrameList = NULL;
+		free(m_pNewPackedData);
 	}
 }
-
-
-bool PackedEntity::AllocAndCopyPadded( const void *pData, intp size )
-{
-	FreeData();
-	
-	intp nBytes = PAD_NUMBER( size, 4 );
-
-	// allocate the memory
-	m_pData = malloc( nBytes );
-
-	if ( !m_pData )
-	{
-		Assert( m_pData );
-		return false;
-	}
-	
-	Q_memcpy( m_pData, pData, size );
-	SetNumBits( nBytes * CHAR_BIT );
-	
-	return true;
-}
-
-
-int PackedEntity::GetPropsChangedAfterTick( int iTick, int *iOutProps, int nMaxOutProps )
-{
-	if ( m_pChangeFrameList )
-	{
-		return m_pChangeFrameList->GetPropsChangedAfterTick( iTick, iOutProps, nMaxOutProps );
-	}
-	else
-	{
-		// signal that we don't have a changelist
-		return -1;
-	}
-}
-
-
-const CSendProxyRecipients*	PackedEntity::GetRecipients() const
-{
-	return m_Recipients.Base();
-}
-
-
-int PackedEntity::GetNumRecipients() const
-{
-	return m_Recipients.Count();
-}
-
-
-void PackedEntity::SetRecipients( const CUtlMemory<CSendProxyRecipients> &recipients )
-{
-	m_Recipients.CopyArray( recipients.Base(), recipients.Count() );
-}
-
-
-bool PackedEntity::CompareRecipients( const CUtlMemory<CSendProxyRecipients> &recipients )
-{
-	if ( recipients.Count() != m_Recipients.Count() )
-		return false;
-	
-	return memcmp( recipients.Base(), m_Recipients.Base(), sizeof( CSendProxyRecipients ) * m_Recipients.Count() ) == 0;
-}	
 
 void PackedEntity::SetServerAndClientClass( ServerClass *pServerClass, ClientClass *pClientClass )
 {

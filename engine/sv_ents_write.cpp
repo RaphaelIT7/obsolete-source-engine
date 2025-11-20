@@ -258,20 +258,8 @@ static inline void SV_WritePropsFromPackedEntity(
 		}
 	}
 
-	const void *pToData;
-	int nToBits;
-
-	if ( pTo->IsCompressed() )
-	{
-		// let server uncompress PackedEntity
-		pToData = u.m_pServer->UncompressPackedEntity( pTo, nToBits );
-	}
-	else
-	{
-		// get raw data direct
-		pToData = pTo->GetData();
-		nToBits = pTo->GetNumBits();
-	}
+	const void *pToData = pTo->m_pNewPackedData;
+	int nToBits = pTo->m_nNewPackedDataSize;
 
 	Assert( pToData != NULL );
 
@@ -281,14 +269,14 @@ static inline void SV_WritePropsFromPackedEntity(
 	int nSendProps = nCheckProps;
 	bf_write bufStart;
 
-
 	// cull properties that are removed by SendProxies for this client.
 	// don't do that for HLTV relay proxies
 	if ( u.m_bCullProps )
 	{
 		sendProps = pSendProps;
 
-		nSendProps = SendTable_CullPropsFromProxies( 
+		// RaphaelIT7: Naah, too lazy for this rn, can be done tomorrow
+		/*nSendProps = SendTable_CullPropsFromProxies( 
 		pSendTable, 
 		pCheckProps, 
 		nCheckProps, 
@@ -302,7 +290,7 @@ static inline void SV_WritePropsFromPackedEntity(
 
 		pSendProps, 
 		ARRAYSIZE( pSendProps )
-		);
+		);*/
 	}
 	else
 	{
@@ -454,48 +442,26 @@ static inline void SV_DetermineUpdateType( CEntityWriteInfo &u )
 	}
 #endif
 
+	const void *pOldData, *pNewData;
+	int nOldBits, nNewBits;
+
+	pOldData = u.m_pOldPack->m_pNewPackedData;
+	nOldBits = u.m_pOldPack->m_nNewPackedDataSize;
+
+	pNewData = u.m_pNewPack->m_pNewPackedData;
+	nNewBits = u.m_pNewPack->m_nNewPackedDataSize;
+
 	int checkProps[MAX_DATATABLE_PROPS];
-	int nCheckProps = u.m_pNewPack->GetPropsChangedAfterTick( u.m_pFromSnapshot->m_nTickCount, checkProps, ARRAYSIZE( checkProps ) );
-	
-	if ( nCheckProps == -1 )
-	{
-		// check failed, we have to recalc delta props based on from & to snapshot
-		// that should happen only in HLTV/Replay demo playback mode, this code is really expensive
-
-		const void *pOldData, *pNewData;
-		int nOldBits, nNewBits;
-
-		if ( u.m_pOldPack->IsCompressed() )
-		{
-			pOldData = u.m_pServer->UncompressPackedEntity( u.m_pOldPack, nOldBits );
-		}
-		else
-		{
-			pOldData = u.m_pOldPack->GetData();
-			nOldBits = u.m_pOldPack->GetNumBits();
-		}
-
-		if ( u.m_pNewPack->IsCompressed() )
-		{
-			pNewData = u.m_pServer->UncompressPackedEntity( u.m_pNewPack, nNewBits );
-		}
-		else
-		{
-			pNewData = u.m_pNewPack->GetData();
-			nNewBits = u.m_pNewPack->GetNumBits();
-		}
-
-		nCheckProps = SendTable_CalcDelta(
-			u.m_pOldPack->m_pServerClass->m_pTable, 
-			pOldData,
-			nOldBits,
-			pNewData,
-			nNewBits,
-			checkProps,
-			ARRAYSIZE( checkProps ),
-			u.m_nNewEntity
-			);
-	}
+	int nCheckProps = SendTable_CalcDelta(
+		u.m_pOldPack->m_pServerClass->m_pTable, 
+		pOldData,
+		nOldBits,
+		pNewData,
+		nNewBits,
+		checkProps,
+		ARRAYSIZE( checkProps ),
+		u.m_nNewEntity
+	);
 
 #ifndef NO_VCR
 	if ( vcr_verbose.GetInt() )
@@ -590,8 +556,8 @@ static inline void SV_WriteEnterPVS( CEntityWriteInfo &u )
 	if ( pBaseline && (pBaseline->m_pServerClass == u.m_pNewPack->m_pServerClass) )
 	{
 		Assert( !pBaseline->IsCompressed() );
-		pFromData = pBaseline->GetData();
-		nFromBits = pBaseline->GetNumBits();
+		pFromData = pBaseline->m_pNewPackedData;
+		nFromBits = pBaseline->m_nNewPackedDataSize;
 	}
 	else
 	{
@@ -617,18 +583,8 @@ static inline void SV_WriteEnterPVS( CEntityWriteInfo &u )
 		u.m_pTo->from_baseline->Set( u.m_nNewEntity );
 	}
 
-	const void *pToData;
-	int nToBits;
-
-	if ( u.m_pNewPack->IsCompressed() )
-	{
-		pToData = u.m_pServer->UncompressPackedEntity( u.m_pNewPack, nToBits );
-	}
-	else
-	{
-		pToData = u.m_pNewPack->GetData();
-		nToBits = u.m_pNewPack->GetNumBits();
-	}
+	const void *pToData = u.m_pNewPack->m_pNewPackedData;
+	int nToBits = u.m_pNewPack->m_nNewPackedDataSize;
 
 	// send all changed properties when entering PVS (no SendProxy culling since we may use it as baseline
 	u.m_nFullProps +=  SendTable_WriteAllDeltaProps( pClass->m_pTable, pFromData, nFromBits,

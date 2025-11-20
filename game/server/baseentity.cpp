@@ -303,6 +303,10 @@ IMPLEMENT_SERVERCLASS_ST_NOBASE( CBaseEntity, DT_BaseEntity )
 	SendPropInt		(SENDINFO(m_bSimulatedEveryTick),		1, SPROP_UNSIGNED ),
 	SendPropInt		(SENDINFO(m_bAnimatedEveryTick),		1, SPROP_UNSIGNED ),
 	SendPropBool( SENDINFO( m_bAlternateSorting )),
+	SendPropArray3( SENDINFO_ARRAY3(m_ftest), SendPropFloat( SENDINFO_ARRAY(m_ftest) ) ),
+	SendPropArray3( SENDINFO_ARRAY3(m_ntest), SendPropInt( SENDINFO_ARRAY(m_ntest) ) ),
+	SendPropArray3( SENDINFO_ARRAY3(m_btest), SendPropBool( SENDINFO_ARRAY(m_btest) ) ),
+	SendPropArray3( SENDINFO_ARRAY3(m_etest), SendPropEHandle( SENDINFO_ARRAY(m_etest) ) ),
 
 #ifdef TF_DLL
 	SendPropArray3( SENDINFO_ARRAY3(m_nModelIndexOverrides), SendPropInt( SENDINFO_ARRAY(m_nModelIndexOverrides), SP_MODEL_INDEX_BITS, 0 ) ),

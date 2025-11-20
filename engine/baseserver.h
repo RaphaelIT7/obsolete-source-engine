@@ -121,9 +121,6 @@ public: // IConnectionlessPacketHandler implementation
 	void	UpdateUserSettings(void);
 	void	SendPendingServerInfo(void);
 
-	const char	*CompressPackedEntity(ServerClass *pServerClass, const char *data, int &bits);
-	const char	*UncompressPackedEntity(PackedEntity *pPackedEntity, int &size);
-
 	INetworkStringTable *GetInstanceBaselineTable( void );
 	INetworkStringTable *GetLightStyleTable( void );
 	INetworkStringTable *GetUserInfoTable( void );

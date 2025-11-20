@@ -1644,6 +1644,11 @@ private:
 	CNetworkVar( bool, m_bAnimatedEveryTick );
 	CNetworkVar( bool, m_bAlternateSorting );
 
+	CNetworkArray( float, m_ftest, 32 );
+	CNetworkArray( int, m_ntest, 32 );
+	CNetworkArray( bool, m_btest, 32 );
+	CNetworkArray( EHANDLE, m_etest, 32 );
+
 	//Adrian
 	unsigned char					m_iTextureFrameIndex;
 

@@ -19,7 +19,7 @@
 typedef unsigned int CRC32_t;
 
 class CStandardSendProxies;
-
+class PackedEntity;
 
 #define MAX_DELTABITS_SIZE 2048
 
@@ -124,5 +124,7 @@ bool SendTable_WriteInfos( SendTable *pTable, bf_write *pBuf );
 // do all kinds of checks on a packed entity bitbuffer
 bool SendTable_CheckIntegrity( SendTable *pTable, const void *pData, const int nDataBits );
 
+// Fills the given PackedEntity with the snapshot data using the given CSendTablePrecalc & getting the offset data from the pEntity
+void SendProp_FillSnapshot( CSendTablePrecalc *pTable, PackedEntity* pPack, const void* pEntity );
 
 #endif // DATATABLE_SEND_ENG_H

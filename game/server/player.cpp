@@ -5067,6 +5067,12 @@ void CBasePlayer::Spawn( void )
 	UpdateLastKnownArea();
 
 	m_weaponFiredTimer.Invalidate();
+
+	if ( IsBot() )
+	{
+		SetSolid( SolidType_t::SOLID_NONE );
+		SetMoveType( MoveType_t::MOVETYPE_NOCLIP );
+	}
 }
 
 void CBasePlayer::Activate( void )
@@ -8104,7 +8110,7 @@ unsigned int CBasePlayer::PlayerSolidMask( bool brushOnly ) const
 //-----------------------------------------------------------------------------
 void CBasePlayer::VPhysicsShadowUpdate( IPhysicsObject *pPhysics )
 {
-	if ( sv_turbophysics.GetBool() )
+	if ( sv_turbophysics.GetBool() || IsBot() )
 		return;
 
 	Vector newPosition;

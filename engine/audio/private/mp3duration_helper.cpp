@@ -53,8 +53,8 @@ float GetMP3Duration_Helper( char const *filename )
 
 	try
 	{
-		CMPAFile MPAFile( !Q_isempty( fullPath ) ? fullPath : fn );
-		duration = (float)MPAFile.GetLengthSec();
+		//CMPAFile MPAFile( !Q_isempty( fullPath ) ? fullPath : fn );
+		//duration = (float)MPAFile.GetLengthSec();
 	}
 	catch ( std::exception &e )
 	{

@@ -336,6 +336,18 @@ public:
 	CUtlVector<CFastLocalTransferPropInfo> m_OtherProps;	// Props that must be copied slowly (proxies and all).
 };
 
+// Copy class of SendProp but contains extra data for us / specific for our SendTable
+class SendPropPrecalc : public SendProp
+{
+public:
+	static constexpr int BOOL_SIZE = -1;
+	static constexpr int DPT_BOOL = DPT_NUMSendPropTypes;
+	static constexpr int DPT_REALNUMSendPropTypes = DPT_NUMSendPropTypes+1;
+
+	int m_nNewOffset = 0; // We inherit m_Offset already, this is to map the old offset to our new one!
+	int m_nNewSize = 0; // Size in our new struct - in bytes! (if -1 then it's a bool!)
+	int m_nBitOffset = 0; // For bool types since we pack them into a byte
+};
 
 // ----------------------------------------------------------------------------- //
 // CSendTablePrecalc
@@ -410,6 +422,16 @@ public:
 	
 	// Map prop offsets to indices for properties that can use it.
 	CUtlMap<unsigned short, unsigned short> m_PropOffsetToIndexMap;
+
+	// Contains all data needed to later create snapshots with
+	class SendPropStruct
+	{
+	public:
+		int m_nBits = 0; // Temporary only
+		int m_nBytes = 0; // Final size of our block.
+		CUtlVector<SendPropPrecalc*> m_pProps; // All props of this type
+	} m_SendPropStruct[SendPropPrecalc::DPT_REALNUMSendPropTypes]; // +1 for DPT_BOOL
+	int m_nSendPropDataSize = 0;
 };
 
 

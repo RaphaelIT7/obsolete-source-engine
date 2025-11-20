@@ -1320,77 +1320,6 @@ void CBaseServer::SendPendingServerInfo()
 	}
 }
 
-// compresses a packed entity, returns data & bits
-const char *CBaseServer::CompressPackedEntity(ServerClass *pServerClass, const char *data, int &bits)
-{
-	ALIGN4 static char s_packedData[MAX_PACKEDENTITY_DATA] ALIGN4_POST;
-
-	bf_write writeBuf( "CompressPackedEntity", s_packedData, sizeof( s_packedData ) );
-
-	const void *pBaselineData = NULL;
-	intp nBaselineBits = 0;
-
-	Assert( pServerClass != NULL );
-		
-	GetClassBaseline( pServerClass, &pBaselineData, &nBaselineBits );
-	nBaselineBits *= 8;
-
-	Assert( pBaselineData != NULL );
-
-	SendTable_WriteAllDeltaProps(
-		pServerClass->m_pTable,
-		pBaselineData,
-		nBaselineBits,
-		data,
-		bits,
-		-1,
-		&writeBuf );
-	
-	//overwrite in bits with out bits
-	bits = writeBuf.GetNumBitsWritten();
-
-	return s_packedData;
-}
-
-// uncompresses a 
-const char* CBaseServer::UncompressPackedEntity(PackedEntity *pPackedEntity, int &bits)
-{
-	UnpackedDataCache_t *pdc = framesnapshotmanager->GetCachedUncompressedEntity( pPackedEntity );
-
-	if ( pdc->bits > 0 )
-	{
-		// found valid uncompressed version in cache
-		bits= pdc->bits;
-		return pdc->data;
-	}
-
-	// not in cache, so uncompress it
-
-	const void *pBaseline;
-	intp nBaselineBytes = 0;
-
-	GetClassBaseline( pPackedEntity->m_pServerClass, &pBaseline, &nBaselineBytes );
-
-	Assert( pBaseline != NULL );
-
-	// store this baseline in u.m_pUpdateBaselines
-	bf_read oldBuf( "UncompressPackedEntity1", pBaseline, nBaselineBytes );
-	bf_read newBuf( "UncompressPackedEntity2", pPackedEntity->GetData(), Bits2Bytes(pPackedEntity->GetNumBits()) );
-	bf_write outBuf( "UncompressPackedEntity3", pdc->data, MAX_PACKEDENTITY_DATA );
-
-	Assert( pPackedEntity->m_pClientClass );
-
-	RecvTable_MergeDeltas( 
-		pPackedEntity->m_pClientClass->m_pRecvTable,
-		&oldBuf,
-		&newBuf,
-		&outBuf );
-
-	bits = pdc->bits = outBuf.GetNumBitsWritten();
-		
-	return pdc->data;
-}
-
 /*
 ================
 SV_CheckProtocol
@@ -2031,6 +1960,16 @@ void CBaseServer::SendClientMessages ( bool bSendSnapshots )
 	}
 }
 
+CON_COMMAND(sv_fillwithfakebots, "Funny" )
+{
+	for (int i=1; i<=sv.GetMaxClients(); ++i)
+	{
+		CBaseClient* pClient = sv.CreateFakeClient("BOT");
+		// pClient->m_nEntityIndex = 1;
+		// pClient->m_nClientSlot = 0;
+	}
+  }
+
 CBaseClient *CBaseServer::CreateFakeClient( const char *name )
 {
 	netadr_t adr; // it's an empty address
@@ -2044,7 +1983,7 @@ CBaseClient *CBaseServer::CreateFakeClient( const char *name )
 	}
 
 	INetChannel *netchan = NULL;
-	if ( sv_stressbots.GetBool() )
+	// if ( sv_stressbots.GetBool() )
 	{
 		netadr_t adrNull( 0, 0 ); // 0.0.0.0:0 signifies a bot. It'll plumb all the way down to winsock calls but it won't make them.
 		netchan = NET_CreateNetChannel( m_Socket, &adrNull, adrNull.ToString(), fakeclient, true );
@@ -2085,6 +2024,7 @@ CBaseClient *CBaseServer::CreateFakeClient( const char *name )
 
 	// create client in game.dll
 	fakeclient->ActivatePlayer();
+	fakeclient->m_bFakePlayer = true;
 
 	fakeclient->m_nSignonTick = m_nTickCount;
 			

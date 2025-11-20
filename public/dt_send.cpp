@@ -568,6 +568,7 @@ SendProp SendPropString(
 	
 	ret.m_Type = DPT_String;
 	ret.m_pVarName = pVarName;
+	ret.m_nBits = bufferLen * 8;
 	ret.SetOffset( offset );
 	ret.SetFlags( flags );
 	ret.SetProxyFn( varProxy );

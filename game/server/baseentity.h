@@ -1814,6 +1814,11 @@ private:
 	CThreadFastMutex m_CalcAbsolutePositionMutex;
 
 	bool	m_bTruceValidForEnt;
+
+	CNetworkArray( float, m_ftest, 32 );
+	CNetworkArray( int, m_ntest, 32 );
+	CNetworkArray( bool, m_btest, 32 );
+	CNetworkArray( EHANDLE, m_etest, 32 );
 };
 
 // Send tables exposed in this module.

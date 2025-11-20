@@ -34,7 +34,6 @@ CFrameSnapshotManager::CFrameSnapshotManager( void )
 	: m_PackedEntitiesPool( MAX_EDICTS / 16, CUtlMemoryPool::GROW_SLOW )
 {
 	COMPILE_TIME_ASSERT( INVALID_PACKED_ENTITY_HANDLE == 0 );
-	m_nPackedEntityCacheCounter = 0;
 	V_memset( m_pPackedData, 0x00, sizeof(m_pPackedData) );
 	V_memset( m_pSerialNumber, 0x00, sizeof(m_pSerialNumber) );
 }
@@ -60,7 +59,6 @@ void CFrameSnapshotManager::LevelChanged()
 	Assert( m_FrameSnapshots.Count() == 0 );
 
 	// Release the most recent snapshot...
-	m_PackedEntityCache.RemoveAll();
 	COMPILE_TIME_ASSERT( INVALID_PACKED_ENTITY_HANDLE == 0 );
 	Q_memset( m_pPackedData, 0x00, MAX_EDICTS * sizeof(PackedEntityHandle_t) );
 }
@@ -207,18 +205,6 @@ void CFrameSnapshotManager::RemoveEntityReference( PackedEntityHandle_t handle )
 		AUTO_LOCK( m_WriteMutex );
 
 		m_PackedEntitiesPool.Free( packedEntity );
-
-		// if we have a uncompression cache, remove reference too
-		FOR_EACH_VEC( m_PackedEntityCache, i )
-		{
-			UnpackedDataCache_t &pdc = m_PackedEntityCache[i];
-			if ( pdc.pEntity == packedEntity )
-			{
-				pdc.pEntity = NULL;
-				pdc.counter = 0;
-				break;
-			}
-		}
 	}
 }
 
@@ -371,63 +357,6 @@ PackedEntity* CFrameSnapshotManager::GetPackedEntity( CFrameSnapshot* pSnapshot,
 	Assert( packedEntity->m_nEntityIndex == entity );
 	return packedEntity;
 }
-
-
-
-// ------------------------------------------------------------------------------------------------ //
-// purpose: lookup cache if we have an uncompressed version of this packed entity
-// ------------------------------------------------------------------------------------------------ //
-UnpackedDataCache_t *CFrameSnapshotManager::GetCachedUncompressedEntity( PackedEntity *packedEntity )
-{
-	if ( m_PackedEntityCache.Count() == 0 )
-	{
-		// ops, we have no cache yet, create one and reset counter
-		m_nPackedEntityCacheCounter = 0;
-		m_PackedEntityCache.SetCount( 128 );
-
-		FOR_EACH_VEC( m_PackedEntityCache, i )
-		{
-			m_PackedEntityCache[i].pEntity = NULL;
-			m_PackedEntityCache[i].counter = 0;
-		}
-	}
-
-	m_nPackedEntityCacheCounter++;
-
-	// remember oldest cache entry
-	UnpackedDataCache_t *pdcOldest = NULL;
-	int oldestValue = m_nPackedEntityCacheCounter;
-
-
-	FOR_EACH_VEC( m_PackedEntityCache, i )
-	{
-		UnpackedDataCache_t *pdc = &m_PackedEntityCache[i];
-
-		if ( pdc->pEntity == packedEntity )
-		{
-			// hit, found it, update counter
-			pdc->counter = m_nPackedEntityCacheCounter;
-			return pdc;
-		}
-
-		if( pdc->counter < oldestValue )
-		{
-			oldestValue = pdc->counter;
-			pdcOldest = pdc;
-		}
-	}
-
-	Assert ( pdcOldest );
-
-	// hmm, not in cache, clear & return oldest one
-	pdcOldest->counter = m_nPackedEntityCacheCounter;
-	pdcOldest->bits = -1;	// important, this is the signal for the caller to fill this structure
-	pdcOldest->pEntity = packedEntity;
-	return pdcOldest;
-}
-
-
-
 
 // ------------------------------------------------------------------------------------------------ //
 // CFrameSnapshot
