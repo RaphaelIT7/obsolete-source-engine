@@ -1707,6 +1707,48 @@ void CBaseClientState::CopyEntityBaseline( int iFrom, int iTo )
 	}
 }
 
+bool CBaseClientState::GetClassBaseline( int iClass, void const **pData, intp *pDatalen )
+{
+	ErrorIfNot( 
+		iClass >= 0 && iClass < m_nServerClasses, 
+		("GetDynamicBaseline: invalid class index '%d'", iClass) );
+
+	// We lazily update these because if you connect to a server that's already got some dynamic baselines,
+	// you'll get the baselines BEFORE you get the class descriptions.
+	C_ServerClassInfo *pInfo = &m_pServerClasses[iClass];
+
+	INetworkStringTable *pBaselineTable = GetStringTable( INSTANCE_BASELINE_TABLENAME );
+
+	ErrorIfNot( pBaselineTable != NULL,	("GetDynamicBaseline: NULL baseline table" ) );
+
+	if ( pInfo->m_InstanceBaselineIndex == INVALID_STRING_INDEX )
+	{
+		// The key is the class index string.
+		char str[16];
+		V_to_chars( str, iClass );
+
+		pInfo->m_InstanceBaselineIndex = pBaselineTable->FindStringIndex( str );
+
+		if ( pInfo->m_InstanceBaselineIndex == INVALID_STRING_INDEX )
+		{
+			for (int i = 0; i < pBaselineTable->GetNumStrings(); ++i )
+			{
+				DevMsg( "%i: %s\n", i, pBaselineTable->GetString( i ) );
+			}
+
+			// Gets a callstack, whereas ErrorIfNot(), does not.
+			Assert( 0 );
+		}
+		ErrorIfNot( 
+			pInfo->m_InstanceBaselineIndex != INVALID_STRING_INDEX,
+			("GetDynamicBaseline: FindStringIndex(%s-%s) failed.", str, pInfo->m_ClassName );
+			);
+	}
+	*pData = pBaselineTable->GetStringUserData( pInfo->m_InstanceBaselineIndex,	pDatalen );
+
+	return *pData != NULL;
+}
+
 ClientClass *CBaseClientState::GetClientClass( int index )
 {
 	Assert( index < m_nServerClasses );

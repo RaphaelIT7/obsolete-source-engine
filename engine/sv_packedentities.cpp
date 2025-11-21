@@ -128,6 +128,8 @@ static inline void SV_PackEntity(
 	pPackedEntity->SetPackedData( pSendTablePrecalc->m_nSendPropDataSize);
 
 	SendProp_FillSnapshot( pSendTablePrecalc, pPackedEntity, edict->GetUnknown() );
+
+	SV_EnsureInstanceBaseline( pServerClass, edictIdx, pPackedEntity->GetData(), pPackedEntity->GetNumBytes() );
 	
 	for (int i=0; i<200; ++i) // Performance testing
 	{

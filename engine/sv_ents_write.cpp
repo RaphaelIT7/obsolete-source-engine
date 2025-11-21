@@ -258,8 +258,8 @@ static inline void SV_WritePropsFromPackedEntity(
 		}
 	}
 
-	const void *pToData = pTo->m_pNewPackedData;
-	int nToBits = pTo->m_nNewPackedDataSize;
+	const void *pToData = pTo->GetData();
+	int nToBits = pTo->GetNumBits();
 
 	Assert( pToData != NULL );
 
@@ -445,11 +445,11 @@ static inline void SV_DetermineUpdateType( CEntityWriteInfo &u )
 	const void *pOldData, *pNewData;
 	int nOldBits, nNewBits;
 
-	pOldData = u.m_pOldPack->m_pNewPackedData;
-	nOldBits = u.m_pOldPack->m_nNewPackedDataSize;
+	pOldData = u.m_pOldPack->GetData();
+	nOldBits = u.m_pOldPack->GetNumBits();
 
-	pNewData = u.m_pNewPack->m_pNewPackedData;
-	nNewBits = u.m_pNewPack->m_nNewPackedDataSize;
+	pNewData = u.m_pNewPack->GetData();
+	nNewBits = u.m_pNewPack->GetNumBits();
 
 	int checkProps[MAX_DATATABLE_PROPS];
 	int nCheckProps = SendTable_CalcDelta(
@@ -556,8 +556,8 @@ static inline void SV_WriteEnterPVS( CEntityWriteInfo &u )
 	if ( pBaseline && (pBaseline->m_pServerClass == u.m_pNewPack->m_pServerClass) )
 	{
 		Assert( !pBaseline->IsCompressed() );
-		pFromData = pBaseline->m_pNewPackedData;
-		nFromBits = pBaseline->m_nNewPackedDataSize;
+		pFromData = pBaseline->GetData();
+		nFromBits = pBaseline->GetNumBits();
 	}
 	else
 	{
@@ -583,8 +583,8 @@ static inline void SV_WriteEnterPVS( CEntityWriteInfo &u )
 		u.m_pTo->from_baseline->Set( u.m_nNewEntity );
 	}
 
-	const void *pToData = u.m_pNewPack->m_pNewPackedData;
-	int nToBits = u.m_pNewPack->m_nNewPackedDataSize;
+	const void *pToData = u.m_pNewPack->GetData();
+	int nToBits = u.m_pNewPack->GetNumBits();
 
 	// send all changed properties when entering PVS (no SendProxy culling since we may use it as baseline
 	u.m_nFullProps +=  SendTable_WriteAllDeltaProps( pClass->m_pTable, pFromData, nFromBits,
@@ -835,7 +835,7 @@ void CBaseServer::WriteDeltaEntities( CBaseClient *client, CClientFrame *to, CCl
 			intp nEntityStartBit = pBuf.GetNumBitsWritten();
 
 			// Figure out how we want to write this entity.
-			SV_DetermineUpdateType( u  );
+			SV_DetermineUpdateType( u );
 			SV_WriteEntityUpdate( u );
 
 			if ( !bIsTracing )

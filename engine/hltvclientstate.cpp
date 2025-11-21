@@ -102,12 +102,16 @@ void CHLTVClientState::CopyNewEntity(
 	if ( baseline && baseline->m_pClientClass == pClientClass )
 	{
 		Assert( !baseline->IsCompressed() );
-		pFromData = baseline->m_pNewPackedData;
-		nFromBits = baseline->m_nNewPackedDataSize;
+		pFromData = baseline->GetData();
+		nFromBits = baseline->GetNumBits();
 	}
 	else
 	{
-		Warning("Were cooked...\n"); // ToDo: Finish this
+		// Every entity must have a static or an instance baseline when we get here.
+		ErrorIfNot(
+			GetClassBaseline( iClass, &pFromData, &nFromBits ),
+			("HLTV_CopyNewEntity: GetDynamicBaseline(%d) failed.", iClass)
+		);
 
 		nFromBits *= 8; // convert to bits
 	}
@@ -721,8 +725,8 @@ void CHLTVClientState::ReadDeltaEnt( CEntityReadInfo &u )
 
 	// Make space for the baseline data.
 	ALIGN4 char packedData[MAX_PACKEDENTITY_DATA] ALIGN4_POST;
-	const void *pFromData = pFromPackedEntity->m_pNewPackedData;
-	int nFromBits = pFromPackedEntity->m_nNewPackedDataSize;
+	const void *pFromData = pFromPackedEntity->GetData();
+	int nFromBits = pFromPackedEntity->GetNumBits();
 
 	bf_read fromBuf( "HLTV_ReadEnterPVS1", pFromData, Bits2Bytes( nFromBits ), nFromBits );
 	bf_write writeBuf( "HLTV_ReadEnterPVS2", packedData, sizeof( packedData ) );

@@ -57,11 +57,21 @@ public:
 	PackedEntity();
 	~PackedEntity();
 	
+	int			GetNumBits() const;
+	int			GetNumBytes() const;
+
+	// Access the data in the entity.
+	void*		GetData();
+	void		FreeData();
+
+	// Copy the data into the PackedEntity's data and make sure the # bytes allocated is
+	// an integer multiple of 4.
+	bool		AllocAndCopyPadded( const void *pData, intp size );
 
 	void SetPackedData( int nSize )
 	{
-		m_nNewPackedDataSize = nSize;
-		m_pNewPackedData = malloc( nSize );
+		m_nBytes = nSize;
+		m_pData = malloc( nSize );
 	};
 
 	void				SetSnapshotCreationTick( int nTick );
@@ -79,14 +89,29 @@ public:
 	int			m_nEntityIndex;		// Entity index.
 	int			m_ReferenceCount;	// reference count;
 
-	int					m_nNewPackedDataSize;
-	void				*m_pNewPackedData;
+	int					m_nBytes;
+	void				*m_pData;
 
 private:
 	// This is the tick this PackedEntity was created on
 	unsigned int		m_nSnapshotCreationTick : 31;
 	unsigned int		m_nShouldCheckCreationTick : 1;
 };
+
+inline int PackedEntity::GetNumBits() const
+{
+	return m_nBytes * 8;
+}
+
+inline int PackedEntity::GetNumBytes() const
+{
+	return m_nBytes; 
+}
+
+inline void* PackedEntity::GetData()
+{
+	return m_pData;
+}
 
 inline void PackedEntity::SetSnapshotCreationTick( int nTick )
 {
@@ -106,6 +131,15 @@ inline void PackedEntity::SetShouldCheckCreationTick( bool bState )
 inline bool PackedEntity::ShouldCheckCreationTick() const
 {
 	return m_nShouldCheckCreationTick == 1 ? true : false;
+}
+
+inline void PackedEntity::FreeData()
+{
+	if ( m_pData )
+	{
+		free(m_pData);
+		m_pData = NULL;
+	}
 }
 
 #include "memdbgoff.h"

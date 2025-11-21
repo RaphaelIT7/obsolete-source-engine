@@ -33,16 +33,13 @@ PackedEntity::PackedEntity()
 	m_nSnapshotCreationTick = 0;
 	m_nShouldCheckCreationTick = 0;
 
-	m_nNewPackedDataSize = 0;
-	m_pNewPackedData = nullptr;
+	m_pData = nullptr;
+	m_nBytes = -1;
 }
 
 PackedEntity::~PackedEntity()
 {
-	if (m_pNewPackedData)
-	{
-		free(m_pNewPackedData);
-	}
+	FreeData();
 }
 
 void PackedEntity::SetServerAndClientClass( ServerClass *pServerClass, ClientClass *pClientClass )
@@ -54,4 +51,24 @@ void PackedEntity::SetServerAndClientClass( ServerClass *pServerClass, ClientCla
 		Assert( pServerClass->m_pTable );
 		SetShouldCheckCreationTick( pServerClass->m_pTable->HasPropsEncodedAgainstTickCount() );
 	}
+}
+
+bool PackedEntity::AllocAndCopyPadded( const void *pData, intp size )
+{
+	FreeData();
+	
+	m_nBytes = PAD_NUMBER( size, 4 );
+
+	// allocate the memory
+	m_pData = malloc( m_nBytes );
+
+	if ( !m_pData )
+	{
+		Assert( m_pData );
+		return false;
+	}
+	
+	Q_memcpy( m_pData, pData, size );
+	
+	return true;
 }

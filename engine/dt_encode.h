@@ -15,7 +15,7 @@
 #include "dt_send.h"
 #include "dt_recv.h"
 
-
+class SendPropPrecalc;
 class DecodeInfo : public CRecvProxyData
 {
 public:

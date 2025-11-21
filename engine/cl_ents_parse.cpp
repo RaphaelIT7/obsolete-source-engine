@@ -355,18 +355,17 @@ void CL_CopyNewEntity(
 	if ( baseline && baseline->m_pClientClass == pClass )
 	{
 		Assert( !baseline->IsCompressed() );
-		pFromData = baseline->m_pNewPackedData; //baseline->GetData();
-		nFromBits = baseline->m_nNewPackedDataSize * 8; //baseline->GetNumBits();
+		pFromData = baseline->GetData();
+		nFromBits = baseline->GetNumBits();
 	}
 	else
 	{
 		// Every entity must have a static or an instance baseline when we get here.
-		//ErrorIfNot(
-		//	cl.GetClassBaseline( iClass, &pFromData, &nFromBits ),
-		//	("CL_CopyNewEntity: GetClassBaseline(%d) failed.", iClass)
-		//);
-		Warning("SHIT\n");
-		
+		ErrorIfNot(
+			cl.GetClassBaseline( iClass, &pFromData, &nFromBits ),
+			("CL_CopyNewEntity: GetClassBaseline(%d) failed.", iClass)
+		);
+
 		nFromBits *= 8; // convert to bits
 	}
 

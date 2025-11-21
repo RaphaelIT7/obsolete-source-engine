@@ -1044,25 +1044,25 @@ bool SendTable_CheckIntegrity( SendTable *pTable, const void *pData, const int n
 void SendProp_FillSnapshot( CSendTablePrecalc *pTable, PackedEntity* pPack, const void* pEntity )
 {
 	int nCurrentByte = 0;
-	for (int nDPTType = 0; nDPTType < CSendTablePrecalc::SendPropPrecalc::DPT_REALNUMSendPropTypes; ++nDPTType)
+	for (int nDPTType = 0; nDPTType < SendPropPrecalc::DPT_REALNUMSendPropTypes; ++nDPTType)
 	{
 		const CSendTablePrecalc::SendPropStruct& pStruct = pTable->m_SendPropStruct[nDPTType];
 
-		if (nDPTType ==  CSendTablePrecalc::SendPropPrecalc::DPT_BOOL)
+		if (nDPTType ==  SendPropPrecalc::DPT_BOOL)
 		{
 			FOR_EACH_VEC( pStruct.m_pProps, i )
 			{
-				const CSendTablePrecalc::SendPropPrecalc* pProp = pStruct.m_pProps[i];
+				const SendPropPrecalc* pProp = pStruct.m_pProps[i];
 				bool* pVar = (bool*)((char*)pEntity + pProp->GetOffset());
-				*((uint8*)((char*)pPack->m_pNewPackedData + nCurrentByte + pProp->m_nNewOffset)) |= (*pVar ? 1 : 0) << pProp->m_nBitOffset;
+				*((uint8*)((char*)pPack->GetData() + nCurrentByte + pProp->m_nNewOffset)) |= (*pVar ? 1 : 0) << pProp->m_nBitOffset;
 			}
 
 			nCurrentByte += pStruct.m_nBytes;
 		} else {
 			FOR_EACH_VEC( pStruct.m_pProps, i )
 			{
-				const CSendTablePrecalc::SendPropPrecalc* pProp = pStruct.m_pProps[i];
-				memcpy((char*)pPack->m_pNewPackedData + nCurrentByte, (char*)pEntity + pProp->GetOffset(), pProp->m_nNewSize);
+				const SendPropPrecalc* pProp = pStruct.m_pProps[i];
+				memcpy((char*)pPack->GetData() + nCurrentByte, (char*)pEntity + pProp->GetOffset(), pProp->m_nNewSize);
 				nCurrentByte += pProp->m_nNewSize;
 			}
 		}

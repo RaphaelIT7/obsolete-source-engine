@@ -16,7 +16,8 @@
 
 class CFrameSnapshot;
 
-#define MAX_CLIENT_FRAMES	128
+// RaphaelIT7: I don't think we need to know more than 64... right? iirc only 20 snapshots per second are networked anyways
+#define MAX_CLIENT_FRAMES	64
 
 class CClientFrame
 {
