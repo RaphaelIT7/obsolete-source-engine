@@ -2097,6 +2097,13 @@ void CServerGameDLL::LoadSpecificMOTDMsg( const ConVar &convar, const char *pszS
 #endif
 }
 
+datamap_t* datamap_t::g_pHeadDataMap = nullptr;
+datamap_t* datamap_t::g_pCurrentDataMap = nullptr;
+datamap_t* CServerGameDLL::GetAllDataMaps()
+{
+	return datamap_t::g_pHeadDataMap;
+}
+
 // keeps track of which chapters the user has unlocked
 ConVar sv_unlockedchapters( "sv_unlockedchapters", "1", FCVAR_ARCHIVE );
 
