@@ -140,9 +140,6 @@ enum SoundFlags_t
 
 #define SND_FLAG_BITS_ENCODE 11
 
-#define MAX_SOUND_INDEX_BITS	14
-#define	MAX_SOUNDS				(1<<MAX_SOUND_INDEX_BITS)
-
 #if !defined( IN_XBOX_CODELINE )
 // +/-4096 msec
 #define MAX_SOUND_DELAY_MSEC_ENCODE_BITS	(13)

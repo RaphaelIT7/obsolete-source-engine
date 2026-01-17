@@ -44,6 +44,7 @@
 #include "matchmaking.h"
 #include "server.h"
 #include "eiface.h"
+#include "stringtable_bits.h"
 
 #include "tier0/platform.h"
 #include "tier0/systeminformation.h"
@@ -400,29 +401,47 @@ bool CClientState::HookClientStringTable( char const *tableName )
 	const char *szDecalPrecacheTablename = DECAL_PRECACHE_TABLENAME;
 #endif
 
+	// Sets up g_nMaxModelIndexBits and such.
+	CL_SetupNetworkStringTableBits( m_StringTableContainer, tableName );
+
 	// Hook Model Precache table
 	if ( V_strieq( tableName, szModelPrecacheTablename ) )
 	{
+		if ( model_precache )
+			delete[] model_precache;
+
+		model_precache = new CPrecacheItem[ g_nMaxModels ];
 		m_pModelPrecacheTable = table;
 		return true;
 	}
 
 	if ( V_strieq( tableName, szGenericPrecacheTablename ) )
 	{
+		if ( generic_precache )
+			delete[] generic_precache;
+
+		generic_precache = new CPrecacheItem[ g_nMaxGenerics ];
 		m_pGenericPrecacheTable = table;
 		return true;
 	}
 
 	if ( V_strieq( tableName, szSoundPrecacheTablename ) )
 	{
+		if ( sound_precache )
+			delete[] sound_precache;
+
+		sound_precache = new CPrecacheItem[ g_nMaxSounds ];
 		m_pSoundPrecacheTable = table;
 		return true;
 	}
 
 	if ( V_strieq( tableName, szDecalPrecacheTablename ) )
 	{
-		// Cache the id
-		m_pDecalPrecacheTable = table;
+		if ( decal_precache )
+			delete[] decal_precache;
+
+		decal_precache = new CPrecacheItem[ g_nMaxPrecacheDecals ];
+		m_pDecalPrecacheTable = table; // Cache the id
 		return true;
 	}
 
@@ -687,8 +706,30 @@ void CClientState::Clear( void )
 	addangletotal = 0.0f;
 	prevaddangletotal = 0.0f;
 
-	memset(model_precache, 0, sizeof(model_precache));
-	memset(sound_precache, 0, sizeof(sound_precache));
+	if ( model_precache )
+	{
+		delete[] model_precache;
+		model_precache = NULL;
+	}
+
+	if ( generic_precache )
+	{
+		delete[] generic_precache;
+		generic_precache = NULL;
+	}
+
+	if ( sound_precache )
+	{
+		delete[] sound_precache;
+		sound_precache = NULL;
+	}
+
+	if ( decal_precache )
+	{
+		delete[] decal_precache;
+		decal_precache = NULL;
+	}
+
 	ishltv = false;
 #if defined( REPLAY_ENABLED )
 	isreplay = false;
@@ -709,8 +750,7 @@ void CClientState::Clear( void )
 
 void CClientState::ClearSounds()
 {
-	int c = ARRAYSIZE( sound_precache );
-	for ( int i = 0; i < c; ++i )
+	for ( int i = 0; i < g_nMaxSounds; ++i )
 	{
 		sound_precache[ i ].SetSound( NULL );
 	}

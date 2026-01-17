@@ -18,16 +18,6 @@
 
 #define	ON_EPSILON		0.1			// point on plane side epsilon
 
-
-// Resource counts;
-constexpr inline int MAX_MODEL_INDEX_BITS{12};   // sent as a short
-constexpr inline int MAX_MODELS{1 << MAX_MODEL_INDEX_BITS};
-
-constexpr inline int MAX_GENERIC_INDEX_BITS{9};
-constexpr inline int MAX_GENERIC{1 << MAX_GENERIC_INDEX_BITS};
-constexpr inline int MAX_DECAL_INDEX_BITS{9};
-constexpr inline int MAX_BASE_DECALS{1 << MAX_DECAL_INDEX_BITS};
-
 // Base width and height for display.
 constexpr inline int BASE_WIDTH{640};
 constexpr inline int BASE_HEIGHT{480};

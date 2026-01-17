@@ -1223,6 +1223,12 @@ $Project
 		$File	"game_controls\IconPanel.h"
 	}
 
+	$Folder	"Common"
+	{
+		$File	"$SRCDIR\common\stringtable_bits.h"
+		$File	"$SRCDIR\common\stringtable_bits.cpp"
+	}
+
 	$Folder "Debugger Visualizers" [$WINDOWS]
 	{
 		$File	"client_base.natvis"
