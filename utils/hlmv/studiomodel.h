@@ -327,7 +327,7 @@ public:
 private:
 	// dimhotepus: make const reference and const.
 	const mstudioanimdesc_t			&GetAnimDesc( int anim ) const;
-	mstudioanim_t					*GetAnim( int anim );
+	mstudio_rle_anim_t					*GetAnim( int anim );
 
 	void							DrawPhysmesh( CPhysmesh *pMesh, int boneIndex, IMaterial *pMaterial, float *color );
 	void							DrawPhysConvex( CPhysmesh *pMesh, IMaterial *pMaterial );
