@@ -152,13 +152,14 @@ public:
 	bool		IsHibernating() const;
 	void		UpdateHibernationState();
 
+public: // It's public in CClientState, so this should also be public :D
+	CPrecacheItem	*model_precache;
+	CPrecacheItem	*generic_precache;
+	CPrecacheItem	*sound_precache;
+	CPrecacheItem	*decal_precache;
+
 private:
 	void		SetHibernating( bool bHibernating );
-
-	CPrecacheItem	model_precache[ MAX_MODELS ];
-	CPrecacheItem	generic_precache[ MAX_GENERIC ];
-	CPrecacheItem	sound_precache[ MAX_SOUNDS ];
-	CPrecacheItem	decal_precache[ MAX_BASE_DECALS ];
 
 	INetworkStringTable *m_pModelPrecacheTable;	
 	INetworkStringTable *m_pSoundPrecacheTable;

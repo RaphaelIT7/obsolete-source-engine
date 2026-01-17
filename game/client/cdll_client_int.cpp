@@ -161,6 +161,8 @@ extern vgui::IInputInternal *g_InputInternal;
 #include "sixense/in_sixense.h"
 #endif
 
+#include <stringtable_bits.h>
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -1958,6 +1960,8 @@ void CHLClient::InstallStringTableCallback( const char *tableName )
 	}
 #endif
 
+
+	CL_SetupNetworkStringTableBits( networkstringtable, tableName );
 	InstallStringTableCallback_GameRules();
 }
 

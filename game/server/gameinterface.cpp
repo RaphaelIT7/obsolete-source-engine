@@ -91,6 +91,7 @@
 #include "serverbenchmark_base.h"
 #include "querycache.h"
 
+#include "stringtable_bits.h"
 
 #ifdef TF_DLL
 #include "gc_clientsystem.h"
@@ -1473,6 +1474,8 @@ void CServerGameDLL::CreateNetworkStringTables( void )
 
 	// Set up save/load utilities for string tables
 	g_VguiScreenStringOps.Init( g_pStringTableVguiScreen );
+
+	SV_SetupNetworkStringTableBits(); // Allow server.dll to use g_nMaxModels and such. (g_nMaxSoundIndexBits used by soundinfo.h)
 }
 
 CSaveRestoreData *CServerGameDLL::SaveInit( int size )

@@ -448,6 +448,7 @@ $Project "engine"
 		$File	"vgui_askconnectpanel.cpp" [!$DEDICATED]
 		$File	"xboxsystem.cpp" [!$DEDICATED]
 		$File	"$SRCDIR\common\SourceAppInfo.cpp"
+		$File	"$SRCDIR\common\stringtable_bits.cpp"
 	}
 
 	$Folder "Self Tests"
@@ -925,6 +926,7 @@ $Project "engine"
 		$File	"cl_demouipanel.h"
 		$File	"cl_foguipanel.h"
 		$File	"cl_txviewpanel.h"
+		$File	"$SRCDIR\common\stringtable_bits.h"
 	}
 
 	$Folder	"Resource Files" [$WINDOWS]

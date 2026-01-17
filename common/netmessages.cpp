@@ -14,6 +14,7 @@
 #include "../engine/dt.h"
 #include "tier0/vprof.h"
 #include "convar.h"
+#include "stringtable_bits.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -812,7 +813,7 @@ bool SVC_BSPDecal::WriteToBuffer( bf_write &buffer )
 {
 	buffer.WriteUBitLong( GetType(), NETMSG_TYPE_BITS );
 	buffer.WriteBitVec3Coord( m_Pos );
-	buffer.WriteUBitLong( m_nDecalTextureIndex, MAX_DECAL_INDEX_BITS );
+	buffer.WriteUBitLong( m_nDecalTextureIndex, g_nMaxDecalIndexBits );
 
 	if ( m_nEntityIndex != 0)
 	{
@@ -834,7 +835,7 @@ bool SVC_BSPDecal::ReadFromBuffer( bf_read &buffer )
 	VPROF( "SVC_BSPDecal::ReadFromBuffer" );
 
 	buffer.ReadBitVec3Coord( m_Pos );
-	m_nDecalTextureIndex = buffer.ReadUBitLong( MAX_DECAL_INDEX_BITS );
+	m_nDecalTextureIndex = buffer.ReadUBitLong( g_nMaxDecalIndexBits );
 
 	if ( buffer.ReadOneBit() != 0 )
 	{
@@ -1251,9 +1252,8 @@ bool SVC_CreateStringTable::WriteToBuffer( bf_write &buffer )
 	*/
 
 	buffer.WriteString( m_szTableName );
-	buffer.WriteWord( m_nMaxEntries );
-	int encodeBits = Q_log2( m_nMaxEntries );
-	buffer.WriteUBitLong( m_nNumEntries, encodeBits+1 );
+	buffer.WriteUBitLong( m_nEntryBits, 5 ); // 5 bits because more than 30 bits already hit the integer limit.
+	buffer.WriteUBitLong( m_nNumEntries, m_nEntryBits+1 ); // +1 because m_nNumEntries might go over 1 << m_nEntryBits by 1 entry.
 	buffer.WriteVarInt32( m_nLength ); // length in bits
 
 	buffer.WriteOneBit( m_bUserDataFixedSize ? 1 : 0 );
@@ -1286,9 +1286,8 @@ bool SVC_CreateStringTable::ReadFromBuffer( bf_read &buffer )
 
 	m_szTableName = m_szTableNameBuffer;
 	buffer.ReadString( m_szTableNameBuffer );
-	m_nMaxEntries = buffer.ReadWord();
-	int encodeBits = Q_log2( m_nMaxEntries );
-	m_nNumEntries = buffer.ReadUBitLong( encodeBits+1 );
+	m_nEntryBits = buffer.ReadUBitLong( 5 );
+	m_nNumEntries = buffer.ReadUBitLong( m_nEntryBits+1 );
 	if ( m_NetChannel->GetProtocolVersion() > PROTOCOL_VERSION_23 )
 		m_nLength = buffer.ReadVarInt32();
 	else
@@ -1386,7 +1385,7 @@ bool SVC_Prefetch::WriteToBuffer( bf_write &buffer )
 
 	// Don't write type until we have more thanone
 	// buffer.WriteUBitLong( m_fType, 1 );
-	buffer.WriteUBitLong( m_nSoundIndex, MAX_SOUND_INDEX_BITS );
+	buffer.WriteUBitLong( m_nSoundIndex, g_nMaxSoundIndexBits );
 	return !buffer.IsOverflowed();
 }
 
@@ -1397,7 +1396,7 @@ bool SVC_Prefetch::ReadFromBuffer( bf_read &buffer )
 	m_fType = SOUND; // buffer.ReadUBitLong( 1 );
 	if( m_pMessageHandler->GetDemoProtocolVersion() > 22 )
 	{
-		m_nSoundIndex = buffer.ReadUBitLong( MAX_SOUND_INDEX_BITS );
+		m_nSoundIndex = buffer.ReadUBitLong( g_nMaxSoundIndexBits );
 	}
 	else
 	{
