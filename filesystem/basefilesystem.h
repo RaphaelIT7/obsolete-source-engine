@@ -579,7 +579,7 @@ public:
 			{
 				{
 					// Copy paths to minimize mutex lock time
-					AUTO_LOCK( pFileSystem->m_SearchPathsMutex );
+					AUTO_LOCK_READ( pFileSystem->m_SearchPathsMutex );
 					CopySearchPaths( pFileSystem->m_SearchPaths );
 				}
 
@@ -611,7 +611,7 @@ public:
 
 			{
 				// Copy paths to minimize mutex lock time
-				AUTO_LOCK( pFileSystem->m_SearchPathsMutex );
+				AUTO_LOCK_READ( pFileSystem->m_SearchPathsMutex );
 				CopySearchPaths( pFileSystem->m_SearchPaths );
 			}
 

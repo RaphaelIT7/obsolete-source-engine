@@ -1225,7 +1225,7 @@ const char *SVC_UpdateStringTable::ToString() const
 SVC_CreateStringTable::SVC_CreateStringTable()
     : m_pMessageHandler{nullptr},
 	m_szTableName{nullptr},
-	m_nMaxEntries{-1},
+	m_nEntryBits{-1},
 	m_nNumEntries{-1},
 	m_bUserDataFixedSize{false},
 	m_nUserDataSize{-1},
