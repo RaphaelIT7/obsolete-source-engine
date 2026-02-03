@@ -1190,6 +1190,9 @@ bool NET_GetLong( const intp sock, netpacket_t *packet )
 	// Low byte is number of total packets
 	const int packetCount		= ( packetID & 0xff );
 
+	// RaphaelIT7: If it somehow becomes negative- expect crashes.
+	Assert( packetNumber >= 0 );
+
 	int nSplitSizeMinusHeader = (int)LittleShort( (short)pHeader->nSplitSize );
 	if ( nSplitSizeMinusHeader < MIN_SPLIT_SIZE ||
 		 nSplitSizeMinusHeader > MAX_SPLIT_SIZE )
