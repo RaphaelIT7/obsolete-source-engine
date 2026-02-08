@@ -261,7 +261,7 @@ CClientFrameManager::CClientFrameManager( void )
 :	m_Frames(NULL),
 	m_LastFrame(NULL),
 	m_nFrames(0),
-	m_ClientFramePool( MAX_CLIENT_FRAMES, CUtlMemoryPool::GROW_SLOW )
+	m_ClientFramePool( MAX_CLIENT_FRAMES, false, CUtlMemoryPool::GROW_SLOW )
 {
 }
 
