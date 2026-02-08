@@ -46,7 +46,7 @@ public:
 		GROW_SLOW=UTLMEMORYPOOL_GROW_SLOW
 	};
 
-				CUtlMemoryPool( intp blockSize, intp numElements, int growMode = UTLMEMORYPOOL_GROW_FAST, const char *pszAllocOwner = nullptr, unsigned short nAlignment = 0 );
+				CUtlMemoryPool( intp blockSize, intp numElements, int growMode = UTLMEMORYPOOL_GROW_FAST, const char *pszAllocOwner = nullptr, unsigned short nAlignment = 0, bool bInitAlloc = true );
 				~CUtlMemoryPool();
 
 	[[nodiscard]] void*		Alloc();	// Allocate the element size you specified in the constructor.
@@ -133,9 +133,12 @@ template< class T >
 class CClassMemoryPool : public CUtlMemoryPool
 {
 public:
+	// RaphaelIT7: Simplified constructor so you don't have to include the annoying alignof stuff if you just want to pass bInitAlloc
+	CClassMemoryPool(intp numElements, bool bInitAlloc, int growMode = GROW_FAST ) : CClassMemoryPool( numElements, growMode, alignof(T), bInitAlloc ) {};
+
 	// dimhotepus: Alignment should derive from class.
-	CClassMemoryPool(intp numElements, int growMode = GROW_FAST, unsigned short nAlignment = alignof(T) ) :
-		CUtlMemoryPool( sizeof(T), numElements, growMode, MEM_ALLOC_CLASSNAME(T), nAlignment ) {
+	CClassMemoryPool(intp numElements, int growMode = GROW_FAST, unsigned short nAlignment = alignof(T), bool bInitAlloc = true ) :
+		CUtlMemoryPool( sizeof(T), numElements, growMode, MEM_ALLOC_CLASSNAME(T), nAlignment, bInitAlloc ) {
 			#ifdef PLATFORM_64BITS 
 				COMPILE_TIME_ASSERT( sizeof(CUtlMemoryPool) == 96 );
 			#else

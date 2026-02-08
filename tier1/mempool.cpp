@@ -30,7 +30,7 @@ void CUtlMemoryPool::SetErrorReportFunc( MemoryPoolReportFunc_t func )
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CUtlMemoryPool::CUtlMemoryPool( intp blockSize, intp numElements, int growMode, const char *pszAllocOwner, unsigned short nAlignment )
+CUtlMemoryPool::CUtlMemoryPool( intp blockSize, intp numElements, int growMode, const char *pszAllocOwner, unsigned short nAlignment, bool bInitAlloc )
 {
 #ifdef _X360
 	if( numElements > 0 && growMode != UTLMEMORYPOOL_GROW_NONE )
@@ -52,7 +52,9 @@ CUtlMemoryPool::CUtlMemoryPool( intp blockSize, intp numElements, int growMode, 
 	}
 	m_pszAllocOwner = pszAllocOwner;
 	Init();
-	AddNewBlob();
+
+	if (bInitAlloc)
+		AddNewBlob();
 }
 
 //-----------------------------------------------------------------------------
