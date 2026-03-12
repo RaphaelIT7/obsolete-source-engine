@@ -501,13 +501,13 @@ constexpr inline char BASEFILESYSTEM_INTERFACE_VERSION[]{"VBaseFileSystem011"};
 abstract_class IBaseFileSystem
 {
 public:
-	virtual int				Read( OUT_BYTECAP(size) void* pOutput, int size, FileHandle_t file ) = 0;
+	virtual size_t			Read( OUT_BYTECAP(size) void* pOutput, size_t size, FileHandle_t file ) = 0;
 	template<typename T>
 	std::enable_if_t<!std::is_pointer_v<T>, int>		Read( T &out, FileHandle_t file )
 	{
 		return Read( &out, static_cast<int>( sizeof(out) ), file );
 	}
-	virtual int				Write( void const* pInput, int size, FileHandle_t file ) = 0;
+	virtual size_t			Write( void const* pInput, size_t size, FileHandle_t file ) = 0;
 	template<typename T>
 	std::enable_if_t<!std::is_pointer_v<T>, int>		Write( const T &in, FileHandle_t file )
 	{
@@ -519,10 +519,10 @@ public:
 	virtual void			Close( FileHandle_t file ) = 0;
 
 
-	virtual void			Seek( FileHandle_t file, int pos, FileSystemSeek_t seekType ) = 0;
-	virtual unsigned int	Tell( FileHandle_t file ) = 0;
-	virtual unsigned int	Size( FileHandle_t file ) = 0;
-	virtual unsigned int	Size( const char *pFileName, const char *pPathID = nullptr ) = 0;
+	virtual void			Seek( FileHandle_t file, size_t pos, FileSystemSeek_t seekType ) = 0;
+	virtual size_t			Tell( FileHandle_t file ) = 0;
+	virtual size_t			Size( FileHandle_t file ) = 0;
+	virtual size_t			Size( const char *pFileName, const char *pPathID = nullptr ) = 0;
 
 	virtual void			Flush( FileHandle_t file ) = 0;
 	virtual bool			Precache( const char *pFileName, const char *pPathID = nullptr ) = 0;
@@ -660,7 +660,7 @@ public:
 		return ReadLine( pOutput, maxChars, file );
 	}
 
-	virtual int				FPrintf( FileHandle_t file, PRINTF_FORMAT_STRING const char *pFormat, ... ) = 0;
+	virtual size_t			FPrintf( FileHandle_t file, PRINTF_FORMAT_STRING const char *pFormat, ... ) = 0;
 
 	//--------------------------------------------------------
 	// Dynamic library operations
@@ -819,7 +819,7 @@ public:
 	virtual FileHandle_t	OpenEx( const char *pFileName, const char *pOptions, unsigned flags = 0, const char *pathID = nullptr, char **ppszResolvedFilename = nullptr ) = 0;
 
 	// Extended version of read provides more context to allow for more optimal reading
-	virtual int				ReadEx( OUT_BYTECAP(sizeDest) void* pOutput, int sizeDest, int size, FileHandle_t file ) = 0;
+	virtual size_t			ReadEx( OUT_BYTECAP(sizeDest) void* pOutput, size_t sizeDest, size_t size, FileHandle_t file ) = 0;
 	virtual int				ReadFileEx( const char *pFileName, const char *pPath, void **ppBuf, bool bNullTerminate = false, bool bOptimalAlloc = false, int nMaxBytes = 0, int nStartingByte = 0, FSAllocFunc_t pfnAlloc = nullptr ) = 0;
 
 	virtual FileNameHandle_t	FindFileName( char const *pFileName ) = 0;

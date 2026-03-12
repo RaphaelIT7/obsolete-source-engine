@@ -42,14 +42,14 @@ public:
 	{
 		m_pBaseFileSystemPassThru = pBaseFileSystemPassThru;
 	}
-	int				Read( void* pOutput, int size, FileHandle_t file ) override									{ return m_pBaseFileSystemPassThru->Read( pOutput, size, file ); }
-	int				Write( void const* pInput, int size, FileHandle_t file ) override							{ return m_pBaseFileSystemPassThru->Write( pInput, size, file ); }
+	size_t			Read( void* pOutput, size_t size, FileHandle_t file ) override								{ return m_pBaseFileSystemPassThru->Read( pOutput, size, file ); }
+	size_t			Write( void const* pInput, size_t size, FileHandle_t file ) override						{ return m_pBaseFileSystemPassThru->Write( pInput, size, file ); }
 	FileHandle_t	Open( const char *pFileName, const char *pOptions, const char *pathID ) override			{ return m_pBaseFileSystemPassThru->Open( pFileName, pOptions, pathID ); }
 	void			Close( FileHandle_t file ) override															{ m_pBaseFileSystemPassThru->Close( file ); }
-	void			Seek( FileHandle_t file, int pos, FileSystemSeek_t seekType ) override						{ m_pBaseFileSystemPassThru->Seek( file, pos, seekType ); }
-	unsigned int	Tell( FileHandle_t file ) override															{ return m_pBaseFileSystemPassThru->Tell( file ); }
-	unsigned int	Size( FileHandle_t file ) override															{ return m_pBaseFileSystemPassThru->Size( file ); }
-	unsigned int	Size( const char *pFileName, const char *pPathID ) override									{ return m_pBaseFileSystemPassThru->Size( pFileName, pPathID ); }
+	void			Seek( FileHandle_t file, size_t pos, FileSystemSeek_t seekType ) override					{ m_pBaseFileSystemPassThru->Seek( file, pos, seekType ); }
+	size_t			Tell( FileHandle_t file ) override															{ return m_pBaseFileSystemPassThru->Tell( file ); }
+	size_t			Size( FileHandle_t file ) override															{ return m_pBaseFileSystemPassThru->Size( file ); }
+	size_t			Size( const char *pFileName, const char *pPathID ) override									{ return m_pBaseFileSystemPassThru->Size( pFileName, pPathID ); }
 	void			Flush( FileHandle_t file ) override															{ m_pBaseFileSystemPassThru->Flush( file ); }
 	bool			Precache( const char *pFileName, const char *pPathID ) override								{ return m_pBaseFileSystemPassThru->Precache( pFileName, pPathID ); }
 	bool			FileExists( const char *pFileName, const char *pPathID ) override							{ return m_pBaseFileSystemPassThru->FileExists( pFileName, pPathID ); }
@@ -114,7 +114,7 @@ SE_GCC_END_WARNING_OVERRIDE_SCOPE()
 	bool			IsOk( FileHandle_t file )															override { return m_pFileSystemPassThru->IsOk( file ); }
 	bool			EndOfFile( FileHandle_t file )														override { return m_pFileSystemPassThru->EndOfFile( file ); }
 	char			*ReadLine( char *pOutput, int maxChars, FileHandle_t file )							override { return m_pFileSystemPassThru->ReadLine( pOutput, maxChars, file ); }
-	int				FPrintf( FileHandle_t file, PRINTF_FORMAT_STRING const char *pFormat, ... ) override { 
+	size_t			FPrintf( FileHandle_t file, PRINTF_FORMAT_STRING const char *pFormat, ... ) override { 
 		char str[8192];
 		va_list marker;
 		va_start( marker, pFormat ); //-V2018 //-V2019
@@ -187,7 +187,7 @@ SE_GCC_END_WARNING_OVERRIDE_SCOPE()
 	int				GetSearchPath( const char *pathID, bool bGetPackFiles, OUT_Z_CAP(maxLenInChars) char *pDest, intp maxLenInChars )	override { return m_pFileSystemPassThru->GetSearchPath( pathID, bGetPackFiles, pDest, maxLenInChars ); }
 
 	FileHandle_t	OpenEx( const char *pFileName, const char *pOptions, unsigned flags = 0, const char *pathID = nullptr, char **ppszResolvedFilename = nullptr ) override { return m_pFileSystemPassThru->OpenEx( pFileName, pOptions, flags, pathID, ppszResolvedFilename );}
-	int				ReadEx( void* pOutput, int destSize, int size, FileHandle_t file )					override { return m_pFileSystemPassThru->ReadEx( pOutput, destSize, size, file ); }
+	size_t			ReadEx( void* pOutput, size_t destSize, size_t size, FileHandle_t file )			override { return m_pFileSystemPassThru->ReadEx( pOutput, destSize, size, file ); }
 	int				ReadFileEx( const char *pFileName, const char *pPath, void **ppBuf, bool bNullTerminate, bool bOptimalAlloc, int nMaxBytes = 0, int nStartingByte = 0, FSAllocFunc_t pfnAlloc = nullptr ) override { return m_pFileSystemPassThru->ReadFileEx( pFileName, pPath, ppBuf, bNullTerminate, bOptimalAlloc, nMaxBytes, nStartingByte, pfnAlloc ); }
 
 #if defined( TRACK_BLOCKING_IO )

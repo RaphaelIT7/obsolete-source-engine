@@ -2467,7 +2467,7 @@ void CBaseFileSystem::Close( FileHandle_t file )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CBaseFileSystem::Seek( FileHandle_t file, int pos, FileSystemSeek_t whence )
+void CBaseFileSystem::Seek( FileHandle_t file, size_t pos, FileSystemSeek_t whence )
 {
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s (pos=%d, whence=%d)", __FUNCTION__, pos, whence );
 
@@ -2488,7 +2488,7 @@ void CBaseFileSystem::Seek( FileHandle_t file, int pos, FileSystemSeek_t whence 
 // Input  : file - 
 // Output : unsigned int
 //-----------------------------------------------------------------------------
-unsigned int CBaseFileSystem::Tell( FileHandle_t file )
+size_t CBaseFileSystem::Tell( FileHandle_t file )
 {
 	VPROF_BUDGET( "CBaseFileSystem::Tell", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 
@@ -2507,7 +2507,7 @@ unsigned int CBaseFileSystem::Tell( FileHandle_t file )
 // Input  : file - 
 // Output : unsigned int
 //-----------------------------------------------------------------------------
-unsigned int CBaseFileSystem::Size( FileHandle_t file )
+size_t CBaseFileSystem::Size( FileHandle_t file )
 {
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s", __FUNCTION__ );
 
@@ -2527,7 +2527,7 @@ unsigned int CBaseFileSystem::Size( FileHandle_t file )
 // Input  : file - 
 // Output : unsigned int
 //-----------------------------------------------------------------------------
-unsigned int CBaseFileSystem::Size( const char* pFileName, const char *pPathID )
+size_t CBaseFileSystem::Size( const char* pFileName, const char *pPathID )
 {
 	VPROF_BUDGET( "CBaseFileSystem::Size", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 
@@ -2628,7 +2628,7 @@ bool CBaseFileSystem::EndOfFile( FileHandle_t file )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int CBaseFileSystem::Read( OUT_BYTECAP(size) void *pOutput, int size, FileHandle_t file )
+size_t CBaseFileSystem::Read( OUT_BYTECAP(size) void *pOutput, size_t size, FileHandle_t file )
 {
 	return ReadEx( pOutput, size, size, file );
 }
@@ -2636,7 +2636,7 @@ int CBaseFileSystem::Read( OUT_BYTECAP(size) void *pOutput, int size, FileHandle
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int CBaseFileSystem::ReadEx( OUT_BYTECAP(destSize) void *pOutput, int destSize, int size, FileHandle_t file )
+size_t CBaseFileSystem::ReadEx( OUT_BYTECAP(destSize) void *pOutput, size_t destSize, size_t size, FileHandle_t file )
 {
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s (%d bytes)", __FUNCTION__, size );
 
@@ -2898,7 +2898,7 @@ void CBaseFileSystem::DiscardPreloadData()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int CBaseFileSystem::Write( IN_BYTECAP(size) void const* pInput, int size, FileHandle_t file )
+size_t CBaseFileSystem::Write( IN_BYTECAP(size) void const* pInput, size_t size, FileHandle_t file )
 {
 	VPROF_BUDGET( "CBaseFileSystem::Write", VPROF_BUDGETGROUP_OTHER_FILESYSTEM );
 
@@ -2916,7 +2916,7 @@ int CBaseFileSystem::Write( IN_BYTECAP(size) void const* pInput, int size, FileH
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int CBaseFileSystem::FPrintf( FileHandle_t file, PRINTF_FORMAT_STRING const char *pFormat, ... )
+size_t CBaseFileSystem::FPrintf( FileHandle_t file, PRINTF_FORMAT_STRING const char *pFormat, ... )
 {
 	va_list args;
 	va_start( args, pFormat ); //-V2018 //-V2019
@@ -2936,9 +2936,9 @@ int CBaseFileSystem::FPrintf( FileHandle_t file, PRINTF_FORMAT_STRING const char
 		"FPrintf output is truncated from %d to %zd.", chars_count, ssize(buffer));
 
 	auto *fh = static_cast<CFileHandle *>(file);
-	const int bytes_written{ fh->Write( buffer, chars_count ) };
+	const size_t bytes_written{ fh->Write( buffer, chars_count ) };
 	AssertMsg(chars_count == bytes_written,
-		"Should FPrintf %d characters, but written %d.", chars_count, bytes_written);
+		"Should FPrintf %d characters, but written %zu.", chars_count, bytes_written);
 	
 	return bytes_written;
 }
@@ -5183,13 +5183,13 @@ void CFileHandle::SetBufferSize( int nBytes )
 	}
 }
 
-int CFileHandle::Read( OUT_BYTECAP(nLength) void* pBuffer, int nLength )
+size_t CFileHandle::Read( OUT_BYTECAP(nLength) void* pBuffer, size_t nLength )
 {
 	Assert( IsValid() );
 	return Read( pBuffer, -1, nLength );
 }
 
-int CFileHandle::Read( void* pBuffer, int nDestSize, int nLength )
+size_t CFileHandle::Read( void* pBuffer, size_t nDestSize, size_t nLength )
 {
 	Assert( IsValid() );
 
@@ -5222,7 +5222,7 @@ int CFileHandle::Read( void* pBuffer, int nDestSize, int nLength )
 	return 0;
 }
 
-int CFileHandle::Write( IN_BYTECAP(nLength) const void* pBuffer, int nLength )
+size_t CFileHandle::Write( IN_BYTECAP(nLength) const void* pBuffer, size_t nLength )
 {
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s", __FUNCTION__ );
 	if( ThreadInMainThread() )
@@ -5245,7 +5245,7 @@ int CFileHandle::Write( IN_BYTECAP(nLength) const void* pBuffer, int nLength )
 	return nBytesWritten;
 }
 
-int CFileHandle::Seek( int64 nOffset, int nWhence )
+size_t CFileHandle::Seek( int64 nOffset, int nWhence )
 {
 	Assert( IsValid() );
 
@@ -5275,7 +5275,7 @@ int CFileHandle::Seek( int64 nOffset, int nWhence )
 	return -1;
 }
 
-int CFileHandle::Tell()
+size_t CFileHandle::Tell()
 {
 	Assert( IsValid() );
 
@@ -5304,7 +5304,7 @@ int CFileHandle::Tell()
 	return -1;
 }
 
-unsigned CFileHandle::Size()
+size_t CFileHandle::Size()
 {
 	Assert( IsValid() );
 
