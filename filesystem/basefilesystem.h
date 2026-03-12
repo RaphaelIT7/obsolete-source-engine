@@ -118,13 +118,13 @@ public:
 	void	Flush();
 	void	SetBufferSize( int nBytes );
 
-	int		Read( OUT_BYTECAP(nLength) void* pBuffer, int nLength );
-	int		Read( void* pBuffer, int nDestSize, int nLength );
+	size_t	Read( OUT_BYTECAP(nLength) void* pBuffer, size_t nLength );
+	size_t	Read( void* pBuffer, size_t nDestSize, size_t nLength );
 
-	int		Write( IN_BYTECAP(nLength) const void* pBuffer, int nLength );
-	int		Seek( int64 nOffset, int nWhence );
-	int		Tell();
-	unsigned		Size();
+	size_t	Write( IN_BYTECAP(nLength) const void* pBuffer, size_t nLength );
+	size_t	Seek( int64 nOffset, int nWhence );
+	size_t	Tell();
+	size_t	Size();
 
 	int64 AbsoluteBaseOffset();
 	bool	EndOfFile();
@@ -239,10 +239,10 @@ public:
 	FileHandle_t		Open( const char *pFileName, const char *pOptions, const char *pathID ) override;
 	FileHandle_t		OpenEx( const char *pFileName, const char *pOptions, unsigned flags = 0, const char *pathID = 0, char **ppszResolvedFilename = NULL ) override;
 	void				Close( FileHandle_t ) override;
-	void				Seek( FileHandle_t file, int pos, FileSystemSeek_t method ) override;
-	unsigned int		Tell( FileHandle_t file ) override;
-	unsigned int		Size( FileHandle_t file ) override;
-	unsigned int		Size( const char *pFileName, const char *pPathID ) override;
+	void				Seek( FileHandle_t file, size_t pos, FileSystemSeek_t method ) override;
+	size_t				Tell( FileHandle_t file ) override;
+	size_t				Size( FileHandle_t file ) override;
+	size_t				Size( const char *pFileName, const char *pPathID ) override;
 
 	void				SetBufferSize( FileHandle_t file, unsigned nBytes ) override;
 	bool				IsOk( FileHandle_t file ) override;
@@ -250,11 +250,11 @@ public:
 	bool				Precache( const char *pFileName, const char *pPathID ) override;
 	bool				EndOfFile( FileHandle_t file ) override;
  
-	int					Read( OUT_BYTECAP(size) void *pOutput, int size, FileHandle_t file ) override;
-	int					ReadEx( OUT_BYTECAP(destSize) void* pOutput, int destSize, int size, FileHandle_t file ) override;
-	int					Write( IN_BYTECAP(size) void const* pInput, int size, FileHandle_t file ) override;
+	size_t				Read( OUT_BYTECAP(size) void *pOutput, size_t size, FileHandle_t file ) override;
+	size_t				ReadEx( OUT_BYTECAP(destSize) void* pOutput, size_t destSize, size_t size, FileHandle_t file ) override;
+	size_t				Write( IN_BYTECAP(size) void const* pInput, size_t size, FileHandle_t file ) override;
 	char				*ReadLine( OUT_Z_CAP(maxChars) char *pOutput, int maxChars, FileHandle_t file ) override;
-	int					FPrintf( FileHandle_t file, PRINTF_FORMAT_STRING const char *pFormat, ... ) override FMTFUNCTION( 3, 4 );
+	size_t				FPrintf( FileHandle_t file, PRINTF_FORMAT_STRING const char *pFormat, ... ) override FMTFUNCTION( 3, 4 );
 
 	// Reads/writes files to utlbuffers
 	bool				ReadFile( const char *pFileName, const char *pPath, CUtlBuffer &buf, int nMaxBytes, int nStartingByte, FSAllocFunc_t pfnAlloc = NULL ) override;
