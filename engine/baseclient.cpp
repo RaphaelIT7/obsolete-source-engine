@@ -1424,7 +1424,7 @@ void CBaseClient::UpdateUserSettings()
 	// set server to client update rate
 	SetUpdateRate( m_ConVars->GetInt( "cl_updaterate", 20), false );
 
-	SetMaxRoutablePayloadSize( m_ConVars->GetInt( "net_maxroutable", MAX_ROUTABLE_PAYLOAD ) );
+	SetMaxRoutablePayloadSize( m_ConVars->GetInt( "net_maxroutable", FRAGMENT_SIZE ) );
 
 	m_Server->UserInfoChanged( m_nClientSlot );
 

@@ -9,6 +9,7 @@
 #include "tier0/basetypes.h"
 #include "tier0/platform.h"
 #include "tier0/commonmacros.h"
+#include "nmmintrin.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -192,4 +193,21 @@ JustAfew:
 
     nBuffer &= 7;
     goto JustAfew;
+}
+
+void CRC32_ProcessBufferFast(CRC32_t *pulCRC, IN_BYTECAP(nBuffer) const void *pBuffer, intp nBuffer)
+{
+	auto *_pBuffer = (unsigned char *)pBuffer;
+	uint64 crc = 0xFFFFFFFF;
+	while (nBuffer >= 8)
+	{
+		crc = _mm_crc32_u64(crc, *(uint64*)_pBuffer);
+		_pBuffer += 8;
+		nBuffer -= 8;
+	}
+
+	while (nBuffer--)
+		crc = _mm_crc32_u8(crc, *_pBuffer++);
+
+	*pulCRC = (uint32)crc ^ 0xFFFFFFFF;
 }

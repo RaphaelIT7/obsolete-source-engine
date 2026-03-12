@@ -14,17 +14,17 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#define NET_COMPRESSION_STACKBUF_SIZE 4096 
+#define NET_COMPRESSION_STACKBUF_SIZE 16384 
 
 static ConVar net_showudp_wire( "net_showudp_wire", "0", 0, "Show incoming packet information" );
 
-#define UDP_SO_RCVBUF_SIZE 131072
+#define UDP_SO_RCVBUF_SIZE 16777216
 
-static ConVar net_udp_rcvbuf( "net_udp_rcvbuf", NETSTRING( UDP_SO_RCVBUF_SIZE ), FCVAR_ALLOWED_IN_COMPETITIVE, "Default UDP receive buffer size", true, 8192, true, 128 * 1024 );
+static ConVar net_udp_rcvbuf( "net_udp_rcvbuf", NETSTRING( UDP_SO_RCVBUF_SIZE ), FCVAR_ALLOWED_IN_COMPETITIVE, "Default UDP receive buffer size", true, 8192, true, 32 * 1024 * 1024 );
 
 static ConVar net_showsplits( "net_showsplits", "0", 0, "Show info about packet splits" );
 
-static ConVar net_splitrate( "net_splitrate", "1", 0, "Number of fragments for a splitpacket that can be sent per frame" );
+static ConVar net_splitrate( "net_splitrate", "10", 0, "Number of fragments for a splitpacket that can be sent per frame" );
 
 static ConVar ipname        ( "ip", "localhost", FCVAR_ALLOWED_IN_COMPETITIVE, "Overrides IP for multihomed hosts" );
 static ConVar hostport      ( "hostport", NETSTRING( PORT_SERVER ) , FCVAR_ALLOWED_IN_COMPETITIVE, "Host game server port" );
@@ -83,7 +83,7 @@ struct pendingsocket_t
 struct loopback_t
 {
 	char		*data;		// loopback buffer
-	int			datalen;	// current data length
+	uint32_t	datalen;	// current data length
 	char		defbuffer[ DEF_LOOPBACK_SIZE ];
 
 	DECLARE_FIXEDSIZE_ALLOCATOR( loopback_t );
@@ -97,9 +97,9 @@ DEFINE_FIXEDSIZE_ALLOCATOR( loopback_t, 2, CUtlMemoryPool::GROW_SLOW );
 struct LONGPACKET
 {
 	int		currentSequence;
-	int		splitCount;
-	int		totalSize;
-	int		nExpectedSplitSize;
+	uint32_t	splitCount;
+	uint32_t	totalSize;
+	uint32_t	nExpectedSplitSize;
 	char	buffer[ NET_MAX_MESSAGE ];	// This has to be big enough to hold the largest message
 };
 
@@ -109,7 +109,8 @@ struct SPLITPACKET
 {
 	int		netID;
 	int		sequenceNumber;
-	int		packetID : 16;
+	unsigned short packetNumber;
+	unsigned short packetCount;
 	int		nSplitSize : 16;
 };
 #pragma pack()
@@ -784,7 +785,7 @@ void NET_SendLoopPacket (intp sock, int length, const unsigned char *data, const
 {
 	loopback_t	*loop;
 
-	if ( length > NET_MAX_PAYLOAD )
+	if ( length > NET_MAX_MESSAGE )
 	{
 		DevMsg( "NET_SendLoopPacket:  packet too big (%i).\n", length );
 		return;
@@ -1186,9 +1187,9 @@ bool NET_GetLong( const intp sock, netpacket_t *packet )
 		return false;
 	}
 	// High byte is packet number
-	const int packetNumber		= ( packetID >> 8 );
+	const int packetNumber		= LittleShort( pHeader->packetNumber );	
 	// Low byte is number of total packets
-	const int packetCount		= ( packetID & 0xff );
+	const int packetCount		= LittleShort( pHeader->packetCount );
 
 	// RaphaelIT7: If it somehow becomes negative- expect crashes.
 	Assert( packetNumber >= 0 );
@@ -1402,7 +1403,7 @@ bool NET_ReceiveDatagram ( const intp sock, netpacket_t * packet )
 
 				// Decompress
 				int actualSize = COM_GetUncompressedSize( pCompressedData, nCompressedDataSize );
-				if ( actualSize <= 0 || actualSize > NET_MAX_PAYLOAD )
+				if ( actualSize <= 0 || actualSize > NET_MAX_MESSAGE )
 					return false;
 
 				MEM_ALLOC_CREDIT();
@@ -1483,7 +1484,8 @@ bool NET_ReceiveValidDatagram ( const intp sock, netpacket_t * packet )
 	// you're basically flooding the network and you need to solve this at a higher
 	// firewall or router level instead which is beyond the scope of our netcode.
 	// --henryg 10/12/2011
-	for ( int i = 1000; i > 0; --i )
+	// RaphaelIT7: Raised it to 50k (was 1k before) due to large packets/splits else stacking up as the networking limits were raised therefore far more packets can be sent/received.
+	for ( int i = 50000; i > 0; --i )
 	{
 		// Attempt to receive a valid packet.
 		if ( NET_ReceiveDatagram ( sock, packet ) )
@@ -2116,8 +2118,9 @@ int NET_SendLong( INetChannel *chan, intp sock, socket_handle s, const char FAR 
 	{
 		int size = min( (int)nSplitSizeMinusHeader, nBytesLeft );
 
-		pPacket->packetID = LittleShort( (short)(( nPacketNumber << 8 ) + nPacketCount) );
-		
+		pPacket->packetNumber = LittleShort( nPacketNumber );
+		pPacket->packetCount = LittleShort( nPacketCount );
+
 		Q_memcpy( packet + sizeof(SPLITPACKET), sendbuf + (nPacketNumber * nSplitSizeMinusHeader), size );
 		
 		int ret = 0;
@@ -2954,7 +2957,7 @@ void NET_Init( bool bIsDedicated )
 	}
 
 	COMPILE_TIME_ASSERT( SVC_LASTMSG < (1<<NETMSG_TYPE_BITS) );
-	COMPILE_TIME_ASSERT( MAX_FILE_SIZE < (1<<MAX_FILE_SIZE_BITS) );
+	COMPILE_TIME_ASSERT( MAX_FILE_SIZE < ((uint64_t)1<<MAX_FILE_SIZE_BITS) );
 
 	net_time = 0.0f;
 

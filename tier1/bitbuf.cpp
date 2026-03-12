@@ -769,6 +769,41 @@ bool bf_write::WriteBytes( const void *pBuf, intp nBytes )
 	return WriteBits(pBuf, nBytes * CHAR_BIT);
 }
 
+
+bool bf_write::WriteBytesAligned( const void* pBuf, uint64_t nBytes )
+{
+	if (nBytes <= 0)
+		return true;
+
+	int bitOffset = m_iCurBit & 7;
+	if (bitOffset != 0)
+	{
+		int padBits = 8 - bitOffset;
+		if (m_iCurBit + padBits > m_nDataBits)
+		{
+			SetOverflowFlag();
+			CallErrorHandler(BITBUFERROR_BUFFER_OVERRUN, GetDebugName());
+			return false;
+		}
+
+		WriteUBitLong(0, padBits, false);
+	}
+
+	intp nBits = nBytes * CHAR_BIT;
+	if (m_iCurBit + nBits > m_nDataBits)
+	{
+		SetOverflowFlag();
+		CallErrorHandler(BITBUFERROR_BUFFER_OVERRUN, GetDebugName());
+		return false;
+	}
+
+	uint8* pDst = (uint8*)m_pData + (m_iCurBit >> 3);
+	Q_memcpy(pDst, pBuf, nBytes);
+
+	m_iCurBit += nBits;
+	return true;
+}
+
 bool bf_write::WriteString(const char *pStr)
 {
 	if(pStr)
@@ -1377,6 +1412,40 @@ bool bf_read::ReadBytes( OUT_CAP(nBytes) void *pOut, intp nBytes)
 {
 	ReadBits(pOut, nBytes << 3);
 	return !IsOverflowed();
+}
+
+bool bf_read::ReadBytesAligned( OUT_CAP(nBytes) void* pOut, uint64_t nBytes )
+{
+	if (nBytes <= 0)
+		return true;
+
+	int bitOffset = m_iCurBit & 7;
+	if (bitOffset != 0)
+	{
+		int skipBits = 8 - bitOffset;
+		if (m_iCurBit + skipBits > m_nDataBits)
+		{
+			SetOverflowFlag();
+			CallErrorHandler(BITBUFERROR_BUFFER_OVERRUN, GetDebugName());
+			return false;
+		}
+
+		ReadUBitLong(skipBits);
+	}
+
+	intp nBits = nBytes * CHAR_BIT;
+	if (m_iCurBit + nBits > m_nDataBits)
+	{
+		SetOverflowFlag();
+		CallErrorHandler(BITBUFERROR_BUFFER_OVERRUN, GetDebugName());
+		return false;
+	}
+
+	const uint8* pSrc = (const uint8*)m_pData + (m_iCurBit >> 3);
+	Q_memcpy(pOut, pSrc, nBytes);
+
+	m_iCurBit += nBits;
+	return true;
 }
 
 bool bf_read::ReadString( OUT_Z_CAP(maxLen) char *pStr, intp maxLen, bool bLine, intp *pOutNumChars )

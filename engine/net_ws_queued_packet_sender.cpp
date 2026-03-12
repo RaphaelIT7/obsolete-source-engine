@@ -163,7 +163,8 @@ void CQueuedPacketSender::QueuePacket( INetChannel *pChan, SOCKET s, const char 
 	// dimhotepus: ms -> mcs to not overflow in 49.7 days.
 	uint64 mcsNow = Plat_USTime();
 
-	int nMaxQueuedPackets = 1024;
+	// RaphaelIT7: iirc CUtlVector cannot have more than 64k elements so we limit at 63k for now.
+	int nMaxQueuedPackets = 63 * 1024;
 	if ( m_QueuedPackets.Count() < nMaxQueuedPackets )
 	{
 		// Add this packet to the queue.

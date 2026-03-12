@@ -746,7 +746,8 @@ bool CGameClient::SetSignonState(int state, int spawncount)
 		}
 
 		m_NetChannel->SetTimeout( sv_timeout.GetFloat() ); // use smaller timeout limit
-		m_NetChannel->SetFileTransmissionMode( true );
+		// Commented out purely for testing!
+		// m_NetChannel->SetFileTransmissionMode( true );
 
 #ifdef _XBOX
 		// to save memory on the XBOX reduce reliable buffer size from 96 to 8 KiB
@@ -806,7 +807,7 @@ void CGameClient::WriteGameSounds( bf_write &buf )
 	if ( m_Sounds.Count() <= 0 )
 		return;
 
-	char data[NET_MAX_PAYLOAD];
+	char data[NET_MAX_PAYLOAD_V23]; // RaphaelIT7: Changed to use NET_MAX_PAYLOAD_V23 as this really does not need 256kb on the stack!
 	SVC_Sounds msg;
 	msg.m_DataOut.StartWriting( data, sizeof(data) );
 	
