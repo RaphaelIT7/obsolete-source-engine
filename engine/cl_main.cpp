@@ -2575,8 +2575,8 @@ CON_COMMAND_F( cl_fullupdate, "Forces the server to send a full update packet", 
 	cl.ForceFullUpdate();
 }
 
-
-#ifdef STAGING_ONLY
+// Enabled purely for testing!
+//#ifdef STAGING_ONLY
 
 CON_COMMAND( cl_download, "Downloads a file from server." )
 {
@@ -2589,7 +2589,7 @@ CON_COMMAND( cl_download, "Downloads a file from server." )
 	cl.m_NetChannel->RequestFile( args[ 1 ] ); // just for testing stuff
 }
 
-#endif // STAGING_ONLY
+//#endif // STAGING_ONLY
 
 
 CON_COMMAND_F( setinfo, "Adds a new user info value", FCVAR_CLIENTCMD_CAN_EXECUTE )

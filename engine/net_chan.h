@@ -30,7 +30,7 @@
 
 #define NET_FRAMES_BACKUP	64		// must be power of 2
 #define NET_FRAMES_MASK		(NET_FRAMES_BACKUP-1)
-constexpr int MAX_SUBCHANNELS = 8;	// we have x alternative send&wait channels
+constexpr int MAX_SUBCHANNELS = 32;	// we have x alternative send&wait channels
 constexpr int SUBCHANNEL_BITS = RequiredBits(MAX_SUBCHANNELS);
 
 #define SUBCHANNEL_FREE		0	// subchannel is free to use
@@ -49,11 +49,11 @@ private: // netchan structurs
 		FileHandle_t	file;			// open file handle
 		char			filename[MAX_OSPATH]; // filename
 		char*			buffer;			// if NULL it's a file
-		unsigned int	bytes;			// size in bytes
-		unsigned int	bits;			// size in bits
+		uint64_t		bytes;			// size in bytes
+		uint64_t		bits;			// size in bits
 		unsigned int	transferID;		// only for files
 		bool			isCompressed;	// true if data is bzip compressed
-		unsigned int	nUncompressedSize; // full size in bytes
+		uint64_t		nUncompressedSize; // full size in bytes
 		bool			asTCP;			// send as TCP stream
 		int				numFragments;	// number of total fragments
 		int				ackedFragments; // number of fragments send & acknowledged
@@ -234,7 +234,7 @@ private:
 	void	CompressFragments();
 	void	UncompressFragments( dataFragments_t *data );
 
-	bool	SendSubChannelData( bf_write &buf );
+	bool	SendSubChannelData( bf_write &buf, size_t nReservedUnreliableSize );
 	bool	ReadSubChannelData( bf_read &buf, int stream );
 	void	AcknowledgeSeqNr( int seqnr );
 	void	CheckWaitingList(int nList);
@@ -242,8 +242,9 @@ private:
 	void	RemoveHeadInWaitingList( int nList );
 	bool	IsFileInWaitingList( const char *filename );
 	subChannel_s *GetFreeSubChannel(); // NULL == all subchannels in use
-	void	UpdateSubChannels( void );
+	void	UpdateSubChannels( uint32_t nBytesFree );
 	void	SendTCPData( void );
+	size_t	EstimateDatagramSize( size_t nAdditionalSize, size_t* nReservedUnreliableSize );
 
 	INetMessage *FindMessage(int type);
 

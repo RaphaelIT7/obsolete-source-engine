@@ -12,16 +12,24 @@
 #include "proto_version.h"
 
 // Flow control bytes per second limits
-#define MAX_RATE		(1024*1024)
+#define MAX_RATE		(1024*1024*1024)				
+
 #define MIN_RATE		1000
-#define DEFAULT_RATE	80000
+#define DEFAULT_RATE	1048576
 
 #define SIGNON_TIME_OUT				300.0f  // signon disconnect timeout
 
-#define FRAGMENT_BITS		8
-#define FRAGMENT_SIZE		(1<<FRAGMENT_BITS)
-#define MAX_FILE_SIZE_BITS	26
-#define MAX_FILE_SIZE		((1<<MAX_FILE_SIZE_BITS)-1)	// maximum transferable size is	64MB
+constexpr int FRAGMENT_BITS = 17;
+constexpr int NUM_FRAGMENT_BITS = 6; // RaphaelIT7: Used for how many fragments are transmitted in one packet.
+constexpr uint32_t FRAGMENT_SIZE = (1<<FRAGMENT_BITS);
+#define MACRO_FRAGMENT_SIZE (1 << FRAGMENT_BITS)
+
+// RaphaelIT7: How many fragments we allow/want to possibly send- this may result in a buffer being allocated to send the final datagram, as the default net buffer may be too small.
+constexpr int MAX_ADDITIONAL_FRAGMENTS = (1 << NUM_FRAGMENT_BITS) - 1;
+constexpr uint32_t MAX_FRAGMENT_SIZE = (1<<FRAGMENT_BITS) * MAX_ADDITIONAL_FRAGMENTS;
+
+constexpr int MAX_FILE_SIZE_BITS = 34;
+constexpr uint64_t MAX_FILE_SIZE = (((uint64_t)1<<MAX_FILE_SIZE_BITS)-1); // maximum transferable size
 
 // 0 == regular, 1 == file stream
 #define MAX_STREAMS			2    
@@ -45,7 +53,7 @@
 // NETWORKING INFO
 
 // This is the packet payload without any header bytes (which are attached for actual sending)
-#define	NET_MAX_PAYLOAD				288000	// largest message we can send in bytes
+#define	NET_MAX_PAYLOAD				288000	// largest message we can send in bytes without dynamically extending the buffer
 #define	NET_MAX_PAYLOAD_V23			96000	// largest message we can send in bytes
 #define NET_MAX_PAYLOAD_BITS_V23	17		// 2^NET_MAX_PAYLOAD_BITS > NET_MAX_PAYLOAD
 // This is just the client_t->netchan.datagram buffer size (shouldn't ever need to be huge)
@@ -54,8 +62,9 @@
 // UDP has 28 byte headers
 #define UDP_HEADER_SIZE				(20+8)	// IP = 20, UDP = 8
 
-
-#define MAX_ROUTABLE_PAYLOAD		1260	// Matches x360 size
+// RaphaelIT7: This should not be raised first- we use it everywhere for small net messages, second its apparently there is something with the MTU & perfered sizes below 1500 soooo just don't touch this!
+// Raised it to 1360 as it should be safe & may give a small improvement to reduce the total UDP packet count / help to reduce some load.
+#define MAX_ROUTABLE_PAYLOAD		1360	// Matches x360 size
 
 static_assert((MAX_ROUTABLE_PAYLOAD & 3) == 0,
               "Bit buffers must be a multiple of 4 bytes");
@@ -73,7 +82,7 @@ static_assert((MAX_ROUTABLE_PAYLOAD & 3) == 0,
 // Pad this to next higher 16 byte boundary
 // This is the largest packet that can come in/out over the wire, before processing the header
 //  bytes will be stripped by the networking channel layer
-constexpr inline int NET_MAX_MESSAGE{PAD_NUMBER( ( NET_MAX_PAYLOAD + HEADER_BYTES ), 16 )};
+constexpr inline uint32_t NET_MAX_MESSAGE{PAD_NUMBER( ( NET_MAX_PAYLOAD + HEADER_BYTES + (FRAGMENT_SIZE * MAX_ADDITIONAL_FRAGMENTS) ), 16 )};
 
 // Even connectionless packets require int32 value (-1) + 1 byte content
 #define NET_MIN_MESSAGE 5

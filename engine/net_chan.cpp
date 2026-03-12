@@ -21,6 +21,7 @@
 #include "net_ws_queued_packet_sender.h"
 #include "filesystem_init.h"
 #include "bzip2/bzlib.h"
+#include "baseclient.h" // RaphaelIT7: Needed for CBaseClient::SNAPSHOT_SCRATCH_BUFFER_SIZE
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -31,7 +32,7 @@
 
 ConVar net_showudp( "net_showudp", "0", 0, "Dump UDP packets summary to console" );
 ConVar net_showtcp( "net_showtcp", "0", 0, "Dump TCP stream summary to console" );
-ConVar net_blocksize( "net_maxfragments", NETSTRING( MAX_ROUTABLE_PAYLOAD ), 0, "Max fragment bytes per packet", true, FRAGMENT_SIZE, true, MAX_ROUTABLE_PAYLOAD );
+ConVar net_blocksize( "net_maxfragments", NETSTRING( MACRO_FRAGMENT_SIZE ), 0, "Max fragment bytes per packet", true, FRAGMENT_SIZE, true, MAX_FRAGMENT_SIZE );
 
 static ConVar net_showmsg( "net_showmsg", "0", 0, "Show incoming message: <0|1|name>" );
 static ConVar net_showfragments( "net_showfragments", "0", 0, "Show netchannel fragments" );
@@ -40,9 +41,10 @@ static ConVar net_blockmsg( "net_blockmsg", "none", FCVAR_CHEAT, "Discards incom
 static ConVar net_showdrop( "net_showdrop", "0", 0, "Show dropped packets in console" );
 static ConVar net_drawslider( "net_drawslider", "0", 0, "Draw completion slider during signon" );
 static ConVar net_chokeloopback( "net_chokeloop", "0", 0, "Apply bandwidth choke to loopback packets" );
-static ConVar net_maxfilesize( "net_maxfilesize", "16", 0, "Maximum allowed file size for uploading in MiB", true, 0, true, 64 );
+static ConVar net_maxfilesize( "net_maxfilesize", "16384", 0, "Maximum allowed file size for uploading in MiB", true, 0, true, 16384 );
 static ConVar net_compresspackets( "net_compresspackets", "1", 0, "Use compression on game packets." );
 static ConVar net_compresspackets_minsize( "net_compresspackets_minsize", "1024", 0, "Don't bother compressing packets below this size." );
+static ConVar net_compresspackets_maxsize( "net_compresspackets_maxsize", "1048576", 0, "Don't bother compressing packets above this size as it most of the time may not be worth it" );
 static ConVar net_maxcleartime( "net_maxcleartime", "4.0", 0, "Max # of seconds we can wait for next packets to be sent based on rate setting (0 == no limit)." );
 static ConVar net_maxpacketdrop( "net_maxpacketdrop", "5000", 0, "Ignore any packets with the sequence number more than this ahead (0 == no limit)" );
 
@@ -148,7 +150,7 @@ void CNetChan::CompressFragments()
 		dataFragments_t *data = m_WaitingList[i][0];
 
 		// if data is already compressed or too small, skip it
-		if ( data->isCompressed || (int)data->bytes < net_compresspackets_minsize.GetInt() )
+		if ( data->isCompressed || (int)data->bytes < net_compresspackets_minsize.GetInt() || (int)data->bytes > net_compresspackets_maxsize.GetInt() )
 			continue;
 
 		// if we already started sending this block, we can't compress it anymore
@@ -448,9 +450,13 @@ CNetChan::CNetChan()
 	m_MaxReliablePayloadSize = 	NET_MAX_PAYLOAD;
 
 	m_FileRequestCounter = 0;
-	m_bFileBackgroundTranmission = true;
 	m_bUseCompression = false;
 	m_nQueuedPackets = 0;
+
+	// RaphaelIT7: Disabled for testing!
+	// though ToDo: change the code to first fit the unreliable buffer & voice into the packet before trying to insert file fragments
+	// This is to prioritize snapshots above file transfers. (though this really isn't needed snce files are only networked when joining, not while playing)
+	m_bFileBackgroundTranmission = false;
 
 	m_flRemoteFrameTime = 0;
 	m_flRemoteFrameTimeStdDeviation = 0;
@@ -1091,9 +1097,9 @@ bool CNetChan::CreateFragmentsFromFile( const char *filename, int stream, unsign
 		return false;
 	}
 
-	int totalBytes = g_pFileSystem->Size( filename, pPathID );
+	uint64_t totalBytes = g_pFileSystem->Size( filename, pPathID );
 
-	if ( totalBytes >= (net_maxfilesize.GetInt()*1024*1024) )
+	if ( totalBytes >= (((uint64_t)net_maxfilesize.GetInt())*1024*1024) )
 	{
 		ConMsg( "CreateFragmentsFromFile: '%s' size exceeds net_maxfilesize limit (%i MiB).\n", filename, net_maxfilesize.GetInt() );
 		return false;
@@ -1101,7 +1107,7 @@ bool CNetChan::CreateFragmentsFromFile( const char *filename, int stream, unsign
 	
 	if ( totalBytes >= MAX_FILE_SIZE )
 	{
-		ConMsg( "CreateFragmentsFromFile: '%s' too big (max %i bytes).\n", filename, MAX_FILE_SIZE );
+		ConMsg( "CreateFragmentsFromFile: '%s' too big (max %llu bytes).\n", filename, MAX_FILE_SIZE );
 		return false;
 	}
 
@@ -1153,7 +1159,7 @@ void CNetChan::SendTCPData( void )
 	SendReliableViaStream( data );
 }
 
-bool CNetChan::SendSubChannelData( bf_write &buf )
+bool CNetChan::SendSubChannelData( bf_write &buf, size_t nReservedUnreliableSize )
 {
 	VPROF_BUDGET( "CNetChan::SendSubChannelData", VPROF_BUDGETGROUP_OTHER_NETWORKING );
 
@@ -1164,7 +1170,8 @@ bool CNetChan::SendSubChannelData( bf_write &buf )
 
 	SendTCPData();
 
-	UpdateSubChannels();
+	// RaphaelIT7: We reserve 1kb + unreliable size just to be safe and to avoid blocking snapshots if were transmitting a file in the background for example.
+	UpdateSubChannels( buf.GetNumBytesLeft() - (1024 + nReservedUnreliableSize) );
 
 	// find subchannl with data to send/resend:
 	for ( i=0; i<MAX_SUBCHANNELS; i++ )
@@ -1221,20 +1228,20 @@ bool CNetChan::SendSubChannelData( bf_write &buf )
 			if ( data->isCompressed )
 			{
 				buf.WriteOneBit( 1 );
-				buf.WriteUBitLong( data->nUncompressedSize, MAX_FILE_SIZE_BITS );
+				buf.WriteUBitLong64( data->nUncompressedSize, MAX_FILE_SIZE_BITS );
 			}
 			else
 			{
 				buf.WriteOneBit( 0 ); 
 			}
 
-			buf.WriteVarInt32( data->bytes );
+			buf.WriteUBitLong64( data->bytes, 64 );
 		}
 		else
 		{
 			buf.WriteOneBit( 1 ); // uses fragments with start fragment offset byte
-			buf.WriteUBitLong( subChan->startFraggment[i], (MAX_FILE_SIZE_BITS-FRAGMENT_BITS) ); 
-			buf.WriteUBitLong( subChan->numFragments[i], 3 ); 
+			buf.WriteUBitLong64( subChan->startFraggment[i], (MAX_FILE_SIZE_BITS-FRAGMENT_BITS) ); 
+			buf.WriteUBitLong( subChan->numFragments[i], NUM_FRAGMENT_BITS ); 
 		
 			if ( offset == 0 )
 			{
@@ -1255,14 +1262,14 @@ bool CNetChan::SendSubChannelData( bf_write &buf )
 				if ( data->isCompressed )
 				{
 					buf.WriteOneBit( 1 );
-					buf.WriteUBitLong( data->nUncompressedSize, MAX_FILE_SIZE_BITS );
+					buf.WriteUBitLong64( data->nUncompressedSize, MAX_FILE_SIZE_BITS );
 				}
 				else
 				{
 					buf.WriteOneBit( 0 ); 
 				}
 
-				buf.WriteUBitLong( data->bytes, MAX_FILE_SIZE_BITS ); // 4MB max for files
+				buf.WriteUBitLong64( data->bytes, MAX_FILE_SIZE_BITS ); // 4MB max for files
 			}
 		}
 
@@ -1271,16 +1278,30 @@ bool CNetChan::SendSubChannelData( bf_write &buf )
 		{
 			Assert( data->file == FILESYSTEM_INVALID_HANDLE );
 			// send from memory block
-			buf.WriteBytes( data->buffer+offset, length );
+			buf.WriteBytesAligned( data->buffer+offset, length );
 		}
 		else // if ( data->file != FILESYSTEM_INVALID_HANDLE )
 		{
 			// send from file
 			Assert( data->file != FILESYSTEM_INVALID_HANDLE );
-			char * tmpbuf = stackallocT( char, length ); // alloc on stack
-			g_pFileSystem->Seek( data->file, offset, FILESYSTEM_SEEK_HEAD );
-			g_pFileSystem->Read( tmpbuf, length, data->file );
-			buf.WriteBytes( tmpbuf, length );
+
+			// RaphaelIT7: This was changed to write in chunks to avoid a possible stack overflow- as at this point the net buffer is on the stack too!
+			char tmpbuf[FRAGMENT_SIZE];
+			unsigned int remaining = length;
+			unsigned int fileOffset = offset;
+			while (remaining > 0)
+			{
+				int chunkSize = min(remaining, FRAGMENT_SIZE);
+
+				g_pFileSystem->Seek(data->file, fileOffset, FILESYSTEM_SEEK_HEAD);
+				int bytesRead = g_pFileSystem->Read(tmpbuf, chunkSize, data->file);
+				Assert(bytesRead == chunkSize);
+
+				buf.WriteBytesAligned(tmpbuf, chunkSize);
+
+				remaining -= chunkSize;
+				fileOffset += chunkSize;
+			}
 		}
 
 		if ( net_showfragments.GetBool() )
@@ -1299,8 +1320,8 @@ bool CNetChan::SendSubChannelData( bf_write &buf )
 bool CNetChan::ReadSubChannelData( bf_read &buf, int stream  )
 {
 	dataFragments_t * data = &m_ReceiveList[stream]; // get list
-	int startFragment = 0;
-	int numFragments = 0;
+	uint64_t startFragment = 0;
+	uint32_t numFragments = 0;
 	unsigned int offset = 0;
 	unsigned int length = 0;
 	
@@ -1308,8 +1329,8 @@ bool CNetChan::ReadSubChannelData( bf_read &buf, int stream  )
 
 	if ( !bSingleBlock )
 	{
-		startFragment = buf.ReadUBitLong( MAX_FILE_SIZE_BITS-FRAGMENT_BITS ); // 16 MiB max
-		numFragments = buf.ReadUBitLong( 3 );  // 8 fragments per packet max
+		startFragment = buf.ReadUBitLong64( MAX_FILE_SIZE_BITS-FRAGMENT_BITS ); // 16 MiB max
+		numFragments = buf.ReadUBitLong( NUM_FRAGMENT_BITS );  // 8 fragments per packet max
 		offset = startFragment * FRAGMENT_SIZE;
 		length = numFragments * FRAGMENT_SIZE;
 	}
@@ -1326,14 +1347,14 @@ bool CNetChan::ReadSubChannelData( bf_read &buf, int stream  )
 			if ( buf.ReadOneBit() )
 			{
 				data->isCompressed = true;
-				data->nUncompressedSize = buf.ReadUBitLong( MAX_FILE_SIZE_BITS );
+				data->nUncompressedSize = buf.ReadUBitLong64( MAX_FILE_SIZE_BITS );
 			}
 			else
 			{
 				data->isCompressed = false;
 			}
 
-			data->bytes = buf.ReadVarInt32();
+			data->bytes = buf.ReadUBitLong64( 64 );
 		}
 		else
 		{
@@ -1348,14 +1369,14 @@ bool CNetChan::ReadSubChannelData( bf_read &buf, int stream  )
 			if ( buf.ReadOneBit() )
 			{
 				data->isCompressed = true;
-				data->nUncompressedSize = buf.ReadUBitLong( MAX_FILE_SIZE_BITS );
+				data->nUncompressedSize = buf.ReadUBitLong64( MAX_FILE_SIZE_BITS );
 			}
 			else
 			{
 				data->isCompressed = false;
 			}
 				
-			data->bytes = buf.ReadUBitLong( MAX_FILE_SIZE_BITS );
+			data->bytes = buf.ReadUBitLong64( MAX_FILE_SIZE_BITS );
 		}
 
 		if ( data->buffer )
@@ -1381,7 +1402,7 @@ bool CNetChan::ReadSubChannelData( bf_read &buf, int stream  )
 		if ( data->bytes > MAX_FILE_SIZE )
 		{
 			// This can happen with the compressed path above, which uses VarInt32 rather than MAX_FILE_SIZE_BITS
-			Warning( "Net message exceeds max size (%u / %u)\n", MAX_FILE_SIZE, data->bytes );
+			Warning( "Net message exceeds max size (%llu / %llu)\n", MAX_FILE_SIZE, data->bytes );
 			// Subsequent packets for this transfer will treated as invalid since we never setup a buffer.
 			return false;
 		}
@@ -1412,7 +1433,7 @@ bool CNetChan::ReadSubChannelData( bf_read &buf, int stream  )
 		// old code will overrun the allocated buffer and likely cause a server crash
 		// it could also cause a client memory overrun because the offset can be anywhere from 0 to 16MB range
 		// drop the packet and wait for client to retry
-		ConDMsg( "Received fragment chunk out of bounds: %i+%i>%i from %s\n", startFragment, numFragments, data->numFragments, GetAddress() );
+		ConDMsg( "Received fragment chunk out of bounds: %llu+%u>%i from %s\n", startFragment, numFragments, data->numFragments, GetAddress() );
 		return false;
 	}
 
@@ -1422,21 +1443,21 @@ bool CNetChan::ReadSubChannelData( bf_read &buf, int stream  )
 		delete[] data->buffer;
 		data->buffer = NULL;
 		char buffer[32];
-		ConMsg("Malformed fragment ofs %i len %d, buffer size %d from %s\n", offset, length, PAD_NUMBER(data->bytes, 4), remote_address.ToString_safe(buffer) );
+		ConMsg("Malformed fragment ofs %i len %d, buffer size %llu from %s\n", offset, length, PAD_NUMBER(data->bytes, 4), remote_address.ToString_safe(buffer) );
 		return false;
 	}
 
-	buf.ReadBytes( data->buffer + offset, length ); // read data
+	buf.ReadBytesAligned( data->buffer + offset, length ); // read data
 
 	data->ackedFragments+= numFragments;
 
 	if ( net_showfragments.GetBool() )
-		ConMsg("Received fragments: start %i, num %i\n", startFragment, numFragments );
+		ConMsg("Received fragments: start %llu, num %u\n", startFragment, numFragments );
 
 	return true;
 }
 
-void CNetChan::UpdateSubChannels()
+void CNetChan::UpdateSubChannels(uint32_t nBytesFree)
 {
 	// first check if there is a free subchannel
 	subChannel_s * freeSubChan = GetFreeSubChannel();
@@ -1444,11 +1465,8 @@ void CNetChan::UpdateSubChannels()
 	if ( freeSubChan == NULL )
 		return; //all subchannels in use right now
 
-	int i, nSendMaxFragments = m_MaxReliablePayloadSize / FRAGMENT_SIZE;
-
 	bool bSendData = false;
-
-	for ( i = 0; i < MAX_STREAMS; i++ )
+	for ( int i = 0; i < MAX_STREAMS; i++ )
 	{
 		if ( m_WaitingList[i].Count() <= 0 )
 			continue;
@@ -1467,11 +1485,28 @@ void CNetChan::UpdateSubChannels()
 
 		// how many fragments can we send ?
 
-		int numFragments = min( nSendMaxFragments, data->numFragments - nSentFragments );
+		int remainingFragments = data->numFragments - nSentFragments;
+		int numFragments = floor( nBytesFree / FRAGMENT_SIZE );
+		if ( numFragments <= 0 )
+		{
+			if ( remainingFragments <= 0 )
+				continue;
+
+			// RaphaelIT7: Let's see if it fits
+			if ( remainingFragments != 1 || data->bytes > nBytesFree )
+				continue;
+
+			numFragments = 1;
+		}
+
+		numFragments = MIN( (1 << NUM_FRAGMENT_BITS)-1, numFragments );
+
+		// RaphaelIT7: We need to ensure that numFragments / later freeSubChan->numFragments[i] never goes above data->numFragments as else we'd screw up things.
+		numFragments = MIN( numFragments, data->numFragments );
 
 		// if we are in file background transmission mode, just send one fragment per packet
 		if ( i == FRAG_FILE_STREAM && m_bFileBackgroundTranmission )
-			numFragments = min( 1, numFragments );
+			numFragments = MIN( 1, numFragments );
 
 		// copy fragment data into subchannel
 
@@ -1482,9 +1517,13 @@ void CNetChan::UpdateSubChannels()
 
 		bSendData = true;
 
-		nSendMaxFragments -= numFragments;
+		uint64_t bytesSent = ((uint64_t)numFragments) * FRAGMENT_SIZE;
+		uint64_t bytesRemaining = data->bytes - ((uint64_t)nSentFragments) * FRAGMENT_SIZE;
 
-		if ( nSendMaxFragments <= 0 )
+		bytesSent = MIN( bytesSent, bytesRemaining );
+
+		nBytesFree -= (uint32_t)bytesSent;
+		if ( nBytesFree <= 0 )
 			break;
 	}
 
@@ -1502,7 +1541,7 @@ void CNetChan::UpdateSubChannels()
 
 inline unsigned short BufferToShortChecksum( const void *pvData, size_t nLength )
 {
-	CRC32_t crc = CRC32_ProcessSingleBuffer( pvData, nLength );
+	CRC32_t crc = CRC32_ProcessSingleBufferFast( pvData, nLength );
 
 	unsigned short lowpart = ( crc & 0xffff );
 	unsigned short highpart = ( ( crc >> 16 ) & 0xffff );
@@ -1542,6 +1581,69 @@ inline unsigned short BufferToShortChecksum( const void *pvData, size_t nSize )
 
 #endif
 
+// RaphaelIT7: We estimate the size to know if we need a real alloc or if a stack alloc will work.
+size_t CNetChan::EstimateDatagramSize( size_t nAdditionalSize, size_t* nReservedUnreliableSize )
+{
+	size_t currentSize = nAdditionalSize;
+	
+	currentSize += m_StreamReliable.GetNumBytesWritten();
+
+	// Maximum is Scratch buffer + 64kb for unreliable data as it really should never need more.
+	size_t unreliableSize = MIN( m_StreamUnreliable.GetNumBytesWritten(), CBaseClient::SNAPSHOT_SCRATCH_BUFFER_SIZE + ( 64 * 1024 ) );
+
+	// Just because we like voices, we'll give themm 64kb
+	unreliableSize += MIN( m_StreamVoice.GetNumBytesWritten(), 64 * 1024 );
+
+	// IDEA: Maybe switch nReservedUnreliableSize to nReservedFragmentSize? idk.
+	currentSize += unreliableSize;
+	if (nReservedUnreliableSize)
+		*nReservedUnreliableSize = unreliableSize;
+
+	if (GetFreeSubChannel())
+	{
+		// Time to deal with the waiting lists (so we make space for it to send fragments) >:3c
+		// BUT we only deal with the waiting list if we got a free sub channel as they may end up as a part of the datagram.
+		for ( int nStream = 0; nStream<MAX_STREAMS; ++nStream )
+		{
+			if ( m_WaitingList[nStream].Count() <= 0 )
+				continue;
+
+			// We only care about the head due to how UpdateSubChannels works / it also only cares about the head.
+			dataFragments_s *data = m_WaitingList[nStream][0];
+
+			// ToDo: Remove TCP as it has no use at all.
+			if ( data->asTCP )
+				continue;
+
+			int nSentFragments = data->ackedFragments + data->pendingFragments;
+			if ( nSentFragments == data->numFragments )
+				continue;
+
+			int nLeftFragments = MIN(data->numFragments - nSentFragments, MAX_ADDITIONAL_FRAGMENTS);
+			currentSize += nLeftFragments * FRAGMENT_SIZE;
+		}
+	}
+
+	for ( int nSubChannel=0; nSubChannel<MAX_SUBCHANNELS; ++nSubChannel )
+	{
+		subChannel_s* subChan = &m_SubChannels[nSubChannel];
+
+		if ( subChan->state != SUBCHANNEL_TOSEND )
+			continue;
+
+		for ( int nStream = 0; nStream<MAX_STREAMS; ++nStream )
+			currentSize += subChan->numFragments[nStream] * FRAGMENT_SIZE;
+	}
+
+	// Just for the packet header & some more free room.
+	currentSize += 2 * 1024;
+
+	// We limit it to stay below NET_MAX_MESSAGE as the networking layer uses that has a hard limit!
+	currentSize = MIN(currentSize, NET_MAX_MESSAGE - 1024);
+
+	return AlignValue(currentSize, 4);
+}
+
 // #define MIN_ROUTABLE_TESTING
 
 #if defined( _DEBUG ) || defined( MIN_ROUTABLE_TESTING )
@@ -1560,7 +1662,26 @@ A 0 length will still generate a packet and deal with the reliable messages.
 */
 int CNetChan::SendDatagram(bf_write *datagram)
 {
-	alignas(4) byte		send_buf[ NET_MAX_MESSAGE ];
+	// RaphaelIT7: Dynamic datagram sizes which based off NET_MAX_PAYLOAD switch from using the stack- to using malloc if needed.
+	bool bDatagramIsMalloc = false;
+	byte* pDatagramBuffer = nullptr;
+	size_t nReservedUnreliableSize = 0;
+	size_t nDatagramSize = EstimateDatagramSize( datagram ? datagram->GetNumBytesWritten() : 0, &nReservedUnreliableSize );
+	if ( nDatagramSize > NET_MAX_PAYLOAD )
+	{
+		pDatagramBuffer = (byte*)malloc( nDatagramSize );
+		if ( !pDatagramBuffer )
+		{
+			ConMsg( "%s: datagram failed to allocate\n", remote_address.ToString() );
+			return 0;
+		}
+
+		bDatagramIsMalloc = true;
+	} else {
+		pDatagramBuffer = (byte*)stackalloc( nDatagramSize );
+	}
+
+	RunCodeAtScopeExit( if ( bDatagramIsMalloc ) { free( pDatagramBuffer ); } );
 
 #ifndef NO_VCR
 	if ( vcr_verbose.GetInt() && datagram && datagram->GetNumBytesWritten() > 0 )
@@ -1605,7 +1726,7 @@ int CNetChan::SendDatagram(bf_write *datagram)
 		m_StreamReliable.Reset();
 	}
 
-	bf_write send( "CNetChan_TransmitBits->send", send_buf );
+	bf_write send( "CNetChan_TransmitBits->send", pDatagramBuffer, nDatagramSize );
 
 	// Prepare the packet header
 	// build packet flags
@@ -1642,7 +1763,7 @@ int CNetChan::SendDatagram(bf_write *datagram)
 	// append the challenge number itself right on the end
 	send.WriteLong( m_ChallengeNr );
 
-	if ( SendSubChannelData( send ) )
+	if ( SendSubChannelData( send, nReservedUnreliableSize ) )
 	{
 		flags |= PACKET_FLAG_RELIABLE;
 	}

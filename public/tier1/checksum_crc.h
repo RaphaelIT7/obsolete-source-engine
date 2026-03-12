@@ -13,6 +13,7 @@ using CRC32_t = unsigned int;
 
 void CRC32_Init( CRC32_t *pulCRC );
 void CRC32_ProcessBuffer( CRC32_t *pulCRC, IN_BYTECAP(nBuffer) const void *p, intp nBuffer );
+void CRC32_ProcessBufferFast( CRC32_t *pulCRC, IN_BYTECAP(nBuffer) const void *p, intp nBuffer );
 template<typename T, intp len>
 std::enable_if_t<!std::is_pointer_v<T>> CRC32_ProcessBuffer( CRC32_t *pulCRC, const T (&p)[len] )
 {
@@ -33,6 +34,18 @@ void CRC32_Final( CRC32_t *pulCRC );
 
 	CRC32_Init( &crc );
 	CRC32_ProcessBuffer( &crc, p, len );
+	CRC32_Final( &crc );
+
+	return crc;
+}
+
+// Result differs from CRC32_ProcessSingleBuffer due to using the _mm_crc32_u64 instruction internally!
+[[nodiscard]] inline CRC32_t CRC32_ProcessSingleBufferFast( IN_BYTECAP(len) const void *p, intp len )
+{
+	CRC32_t crc;
+
+	CRC32_Init( &crc );
+	CRC32_ProcessBufferFast( &crc, p, len );
 	CRC32_Final( &crc );
 
 	return crc;
