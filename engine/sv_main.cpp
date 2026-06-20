@@ -1782,6 +1782,17 @@ static void SV_ParallelSendSnapshot( CGameClient *& pClient )
 	pClient = NULL;
 }
 
+#if _DEBUG
+void CC_ManyClients( const CCommand& args )
+{
+	for (int i=0; i<100; ++i)
+		sv.CreateFakeClient("Test");
+
+	__debugbreak();
+}
+static ConCommand manyclients("manyclients", CC_ManyClients, "", FCVAR_GAMEDLL);
+#endif
+
 void CGameServer::SendClientMessages ( bool bSendSnapshots )
 {
 	VPROF_BUDGET( "SendClientMessages", VPROF_BUDGETGROUP_OTHER_NETWORKING );
