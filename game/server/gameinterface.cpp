@@ -131,6 +131,10 @@ extern ConVar tf_mm_servermode;
 #include "replay/ireplaysystem.h"
 #endif
 
+#include "client_textmessage.h"
+#include "world.h"
+#include "ai_network.h"
+
 extern IToolFrameworkServer *g_pToolFrameworkServer;
 extern IParticleSystemQuery *g_pParticleSystemQuery;
 
@@ -342,8 +346,6 @@ CAI_Link*		FindPickerAILink( CBasePlayer* pPlayer );
 float			GetFloorZ(const Vector &origin);
 void			UpdateAllClientData( void );
 void			DrawMessageEntities();
-
-#include "ai_network.h"
 
 // For now just using one big AI network
 extern ConVar think_limit;
@@ -1587,8 +1589,6 @@ void CServerGameDLL::PreSave( CSaveRestoreData *s )
 	g_pGameSaveRestoreBlockSet->PreSave( s );
 }
 
-#include "client_textmessage.h"
-
 // This little hack lets me marry BSP names to messages in titles.txt
 typedef struct
 {
@@ -2423,6 +2423,32 @@ inline void CServerNetworkProperty::CheckTransmit( CCheckTransmitInfo *pInfo )
 	}
 } */
 
+
+#if 0
+// A reproducable crash case where if a server-only entity is parented to a networked entity it would cause a crash in CServerGameEnts::CheckTransmit
+void CC_Transmit_Crash( const CCommand& args )
+{
+	MDLCACHE_CRITICAL_SECTION();
+
+	CBasePlayer *pPlayer = UTIL_GetCommandClient();
+	if ( !pPlayer )
+		return;
+
+	CBaseEntity *fadeent = dynamic_cast< CBaseEntity * >( CreateEntityByName( "env_fade" ) );
+	if ( !fadeent )
+	{
+		Warning( "Failed to create fade entity!\n" );
+		return;
+	}
+
+	DispatchSpawn( fadeent );
+
+	// We use the world since for our crash the networked entity MUST use FL_EDICT_ALWAYS
+	GetWorldEntity()->SetParent( fadeent );
+}
+static ConCommand transmit_crash("transmit_crash", CC_Transmit_Crash, "", FCVAR_GAMEDLL);
+#endif
+
 void CServerGameEnts::CheckTransmit( CCheckTransmitInfo *pInfo, const unsigned short *pEdictIndices, int nEdicts )
 {
 	// NOTE: for speed's sake, this assumes that all networkables are CBaseEntities and that the edict list
@@ -2471,7 +2497,7 @@ void CServerGameEnts::CheckTransmit( CCheckTransmitInfo *pInfo, const unsigned s
 		{
 			// FIXME: Hey! Shouldn't this be using SetTransmit so as 
 			// to also force network down dependent entities?
-			while ( true )
+			while ( pEdict )
 			{
 				// mark entity for sending
 				pInfo->m_pTransmitEdict->Set( iEdict );
@@ -2572,6 +2598,9 @@ void CServerGameEnts::CheckTransmit( CCheckTransmitInfo *pInfo, const unsigned s
 			}
 
 			edict_t *checkEdict = check->edict();
+			if ( !checkEdict ) // RaphaelIT7: BUG! Why is there a server-only entity in the parent chain!
+				break;
+
 			int checkFlags = checkEdict->m_fStateFlags & (FL_EDICT_DONTSEND|FL_EDICT_ALWAYS|FL_EDICT_PVSCHECK|FL_EDICT_FULLCHECK);
 			if ( checkFlags & FL_EDICT_DONTSEND )
 				break;
