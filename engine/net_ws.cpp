@@ -43,6 +43,20 @@ static ConVar fakejitter	( "net_fakejitter", "0", FCVAR_CHEAT, "Jitter fakelag p
 static ConVar net_compressvoice( "net_compressvoice", "0", 0, "Attempt to compress out of band voice payloads (360 only)." );
 ConVar net_usesocketsforloopback( "net_usesocketsforloopback", "0", 0, "Use network sockets layer even for listen server local player's packets (multiplayer only)." );
 
+/*
+	RaphaelIT7:
+	Port from HolyLib
+
+	Some exploit fix - There was some talk in the Discord, so I guess let's do something about it
+	Split packets are a bit expensive, but in any case we should never be receiving split packets from non-connected adresses.
+	So let's just block those, as I see absolutely no reason to why we should receive them.
+
+	We also never expect to get a compressed packet from a non-connected address.
+	Additionally non-connected addresses usually never send large packets, so we can safely limit size too.
+*/
+static ConVar net_strictpackets("net_strictpackets", "1", 0, "If enabled, split packets and compressed packets from non-connected addresses will not be processed and harder limits are enforced.");
+
+
 #ifdef _DEBUG
 static ConVar fakenoise		( "net_fakenoise", "0", FCVAR_CHEAT, "Simulate corrupt network packets (changes n bits per packet randomly)" ); 
 static ConVar fakeshuffle	( "net_fakeshuffle", "0", FCVAR_CHEAT, "Shuffles order of every nth packet (needs net_fakelag)" ); 
@@ -1351,6 +1365,13 @@ bool NET_GetLoopPacket ( netpacket_t * packet )
 	return ( NET_LagPacket( true, packet ) );	
 }
 
+// We do 8+ as padding for slight free room.
+// I've used A2S_INFO as the largest one since no other query is larger than that.
+static constexpr size_t NET_MAX_CONNECTIONLESS_SIZE = 1 + sizeof("Source Engine Query") + 4 + 8;
+// 16 for 4x ReadLong, 2x ReadString with 256 buffers, ReadString with 32 buffer, 2 for ReadShort, STEAM_KEYSIZE = 2048, 8 for slight free room
+// IMPORTANT: A C2S_CONNECT packet may be split or compressed (I hate this)
+static constexpr size_t NET_MAX_CONNECT_PACKET_SIZE = 16 + 256 + 256 + 32 + 2 + STEAM_KEYSIZE + 8;
+
 bool NET_ReceiveDatagram ( const intp sock, netpacket_t * packet )
 {
 	VPROF_BUDGET( "NET_ReceiveDatagram", VPROF_BUDGETGROUP_OTHER_NETWORKING );
@@ -1372,7 +1393,18 @@ bool NET_ReceiveDatagram ( const intp sock, netpacket_t * packet )
 		packet->wiresize = ret;
 		if ( !packet->from.SetFromSockadr( &from ) )
 		{
-			Warning( "Unable to set IPv4 address with family %hu.\n", from.sa_family );
+			DevWarning( "Unable to set IPv4 address with family %hu.\n", from.sa_family );
+		}
+
+		bool isConnected = !net_strictpackets.GetBool() || packet->from.IsLoopback() || NET_FindNetChannel(sock, packet->from);
+		char packetType = *((char*)packet->data + sizeof(unsigned int));
+		// RaphaelIT7:
+		// We don't against NET_MAX_CONNECTIONLESS for C2S_CONNECT due to it being a bit larger
+		// BUT we check it against NET_MAX_CONNECT_PACKET_SIZE
+		if ( !isConnected && ret > NET_MAX_CONNECTIONLESS_SIZE && (packetType != C2S_CONNECT || ret > NET_MAX_CONNECT_PACKET_SIZE) )
+		{
+			DevMsg("NET_ReceiveDatagram: Blocked a large packet from an address that is not connected to the server! (%s - %i - %i)\n", packet->from.ToString(), ret, (int)packetType);
+			return false;
 		}
 
 		packet->size = ret;
@@ -1391,6 +1423,12 @@ bool NET_ReceiveDatagram ( const intp sock, netpacket_t * packet )
 			// Check for split message
 			if ( LittleLong( *(int *)packet->data ) == NET_HEADER_FLAG_SPLITPACKET )	
 			{
+				if ( !isConnected && packetType != C2S_CONNECT )
+				{
+					DevMsg("NET_ReceiveDatagram: Blocked a split packet from an address that is not connected to the server! (%s)\n", packet->from.ToString());
+					return false;
+				}
+
 				if ( !NET_GetLong( sock, packet ) )
 					return false;
 			}
@@ -1398,6 +1436,12 @@ bool NET_ReceiveDatagram ( const intp sock, netpacket_t * packet )
 			// Next check for compressed message
 			if ( LittleLong( *(int *)packet->data) == NET_HEADER_FLAG_COMPRESSEDPACKET )
 			{
+				if ( !isConnected && packetType != C2S_CONNECT )
+				{
+					DevMsg("NET_ReceiveDatagram: Blocked a compressed packet from an address that is not connected to the server! (%s)\n", packet->from.ToString());
+					return false;
+				}
+
 				char *pCompressedData = (char*)packet->data + sizeof( unsigned int );
 				unsigned nCompressedDataSize = packet->wiresize - sizeof( unsigned int );
 
