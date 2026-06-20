@@ -516,6 +516,9 @@ void CBaseClient::SpawnPlayer( void )
 {
 	COM_TimestampedLog( "CBaseClient::SpawnPlayer" );
 
+	if ( m_nClientSlot >= ABSOLUTE_PLAYER_LIMIT )
+		return;
+
 	if ( !IsFakeClient() )
 	{
 		// free old baseline snapshot
@@ -670,6 +673,12 @@ void CBaseClient::FireGameEvent( IGameEvent *event )
 bool CBaseClient::SendServerInfo( void )
 {
 	COM_TimestampedLog( " CBaseClient::SendServerInfo" );
+
+	if (IsFakeClient())
+	{
+		m_bSendServerInfo = false;
+		return true;
+	}
 
 	// supporting smaller stack
 	byte *buffer = (byte *)MemAllocScratch( NET_MAX_PAYLOAD );

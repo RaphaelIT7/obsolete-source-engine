@@ -360,7 +360,8 @@ void CGameClient::Connect( const char * szName, int nUserID, INetChannel *pNetCh
 {
 	CBaseClient::Connect( szName, nUserID, pNetChannel, bFakePlayer, clientChallenge );
 
-	edict = EDICT_NUM( m_nEntityIndex );
+	if (m_nEntityIndex <= sv.GetMaxClients())
+		edict = EDICT_NUM( m_nEntityIndex );
 	
 	// init PackInfo
 	m_PackInfo.m_pClientEnt = edict;
@@ -521,7 +522,8 @@ void CGameClient::UpdateUserSettings()
 	// Give entity dll a chance to look at the changes.
 	// Do this after CBaseClient::UpdateUserSettings() so name changes like prepending a (1)
 	// take effect before the server dll sees the name.
-	g_pServerPluginHandler->ClientSettingsChanged( edict );
+	if (m_nClientSlot < sv.GetMaxClients())
+		g_pServerPluginHandler->ClientSettingsChanged( edict );
 }
 
 

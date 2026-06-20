@@ -901,6 +901,9 @@ bool CBaseServer::GetPlayerInfo( int nClientIndex, player_info_t *pinfo )
 
 void CBaseServer::UserInfoChanged( int nClientIndex )
 {
+	if (nClientIndex >= m_nMaxclients)
+		return;
+
 	player_info_t pi;
 
 	bool oldlock = networkStringTableContainerServer->Lock( false );
