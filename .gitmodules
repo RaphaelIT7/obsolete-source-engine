@@ -53,7 +53,6 @@
 [submodule "thirdparty/mpaheaderinfo"]
 	path = thirdparty/mpaheaderinfo
 	url = https://github.com/Source-Authors/mpaheaderInfo.git
-	ignore = dirty
 [submodule "thirdparty/minimp3"]
 	path = thirdparty/minimp3
 	url = https://github.com/Source-Authors/minimp3.git
