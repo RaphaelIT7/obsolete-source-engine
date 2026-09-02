@@ -22,6 +22,7 @@
 #include "filesystem_init.h"
 #include "bzip2/bzlib.h"
 #include "baseclient.h" // RaphaelIT7: Needed for CBaseClient::SNAPSHOT_SCRATCH_BUFFER_SIZE
+#include <string>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -32,7 +33,8 @@
 
 ConVar net_showudp( "net_showudp", "0", 0, "Dump UDP packets summary to console" );
 ConVar net_showtcp( "net_showtcp", "0", 0, "Dump TCP stream summary to console" );
-ConVar net_blocksize( "net_maxfragments", NETSTRING( MACRO_FRAGMENT_SIZE ), 0, "Max fragment bytes per packet", true, FRAGMENT_SIZE, true, MAX_FRAGMENT_SIZE );
+static std::string strDefaultMaxFragments = std::to_string( MACRO_FRAGMENT_SIZE );
+ConVar net_blocksize( "net_maxfragments", strDefaultMaxFragments.c_str(), 0, "Max fragment bytes per packet", true, FRAGMENT_SIZE, true, MAX_FRAGMENT_SIZE );
 
 static ConVar net_showmsg( "net_showmsg", "0", 0, "Show incoming message: <0|1|name>" );
 static ConVar net_showfragments( "net_showfragments", "0", 0, "Show netchannel fragments" );
